@@ -1,0 +1,24 @@
+## binaries folder
+development/
+release*/
+temp/
+## auxiliary files
+*.aux
+*.bak
+*.cls
+*.dvi
+*.log
+*.out
+*.pdf
+!doc/examples/*.pdf
+*.ps
+*.run.xml
+*.sty
+*.synctex.gz*
+*.toc
+## include test files
+!test/*.cls
+!test/*.sty
+!test/*.pdf
+!test/*.svg
+## include temporary files

@@ -1,0 +1,13 @@
+.gitattributes text eol=lf
+.gitignore     text eol=lf
+*.bat          text eol=crlf
+*.cls          text eol=lf
+*.cwl          text eol=lf
+*.dtx          text eol=lf
+*.eps          text eol=lf
+*.ins          text eol=lf
+*.md           text eol=lf
+*.sh           text eol=lf
+*.sty          text eol=lf
+*.tex          text eol=lf
+*.zip          binary

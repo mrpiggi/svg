@@ -1,0 +1,733 @@
+% \iffalse meta-comment
+%
+% The svg package by Philip Ilten.
+%
+% To extract package files and create documentation:
+%
+%      pdflatex -shell-escape svg.dtx
+%
+% Please note that Inkscape generates TeX files with comments, and
+% since this document is generated using docstrip which interprets
+% comments, special versions of example.pdf_tex and root.pdf_tex have
+% been provided with the comments removed. This package will fail to
+% compile when example.pdf/example.pdf_tex has an older modification
+% date than example.svg and root.pdf/root.pdf_tex has an older
+% modification date than root.svg as this package will generate new
+% versions of example.pdf_tex and root.pdf_tex with comments.
+%
+% To finish the installation move the following file into a directory
+% searched by LaTeX:
+%
+%      svg.sty
+%   
+%% -------------------------------------------------------
+%% Copyright (C) 2012 by Philip Ilten <philten@cern.ch>
+%% -------------------------------------------------------
+%% 
+%% This file may be distributed and/or modified under the conditions
+%% of the LaTeX Project Public License, either version 1.3 of this
+%% license or (at your option) any later version. The latest version
+%% of this license is in:
+%%
+%%     http://www.latex-project.org/lppl.txt
+%%
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%%
+%% This work has the LPPL maintenance status "maintained".
+%%
+%% The Current Maintainer of this work is Philip Ilten.
+%%
+%% This work consists of the files README, svg.dtx (with derived files
+%% svg.sty, svg.pdf, Fig.1a.pdf, Fig.1b.eps, Fig.2.pdf, Fig.2.png),
+%% preamble.tex, example.svg (with derived files example.pdf and
+%% example.pdf_tex), and root.C (with derived files root.svg,
+%% root.pdf, and root.pdf_tex).
+%%
+%% The following files constitute the svg package and should be
+%% distributed as a whole: README, svg.dtx, svg.sty, svg.pdf,
+%% Fig.1a.pdf, Fig.1b.eps, Fig.2.pdf, Fig.2.png, preamble.tex
+%% example.svg, example.pdf, example.pdf_tex, root.C, root.svg,
+%% root.pdf, and root.pdf_tex.
+% \fi
+% \iffalse
+%<*batchfile>
+\begingroup
+\input docstrip
+\keepsilent
+\usedir{tex/latex/svg}
+\preamble
+\endpreamble
+\askforoverwritefalse
+\generate{\file{svg.sty}{\from{svg.dtx}{svg}}}
+\endgroup
+%</batchfile>
+% \fi
+% \iffalse
+%<*driver>
+\ProvidesFile{svg.dtx}
+\documentclass{ltxdoc}
+\usepackage{svg}
+\usepackage{relsize}
+\usepackage{xcolor}
+\usepackage{transparent}
+\usepackage{listings}
+\usepackage{xspace}
+\usepackage[bookmarks=true,colorlinks=true,linkcolor=black,citecolor=black,
+urlcolor=blue]{hyperref}
+\EnableCrossrefs         
+\CodelineIndex
+\RecordChanges
+\begin{document}
+  \DocInput{svg.dtx}
+  \PrintChanges
+  \PrintIndex
+\end{document}
+%</driver>
+% \fi
+%
+% \CheckSum{0}
+%
+% \CharacterTable
+%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%   Digits        \0\1\2\3\4\5\6\7\8\9
+%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%   Dollar        \$     Percent       \%     Ampersand     \&
+%   Acute accent  \'     Left paren    \(     Right paren   \)
+%   Asterisk      \*     Plus          \+     Comma         \,
+%   Minus         \-     Point         \.     Solidus       \/
+%   Colon         \:     Semicolon     \;     Less than     \<
+%   Equals        \=     Greater than  \>     Question mark \?
+%   Commercial at \@     Left bracket  \[     Backslash     \\
+%   Right bracket \]     Circumflex    \^     Underscore    \_
+%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%   Right brace   \}     Tilde         \~}
+%
+%
+% \changes{v1.0}{2004/11/05}{Initial version}
+%
+% \GetFileInfo{svg.sty}
+%
+% \DoNotIndex{\newcommand,\newenvironment}
+% 
+% \makeatletter
+% \def\DescribeOption#1{\leavevmode\@bsphack
+% \marginpar{\raggedleft\PrintDescribeOption{#1}}%
+% \SpecialOptionIndex{#1}\@esphack\ignorespaces}
+% \def\PrintDescribeOption#1{\strut\emph{option}\\\MacroFont #1\ }
+% \def\SpecialOptionIndex#1{\@bsphack
+% \index{#1\actualchar{\protect\ttfamily#1}
+% (option)\encapchar usage}%
+% \index{options:\levelchar#1\actualchar{\protect\ttfamily#1}\encapchar
+% usage}\@esphack}
+% \def\DescribeOptions#1{\leavevmode\@bsphack
+% \marginpar{\raggedleft\strut\emph{options}%
+% \@for\@tempa:=#1\do{%
+% \\\strut\MacroFont\@tempa\SpecialOptionIndex\@tempa
+% }}\@esphack\ignorespaces}
+% \makeatother
+% \lstnewenvironment{example}{%
+% \lstset{basicstyle=\footnotesize\ttfamily,columns=flexible,frame=single,%
+% backgroundcolor=\color{yellow!20},xleftmargin=\fboxsep,%
+% xrightmargin=\fboxsep,gobble=1}}{}
+%
+% \newcommand{\svg}{{\sc svg}\xspace}
+% \newcommand{\pdf}{{\sc pdf}\xspace}
+% \newcommand{\eps}{{\sc eps}\xspace}
+% \newcommand{\png}{{\sc png}\xspace}
+% \newcommand{\latex}{\LaTeX\xspace}
+% \newcommand{\croot}{{\sc Root}\xspace}
+% \newcommand{\pdflatex}{{\sc PdfLatex}\xspace}
+% \newcommand{\inkscape}{{\sc Inkscape}\xspace}
+% \newcommand{\pdftops}{{\sc PdfToPs}\xspace}
+% \newcommand{\convert}{{\sc Convert}\xspace}
+%
+% \title{The \textsf{svg} Package}
+% \author{Philip Ilten \\ \texttt{philten@cern.ch}}
+% \date{\fileversion\ (\filedate)}
+% \maketitle
+% \tableofcontents
+% \section{Introduction}\label{sec:intro}
+%
+% The open source program \inkscape has provided an excellent resource
+% for the simple and easy creation of images and diagrams using a
+% graphical user interface. The work by Johan B. C. Engelen has
+% further enhanced the ability of \inkscape to split an \svg into a
+% text component that can be imported into \latex, and an image
+% component that can be imported as a \pdf.\footnote{For further
+% information see the |svg-inkscape| documentation on
+% \href{http://www.ctan.org/tex-archive/info/svg-inkscape}{CTAN}.}
+% Consequently it is now possible to include an \svg into a \latex
+% document where the text within the \svg has been rendered natively
+% by \latex.
+%
+% The purpose of this package is twofold. First, the syntax of the
+% command |\includegraphics| from the |graphicx| package has been
+% extended to an |\includesvg| command, which allows the specification
+% of the \svg width and height using keys in an optional first
+% argument. Second, this package allows for the extraction of the
+% \svg, as rendered within the \latex document, to an independent
+% image file. This is particularly useful when attempting to provide
+% images to journals or collaborators, and one wishes the image to
+% appear exactly as it does within the original \latex document.
+%
+% There is actually a third purpose to this package, which will almost
+% certainly be relevant to experimental particle physicists only, who
+% frequently use the analysis package \croot. Further details on how to
+% obtain beautiful \croot plots using this package are given in Section
+% \ref{sec:root}.
+%
+% This documentation is broken into five parts: an explanation of the
+% usage is given in Section \ref{sec:usage}, an example is given in
+% Section \ref{sec:example}, further details with use in \croot is
+% given in Section \ref{sec:root}, and finally, the full
+% implementation is given in Section \ref{sec:implementation} which
+% hopefully should not need to be read.
+%
+% There is one further point which is important to mention. This
+% package relies heavily upon executing commands from the shell using
+% the |\write18| command, and so it is necessary for the flag
+% |-shell-escape| to be included when compiling documents using this
+% package. Additionally, this package requires a working installation
+% of \inkscape and \pdflatex in order for an \svg to be included or
+% extracted to a \pdf. In order to extract to \eps and \png formats,
+% the programs \pdftops and \convert (part of ImageMagick) must be
+% installed respectively. Finally, this package will not work on
+% Windows, but should run on any *nix platform as long as the paths to
+% the appropriate programs are correctly defined.
+%
+% \section{Usage}\label{sec:usage}
+%
+% \DescribeMacro{\includesvg} The command to include an \svg is
+% similar to the |\includegraphics| command provided by the |graphicx|
+% package. However, now the command
+% \begin{example}
+%   \includesvg[<options>]{<svg filename>}
+% \end{example}
+% is used where |<svg filename>| is the filename of the \svg without
+% the path or the |.svg| postfix.
+%
+% \DescribeMacro{\setsvg} The |<options>|, described in detail below,
+% can be specified globally for the package
+% \begin{example}
+%   \usepackage[<options>]{svg}
+% \end{example}
+% and reset locally when supplied to the |\includesvg| macro. The
+% options can also be reset globally using the macro |\setsvg|
+% \begin{example}
+%   \setsvg{<options>}
+% \end{example}
+% where |<options>| is a comma separated list of options.
+%
+% \DescribeOptions{width,height,svgpath} The width of the \svg can be
+% specified via the |width| option and the height by the |height|
+% option. If both the width and height are specified, the width will
+% be used and the height will be rescaled to match the aspect ratio of
+% the \svg. The path to the \svg can be specified using the |svgpath|
+% option, where the path must terminate in a |/|. The default
+% |svgpath| is set to the current directory, |./|.
+%
+% \DescribeOptions{pdf,eps,png} The included \svg can be extracted
+% from the document into a \pdf, \eps, or \png independent of the
+% document. The |pdf| flag enables \pdf extraction, while the |eps|
+% and |png| flags enable \eps and \png extraction respectively. For
+% example,
+% \begin{example}
+%   \includesvg[pdf,eps,<additional options>]{<svg filename>}
+% \end{example}
+% will extract the \svg to both \pdf and \eps formats By default, all
+% of these flags are set to false and no extraction of the \svg is
+% performed. The extraction will render the \svg to the specified
+% output(s) of choice using the same size as specified within the
+% |\includesvg| command. Consequently, the scale between the image and
+% text in the extracted output(s) will remain identical to the scale
+% within the document from which the \svg was extracted.
+%
+% \DescribeOptions{name, path} The root name of the extracted
+% output can be specified with the |name| option. For example,
+% \begin{example}
+%   \includesvg[name=foo,eps,png,<additional options>]{<svg filename>}
+% \end{example}
+% will extract the \svg to the files |foo.eps| and |foo.png| in the
+% current directory. By default, |name| is set to
+% |Fig.\arabic{svgfigure}\alph{subfigure}| and so any \svg included
+% within a |figure| or |subfigure| environment will automatically be
+% labeled; i.e. if an \svg is included in the first figure and second
+% subfigure of the document, and \pdf extraction was requested, the
+% \svg will be extracted to the file |Fig.1b.pdf|. A path for the
+% extracted files can also be specified with the |path| option, which
+% must terminate with a |/|. The default |path| is set to the current
+% directory, |./|.
+%
+% \DescribeOptions{clean,exclude} Because a large number of files is
+% generated for each \svg extraction, it is oftentimes desirable to
+% automatically remove the temporary files. Using the option |clean|
+% will remove any generated files created other than the extracted
+% output(s) requested. The |clean| option is by default set as |false|
+% to enable debugging. Additionally, sometimes it may be necessary to
+% export an \svg without including it in the current document. If the
+% flag |exclude| is specified, the \svg will not be rendered in the
+% current document, but will be extracted to the requested output(s).
+%
+% \DescribeOptions{pretex,postex} Commands prior and post to the
+% inclusion of the \svg may be desired, such as font or color
+% commands. For example, to change the text size of the include \svg
+% text one could use
+% \begin{example}
+%   {\tiny \includsvg[<options>]{<svg filename>}}
+% \end{example}
+% where now the text will be rendered in the font size specified by
+% |\tiny|. In this example, however, the |\tiny| command would not be
+% included in the extracted output and so the options |pretex| and
+% |postex| are provided where the \latex provided to |pretex| is
+% included before the \svg, and |postex| after the \svg. Consequently,
+% the example above can be rewritten as
+% \begin{example}
+%   \includsvg[pretex=\tiny,<additional options>]{<svg filename>}
+% \end{example}
+% where now the changed font size will be propagated to the extracted
+% output.
+%
+% \DescribeOptions{preamble,end} Specialized \latex macros can be used
+% in the \svg which can then be defined in the preamble of the \latex
+% document in which the \svg is to be included. Additionally,
+% specialized packages such as |\relsize| may be needed by the \latex
+% code extracted from the \svg. Consequently, the preamble of the
+% current \latex document is used for the extraction of the \svg by
+% default. It is possible, however, to specify a different preamble
+% with the option |preamble| where the file to use as the preamble
+% (including path and postfix) is given as the argument. The default
+% definition of |preamble| is |\jobname.tex|, and should suffice for
+% most cases. The preamble up to the line defined by the option
+% |end| will be used, which is set to a default of
+% |\begin{document}|. Notice that an exact match must be made, and so
+% if any comments or text are on the same line after the
+% |\begin{document}|, the preamble will not be correctly extracted.
+%
+% \DescribeOptions{inkscape, pdflatex, pdftops, convert} A variety of
+% commands are executed directly to the system, via |\write18| using
+% this package and consequently, it may be necessary to change the
+% binary paths and options for each individual command. For the
+% inclusion of an \svg, \inkscape is used to separate the text and
+% image from the \svg and can be set using the |inkscape| option. By
+% default the |inkscape| option is set to |inkscape -z -C| which
+% performs a non-gui export of \svg page (notice that the |-C| option
+% indicates page and not drawing). For the extraction of a \pdf,
+% the \latex program is used which is set by the |pdflatex| option and
+% set to |pdflatex| by default. The extraction of an \eps is performed
+% by converting a \pdf to an \eps using \pdftops. This command is set
+% with the |pdftops| option and is set by default to
+% |pdftops -eps|. Finally, conversion to \png is accomplished via the
+% \convert program which is set with the |convert| option and by
+% default set to |convert -density 300| where |-density|
+% controls the resolution of the extracted \png in dots per inch.
+%
+%
+% \section{Example}\label{sec:example}
+%
+% As an example\footnote{The image used here is a slightly modified
+% version of the image used in the initial documentation on how to
+% include an \svg in \latex by J. Engelen available on
+% \href{http://www.ctan.org/tex-archive/info/svg-inkscape}{CTAN}.}
+% take the following lines of code
+% \begin{example}
+%   \begin{figure}
+%     \subfloat[This text is too large!]{\includesvg[clean,
+%     preamble=preamble.tex,pdf,width=5cm]{example}}
+%     \subfloat[This text fits better.]{\includesvg[clean,
+%     preamble=preamble.tex,eps,pretex=\relscale{0.5},width=5cm]{example}}
+%     \caption{An example figure.\label{fig:example}}
+%   \end{figure}
+% \end{example}
+% where the \svg |example.svg| within this directory has been included
+% twice using the |\svginclude| command. The output is shown in Figure
+% \ref{fig:example}.
+%
+% \begin{figure}
+%   \begin{center}
+%     \subfloat[This text is too
+%     large!]{\includesvg[name=Fig.1a,clean,
+%     preamble=preamble.tex,pdf,width=5cm]{example}} \subfloat[This
+%     text fits
+%     better.]{\includesvg[name=Fig.1b,clean,preamble=preamble.tex,
+%     eps,pretex=\relscale{0.5},width=5cm]{example}}
+%     \caption{An example figure.\label{fig:example}}
+%   \end{center}
+% \end{figure}
+%
+% The first subfigure is created with the export option |pdf| with the
+% default |name|, and so the file |Fig.1a.pdf| is extracted. However,
+% the text is overrunning the margins of the image, and so the second
+% subfigure decreases the relative size of the text within the image
+% using the |pretex| option. Now, an \eps is requested for
+% extraction, and so the file |Fig.1b.eps| is created.
+%
+% Notice that for both subfigures, the |preamble| was set to
+% |preamble.tex|, also included in this current directory, rather than
+% the default current document. Additionally, the flag |clean| has
+% been used which forces the cleanup of any extraneous generated
+% files.
+%
+% \section{ROOT}\label{sec:root}
+%
+% \croot has the ability to export directly to an \svg, which means
+% that it is possible to completely by-pass all of \croot's internal
+% text rendering machinery, and let \latex handle the text
+% natively. This means that all of the ugly fonts that are rendered by
+% \croot can now be completely avoided, with the additional bonus of
+% being able to add references within plots. So how does one go about
+% using this package with \croot?
+% \begin{enumerate}
+% \item Create the plot with \croot as normal, but turn off all \latex
+%   interpretation of text strings. This is a bit tricky, but can be
+%   accomplished by setting the font in \croot to a precision of zero
+%   as described in the documentation for
+%   \href{http://root.cern.ch/root/html/TAttText.html}{\tt
+%   TAttFill}. Remember that the font is set using the function
+%   |(TAttFill*)->SetTextFont(i)| where |i| is the (font type) $\times
+%   ~10 ~+$ (font precision). In the following lines of code, a
+%   |TStyle| is defined which sets the font to type ``Courier New''
+%   with a precision of zero.
+%   \begin{example}
+%     TStyle *style = new TStyle("style","style"); int FONT = 80;
+%     style->SetTextFont(FONT);
+%     style->SetLabelFont(FONT,"XYZ");
+%     style->SetTitleFont(FONT,"XYZ");
+%     style->SetTitleFont(FONT,"");
+%     gROOT->SetStyle("style");
+%     gROOT->ForceStyle();
+%   \end{example}
+%   Now, just use the standard \latex syntax for creating labels,
+%   etc. Note however, that the backslash must be escaped due to
+%   interpretation of special characters by C++.
+% \item Print the plot as an \svg.
+%   \begin{example}
+%     gPad->Print("foo.svg");
+%   \end{example}
+% \item Include the \svg within the document using this package.
+%   \begin{example}
+%     \usepackage[clean,pdf]{svg}
+%     ...
+%     \includesvg[width=\columnwidth]{foo}
+%   \end{example}
+% \end{enumerate}
+%
+% \begin{figure}
+%   \begin{center}
+%     \includesvg[clean,preamble=preamble.tex,pdf,png,height=6cm,pretex=\tiny]
+%     {root}
+%   \end{center}
+%   \caption{Rendering of a \croot plot (no more ``Comic
+%   CERNs'').\label{fig:root}}
+% \end{figure}
+%
+% Consider the example image produced by \croot in Figure
+% \ref{fig:root}. This figure was generated by the \croot macro
+% |root.C|, provided within this directory, which produces the \svg
+% |root.svg| when run. The code used to produce this \svg from within
+% \croot is
+% \lstinputlisting[basicstyle=\footnotesize\ttfamily,columns=flexible,
+% frame=single,backgroundcolor=\color{yellow!20},xleftmargin=\fboxsep,
+% xrightmargin=\fboxsep,gobble=1]{root.C} where the text produced
+% within the \croot plot is set to a precision of zero. The plot was
+% then included within this document using the \latex code
+% \begin{example}
+%   \begin{figure}
+%     \begin{center}
+%       \includesvg[clean,preamble=preamble.tex,pdf,png,height=6cm,pretex=\tiny]
+%       {root}
+%     \end{center}
+%     \caption{Rendering of a \croot plot (no more ``Comic
+%     CERNs'').\label{fig:root}}
+%   \end{figure}
+% \end{example}
+% which produces the extracted images |Fig.2.pdf| and
+% |Fig.2.png|. Enjoy plots from \croot with natively rendered \latex!
+%
+% \StopEventually{\section{Thanks} Thanks to my lovely wife \'Eadaoin
+% for being a very patient beta tester and important
+% collaborator. Thanks is also due to J. Engelen for creating this
+% functionality within \inkscape, and of course to all the developers
+% of \inkscape.}
+%
+% \section{Implementation}\label{sec:implementation}
+%
+% \begin{macro}{initialization}
+%   The package, which requires the packages |xkeyval| for the
+%   options, |subfig| for automatic labeling within the subfigure
+%   command, the |import| package for correct handling of paths,
+%   |graphicx| for the \pdf inclusion commands, |transparent| for
+%   transparency, and |xcolor| for color, is initialized.
+% \iffalse
+%<*svg>
+% \fi
+%    \begin{macrocode}
+\ProvidesPackage{svg}[2012/09/05 v1.0 SVG inclusion and extraction]%
+\@ifpackageloaded{xkeyval}{}{\RequirePackage{xkeyval}}%
+\@ifpackageloaded{subfig}{}{\RequirePackage{subfig}}%
+\@ifpackageloaded{import}{}{\RequirePackage{import}}%
+\@ifpackageloaded{graphicx}{}{\RequirePackage{graphicx}}%
+\@ifpackageloaded{transparent}{}{\RequirePackage{transparent}}%
+\@ifpackageloaded{xcolor}{}{\RequirePackage{xcolor}}%
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{input definition}
+%   All commands used for input (i.e. for the \svg and preamble) are
+%   defined within the |\SVG@in| prefix, and set by the key definition
+%   of the line following their definition. The |exclude| boolean,
+%   used to stop the inclusion of the \svg within the document is also
+%   defined.
+%    \begin{macrocode}
+\def\SVG@in@preamble{\jobname.tex}%
+\define@key[SVG]{svg.sty}{preamble}{\def\SVG@in@preamble{#1}}%
+\def\SVG@in@path{./}%
+\define@key[SVG]{svg.sty}{svgpath}{\def\SVG@in@path{#1}}%
+\def\SVG@in@end{\begin{document}}%
+\define@key[SVG]{svg.sty}{end}{\def\SVG@in@end{#1}}%
+\define@boolkey[SVG]{svg.sty}[SVG@in@]{exclude}[true]{}%
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{length definition}
+%   All commands used for output are defined within the |\SVG@out|
+%   prefix, beginning with the dimensions of the extracted image. If no
+%   dimensions are supplied both |useheight| and |usewidth| are
+%   |false|, and so the natural dimensions of the \svg are used. If
+%   both |usewidth| and |useheight| are |true|, the width is used.
+%    \begin{macrocode}
+\newlength\SVG@out@width%
+\newif\ifSVG@out@usewidth%
+\define@key[SVG]{svg.sty}{width}%
+{\setlength{\SVG@out@width}{#1}\SVG@out@usewidthtrue}%
+\newlength\SVG@out@height%
+\newif\ifSVG@out@useheight%
+\define@key[SVG]{svg.sty}{height}%
+{\setlength{\SVG@out@height}{#1}\SVG@out@useheighttrue}%
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{extract booleans}
+%   The booleans for the extraction formats are defined. Additionally,
+%   the global export variable is defined, which is set to |true|
+%   whenever any extraction is requested.
+%    \begin{macrocode}
+\define@boolkey[SVG]{svg.sty}[SVG@out@]{pdf}[true]{}%
+\define@boolkey[SVG]{svg.sty}[SVG@out@]{eps}[true]{}%
+\define@boolkey[SVG]{svg.sty}[SVG@out@]{png}[true]{}%
+\newif\ifSVG@out@extract
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{output definitions}
+%   The extraction path, extraction root name, clean boolean,
+%   pre-\latex commands, and post-\latex commands are defined.
+%    \begin{macrocode}
+\def\SVG@out@path{./}%
+\define@key[SVG]{svg.sty}{path}{\def\SVG@out@path{#1}}%
+\def\SVG@out@name{Fig.\arabic{svgfigure}\alph{subfigure}}%
+\define@key[SVG]{svg.sty}{name}{\def\SVG@out@name{#1}}%
+\define@boolkey[SVG]{svg.sty}[SVG@out@]{clean}[true]{}%
+\def\SVG@out@pretex{}%
+\define@key[SVG]{svg.sty}{pretex}{\def\SVG@out@pretex{#1}}%
+\def\SVG@out@postex{}%
+\define@key[SVG]{svg.sty}{postex}{\def\SVG@out@postex{#1}}%
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{command definitions}
+%   The command options are defined within the prefix |\SVG@cmd| and
+%   are set by the key definition following each command definition.
+%    \begin{macrocode}
+\def\SVG@cmd@inkscape{inkscape -z -C}%
+\define@key[SVG]{svg.sty}{inkscape}{\def\SVG@cmd@inkscape{#1}}%
+\def\SVG@cmd@pdflatex{pdflatex}%
+\define@key[SVG]{svg.sty}{pdflatex}{\def\SVG@cmd@pdflatex{#1}}%
+\def\SVG@cmd@pdftops{pdftops -eps}%
+\define@key[SVG]{svg.sty}{pdftops}{\def\SVG@cmd@pdftops{#1}}%
+\def\SVG@cmd@convert{convert -density 300}%
+\define@key[SVG]{svg.sty}{convert}{\def\SVG@cmd@convert{#1}}%
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{process options}
+%   All the options for the package are processed, and the \svg
+%   counter is defined. The \svg counter is used to correctly handle
+%   the |subfigure| counting.
+%    \begin{macrocode}
+\ProcessOptionsX[SVG]%
+\newcounter{svgfigure}[figure]%
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\setsvg}
+%   Define the macro to globally set keys.
+%    \begin{macrocode}
+\def\setsvg#1{\setkeys[SVG]{svg.sty}{#1}}%
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\includesvg}
+%   Define the macro used to include an \svg. Set the keys and
+%   determine if extraction should occur.
+%    \begin{macrocode}
+\def\includesvg{\@ifnextchar[\@includesvg{\@includesvg[]}}%
+\def\@includesvg[#1]#2{%
+  \setkeys[SVG]{svg.sty}{#1}%
+  \SVG@out@extractfalse%
+  \ifSVG@out@pdf \SVG@out@extracttrue \fi%
+  \ifSVG@out@eps \SVG@out@extracttrue \fi%
+  \ifSVG@out@png \SVG@out@extracttrue \fi%
+%    \end{macrocode}
+% Run \inkscape to separate the \svg into text and image. Only run
+% \inkscape if the \svg is newer than the generated text and image.
+%    \begin{macrocode} 
+\ifnum\pdfstrcmp%
+{\pdffilemoddate{\SVG@in@path#2.svg}}%
+{\pdffilemoddate{\SVG@in@path#2.pdf}}>0%
+\immediate\write18{\SVG@cmd@inkscape \space -f\SVG@in@path#2.svg%
+  \space-A\SVG@in@path#2.pdf --export-latex}%
+\fi%
+%    \end{macrocode}
+% Determine the image width and height using |\includegraphics|.
+%    \begin{macrocode} 
+\ifSVG@out@usewidth%
+\settoheight\SVG@out@height%
+{\includegraphics[width=\SVG@out@width]{\SVG@in@path#2}}%
+\else\ifSVG@out@useheight%
+\settowidth\SVG@out@width%
+{\includegraphics[height=\SVG@out@height]{\SVG@in@path#2}}%
+\else%
+\settoheight\SVG@out@height{\includegraphics{\SVG@in@path#2}}%
+\settowidth\SVG@out@width{\includegraphics{\SVG@in@path#2}}%
+\fi%
+\fi%
+%    \end{macrocode}
+% Open the output file for extraction.
+%    \begin{macrocode} 
+% Open the output file.
+\ifSVG@out@extract%
+\newwrite\SVG@out@file%
+\setcounter{svgfigure}{\value{figure}}%
+\stepcounter{svgfigure}%
+\def\SVG@out@filename{\SVG@out@name}%
+\immediate\openout\SVG@out@file=\SVG@out@path\SVG@out@filename.tex%
+\fi%
+%    \end{macrocode}
+% Open and write the preamble. Notice that the catcodes for |#| need
+% to be changed to prevent double expansion when reading the line.
+%    \begin{macrocode} 
+\ifSVG@out@extract%
+\def\SVG@in@line{}%
+\newread\SVG@in@file%
+\immediate\openin\SVG@in@file=\SVG@in@preamble%
+\fi%
+\newif\ifSVG@in@read%
+\ifSVG@out@extract \SVG@in@readtrue \fi%
+\@whilesw\ifSVG@in@read\fi{%
+  \catcode`\#=12\relax\endlinechar=-1%
+  \immediate\read\SVG@in@file to \SVG@in@line%
+  \ifx\SVG@in@end\SVG@in@line%
+  \SVG@in@readfalse%
+  \else%
+  \immediate\write\SVG@out@file{\unexpanded\expandafter{\SVG@in@line}}%
+  \fi%
+  \ifeof\SVG@in@file\SVG@in@readfalse\fi%
+  \endlinechar=13\catcode`\#=6\relax}%
+\ifSVG@out@extract \immediate\closein\SVG@in@file \fi%
+%    \end{macrocode}
+% Now write everything needed after the preamble. This includes
+% requiring the |import| package and defining all the dimensions need
+% to match the document size with the image size.
+%    \begin{macrocode} 
+\ifSVG@out@extract%
+\def\SVG@out@defpack{\makeatletter%
+  \@ifpackageloaded{import}{}{\RequirePackage{import}}%
+  \@ifpackageloaded{graphicx}{}{\RequirePackage{graphicx}}%
+  \@ifpackageloaded{transparent}{}{\RequirePackage{transparent}}%
+  \@ifpackageloaded{xcolor}{}{\RequirePackage{xcolor}}\makeatother}%
+\def\SVG@out@defwidth{\def\svgwidth{0.99\textwidth}}%
+\def\SVG@out@definput{\import{\SVG@in@path}{#2.pdf_tex}}%
+\immediate\write\SVG@out@file{\unexpanded\expandafter{\SVG@out@defpack}}%
+\immediate\write\SVG@out@file%
+{\noexpand\setlength{\pdfpagewidth}{\the\SVG@out@width}}%
+\immediate\write\SVG@out@file%
+{\noexpand\setlength{\pdfpageheight}{\the\SVG@out@height}}%
+\immediate\write\SVG@out@file%
+{\noexpand\setlength{\paperheight}{\pdfpageheight}}%
+\immediate\write\SVG@out@file%
+{\noexpand\setlength{\paperwidth}{\pdfpagewidth}}%
+\immediate\write\SVG@out@file{\noexpand\setlength{\textheight}{\paperheight}}%
+\immediate\write\SVG@out@file{\noexpand\setlength{\textwidth}{\paperwidth}}%
+\immediate\write\SVG@out@file{\noexpand\setlength{\textheight}{\paperheight}}%
+\immediate\write\SVG@out@file{\noexpand\setlength{\oddsidemargin}{-1in}}%
+\immediate\write\SVG@out@file{\noexpand\setlength{\evensidemargin}{-1in}}%
+\immediate\write\SVG@out@file{\noexpand\setlength{\topmargin}{-1in}}%
+\immediate\write\SVG@out@file{\noexpand\setlength{\headheight}{0in}}%
+\immediate\write\SVG@out@file{\noexpand\setlength{\headsep}{0in}}%
+\immediate\write\SVG@out@file{\noexpand\setlength{\topskip}{0in}}%
+\immediate\write\SVG@out@file{\noexpand\setlength{\footskip}{0in}}%
+\immediate\write\SVG@out@file{\noexpand\setlength{\parindent}{0in}}%
+\immediate\write\SVG@out@file{\noexpand\setlength{\parsep}{0in}}%
+\immediate\write\SVG@out@file{\noexpand\setlength{\parskip}{0in}}%
+\immediate\write\SVG@out@file{\noexpand\begin{document}}%
+  \immediate\write\SVG@out@file{%
+    \noexpand\pagestyle{empty}%
+    \noexpand\begin{center}%
+      \unexpanded\expandafter{\SVG@out@defwidth}%
+      \unexpanded\expandafter{\SVG@out@pretex}%
+      \expandafter\noexpand\SVG@out@definput%
+      \unexpanded\expandafter{\SVG@out@postex}%
+      \noexpand\end{center}}%
+  \immediate\write\SVG@out@file{\noexpand\end{document}}%
+\immediate\closeout\SVG@out@file%
+\fi%
+%    \end{macrocode}
+% Run \latex on the extracted file and create the \pdf.
+%    \begin{macrocode} 
+\ifSVG@out@extract%
+\immediate\write18{\SVG@cmd@pdflatex\space\SVG@out@path\SVG@out@filename.tex}%
+\fi%
+%    \end{macrocode}
+% Convert the \pdf to \eps if requested.
+%    \begin{macrocode} 
+\ifSVG@out@eps%
+\immediate\write18{\SVG@cmd@pdftops\space\SVG@out@filename.pdf}%
+\immediate\write18{mv \SVG@out@filename.eps% 
+  \space\SVG@out@path\SVG@out@filename.eps}%
+\fi%
+%    \end{macrocode}
+% Convert the \pdf to \png if requested.
+%    \begin{macrocode} 
+\ifSVG@out@png%
+\immediate\write18{\SVG@cmd@convert\space\SVG@out@filename.pdf%
+  \space\SVG@out@filename.png}%
+\immediate\write18{mv \SVG@out@filename.png%
+  \space\SVG@out@path\SVG@out@filename.png}%
+\fi%
+%    \end{macrocode}
+% Clean up if requested.
+%    \begin{macrocode} 
+\ifSVG@out@extract%
+\ifSVG@out@pdf%
+\immediate\write18{mv \SVG@out@filename.pdf%
+  \space\SVG@out@path\SVG@out@filename.pdf}%
+\else \ifSVG@out@clean \immediate\write18{rm \SVG@out@filename.pdf} \fi%
+\fi%
+\ifSVG@out@clean%
+\immediate\write18{rm \SVG@out@path\SVG@out@filename.tex%
+  \space\SVG@out@filename.aux \SVG@out@filename.log \SVG@out@filename.out}%
+\fi\fi%
+%    \end{macrocode}
+% Finally, include the \svg in the current document and end the package.
+%    \begin{macrocode} 
+\ifSVG@in@exclude \else {\def\svgwidth{\the\SVG@out@width}%
+\SVG@out@pretex\import{\SVG@in@path}{#2.pdf_tex}\SVG@out@postex} \fi%
+}%
+%    \end{macrocode}
+% \end{macro}
+% \iffalse
+%</svg>
+% \fi
+% \Finale
