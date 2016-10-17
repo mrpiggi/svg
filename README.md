@@ -1,19 +1,18 @@
+
  svg -- Include SVG pictures in pdfLaTeX documents using Inkscape
-===============================================================================
+----------------------------------------------------------------------------
 
- Copyright (C) Philip Ilten <philten@cern.ch>,  2012
+ Copyright (C) Philip Ilten <philten@cern.ch>,  2012-2016
  Copyright (C) Falk Hanisch <tudscr@gmail.com>, 2016
-
-===============================================================================
 
  svg 2016/xx/xx v2.00
 
-===============================================================================
+============================================================================
 
- This material is subject to the LaTeX Project Public License version 1.3c or 
- later. See http://www.latex-project.org/lppl.txt for details of that license.
+ This material is subject to the LaTeX Project Public License version 1.3c 
+ or later. See http://www.latex-project.org/lppl.txt for details.
 
--------------------------------------------------------------------------------
+----------------------------------------------------------------------------
 
 Summary
 -------

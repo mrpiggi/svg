@@ -1,10 +1,11 @@
- svg -- Include SVG pictures in pdfLaTeX documents using Inkscape
-============================================================================
 
- Copyright (C) Philip Ilten <philten@cern.ch>,  2012
+ svg -- Include SVG pictures in pdfLaTeX documents using Inkscape
+----------------------------------------------------------------------------
+
+ Copyright (C) Philip Ilten <philten@cern.ch>,  2012-2016
  Copyright (C) Falk Hanisch <tudscr@gmail.com>, 2016
 
-============================================================================
+----------------------------------------------------------------------------
 
  This work may be distributed and/or modified under the conditions of the
  LaTeX Project Public License, version 1.3c of the license. The latest
@@ -14,7 +15,7 @@
  "author-maintained". The current maintainer and author of this work
  is Falk Hanisch.
 
-----------------------------------------------------------------------------
+============================================================================
 
  Dieses Werk darf nach den Bedingungen der LaTeX Project Public Lizenz
  in der Version 1.3c, verteilt und/oder veraendert werden. Die aktuelle 
@@ -24,4 +25,4 @@
  "author-maintained", wird somit allein durch den Autor verwaltet. Der 
  aktuelle Verwalter und Autor dieses Werkes ist Falk Hanisch.
 
-============================================================================
+----------------------------------------------------------------------------
