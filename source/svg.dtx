@@ -48,19 +48,13 @@
 %% searched by LaTeX:
 %%
 %%      svg.sty
-%%   
+%%
 %%
 %% This work consists of the files README, svg.dtx (with derived files
 %% svg.sty, svg.pdf, Fig.1a.pdf, Fig.1b.eps, Fig.2.pdf, Fig.2.png),
 %% preamble.tex, example.svg (with derived files example.pdf and
 %% example.pdf_tex), and root.C (with derived files root.svg,
-%% root.pdf, and root.pdf_tex).
-%%
-%% The following files constitute the svg package and should be
-%% distributed as a whole: README, svg.dtx, svg.sty, svg.pdf,
-%% Fig.1a.pdf, Fig.1b.eps, Fig.2.pdf, Fig.2.png, preamble.tex
-%% example.svg, example.pdf, example.pdf_tex, root.C, root.svg,
-%% root.pdf, and root.pdf_tex.
+%% root.pdf, and root.pdf_tex). These files constitute the svg package.
 %
 % \fi
 %
@@ -89,7 +83,7 @@
 %<package>\NeedsTeXFormat{LaTeX2e}
 %<package>\ProvidesPackage{svg}[%
 %<*driver|package>
-  2016/10/17 v2.00 svg\space%
+  2016/11/03 v2.03 svg\space%
   (include SVG pictures)%
 ]
 %</driver|package>
@@ -101,16 +95,16 @@
 \KOMAoptions{parskip=half-}
 
 \usepackage{svg}
+%\newcommand*\includesvg[2][]{}
+\usepackage{subfig}
 \usepackage{relsize}
 \usepackage{xcolor}
 \usepackage{transparent}
 \usepackage{listings}
 \usepackage{xspace}
 
-%\usepackage[bookmarks=true,colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue]{hyperref}
 \usepackage{microtype}
 \usepackage{bookmark}
-
 
 \CodelineIndex
 \RecordChanges
@@ -133,6 +127,7 @@
 % \fi
 %
 % \changes{v1.0}{2004/11/05}{Initial version}
+% \changes{v2.00}{2016/11/03}{New maintainer: Falk Hanisch}
 %
 % \makeatletter
 % \def\DescribeOption#1{\leavevmode\@bsphack
@@ -476,11 +471,7 @@
 % which produces the extracted images |Fig.2.pdf| and
 % |Fig.2.png|. Enjoy plots from \croot with natively rendered \latex!
 %
-% \StopEventually{\section{Thanks} Thanks to my lovely wife \'Eadaoin
-% for being a very patient beta tester and important
-% collaborator. Thanks is also due to J. Engelen for creating this
-% functionality within \inkscape, and of course to all the developers
-% of \inkscape.}
+% \StopEventually{\PrintIndex\PrintChanges\PrintToDos}
 %
 % \section{Implementation}\label{sec:implementation}
 %
@@ -761,4 +752,7 @@
 % \iffalse
 %</svg>
 % \fi
+%
 % \Finale
+%
+\endinput
