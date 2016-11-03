@@ -94,19 +94,39 @@
 ]
 %</driver|package>
 %<*driver>
-\documentclass{ltxdoc}
+\documentclass[english,xindy]{tudscrdoc}
+\usepackage{selinput}\SelectInputMappings{adieresis={ä},germandbls={ß}}
+\usepackage[T1]{fontenc}
+\usepackage{babel}
+\KOMAoptions{parskip=half-}
+
 \usepackage{svg}
 \usepackage{relsize}
 \usepackage{xcolor}
 \usepackage{transparent}
 \usepackage{listings}
 \usepackage{xspace}
-\usepackage[bookmarks=true,colorlinks=true,linkcolor=black,citecolor=black,
-urlcolor=blue]{hyperref}
+
+%\usepackage[bookmarks=true,colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue]{hyperref}
+\usepackage{microtype}
+\usepackage{bookmark}
+
+
 \CodelineIndex
 \RecordChanges
 \GetFileInfo{svg.dtx}
+\title{The \textsf{svg} Package}
+\author{%
+  Philip Ilten (2012--2016) \\
+  Falk Hanisch (2016--) \\
+  \url{https://github.com/tudscr/svg} \\
+  \expandafter\mailto\expandafter{\tudscrmail}
+}
+\date{\fileversion\nobreakspace(\filedate)}
+
 \begin{document}
+  \maketitle
+  \tableofcontents
   \DocInput{\filename}
 \end{document}
 %</driver>
@@ -114,8 +134,6 @@ urlcolor=blue]{hyperref}
 %
 % \changes{v1.0}{2004/11/05}{Initial version}
 %
-% \DoNotIndex{\newcommand,\newenvironment}
-% 
 % \makeatletter
 % \def\DescribeOption#1{\leavevmode\@bsphack
 % \marginpar{\raggedleft\PrintDescribeOption{#1}}%
@@ -137,22 +155,17 @@ urlcolor=blue]{hyperref}
 % backgroundcolor=\color{yellow!20},xleftmargin=\fboxsep,%
 % xrightmargin=\fboxsep,gobble=1}}{}
 %
-% \newcommand{\svg}{{\sc svg}\xspace}
-% \newcommand{\pdf}{{\sc pdf}\xspace}
-% \newcommand{\eps}{{\sc eps}\xspace}
-% \newcommand{\png}{{\sc png}\xspace}
+% \newcommand{\svg}{{\scshape svg}\xspace}
+% \newcommand{\pdf}{{\scshape pdf}\xspace}
+% \newcommand{\eps}{{\scshape eps}\xspace}
+% \newcommand{\png}{{\scshape png}\xspace}
 % \newcommand{\latex}{\LaTeX\xspace}
-% \newcommand{\croot}{{\sc Root}\xspace}
-% \newcommand{\pdflatex}{{\sc PdfLatex}\xspace}
-% \newcommand{\inkscape}{{\sc Inkscape}\xspace}
-% \newcommand{\pdftops}{{\sc PdfToPs}\xspace}
-% \newcommand{\convert}{{\sc Convert}\xspace}
+% \newcommand{\croot}{{\scshape Root}\xspace}
+% \newcommand{\pdflatex}{{\scshape PdfLatex}\xspace}
+% \newcommand{\inkscape}{{\scshape Inkscape}\xspace}
+% \newcommand{\pdftops}{{\scshape PdfToPs}\xspace}
+% \newcommand{\convert}{{\scshape Convert}\xspace}
 %
-% \title{The \textsf{svg} Package}
-% \author{Philip Ilten \\ \texttt{philten@cern.ch}}
-% \date{\fileversion\ (\filedate)}
-% \maketitle
-% \tableofcontents
 % \section{Introduction}\label{sec:intro}
 %
 % The open source program \inkscape has provided an excellent resource
@@ -160,9 +173,9 @@ urlcolor=blue]{hyperref}
 % graphical user interface. The work by Johan B. C. Engelen has
 % further enhanced the ability of \inkscape to split an \svg into a
 % text component that can be imported into \latex, and an image
-% component that can be imported as a \pdf.\footnote{For further
-% information see the |svg-inkscape| documentation on
-% \href{http://www.ctan.org/tex-archive/info/svg-inkscape}{CTAN}.}
+% component that can be imported as a \pdf. For further information see the
+% |svg-inkscape| documentation on
+% \hrfn{http://www.ctan.org/tex-archive/info/svg-inkscape}{CTAN}.
 % Consequently it is now possible to include an \svg into a \latex
 % document where the text within the \svg has been rendered natively
 % by \latex.
@@ -331,6 +344,7 @@ urlcolor=blue]{hyperref}
 %
 % \section{Example}\label{sec:example}
 %
+% \ToDo{href raus?}
 % As an example\footnote{The image used here is a slightly modified
 % version of the image used in the initial documentation on how to
 % include an \svg in \latex by J. Engelen available on
@@ -338,10 +352,14 @@ urlcolor=blue]{hyperref}
 % take the following lines of code
 % \begin{example}
 %   \begin{figure}
-%     \subfloat[This text is too large!]{\includesvg[clean,
-%     preamble=preamble.tex,pdf,width=5cm]{example}}
-%     \subfloat[This text fits better.]{\includesvg[clean,
-%     preamble=preamble.tex,eps,pretex=\relscale{0.5},width=5cm]{example}}
+%     \subfloat[This text is too large!]{%
+%       \includesvg[clean,preamble=preamble.tex,pdf,width=5cm]{example}%
+%     }%
+%     \subfloat[This text fits better.]{%
+%       \includesvg[%
+%         clean,preamble=preamble.tex,eps,pretex=\relscale{0.5},width=5cm%
+%       ]{example}%
+%     }%
 %     \caption{An example figure.\label{fig:example}}
 %   \end{figure}
 % \end{example}
@@ -351,12 +369,17 @@ urlcolor=blue]{hyperref}
 %
 % \begin{figure}
 %   \begin{center}
-%     \subfloat[This text is too
-%     large!]{\includesvg[name=Fig.1a,clean,
-%     preamble=preamble.tex,pdf,width=5cm]{example}} \subfloat[This
-%     text fits
-%     better.]{\includesvg[name=Fig.1b,clean,preamble=preamble.tex,
-%     eps,pretex=\relscale{0.5},width=5cm]{example}}
+%     \subfloat[This text is too large!]{%
+%       \includesvg[%
+%         name=Fig.1a,clean,preamble=examples/preamble.tex,pdf,width=5cm%
+%       ]{examples/example}%
+%     }% 
+%     \subfloat[This text fits better.]{%
+%       \includesvg[%
+%         name=Fig.1b,clean,preamble=examples/preamble.tex,%
+%         eps,pretex=\relscale{0.5},width=5cm%
+%       ]{examples/example}%
+%     }%
 %     \caption{An example figure.\label{fig:example}}
 %   \end{center}
 % \end{figure}
@@ -383,12 +406,13 @@ urlcolor=blue]{hyperref}
 % \croot can now be completely avoided, with the additional bonus of
 % being able to add references within plots. So how does one go about
 % using this package with \croot?
+% \ToDo{href raus?}
 % \begin{enumerate}
 % \item Create the plot with \croot as normal, but turn off all \latex
 %   interpretation of text strings. This is a bit tricky, but can be
 %   accomplished by setting the font in \croot to a precision of zero
 %   as described in the documentation for
-%   \href{http://root.cern.ch/root/html/TAttText.html}{\tt
+%   \href{http://root.cern.ch/root/html/TAttText.html}{\ttfamily
 %   TAttFill}. Remember that the font is set using the function
 %   |(TAttFill*)->SetTextFont(i)| where |i| is the (font type) $\times
 %   ~10 ~+$ (font precision). In the following lines of code, a
@@ -420,11 +444,13 @@ urlcolor=blue]{hyperref}
 %
 % \begin{figure}
 %   \begin{center}
-%     \includesvg[clean,preamble=preamble.tex,pdf,png,height=6cm,pretex=\tiny]
-%     {root}
+%     \includesvg[%
+%       clean,preamble=examples/preamble.tex,pdf,png,height=6cm,pretex=\tiny%
+%     ]{examples/root}
 %   \end{center}
-%   \caption{Rendering of a \croot plot (no more ``Comic
-%   CERNs'').\label{fig:root}}
+%   \caption{%
+%     Rendering of a \croot plot (no more ``Comic CERNs'').\label{fig:root}%
+%   }
 % \end{figure}
 %
 % Consider the example image produced by \croot in Figure
@@ -434,7 +460,7 @@ urlcolor=blue]{hyperref}
 % \croot is
 % \lstinputlisting[basicstyle=\footnotesize\ttfamily,columns=flexible,
 % frame=single,backgroundcolor=\color{yellow!20},xleftmargin=\fboxsep,
-% xrightmargin=\fboxsep,gobble=1]{root.C} where the text produced
+% xrightmargin=\fboxsep,gobble=1]{examples/root.C} where the text produced
 % within the \croot plot is set to a precision of zero. The plot was
 % then included within this document using the \latex code
 % \begin{example}
