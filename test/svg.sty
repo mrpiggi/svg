@@ -6,15 +6,17 @@
 %%
 %% svg.dtx  (with options: `svg')
 %% 
-%% -------------------------------------------------------
-%% Copyright (C) 2012 by Philip Ilten <philten@cern.ch>
-%% -------------------------------------------------------
-%%
-%% This file may be distributed and/or modified under the conditions
-%% of the LaTeX Project Public License, either version 1.3 of this
-%% license or (at your option) any later version. The latest version
-%% of this license is in:
-%%
+%% svg -- Include SVG pictures in pdfLaTeX documents using Inkscape
+%% 
+%% Copyright (C) Philip Ilten <philten@cern.ch>,  2012-2016
+%% Copyright (C) Falk Hanisch <tudscr@gmail.com>, 2012-2016
+%% 
+%% This file was generated from file svg.dtx.
+%% ----------------------------------------------------------------------------
+%% 
+%% This work may be distributed and/or modified under the conditions
+%% of the LaTeX Project Public License, version 1.3c of the license.
+%% The latest version of this license is in
 %%     http://www.latex-project.org/lppl.txt
 %%
 %% and version 1.3 or later is part of all distributions of LaTeX
@@ -51,12 +53,14 @@
 \define@boolkey[SVG]{svg.sty}[SVG@in@]{exclude}[true]{}%
 \newlength\SVG@out@width%
 \newif\ifSVG@out@usewidth%
-\define@key[SVG]{svg.sty}{width}%
-{\setlength{\SVG@out@width}{#1}\SVG@out@usewidthtrue}%
+\define@key[SVG]{svg.sty}{width}{%
+  \setlength{\SVG@out@width}{#1}\SVG@out@usewidthtrue%
+}%
 \newlength\SVG@out@height%
 \newif\ifSVG@out@useheight%
-\define@key[SVG]{svg.sty}{height}%
-{\setlength{\SVG@out@height}{#1}\SVG@out@useheighttrue}%
+\define@key[SVG]{svg.sty}{height}{%
+  \setlength{\SVG@out@height}{#1}\SVG@out@useheighttrue%
+}%
 \define@boolkey[SVG]{svg.sty}[SVG@out@]{pdf}[true]{}%
 \define@boolkey[SVG]{svg.sty}[SVG@out@]{eps}[true]{}%
 \define@boolkey[SVG]{svg.sty}[SVG@out@]{png}[true]{}%
@@ -88,116 +92,160 @@
   \ifSVG@out@pdf \SVG@out@extracttrue \fi%
   \ifSVG@out@eps \SVG@out@extracttrue \fi%
   \ifSVG@out@png \SVG@out@extracttrue \fi%
-\ifnum\pdfstrcmp%
-{\pdffilemoddate{\SVG@in@path#2.svg}}%
-{\pdffilemoddate{\SVG@in@path#2.pdf}}>0%
-\immediate\write18{\SVG@cmd@inkscape \space -f\SVG@in@path#2.svg%
-  \space-A\SVG@in@path#2.pdf --export-latex}%
-\fi%
-\ifSVG@out@usewidth%
-\settoheight\SVG@out@height%
-{\includegraphics[width=\SVG@out@width]{\SVG@in@path#2}}%
-\else\ifSVG@out@useheight%
-\settowidth\SVG@out@width%
-{\includegraphics[height=\SVG@out@height]{\SVG@in@path#2}}%
-\else%
-\settoheight\SVG@out@height{\includegraphics{\SVG@in@path#2}}%
-\settowidth\SVG@out@width{\includegraphics{\SVG@in@path#2}}%
-\fi%
-\fi%
-\ifSVG@out@extract%
-\newwrite\SVG@out@file%
-\setcounter{svgfigure}{\value{figure}}%
-\stepcounter{svgfigure}%
-\def\SVG@out@filename{\SVG@out@name}%
-\immediate\openout\SVG@out@file=\SVG@out@path\SVG@out@filename.tex%
-\fi%
-\ifSVG@out@extract%
-\def\SVG@in@line{}%
-\newread\SVG@in@file%
-\immediate\openin\SVG@in@file=\SVG@in@preamble%
-\fi%
-\newif\ifSVG@in@read%
-\ifSVG@out@extract \SVG@in@readtrue \fi%
-\@whilesw\ifSVG@in@read\fi{%
-  \catcode`\#=12\relax\endlinechar=-1%
-  \immediate\read\SVG@in@file to \SVG@in@line%
-  \ifx\SVG@in@end\SVG@in@line%
-  \SVG@in@readfalse%
-  \else%
-  \immediate\write\SVG@out@file{\unexpanded\expandafter{\SVG@in@line}}%
+  \ifnum\pdfstrcmp
+  {\pdffilemoddate{\SVG@in@path#2.svg}}%
+  {\pdffilemoddate{\SVG@in@path#2.pdf}}>0%
+    \immediate\write18{%
+      \SVG@cmd@inkscape\space%
+        -f \SVG@in@path#2.svg\space%
+        -A \SVG@in@path#2.pdf\space%
+        --export-latex%
+    }%
   \fi%
-  \ifeof\SVG@in@file\SVG@in@readfalse\fi%
-  \endlinechar=13\catcode`\#=6\relax}%
-\ifSVG@out@extract \immediate\closein\SVG@in@file \fi%
-\ifSVG@out@extract%
-\def\SVG@out@defpack{\makeatletter%
-  \@ifpackageloaded{import}{}{\RequirePackage{import}}%
-  \@ifpackageloaded{graphicx}{}{\RequirePackage{graphicx}}%
-  \@ifpackageloaded{transparent}{}{\RequirePackage{transparent}}%
-  \@ifpackageloaded{xcolor}{}{\RequirePackage{xcolor}}\makeatother}%
-\def\SVG@out@defwidth{\def\svgwidth{0.99\textwidth}}%
-\def\SVG@out@definput{\import{\SVG@in@path}{#2.pdf_tex}}%
-\immediate\write\SVG@out@file{\unexpanded\expandafter{\SVG@out@defpack}}%
-\immediate\write\SVG@out@file%
-{\noexpand\setlength{\pdfpagewidth}{\the\SVG@out@width}}%
-\immediate\write\SVG@out@file%
-{\noexpand\setlength{\pdfpageheight}{\the\SVG@out@height}}%
-\immediate\write\SVG@out@file%
-{\noexpand\setlength{\paperheight}{\pdfpageheight}}%
-\immediate\write\SVG@out@file%
-{\noexpand\setlength{\paperwidth}{\pdfpagewidth}}%
-\immediate\write\SVG@out@file{\noexpand\setlength{\textheight}{\paperheight}}%
-\immediate\write\SVG@out@file{\noexpand\setlength{\textwidth}{\paperwidth}}%
-\immediate\write\SVG@out@file{\noexpand\setlength{\textheight}{\paperheight}}%
-\immediate\write\SVG@out@file{\noexpand\setlength{\oddsidemargin}{-1in}}%
-\immediate\write\SVG@out@file{\noexpand\setlength{\evensidemargin}{-1in}}%
-\immediate\write\SVG@out@file{\noexpand\setlength{\topmargin}{-1in}}%
-\immediate\write\SVG@out@file{\noexpand\setlength{\headheight}{0in}}%
-\immediate\write\SVG@out@file{\noexpand\setlength{\headsep}{0in}}%
-\immediate\write\SVG@out@file{\noexpand\setlength{\topskip}{0in}}%
-\immediate\write\SVG@out@file{\noexpand\setlength{\footskip}{0in}}%
-\immediate\write\SVG@out@file{\noexpand\setlength{\parindent}{0in}}%
-\immediate\write\SVG@out@file{\noexpand\setlength{\parsep}{0in}}%
-\immediate\write\SVG@out@file{\noexpand\setlength{\parskip}{0in}}%
-\immediate\write\SVG@out@file{\noexpand\begin{document}}%
-  \immediate\write\SVG@out@file{%
-    \noexpand\pagestyle{empty}%
-    \noexpand\begin{center}%
-      \unexpanded\expandafter{\SVG@out@defwidth}%
-      \unexpanded\expandafter{\SVG@out@pretex}%
-      \expandafter\noexpand\SVG@out@definput%
-      \unexpanded\expandafter{\SVG@out@postex}%
-      \noexpand\end{center}}%
-  \immediate\write\SVG@out@file{\noexpand\end{document}}%
-\immediate\closeout\SVG@out@file%
-\fi%
-\ifSVG@out@extract%
-\immediate\write18{\SVG@cmd@pdflatex\space\SVG@out@path\SVG@out@filename.tex}%
-\fi%
-\ifSVG@out@eps%
-\immediate\write18{\SVG@cmd@pdftops\space\SVG@out@filename.pdf}%
-\immediate\write18{mv \SVG@out@filename.eps%
-  \space\SVG@out@path\SVG@out@filename.eps}%
-\fi%
-\ifSVG@out@png%
-\immediate\write18{\SVG@cmd@convert\space\SVG@out@filename.pdf%
-  \space\SVG@out@filename.png}%
-\immediate\write18{mv \SVG@out@filename.png%
-  \space\SVG@out@path\SVG@out@filename.png}%
-\fi%
-\ifSVG@out@extract%
-\ifSVG@out@pdf%
-\immediate\write18{mv \SVG@out@filename.pdf%
-  \space\SVG@out@path\SVG@out@filename.pdf}%
-\else \ifSVG@out@clean \immediate\write18{rm \SVG@out@filename.pdf} \fi%
-\fi%
-\ifSVG@out@clean%
-\immediate\write18{rm \SVG@out@path\SVG@out@filename.tex%
-  \space\SVG@out@filename.aux \SVG@out@filename.log \SVG@out@filename.out}%
-\fi\fi%
-\ifSVG@in@exclude \else {\def\svgwidth{\the\SVG@out@width}%
-\SVG@out@pretex\import{\SVG@in@path}{#2.pdf_tex}\SVG@out@postex} \fi%
+  \ifSVG@out@usewidth%
+    \settoheight\SVG@out@height{%
+      \includegraphics[width=\SVG@out@width]{\SVG@in@path#2}%
+    }%
+  \else%
+    \ifSVG@out@useheight%
+      \settowidth\SVG@out@width{%
+        \includegraphics[height=\SVG@out@height]{\SVG@in@path#2}%
+      }%
+    \else%
+      \settoheight\SVG@out@height{%
+        \includegraphics{\SVG@in@path#2}%
+      }%
+      \settowidth\SVG@out@width{\includegraphics{\SVG@in@path#2}}%
+    \fi%
+  \fi%
+  \ifSVG@out@extract%
+    \newwrite\SVG@out@file%
+    \setcounter{svgfigure}{\value{figure}}%
+    \stepcounter{svgfigure}%
+    \def\SVG@out@filename{\SVG@out@name}%
+    \immediate\openout\SVG@out@file=\SVG@out@path\SVG@out@filename.tex%
+  \fi%
+  \ifSVG@out@extract%
+    \def\SVG@in@line{}%
+    \newread\SVG@in@file%
+    \immediate\openin\SVG@in@file=\SVG@in@preamble%
+  \fi%
+  \newif\ifSVG@in@read%
+  \ifSVG@out@extract \SVG@in@readtrue \fi%
+  \@whilesw\ifSVG@in@read\fi{%
+    \catcode`\#=12\relax\endlinechar=-1%
+    \immediate\read\SVG@in@file to \SVG@in@line%
+    \ifx\SVG@in@end\SVG@in@line%
+      \SVG@in@readfalse%
+    \else%
+      \immediate\write\SVG@out@file{\unexpanded\expandafter{\SVG@in@line}}%
+    \fi%
+    \ifeof\SVG@in@file\SVG@in@readfalse\fi%
+    \endlinechar=13\catcode`\#=6\relax%
+  }%
+  \ifSVG@out@extract \immediate\closein\SVG@in@file \fi%
+  \ifSVG@out@extract%
+    \def\SVG@out@defpack{%
+      \makeatletter%
+      \@ifpackageloaded{import}{}{\RequirePackage{import}}%
+      \@ifpackageloaded{graphicx}{}{\RequirePackage{graphicx}}%
+      \@ifpackageloaded{transparent}{}{\RequirePackage{transparent}}%
+      \@ifpackageloaded{xcolor}{}{\RequirePackage{xcolor}}%
+      \makeatother%
+    }%
+    \def\SVG@out@defwidth{\def\svgwidth{0.99\textwidth}}%
+    \def\SVG@out@definput{\import{\SVG@in@path}{#2.pdf_tex}}%
+    \immediate\write\SVG@out@file{\unexpanded\expandafter{\SVG@out@defpack}}%
+    \immediate\write\SVG@out@file{%
+      \noexpand\setlength{\pdfpagewidth}{\the\SVG@out@width}%
+    }%
+    \immediate\write\SVG@out@file{%
+      \noexpand\setlength{\pdfpageheight}{\the\SVG@out@height}%
+    }%
+    \immediate\write\SVG@out@file{%
+      \noexpand\setlength{\paperheight}{\pdfpageheight}%
+    }%
+    \immediate\write\SVG@out@file{%
+      \noexpand\setlength{\paperwidth}{\pdfpagewidth}%
+    }%
+    \immediate\write\SVG@out@file{%
+      \noexpand\setlength{\textheight}{\paperheight}%
+    }%
+    \immediate\write\SVG@out@file{%
+      \noexpand\setlength{\textwidth}{\paperwidth}%
+    }%
+    \immediate\write\SVG@out@file{%
+      \noexpand\setlength{\textheight}{\paperheight}%
+    }%
+    \immediate\write\SVG@out@file{\noexpand\setlength{\oddsidemargin}{-1in}}%
+    \immediate\write\SVG@out@file{\noexpand\setlength{\evensidemargin}{-1in}}%
+    \immediate\write\SVG@out@file{\noexpand\setlength{\topmargin}{-1in}}%
+    \immediate\write\SVG@out@file{\noexpand\setlength{\headheight}{0in}}%
+    \immediate\write\SVG@out@file{\noexpand\setlength{\headsep}{0in}}%
+    \immediate\write\SVG@out@file{\noexpand\setlength{\topskip}{0in}}%
+    \immediate\write\SVG@out@file{\noexpand\setlength{\footskip}{0in}}%
+    \immediate\write\SVG@out@file{\noexpand\setlength{\parindent}{0in}}%
+    \immediate\write\SVG@out@file{\noexpand\setlength{\parsep}{0in}}%
+    \immediate\write\SVG@out@file{\noexpand\setlength{\parskip}{0in}}%
+    \immediate\write\SVG@out@file{%
+      \noexpand\begin{document}%
+      \noexpand\pagestyle{empty}%
+      \noexpand\begin{center}%
+        \unexpanded\expandafter{\SVG@out@defwidth}%
+        \unexpanded\expandafter{\SVG@out@pretex}%
+        \expandafter\noexpand\SVG@out@definput%
+        \unexpanded\expandafter{\SVG@out@postex}%
+        \noexpand\end{center}%
+        \noexpand\end{document}%
+      }%
+    \immediate\closeout\SVG@out@file%
+  \fi%
+  \ifSVG@out@extract%
+    \immediate\write18{%
+      \SVG@cmd@pdflatex\space\SVG@out@path\SVG@out@filename.tex%
+    }%
+  \fi%
+  \ifSVG@out@eps%
+    \immediate\write18{\SVG@cmd@pdftops\space\SVG@out@filename.pdf}%
+    \immediate\write18{%
+      mv \SVG@out@filename.eps\space\SVG@out@path\SVG@out@filename.eps%
+    }%
+  \fi%
+  \ifSVG@out@png%
+    \immediate\write18{%
+      \SVG@cmd@convert\space%
+        \SVG@out@filename.pdf\space\SVG@out@filename.png%
+    }%
+    \immediate\write18{%
+      mv \SVG@out@filename.png\space\SVG@out@path\SVG@out@filename.png%
+    }%
+  \fi%
+  \ifSVG@out@extract%
+    \ifSVG@out@pdf%
+      \immediate\write18{%
+        mv \SVG@out@filename.pdf\space\SVG@out@path\SVG@out@filename.pdf%
+      }%
+    \else%
+      \ifSVG@out@clean \immediate\write18{rm \SVG@out@filename.pdf} \fi%
+    \fi%
+    \ifSVG@out@clean%
+      \immediate\write18{%
+        rm
+          \SVG@out@path\SVG@out@filename.tex\space%
+          \SVG@out@filename.aux\space%
+          \SVG@out@filename.log\space%
+          \SVG@out@filename.out%
+      }%
+    \fi%
+  \fi%
+  \ifSVG@in@exclude\else%
+    {%
+      \def\svgwidth{\the\SVG@out@width}%
+      \SVG@out@pretex%
+      \import{\SVG@in@path}{#2.pdf_tex}%
+      \SVG@out@postex%
+    }%
+  \fi%
 }%
 \endinput
 %%

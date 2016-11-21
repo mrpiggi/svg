@@ -1,51 +1,58 @@
 % \CheckSum{466}
 % \iffalse meta-comment
-%<*install>
+% 
+%  svg -- Include SVG pictures in pdfLaTeX documents using Inkscape
+% ----------------------------------------------------------------------------
+% 
+%  Copyright (C) Philip Ilten <philten@cern.ch>,  2012-2016
+%  Copyright (C) Falk Hanisch <tudscr@gmail.com>, 2016
+% 
+% ----------------------------------------------------------------------------
+% 
+%  This work may be distributed and/or modified under the conditions of the
+%  LaTeX Project Public License, version 1.3c of the license. The latest
+%  version of this license is in http://www.latex-project.org/lppl.txt and
+%  version 1.3c or later is part of all distributions of LaTeX 2005/12/01
+%  or later and of this work. This work has the LPPL maintenance status
+%  "author-maintained". The current maintainer and author of this work
+%  is Falk Hanisch.
+% 
+% ----------------------------------------------------------------------------
+% 
+%<*batchfile>
 \ifx\documentclass\undefined
 \input docstrip.tex
 \keepsilent
 \preamble
 
- svg -- Include SVG pictures in pdfLaTeX documents using Inkscape
+svg -- Include SVG pictures in pdfLaTeX documents using Inkscape
+
+Copyright (C) Philip Ilten <philten@cern.ch>,  2012-2016
+Copyright (C) Falk Hanisch <tudscr@gmail.com>, 2012-2016
+
+This file was generated from file svg.dtx.
 ----------------------------------------------------------------------------
 
- Copyright (C) Philip Ilten <philten@cern.ch>,  2012-2016
- Copyright (C) Falk Hanisch <tudscr@gmail.com>, 2016
+This work may be distributed and/or modified under the conditions
+of the LaTeX Project Public License, version 1.3c of the license.
+The latest version of this license is in
+    http://www.latex-project.org/lppl.txt
+and version 1.3c or later is part of all distributions of
+LaTeX 2005/12/01 or later and of this work.
 
-----------------------------------------------------------------------------
+This work has the LPPL maintenance status "author-maintained".
 
- This work may be distributed and/or modified under the conditions of the
- LaTeX Project Public License, version 1.3c of the license. The latest
- version of this license is in http://www.latex-project.org/lppl.txt and
- version 1.3c or later is part of all distributions of LaTeX 2005/12/01
- or later and of this work. This work has the LPPL maintenance status
- "author-maintained". The current maintainer and author of this work
- is Falk Hanisch.
+The current maintainer and author of this work is Falk Hanisch.
 
-============================================================================
+This work consists of the main source file svg.dtx
+and the derived files
+    README
+    svg.dtx (with derived files svg.sty, svg.pdf, Fig.1a.pdf, Fig.1b.eps, 
+    Fig.2.pdf, Fig.2.png),
+    preamble.tex, example.svg (with derived files example.pdf and 
+    example.pdf_tex), 
+    root.C (with derived files root.svg,root.pdf, and root.pdf_tex). 
 
- Dieses Werk darf nach den Bedingungen der LaTeX Project Public Lizenz
- in der Version 1.3c, verteilt und/oder veraendert werden. Die aktuelle
- Version dieser Lizenz ist http://www.latex-project.org/lppl.txt und
- Version 1.3c oder spaeter ist Teil aller Verteilungen von LaTeX 2005/12/01
- oder spaeter und dieses Werks. Dieses Werk hat den LPPL-Verwaltungs-Status
- "author-maintained", wird somit allein durch den Autor verwaltet. Der
- aktuelle Verwalter und Autor dieses Werkes ist Falk Hanisch.
-
-----------------------------------------------------------------------------
-
-\endpreamble
-\askforoverwritefalse
-\usedir{tex/latex/svg}
-\generate{%
-  \usepreamble\defaultpreamble
-  \file{svg-new.sty}{\from{svg.dtx}{svg}}
-}
-\else
-\let\endbatchfile\relax
-\fi
-\endbatchfile
-%</install>
 %^^A%
 %^^A% The svg package by Philip Ilten.
 %^^A%
@@ -68,11 +75,18 @@
 %^^A%      svg.sty
 %^^A%
 %^^A%
-%^^A% This work consists of the files README, svg.dtx (with derived files
-%^^A% svg.sty, svg.pdf, Fig.1a.pdf, Fig.1b.eps, Fig.2.pdf, Fig.2.png),
-%^^A% preamble.tex, example.svg (with derived files example.pdf and
-%^^A% example.pdf_tex), and root.C (with derived files root.svg,
-%^^A% root.pdf, and root.pdf_tex). These files constitute the svg package.
+\endpreamble
+\askforoverwritefalse
+\usedir{tex/latex/svg}
+\generate{%
+  \usepreamble\defaultpreamble
+  \file{svg-new.sty}{\from{svg.dtx}{svg}}
+}
+\else
+\let\endbatchfile\relax
+\fi
+\endbatchfile
+%</batchfile>
 %
 % \fi
 %
@@ -93,7 +107,6 @@
 %   Right brace   \}     Tilde         \~}
 %
 % \iffalse
-%%% From File: svg.dtx
 %<*driver>
 \ifx\ProvidesFile\undefined\def\ProvidesFile#1[#2]{}\fi
 \ProvidesFile{svg.dtx}[%
@@ -139,7 +152,7 @@
 \begin{document}
   \maketitle
   \ToDo{create \file{svg-new.sty} instead of \file{svg.sty}}[Release]
-  \ToDo{\file{manifest.txt} necessary?!}[Release]
+  \ToDo{update derived files in batch preamble}[Release]
   \tableofcontents
   \DocInput{\filename}
 \end{document}
@@ -167,6 +180,8 @@
 %
 % \section{Introduction}\label{sec:intro}
 %
+% \ToDo{hint for inkscape on terminal (inkscape -V)}[Release]
+%  
 % The open source program \inkscape has provided an excellent resource
 % for the simple and easy creation of images and diagrams using a
 % graphical user interface. The work by Johan B. C. Engelen has

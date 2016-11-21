@@ -1,0 +1,739 @@
+%%
+%% This is file `svg.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% svg.dtx  (with options: `svg')
+%% 
+%% svg -- Include SVG pictures in pdfLaTeX documents using Inkscape
+%% 
+%% Copyright (C) Philip Ilten <philten@cern.ch>,  2012-2016
+%% Copyright (C) Falk Hanisch <tudscr@gmail.com>, 2012-2016
+%% 
+%% This file was generated from file svg.dtx.
+%% ----------------------------------------------------------------------------
+%% 
+%% This work may be distributed and/or modified under the conditions
+%% of the LaTeX Project Public License, version 1.3c of the license.
+%% The latest version of this license is in
+%%     http://www.latex-project.org/lppl.txt
+%%
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%%
+%% This work has the LPPL maintenance status "maintained".
+%%
+%% The Current Maintainer of this work is Philip Ilten.
+%%
+%% This work consists of the files README, svg.dtx (with derived files
+%% svg.sty, svg.pdf, Fig.1a.pdf, Fig.1b.eps, Fig.2.pdf, Fig.2.png),
+%% preamble.tex, example.svg (with derived files example.pdf and
+%% example.pdf_tex), and root.C (with derived files root.svg,
+%% root.pdf, and root.pdf_tex).
+%%
+%% The following files constitute the svg package and should be
+%% distributed as a whole: README, svg.dtx, svg.sty, svg.pdf,
+%% Fig.1a.pdf, Fig.1b.eps, Fig.2.pdf, Fig.2.png, preamble.tex
+%% example.svg, example.pdf, example.pdf_tex, root.C, root.svg,
+%% root.pdf, and root.pdf_tex.
+\ProvidesPackage{svg-new}[2012/09/05 v2.00 SVG inclusion and extraction]%
+
+\RequirePackage{graphicx}[2014/10/28]
+\RequirePackage{ifpdf}[2016/05/14]
+\RequirePackage{ifxetex}[2010/09/12]
+\RequirePackage{shellesc}[2016/06/07]
+\RequirePackage{pdftexcmds}[2016/05/21]
+\RequirePackage{scrbase}%[2016/06/14]
+
+\newcommand*\svg@tempa{}
+\newcommand*\svg@tempb{}
+
+\DefineFamily{newSVG}
+\DefineFamilyMember{newSVG}
+\newcommand*\svgsetup[1]{\FamilyOptions{newSVG}{#1}}
+\providecommand*\setsvg{\svgsetup}
+
+\newcommand*\svg@width{\maxdimen}
+\FamilyLengthMacroKey{newSVG}{width}{\svg@width}
+\newcommand*\svg@height{\maxdimen}
+\FamilyLengthMacroKey{newSVG}{height}{\svg@height}
+\newcommand*\svg@scale{1}
+\DefineFamilyKey{newSVG}{scale}{%
+  \ifisdimension{#1\p@}{%
+    \FamilyKeyStateProcessed%
+    \ifdim\dimexpr#1\p@\relax>\z@\relax%
+      \def\svg@scale{#1}%
+    \else%
+      \PackageWarning{svg}{%
+        Setting for `scale' has to be a positive value but\MessageBreak%
+        `scale=#1' was given, so nothing was changed.\MessageBreak%
+        The setting remains at `scale=\svg@scale'%
+      }%
+    \fi%
+  }{\FamilyKeyStateUnknownValue}%
+}
+
+\newcommand*\svgpath[1]{\def\svg@input@path{#1}}
+\newcommand*\svg@input@path{}
+\let\svg@input@path\@undefined
+% TODO: Test für Mac OS
+\DefineFamilyKey{newSVG}{svgpath}{%
+  \def\svg@tempa##1/##2\@nil{%
+    \def\svg@input@path{{##1/}}%
+  }%
+  \expandafter\svg@tempa#1/\@nil%
+  \FamilyKeyStateProcessed%
+}
+
+\newcommand*\svg@inkscapepath{inkscape}
+\DefineFamilyKey{newSVG}{inkscapepath}{%
+  \def\svg@inkscapepath{#1}%
+  \FamilyKeyStateProcessed%
+}
+% TODO Testen für unixoide
+%inkscapepath="C:/Program Files/Inkscape/inkscape.exe"
+%\IfFileExists{/dev/null}{%
+%\newcommand{\Inkscape}{/usr/bin/inkscape}%
+%}{%
+%\newcommand{\Inkscape}{“C:/Program Files (x86)/Inkscape/inkscape.exe”}%
+%}
+\newcommand*\svg@out@mode{}
+\newcommand*\svg@out@area{}
+\newcommand*\svg@out@opt{}
+\DefineFamilyKey{newSVG}{inkscape}[true]{%
+  \FamilySetNumerical{newSVG}{inkscape}{svg@tempa}{%
+    {false}{0},{off}{0},{no}{0},%
+    {true}{1},{on}{1},{yes}{1},{onlynewer}{1},{newer}{1},%
+    {overwrite}{2},%
+    {force}{3},{forced}{3},%
+    {drawing}{4},{crop}{4},%
+    {page}{5},{nocrop}{5}%
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifnum\svg@tempa<4\relax%
+      \let\svg@out@mode\svg@tempa%
+    \else%
+      \ifnum\svg@tempa=4\relax%
+        \def\svg@out@area{-D}%
+      \else%
+        \def\svg@out@area{-C}%
+      \fi%
+    \fi%
+  \else%
+    % Hinweis an Zuweisung mit inkscape={-x=...}
+    \def\svg@out@opt{#1}%
+    \FamilyKeyStateProcessed%
+  \fi%
+}
+
+\newif\if@svg@texformat
+\@svg@texformattrue
+\DefineFamilyKey{newSVG}{format}{%
+  \FamilySetNumerical{newSVG}{format}{svg@tempa}{%
+    {latex}{0},{tex}{0},%
+    {raw}{1},{simple}{1},{notex}{1},{nolatex}{1}%
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifstr{\svg@filetype}{png}{\@svg@texformatfalse}{%
+      \ifcase\svg@tempa\relax% latex
+        \@svg@texformattrue%
+      \or% raw
+        \@svg@texformatfalse%
+      \fi%
+    }%
+  \fi%
+}
+
+\ifpdf
+  \newcommand*\svg@filetype{pdf}
+\else
+  \ifxetex
+    \newcommand*\svg@filetype{pdf}
+  \else
+    \newcommand*\svg@filetype{eps}
+  \fi
+\fi
+\DefineFamilyKey{newSVG}{filetype}{%
+  \FamilySetNumerical{newSVG}{filetype}{svg@tempa}{%
+    {pdf}{0},{eps}{1},{ps}{2},{png}{3}%
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifcase\svg@tempa\relax% latex
+      \def\svg@filetype{pdf}%
+    \or% eps
+      \def\svg@filetype{eps}%
+    \or% ps
+      \def\svg@filetype{ps}%
+    \or% png
+      \def\svg@filetype{png}%
+      \FamilyOptions{newSVG}{format=raw}%
+    \fi%
+  \fi%
+}
+\newcommand*\svg@dpi{}
+\let\svg@dpi\relax
+\DefineFamilyKey{newSVG}{dpi}{%
+  \ifnumber{#1}{%
+    \def\svg@dpi{#1}%
+    \FamilyKeyStateProcessed%
+  }{%
+    \FamilyKeyStateUnknownValue%
+  }%
+}
+
+\newcounter{svg@lastpage}
+\FamilyCounterKey{newSVG}{lastpage}{svg@lastpage}
+
+\newif\if@svg@draft
+\FamilyBoolKey{newSVG}{draft}{@svg@draft}
+\AtBeginDocument{%
+  \if@svg@draft\else%
+    \ifGin@draft\@svg@drafttrue\fi%
+  \fi%
+}
+
+\newcommand*\svg@angle{0}
+\DefineFamilyKey{newSVG}{angle}{%
+  \def\svg@angle{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svg@origin{c}
+\DefineFamilyKey{newSVG}{origin}[c]{%
+  \def\svg@origin{#1}%
+  \FamilyKeyStateProcessed%
+}
+
+
+\FamilyExecuteOptions{newSVG}{inkscape=true,inkscape=drawing,format=latex}
+\FamilyProcessOptions{newSVG}
+
+\newcommand*\svg@fileextension{}
+\newcommand*{\newincludesvg}[2][]{%
+  \begingroup%
+    \@tempswafalse%
+    \ifx\svgwidth\@undefined\else%
+      \let\svgwidth\@undefined%
+      \@tempswatrue%
+    \fi%
+    \ifx\svgscale\@undefined\else%
+      \let\svgscale\@undefined%
+      \@tempswatrue%
+    \fi%
+    \if@tempswa%
+      \PackageWarning{svg}{%
+        You have to specify the image size by using the\MessageBreak%
+        appropriate parameters (`width' and `height' or `scale').\MessageBreak%
+        Both `\string\svgwidth' and `\string\svgscale' are ignored%
+      }%
+    \fi%
+    \FamilyOptions{newSVG}{#1}%
+    \if@svg@texformat%
+      \edef\svg@fileextension{-svg-tex.\svg@filetype}%
+    \else%
+      \edef\svg@fileextension{-svg-raw.\svg@filetype}%
+    \fi%
+    \ifnum\svg@out@mode>\z@\relax%
+      \svg@get@path{#2}%
+      \if@svg@path@found%
+        \svg@out@run{\svg@file@path\svg@file@name}%
+      \else%
+        \svg@err@missing@file{\svg@file@name.svg}%
+      \fi%
+    \fi%
+    \expandafter\svg@get@path\expandafter[\svg@fileextension]{#2}%
+    \if@svg@path@found%
+      \if@svg@texformat%
+        \if@svg@draft%
+          \FamilyOptions{newSVG}{lastpage=1}%
+        \else%
+          \ifnum\value{svg@lastpage}>\z@\relax\else%
+            \edef\svg@tempa{\svg@file@path\svg@file@name\svg@fileextension}%
+            \expandafter\svg@get@lastpage\expandafter{\svg@tempa}%
+          \fi%
+        \fi%
+        \edef\svg@tempa{\svg@file@path\svg@file@name\svg@fileextension_tex}%
+        \IfFileExists{\svg@tempa}{}{\svg@err@missing@file{\svg@tempa}}%
+        \svg@patches%
+        \ifdim\dimexpr\svg@angle\p@\relax=\z@\relax%
+          \input{\svg@tempa}%
+        \else%
+          \edef\svg@tempb{origin=\svg@origin}%
+          \expandafter\rotatebox\expandafter[\svg@tempb]{\svg@angle}{%
+            \input{\svg@tempa}%
+          }%
+        \fi%
+      \else%
+        \def\svg@tempb{}%
+        \ifdim\dimexpr\svg@angle\p@\relax=\z@\relax\else%
+          \edef\svg@tempb{origin=\svg@origin,angle=\svg@angle}%
+        \fi%
+        \edef\svg@tempb{\svg@tempb,keepaspectratio,scale=\svg@scale}%
+        \ifdim\svg@height=\maxdimen\relax\else%
+          \edef\svg@tempb{\svg@tempb,height=\svg@height}%
+        \fi%
+        \ifdim\svg@width=\maxdimen\relax\else%
+          \edef\svg@tempb{\svg@tempb,width=\svg@width}%
+        \fi%
+        \if@svg@draft%
+          \edef\svg@tempb{\svg@tempb,draft}%
+        \fi%
+        \edef\svg@tempa{\svg@file@path\svg@file@name\svg@fileextension}%
+        \expandafter\includegraphics\expandafter[\svg@tempb]{\svg@tempa}%
+      \fi%
+    \else%
+      \svg@err@missing@file{\svg@file@name\svg@fileextension}%
+    \fi%
+  \endgroup%
+}
+
+\newcommand*\svg@get@lastpage[1]{%
+  \begingroup%
+    \ifx\pdfximage\@undefined%
+      \ifx\saveimageresource\@undefined%
+        \ifx\XeTeXpdfpagecount\@undefined%
+          \@tempcnta=\@cclv\relax%
+        \else%
+          \@tempcnta=\XeTeXpdfpagecount"#1"\relax%
+        \fi%
+      \else%
+        \saveimageresource{#1}%
+        \@tempcnta=\lastsavedimageresourcepages\relax%
+      \fi%
+    \else%
+      \pdfximage{#1}%
+      \@tempcnta=\pdflastximagepages\relax%
+    \fi%
+    \edef\svg@tempa{%
+      \endgroup%
+      \noexpand\FamilyOptions{newSVG}{lastpage=\the\@tempcnta}%
+    }%
+  \svg@tempa%
+}
+\newcommand*\svg@err@missing@file[1]{%
+  \PackageError{svg}{File #1 is missing}{%
+    There's no file #1 neither in current\MessageBreak%
+    directory nor any other searched path given by\MessageBreak%
+    \string\svgpath%
+    \ifx\svg@input@path\@undefined\else%
+      \space(\svg@input@path)%
+    \fi%
+    \space or \string\graphicspath%
+    \ifx\Ginput@path\@undefined\else%
+      \space(\Ginput@path)%
+    \fi.%
+  }%
+}
+\newif\if@svg@path@found
+\newcommand*\svg@file@name{}
+\newcommand*\svg@file@path{./}
+\newcommand*\svg@get@path[2][.svg]{%
+  \begingroup%
+    \@svg@path@foundfalse%
+    \let\svg@tempa\svg@file@path%
+    \svg@get@@path{#2}{#1}%
+    \ifx\svg@tempa\svg@file@path%
+      \let\input@path\svg@input@path%
+      \svg@get@@path{#2}{#1}%
+      \ifx\svg@tempa\svg@file@path%
+        \ifx\Ginput@path\@undefined\else%
+          \let\input@path\Ginput@path%
+          \svg@get@@path{#2}{#1}%
+        \fi%
+      \fi%
+    \fi%
+    \edef\svg@tempa{%
+      \endgroup%
+      \if@svg@path@found%
+        \noexpand\@svg@path@foundtrue%
+      \else%
+        \noexpand\@svg@path@foundfalse%
+      \fi%
+      \noexpand\def\noexpand\svg@file@name{\svg@file@name}%
+      \noexpand\def\noexpand\svg@file@path{\svg@file@path}%
+    }%
+  \svg@tempa%
+}
+\newcommand*\svg@get@@path[2]{%
+  \def\svg@tempb##1#2##2\@nil{%
+    \edef\svg@file@name{##1}%
+  }%
+  \svg@tempb#1#2\@nil%
+  \def\svg@tempb##1{%
+    \def\svg@tempb####1##1#2####2\@nil{%
+      \edef\svg@file@path{####1}%
+    }%
+  }%
+  \IfFileExists{\svg@file@name#2}{%
+    \expandafter\svg@tempb\expandafter{\svg@file@name}%
+    \expandafter\svg@tempb\@filef@und\@nil%
+    \@svg@path@foundtrue%
+  }{}%
+}
+\ifx\pdf@filemoddate\@undefined
+  \newcommand*\svg@iffilenewer[2]{\@gobbletwo}
+\else
+  \newcommand*\svg@iffilenewer[2]{%
+    \begingroup%
+      \edef\svg@tempa{\pdf@filemoddate{#1}}%
+      \edef\svg@tempb{\pdf@filemoddate{#2}}%
+      \ifnum\pdf@strcmp{\svg@tempa}{\svg@tempb}>\z@\relax%
+        \aftergroup\@firstoftwo%
+      \else%
+        \aftergroup\@secondoftwo%
+      \fi%
+    \endgroup%
+  }
+\fi
+\newif\if@svg@out@run
+\newcommand*\svg@out@run[1]{%
+  \@svg@out@runtrue%
+  \ifnum\svg@out@mode=\thr@@\relax\else%
+    \svg@iffilenewer{#1.svg}{#1\svg@fileextension}{}{%
+      \@svg@out@runfalse%
+      \if@svg@texformat%
+        \IfFileExists{#1\svg@fileextension_tex}{}{\@svg@out@runtrue}%
+      \fi%
+    }%
+  \fi%
+  \if@svg@out@run%
+    \ifnum\pdf@shellescape=\@ne\relax%
+      \if@svg@texformat%
+        \ifnum\svg@out@mode<\tw@\relax%
+          \svg@iffilenewer{#1\svg@fileextension_tex}{#1\svg@fileextension}{%
+            \@svg@out@runfalse%
+            \PackageWarning{svg}{%
+              Since the filedate of `#1\svg@fileextension_tex' is \MessageBreak%
+              newer than `#1\svg@fileextension' it's supposed that\MessageBreak%
+              you customized this file. With intension to avoid a\MessageBreak%
+              accidental overwriting of this file, the export with\MessageBreak%
+              `inkscape' won't be done. If you want to overwrite\MessageBreak%
+              the existing file please choose `inkscape=overwrite'%
+            }%
+          }{}%
+        \fi%
+      \fi%
+      \if@svg@out@run%
+        \if@svg@texformat%
+          \def\svg@tempa{--export-latex}%
+        \else%
+          \def\svg@tempa{}%
+        \fi%
+        \ifx\svg@dpi\relax\else%
+          \edef\svg@tempa{\svg@tempa\space--export-dpi=\svg@dpi}%
+        \fi%
+        \ShellEscape{%
+          \svg@inkscapepath\space-z\space%
+          \svg@out@area\space%
+          \svg@tempa\space%
+          \svg@out@opt\space% 
+          --file=#1.svg\space%
+          --export-\svg@filetype=#1\svg@fileextension\space%
+        }%
+      \fi%
+    \else%
+      \PackageWarning{svg}{%
+        You didn't enable `shell escape' (or `write18') so\MessageBreak%
+        it wasn't possible to launch the inkscape export\MessageBreak%
+        for file `#1.svg'%
+      }%
+    \fi%
+  \fi%
+}
+\newcommand*\svg@patches{%
+  \let\svg@picture@saved\picture%
+  \let\picture\svg@picture@patched%
+  \let\svg@includegraphics@saved\includegraphics%
+  \let\includegraphics\svg@includegraphics@patched%
+}
+\newcommand*\svg@picture@saved{}
+\newcommand*\svg@picture@patched{}
+\newcommand*\svg@pictur@patched{}
+\long\def\svg@picture@patched#1{\svg@pictur@patched@#1}
+\def\svg@pictur@patched@(#1,#2){%
+  \ifdim\dimexpr\svg@scale\p@\relax=\p@\relax%
+    \let\svg@wrn@scale\relax%
+  \fi%
+  \ifdim\svg@height=\maxdimen\relax%
+    \ifdim\svg@width=\maxdimen\relax%
+      \setlength\unitlength{\svg@scale\unitlength}%
+      \let\svg@wrn@scale\relax%
+    \else%
+      \setlength\unitlength{\svg@width}%
+    \fi%
+  \else%
+    \Gscale@div\svg@tempa{#1\p@}{#2\p@}%
+    \setlength\unitlength{\svg@height}%
+    \setlength\unitlength{\svg@tempa\unitlength}%
+    \ifdim\svg@width=\maxdimen\relax\else%
+      \ifdim\unitlength>\svg@width\relax%
+        \setlength\unitlength{\svg@width}%
+      \fi%
+    \fi%
+  \fi%
+  \svg@wrn@scale%
+  \svg@picture@saved(#1,#2)%
+}
+\newcommand*\svg@wrn@scale{%
+  \PackageWarning{svg}{%
+    The parameter `scale' is only considered if neither\MessageBreak%
+    `width' nor `height' are specified\MessageBreak%
+  }%
+}
+\DefineFamily{newSVGinternal}
+\DefineFamilyMember{newSVGinternal}
+\DefineFamilyKey{newSVGinternal}{width}{%
+  \FamilyKeyStateProcessed%
+}
+\newcounter{svg@currentpage}
+\FamilyCounterKey{newSVGinternal}{page}{svg@currentpage}
+\newcommand*\svg@includegraphics@saved{}
+\newcommand*\svg@includegraphics@patched[2][]{%
+  \FamilyOptions{newSVGinternal}{#1}%
+  \ifnum\value{svg@currentpage}>\value{svg@lastpage}\relax\else%
+    \edef\svg@tempa{\svg@file@path\svg@file@name\svg@fileextension}%
+    \if@svg@draft%
+      \def\svg@tempb{#1,draft}%
+    \else%
+      \def\svg@tempb{#1}%
+    \fi%
+    \expandafter\svg@includegraphics@saved\expandafter[\svg@tempb]{\svg@tempa}%
+  \fi%
+}
+\endinput
+
+%TODO: welche sind tatsächlich notwendig?
+\@ifpackageloaded{import}{}{\RequirePackage{import}}%
+\@ifpackageloaded{xkeyval}{}{\RequirePackage{xkeyval}}%
+\@ifpackageloaded{subfig}{}{\RequirePackage{subfig}}%
+\@ifpackageloaded{graphicx}{}{\RequirePackage{graphicx}}
+\@ifpackageloaded{transparent}{}{\RequirePackage{transparent}}%
+\@ifpackageloaded{xcolor}{}{\RequirePackage{xcolor}}%
+
+
+% TODO separates paket svg-export für Exportfunktionen
+% TODO ifplatform nur laden, falls shellescape aktiv
+
+
+\define@boolkey[SVG]{svg.sty}[SVG@out@]{pdf}[true]{}%
+\define@boolkey[SVG]{svg.sty}[SVG@out@]{eps}[true]{}%
+\define@boolkey[SVG]{svg.sty}[SVG@out@]{png}[true]{}%
+\newif\ifSVG@out@extract
+% TODO Standardmäßig auf \svg@input@path
+\def\SVG@out@path{./}%
+\define@key[SVG]{svg.sty}{path}{\def\SVG@out@path{#1}}%
+
+
+
+% standardmäßig setzen (falls shell-escape)?
+\define@boolkey[SVG]{svg.sty}[SVG@out@]{clean}[true]{}%
+
+% Warum nicht \figurename?
+\newcounter{newsvgfigure}[figure]%
+\def\SVG@out@name{Fig.\arabic{newsvgfigure}\alph{subfigure}}%
+\define@key[SVG]{svg.sty}{name}{\def\SVG@out@name{#1}}%
+
+\def\SVG@out@pretex{}%
+\define@key[SVG]{svg.sty}{pretex}{\def\SVG@out@pretex{#1}}%
+\def\SVG@out@postex{}%
+\define@key[SVG]{svg.sty}{postex}{\def\SVG@out@postex{#1}}%
+
+
+\def\SVG@in@preamble{\jobname.tex}%
+\define@key[SVG]{svg.sty}{preamble}{\def\SVG@in@preamble{#1}}%
+\def\SVG@in@end{\begin{document}}%
+\define@key[SVG]{svg.sty}{end}{\def\SVG@in@end{#1}}%
+
+\define@boolkey[SVG]{svg.sty}[SVG@in@]{exclude}[true]{}%
+
+
+
+\def\SVG@cmd@inkscape{inkscape -z -C}%
+\define@key[SVG]{svg.sty}{inkscape}{\def\SVG@cmd@inkscape{#1}}%
+\def\SVG@cmd@pdflatex{pdflatex}%
+\define@key[SVG]{svg.sty}{pdflatex}{\def\SVG@cmd@pdflatex{#1}}%
+\def\SVG@cmd@pdftops{pdftops -eps}%
+\define@key[SVG]{svg.sty}{pdftops}{\def\SVG@cmd@pdftops{#1}}%
+\def\SVG@cmd@convert{convert -density 300}%
+\define@key[SVG]{svg.sty}{convert}{\def\SVG@cmd@convert{#1}}%
+
+
+\ProcessOptionsX[SVG]%
+
+
+
+
+\def\setsvg#1{\setkeys[SVG]{svg.sty}{#1}}%
+\def\includesvg{\@ifnextchar[\@includesvg{\@includesvg[]}}%
+\def\@includesvg[#1]#2{%
+  \setkeys[SVG]{svg.sty}{#1}%
+  \SVG@out@extractfalse%
+  \ifSVG@out@pdf \SVG@out@extracttrue \fi%
+  \ifSVG@out@eps \SVG@out@extracttrue \fi%
+  \ifSVG@out@png \SVG@out@extracttrue \fi%
+  \ifnum\pdfstrcmp
+  {\pdffilemoddate{\SVG@in@path#2.svg}}%
+  {\pdffilemoddate{\SVG@in@path#2.pdf}}>0%
+    \immediate\write18{%
+      \SVG@cmd@inkscape\space%
+        -f \SVG@in@path#2.svg\space%
+        -A \SVG@in@path#2.pdf\space%
+        --export-latex%
+    }%
+  \fi%
+  
+  
+  \ifSVG@out@usewidth%
+    \settoheight\SVG@out@height{%
+      \includegraphics[width=\SVG@out@width]{\SVG@in@path#2}%
+    }%
+  \else%
+    \ifSVG@out@useheight%
+      \settowidth\SVG@out@width{%
+        \includegraphics[height=\SVG@out@height]{\SVG@in@path#2}%
+      }%
+    \else%
+      \settoheight\SVG@out@height{%
+        \includegraphics{\SVG@in@path#2}%
+      }%
+      \settowidth\SVG@out@width{\includegraphics{\SVG@in@path#2}}%
+    \fi%
+  \fi%
+  
+  
+  \ifSVG@out@extract%
+    \newwrite\SVG@out@file%
+    % tempcnta oder wie auch immer
+    \setcounter{newsvgfigure}{\value{figure}}%
+    \stepcounter{newsvgfigure}%
+    \def\SVG@out@filename{\SVG@out@name}%
+    \immediate\openout\SVG@out@file=\SVG@out@path\SVG@out@filename.tex%
+  \fi%
+  \ifSVG@out@extract%
+    \def\SVG@in@line{}%
+    \newread\SVG@in@file%
+    \immediate\openin\SVG@in@file=\SVG@in@preamble%
+  \fi%
+  
+  %TODO: dieser extract-kram geht doch bestimmt auch mit nem paket?!
+  \newif\ifSVG@in@read%
+  \ifSVG@out@extract \SVG@in@readtrue \fi%
+  \@whilesw\ifSVG@in@read\fi{%
+    \catcode`\#=12\relax\endlinechar=-1%
+    \immediate\read\SVG@in@file to \SVG@in@line%
+    \ifx\SVG@in@end\SVG@in@line%
+      \SVG@in@readfalse%
+    \else%
+      \immediate\write\SVG@out@file{\unexpanded\expandafter{\SVG@in@line}}%
+    \fi%
+    \ifeof\SVG@in@file\SVG@in@readfalse\fi%
+    \endlinechar=13\catcode`\#=6\relax%
+  }%
+  \ifSVG@out@extract \immediate\closein\SVG@in@file \fi%
+  \ifSVG@out@extract%
+    \def\SVG@out@defpack{%
+      \makeatletter%
+      \@ifpackageloaded{import}{}{\RequirePackage{import}}%
+      \@ifpackageloaded{graphicx}{}{\RequirePackage{graphicx}}%
+      \@ifpackageloaded{transparent}{}{\RequirePackage{transparent}}%
+      \@ifpackageloaded{xcolor}{}{\RequirePackage{xcolor}}%
+      \makeatother%
+    }%
+    \def\SVG@out@defwidth{\def\svgwidth{0.99\textwidth}}%
+    \def\SVG@out@definput{\import{\SVG@in@path}{#2.pdf_tex}}%
+    \immediate\write\SVG@out@file{\unexpanded\expandafter{\SVG@out@defpack}}%
+    \immediate\write\SVG@out@file{%
+      \noexpand\setlength{\pdfpagewidth}{\the\SVG@out@width}%
+    }%
+    \immediate\write\SVG@out@file{%
+      \noexpand\setlength{\pdfpageheight}{\the\SVG@out@height}%
+    }%
+    \immediate\write\SVG@out@file{%
+      \noexpand\setlength{\paperheight}{\pdfpageheight}%
+    }%
+    \immediate\write\SVG@out@file{%
+      \noexpand\setlength{\paperwidth}{\pdfpagewidth}%
+    }%
+    \immediate\write\SVG@out@file{%
+      \noexpand\setlength{\textheight}{\paperheight}%
+    }%
+    \immediate\write\SVG@out@file{%
+      \noexpand\setlength{\textwidth}{\paperwidth}%
+    }%
+    \immediate\write\SVG@out@file{%
+      \noexpand\setlength{\textheight}{\paperheight}%
+    }%
+    \immediate\write\SVG@out@file{\noexpand\setlength{\oddsidemargin}{-1in}}%
+    \immediate\write\SVG@out@file{\noexpand\setlength{\evensidemargin}{-1in}}%
+    \immediate\write\SVG@out@file{\noexpand\setlength{\topmargin}{-1in}}%
+    \immediate\write\SVG@out@file{\noexpand\setlength{\headheight}{0in}}%
+    \immediate\write\SVG@out@file{\noexpand\setlength{\headsep}{0in}}%
+    \immediate\write\SVG@out@file{\noexpand\setlength{\topskip}{0in}}%
+    \immediate\write\SVG@out@file{\noexpand\setlength{\footskip}{0in}}%
+    \immediate\write\SVG@out@file{\noexpand\setlength{\parindent}{0in}}%
+    \immediate\write\SVG@out@file{\noexpand\setlength{\parsep}{0in}}%
+    \immediate\write\SVG@out@file{\noexpand\setlength{\parskip}{0in}}%
+    \immediate\write\SVG@out@file{%
+      \noexpand\begin{document}%
+      \noexpand\pagestyle{empty}%
+      \noexpand\begin{center}%
+        \unexpanded\expandafter{\SVG@out@defwidth}%
+        \unexpanded\expandafter{\SVG@out@pretex}%
+        \expandafter\noexpand\SVG@out@definput%
+        \unexpanded\expandafter{\SVG@out@postex}%
+        \noexpand\end{center}%
+        \noexpand\end{document}%
+      }%
+    \immediate\closeout\SVG@out@file%
+  \fi%
+  \ifSVG@out@extract%
+    \immediate\write18{%
+      \SVG@cmd@pdflatex\space\SVG@out@path\SVG@out@filename.tex%
+    }%
+  \fi%
+  \ifSVG@out@eps%
+    \immediate\write18{\SVG@cmd@pdftops\space\SVG@out@filename.pdf}%
+    \immediate\write18{%
+      mv \SVG@out@filename.eps\space\SVG@out@path\SVG@out@filename.eps%
+    }%
+  \fi%
+  \ifSVG@out@png%
+    \immediate\write18{%
+      \SVG@cmd@convert\space%
+        \SVG@out@filename.pdf\space\SVG@out@filename.png%
+    }%
+    \immediate\write18{%
+      mv \SVG@out@filename.png\space\SVG@out@path\SVG@out@filename.png%
+    }%
+  \fi%
+  \ifSVG@out@extract%
+    \ifSVG@out@pdf%
+      \immediate\write18{%
+        mv \SVG@out@filename.pdf\space\SVG@out@path\SVG@out@filename.pdf%
+      }%
+    \else%
+      \ifSVG@out@clean \immediate\write18{rm \SVG@out@filename.pdf} \fi%
+    \fi%
+    \ifSVG@out@clean%
+      \immediate\write18{%
+        rm
+          \SVG@out@path\SVG@out@filename.tex\space%
+          \SVG@out@filename.aux\space%
+          \SVG@out@filename.log\space%
+          \SVG@out@filename.out%
+      }%
+    \fi%
+  \fi%
+  
+  \ifSVG@in@exclude\else%
+    {%
+      \def\svgwidth{\the\SVG@out@width}%
+      \SVG@out@pretex%
+      \import{\SVG@in@path}{#2.pdf_tex}%
+      \SVG@out@postex%
+    }%
+  \fi%
+}%
+\endinput
+%%
+%% End of file `svg.sty'.
