@@ -2,19 +2,16 @@
 % \documentclass[english,ngerman,BCOR=6mm,parskip=false]{tudscrreprt}
 % \setlength{\parskip}{0.7ex}
 \listfiles
-%\documentclass{minimal}
-\documentclass{article}
-%\usepackage{selinput}\SelectInputMappings{adieresis={ä},germandbls={ß}}
+\documentclass[draft]{article}% Test
+\usepackage{selinput}\SelectInputMappings{adieresis={ä},germandbls={ß}}
 \usepackage[T1]{fontenc}
 %\usepackage{babel}
 
 \usepackage{showframe}
 
-\usepackage[]{graphicx}
 %\usepackage{svg}
 \usepackage[]{svg-new}
 
-\usepackage{transparent}
 %\usepackage{pgf}
 %\usepackage[off]{auto-pst-pdf}
 
@@ -38,12 +35,11 @@
 \makeatletter
 \meaning\svg@inkscapepath
 
-\providecommand*\transparent[1]{}
 %\svgpath{{bar/}}
 %\graphicspath{{foo/}}
 %
 \newcommand*\testparameters{%
-%  width=150pt,
+  width=250pt,
 %  height=180pt,
 }
 \newcommand*\newtestparameters{}
@@ -60,10 +56,8 @@
 \blindtext
 
 \begin{figure}
-%\tiny
-\expandafter\newincludesvg\expandafter[%
-  \newtestparameters,%
-%  width=\textwidth,
+\newincludesvg[%
+  width=\textwidth,
 %  svgpath=bar,%
 %  scale=-1,
 %  format=raw,%
@@ -76,6 +70,23 @@
 %  lastpage=3
 ]{newimage}
 \end{figure}
+
+%\begin{figure}
+%\includesvg[%
+%  width=250pt,
+%  pdf,eps,png,name=foo,path=convert/
+%%  svgpath=bar,%
+%%  scale=-1,
+%%  format=raw,%
+%%  filetype=png,
+%%  dpi=600,
+%%  inkscape=page,
+%%  inkscape=force,
+%%  inkscape={-d=300}
+%%  draft
+%%  lastpage=3
+%]{example}
+%\end{figure}
 
 %\begin{figure}
 %\expandafter\includegraphics\expandafter[\newtestparameters]{image}

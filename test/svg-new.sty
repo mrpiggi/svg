@@ -40,6 +40,8 @@
 \ProvidesPackage{svg-new}[2012/09/05 v2.00 SVG inclusion and extraction]%
 
 \RequirePackage{graphicx}[2014/10/28]
+\RequirePackage{xcolor}[2016/05/11]
+\RequirePackage{transparent}[2016/05/16]
 \RequirePackage{ifpdf}[2016/05/14]
 \RequirePackage{ifxetex}[2010/09/12]
 \RequirePackage{shellesc}[2016/06/07]
@@ -289,11 +291,10 @@
 
 \newcommand*\svg@get@lastpage[1]{%
   \begingroup%
+    \@tempcnta=\@cclv\relax%
     \ifx\pdfximage\@undefined%
       \ifx\saveimageresource\@undefined%
-        \ifx\XeTeXpdfpagecount\@undefined%
-          \@tempcnta=\@cclv\relax%
-        \else%
+        \ifx\XeTeXpdfpagecount\@undefined\else%
           \@tempcnta=\XeTeXpdfpagecount"#1"\relax%
         \fi%
       \else%
@@ -301,8 +302,10 @@
         \@tempcnta=\lastsavedimageresourcepages\relax%
       \fi%
     \else%
-      \pdfximage{#1}%
-      \@tempcnta=\pdflastximagepages\relax%
+      \ifpdf%
+        \pdfximage{#1}%
+        \@tempcnta=\pdflastximagepages\relax%
+      \fi%
     \fi%
     \edef\svg@tempa{%
       \endgroup%
@@ -501,6 +504,8 @@
   \fi%
 }
 \endinput
+
+% TODO: Was tun bei export/convert, wenn draft aktiviert?
 
 %TODO: welche sind tatsächlich notwendig?
 \@ifpackageloaded{import}{}{\RequirePackage{import}}%

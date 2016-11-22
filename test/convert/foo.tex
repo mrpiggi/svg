@@ -1,0 +1,19 @@
+\PassOptionsToClass{%
+  convert=ghostscript,%
+  convert={gsexe="C:/Program Files/gs/gs9.20/bin/gswin64c"},
+  convert={convertexe=convert},
+  convert=png,convert={density=600},%
+  convert={subjobname=bla}%
+}{standalone}
+% If LuaLaTeX
+\RequirePackage{luatex85,shellesc}
+% EndIf LuaLaTeX
+\documentclass[class=scrartcl]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage{../svg-new}
+\usepackage{amsmath}
+\standaloneconfig{convert={subjobname=blubb}}
+\begin{document}
+%\includegraphics{example}
+\newincludesvg[width=250pt]{image}%
+\end{document}
