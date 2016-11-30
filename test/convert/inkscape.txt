@@ -1,0 +1,119 @@
+Usage: inkscape [OPTIONEN...] [DATEI...]
+
+Verf�gbare Optionen:
+  -V, --version                            Versionsnummer von Inkscape ausgeben
+  -z, --without-gui                        X-Server nicht verwenden (Dateien
+                                           nur mittels Konsole verarbeiten)
+  -g, --with-gui                           Versuche, den X-Server zu verwenden
+                                           (auch wenn die Umgebungsvariable
+                                           »$DISPLAY« nicht gesetzt wurde)
+  -f, --file=DATEINAME                     Angegebene Dokumente öffnen
+                                           (Optionszeichenkette muss nicht
+                                           übergeben werden)
+  -p, --print=DATEINAME                    Dokumente in angegebene
+                                           Ausgabedatei drucken (verwenden Sie
+                                           »| Programm« zur Weiterleitung)
+  -e, --export-png=DATEINAME               Das Dokument in eine PNG-Datei
+                                           exportieren
+  -d, --export-dpi=DPI                     Auflösung beim Exportieren von
+                                           Bitmaps und Rasterisierung von
+                                           Filtern in PS/EPS/PDF (Vorgabe ist
+                                           90)
+  -a, --export-area=X0:Y0:X1:Y1            Exportierter Bereich in
+                                           SVG-Benutzereinheiten (Vorgabe:
+                                           gesamte Zeichenfläche, »0,0« ist
+                                           die untere linke Ecke)
+  -D, --export-area-drawing                Exportierter Bereich ist die
+                                           gesamte Zeichnung, nicht die
+                                           Zeichenfläche
+  -C, --export-area-page                   Exportierter Bereich ist die
+                                           gesamte Zeichenfläche
+      --export-margin=WERT                 Nur für PS/EPS/PDF. Setzt einen
+                                           Rand in mm um den exportierten
+                                           Bereich (Standard 0)
+      --export-area-snap                   Die Fläche für den Export einer
+                                           Bitmap nach außen auf die
+                                           nächsten Ganzzahlen aufrunden (in
+                                           SVG-Benutzereinheiten)
+  -w, --export-width=BREITE                Breite der erzeugten Bitmap in
+                                           Pixeln (überschreibt Export-dpi)
+  -h, --export-height=HÖHE                Höhe der erzeugten Bitmap in
+                                           Pixeln (überschreibt Export-dpi)
+  -i, --export-id=Kennung                  Kennung des zu exportierenden
+                                           Objektes
+  -j, --export-id-only                     Nur das Objekt mit der angegebenen
+                                           Export-ID exportieren, alle anderen
+                                           auslassen
+  -t, --export-use-hints                   Verwende gespeicherten Dateinamen
+                                           und DPI-Hinweise zum Exportieren
+                                           (nur mit Export-ID)
+  -b, --export-background=FARBE            Hintergrundfarbe der exportierten
+                                           Bitmap (jede von SVG unterstützte
+                                           Farbzeichenkette)
+  -y, --export-background-opacity=WERT     Hintergrunddeckkraft der
+                                           exportierten Bitmap (0,0 bis 1,0
+                                           oder 1 bis 255)
+  -l, --export-plain-svg=DATEINAME         Dokument in reine SVG-Datei
+                                           exportieren (ohne Sodipodi- oder
+                                           Inkscape-Namensräume)
+  -P, --export-ps=DATEINAME                Das Dokument in eine PS-Datei
+                                           exportieren
+  -E, --export-eps=DATEINAME               Das Dokument in eine EPS-Datei
+                                           exportieren
+      --export-ps-level=PS Level           Wähle das PostScript Level zum
+                                           Export. Mögliche Auswahl sind 2
+                                           (Standard) und 3
+  -A, --export-pdf=DATEINAME               Das Dokument in eine PDF-Datei
+                                           exportieren
+      --export-pdf-version=PDF_VERSION     Exportiere PDF in der angegebenen
+                                           Version. (Hinweis: Stellen Sie
+                                           sicher das die Version exakt wie im
+                                           PDF Export Dialog angegeben wird.
+                                           Beispiel "PDF 1.3" ist PDF -a
+                                           konform)
+      --export-latex                       Exportiere PDF/PS/EPS ohne Text.
+                                           Neben PDF/PS/EPS wird eine
+                                           LaTeX-Datei exportiert, die den
+                                           Text oben auf die PDF/PS/EPS-Datei
+                                           legt. Einbinden des Ergebnisses in
+                                           Latex mit: \input{latexfile.tex}
+  -M, --export-emf=DATEINAME               Dokument in eine Erweiterte
+                                           Metadatei (EMF) exportieren
+  -m, --export-wmf=DATEINAME               Dokument in eine Windows-Metadatei
+                                           (WMF) exportieren
+  -T, --export-text-to-path                Textelemente beim Export (PS, EPS,
+                                           PDF, SVG) in Pfade umwandeln 
+      --export-ignore-filters              Objekte ohne Filter zeichnen, statt
+                                           Rasterisierung (PS, EPS, PDF)
+  -X, --query-x                            Abfragen der X-Koordinate der
+                                           Zeichnung oder des mit --query-id
+                                           angegebenen Objektes
+  -Y, --query-y                            Abfragen der Y-Koordinate der
+                                           Zeichnung oder des mit --query-id
+                                           angegebenen Objektes
+  -W, --query-width                        Abfragen der Breite der Zeichnung
+                                           oder des mit --query-id angegebenen
+                                           Objektes
+  -H, --query-height                       Abfragen der Höhe der Zeichnung
+                                           oder des mit --query-id angegebenen
+                                           Objektes
+  -S, --query-all                          id, x, y, w und h für alle Objekte
+                                           auflisten
+  -I, --query-id=Kennung                   Objekt-ID-Kennung, dessen
+                                           Abmessungen abgefragt werden
+  -x, --extension-directory                Erweiterungsverzeichnis ausgeben
+                                           und beenden
+      --vacuum-defs                        Unbenutzte Elemente aus den
+                                           &lt;defs&gt; des Dokuments entfernen
+      --verb-list                          Liste die Kennungen von allen
+                                           Verben in Inkscape
+      --verb=VERB-ID                       Aufzurufendes Verb wenn Inkscape
+                                           startet.
+      --select=OBJECT-ID                   Auszuwählende Objekt-Kennung wenn
+                                           Inkscape startet.
+      --shell                              Inkscape in interaktivem
+                                           Konsolenmodus starten.
+
+Help options:
+  -?, --help                               Show this help message
+      --usage                              Display brief usage message

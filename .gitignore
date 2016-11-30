@@ -30,4 +30,5 @@ temp/
 !test/*.sty
 !test/*.pdf
 !test/*.svg
+!test/texmf/*.*
 ## include temporary files

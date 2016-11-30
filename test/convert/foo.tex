@@ -1,19 +1,30 @@
 \PassOptionsToClass{%
-  convert=ghostscript,%
+  % TODO If nopdflatex
+  convert={precommand={%
+    dvips -E -o \csname subjobname\endcsname.eps\space%
+    \csname subjobname\endcsname.dvi%
+  }},%
+  convert={inext=.eps},%
+  convert=imagemagick,%
+  % If nopdflatex
   convert={gsexe="C:/Program Files/gs/gs9.20/bin/gswin64c"},
-  convert={convertexe=convert},
-  convert=png,convert={density=600},%
-  convert={subjobname=bla}%
+%  convert=ghostscript,%
+  convert=png,%
+  convert={density=600},%
+  convert={subjobname=bla},%
 }{standalone}
-% If LuaLaTeX
-\RequirePackage{luatex85,shellesc}
+
+% TODO If LuaLaTeX
+%\RequirePackage{luatex85,shellesc}
 % EndIf LuaLaTeX
-\documentclass[class=scrartcl]{standalone}
-\usepackage[T1]{fontenc}
-\usepackage{../svg-new}
-\usepackage{amsmath}
-\standaloneconfig{convert={subjobname=blubb}}
+
+\documentclass [class=article]{standalone}
+\usepackage [T1]{fontenc}
+\usepackage{svg-new}
+\usepackage {amsmath}
 \begin{document}
-%\includegraphics{example}
-\newincludesvg[width=250pt]{image}%
+\svgsetup{extract=false}
+\newincludesvg[%
+  width=250pt%
+]{image}%
 \end{document}

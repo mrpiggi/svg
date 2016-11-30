@@ -1,16 +1,24 @@
+%\documentclass[convert]{standalone}
+%\usepackage[english]{babel}
+%\begin{document}
+%Foo.
+%\end{document}
+
 %\RequirePackage[ngerman=ngerman-x-latest]{hyphsubst}
 % \documentclass[english,ngerman,BCOR=6mm,parskip=false]{tudscrreprt}
 % \setlength{\parskip}{0.7ex}
 \listfiles
-\documentclass[draft]{article}% Test
-\usepackage{selinput}\SelectInputMappings{adieresis={ä},germandbls={ß}}
+\documentclass[]{scrartcl}% Test
+%\usepackage{selinput}\SelectInputMappings{adieresis={ä},germandbls={ß}}
 \usepackage[T1]{fontenc}
 %\usepackage{babel}
 
+\usepackage[extract]{svg-extract}
+
+\svghidepreamblestart
 \usepackage{showframe}
 
-%\usepackage{svg}
-\usepackage[]{svg-new}
+%\usepackage[extract=false]{svg-new}
 
 %\usepackage{pgf}
 %\usepackage[off]{auto-pst-pdf}
@@ -22,54 +30,59 @@
 \setlength{\@fpsep}{0pt}% twocolumn
 \makeatother
 
-\usepackage{amsmath}
-
-\pdfsuppresswarningpagegroup=1%
+%\pdfsuppresswarningpagegroup=1%
 
 \parskip=0pt
 \parindent=0pt
+
+\svghidepreambleend
+\usepackage{amsmath}
+
+
 \begin{document}
+
+
+%\begin{document}
 
 %\svgsetup{inkscapepath="C:/Program Files/Inkscape/inkscape.exe"}
 
 \makeatletter
-\meaning\svg@inkscapepath
-
-%\svgpath{{bar/}}
+\meaning\svg@inkscape@exe
+\makeatother
+\svgpath{{svg/}}
 %\graphicspath{{foo/}}
-%
-\newcommand*\testparameters{%
-  width=250pt,
-%  height=180pt,
-}
-\newcommand*\newtestparameters{}
-\edef\newtestparameters{%
-%  scale=1,
-%  angle=10,origin=Br
-  \testparameters,
-}
-
-%\begin{figure}
-%\expandafter\includesvg\expandafter[\testparameters]{image}
-%\end{figure}
 
 \blindtext
+
+%\svgsetup{inkscapeexe=ink}
+
+%\makeatletter
+%\filename@parse{svg/newimage-svg-extract.tex}
+%\filename@area,\filename@base,\filename@ext
+%\makeatother
 
 \begin{figure}
 \newincludesvg[%
   width=\textwidth,
+  extractpath=out/,
+%  height=150pt,
 %  svgpath=bar,%
 %  scale=-1,
-%  format=raw,%
-%  filetype=png,
-%  dpi=600,
+%  dpi=300,
+%  inkscape={-C},%
+%  inkscape=300dai,%
+%  inkscape=aaadpi,%
+%  inkscape=aaadapi,%
+%  inkscape=raw,
+%  dpi=50,
 %  inkscape=page,
-%  inkscape=force,
-%  inkscape={-d=300}
-%  draft
-%  lastpage=3
-]{newimage}
+%  pretex=\Huge,
+%  inkscape=false,
+%  draft,%=false,
+]{image}
 \end{figure}
+
+%\the\textwidth
 
 %\begin{figure}
 %\includesvg[%
@@ -89,7 +102,6 @@
 %\end{figure}
 
 %\begin{figure}
-%\expandafter\includegraphics\expandafter[\newtestparameters]{image}
 %\end{figure}
 
 \end{document}
