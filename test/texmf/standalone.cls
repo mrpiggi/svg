@@ -767,27 +767,30 @@
         \noindent\lower\@tempdima\copy\sa@box
     }%
 }
-\def\sa@papersize{%
-    \global\let\sa@papersize\relax
-    \special{papersize=\the\paperwidth,\the\paperheight}%
-    \global\sa@yoffset=\paperheight
-    \special{ps::%
-        \@percentchar\@percentchar HiResBoundingBox: 0 0 \the\paperwidth\space\the\paperheight^^J%
-    }%
-}
+%\def\sa@papersize{%
+%    \global\let\sa@papersize\relax
+%    \special{papersize=\the\paperwidth,\the\paperheight}%
+%    \global\sa@yoffset=\paperheight
+%%    \special{ps::%
+%%        \@percentchar\@percentchar HiResBoundingBox: 0 0 
+%%\the\paperwidth\space\the\paperheight^^J%
+%%    }%
+%}
 \def\sa@papersize{%
   \begingroup%
-    \def\svg@bp@strip##1##2{%
+    \def\svg@strip@bp##1##2{%
       \setlength\@tempdima{\dimexpr ##2\relax}%
       \edef##1{\strip@pt\dimexpr\@tempdima*800/803\relax}%
     }%
-    \def\svg@bp@round##1.##2\@nil{%
+    \def\svg@float@ceil##1.##2\@nil{%
       \IfArgIsEmpty{##2}{##1}{\the\numexpr##1+1\relax}%
     }%
-    \svg@bp@strip\@tempc{\paperwidth}%
-    \svg@bp@strip\@tempd{\paperheight}%
-    \edef\@tempa{\expandafter\svg@bp@round\@tempc.\@nil}%
-    \edef\@tempb{\expandafter\svg@bp@round\@tempd.\@nil}%
+    \svg@strip@bp\@tempc{\paperwidth}%
+    \svg@strip@bp\@tempd{\paperheight}%
+    \edef\@tempc{\strip@pt\dimexpr\the\paperwidth\relax}%
+    \edef\@tempd{\strip@pt\dimexpr\the\paperheight\relax}%
+    \edef\@tempa{\expandafter\svg@float@ceil\@tempc.\@nil}%
+    \edef\@tempb{\expandafter\svg@float@ceil\@tempd.\@nil}%
     \global\let\sa@papersize\relax
     \global\sa@yoffset=\paperheight
 %    \typeout{+++++}%
@@ -809,10 +812,10 @@
 %\global \setbox \@begindvibox
 %    \vbox{%
 %    \special{papersize=\the\paperwidth,\the\paperheight}%
-%    \special{ps::%
-%        \@percentchar\@percentchar HiResBoundingBox: 0 0 
-%        \the\paperwidth\space\the\paperheight^^J%
-%    }%
+%%    \special{ps::%
+%%        \@percentchar\@percentchar HiResBoundingBox: 0 0 
+%%        \the\paperwidth\space\the\paperheight^^J%
+%%    }%
 %\unvbox \@begindvibox }%
 %}
 \newlength\sa@yoffset

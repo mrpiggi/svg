@@ -3,9 +3,9 @@
 ----------------------------------------------------------------------------
 
  Copyright (C) Philip Ilten <philten@cern.ch>,  2012-2016
- Copyright (C) Falk Hanisch <tudscr@gmail.com>, 2016
+ Copyright (C) Falk Hanisch <tudscr@gmail.com>, 2016-2017
 
- svg 2016/xx/xx v2.00
+ svg 2017/xx/xx v2.00
 
 ============================================================================
 
@@ -31,7 +31,7 @@ particle physics analysis package ROOT.
 Versions
 --------
 
-**v2.00** (2016/xx/xx)
+**v2.00** (2017/xx/xx)
 
 
 **v1.0** (2016/10/10)

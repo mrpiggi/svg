@@ -9,7 +9,7 @@
 %% svg -- Include SVG pictures in pdfLaTeX documents using Inkscape
 %% 
 %% Copyright (C) Philip Ilten <philten@cern.ch>,  2012-2016
-%% Copyright (C) Falk Hanisch <tudscr@gmail.com>, 2012-2016
+%% Copyright (C) Falk Hanisch <tudscr@gmail.com>, 2016-2017
 %% 
 %% This file was generated from file svg.dtx.
 %% ----------------------------------------------------------------------------
@@ -43,14 +43,14 @@
 \RequirePackage{ifluatex}[2016/05/16]
 \RequirePackage{ifpdf}[2016/05/14]
 \RequirePackage{ifxetex}[2010/09/12]
-\ifluatex
-  \RequirePackage{luatex85}[2016/06/15]% transparent, standalone
-\fi
 \RequirePackage{pdftexcmds}[2016/05/21]
 \RequirePackage{shellesc}[2016/06/07]
 \RequirePackage{graphicx}[2014/10/28]
 \RequirePackage{xcolor}[2016/05/11]
 \RequirePackage{transparent}[2016/05/16]
+%\ifluatex
+%  \RequirePackage{luatex85}[2016/06/15]% standalone
+%\fi
 \RequirePackage{scrbase}[2016/06/14]
 
 \newcommand*\svg@tempa{}
@@ -80,20 +80,19 @@
   \FamilySetNumerical{newSVG}{inkscape}{svg@tempa}{%
     {false}{0},{off}{0},{no}{0},%
     {true}{1},{on}{1},{yes}{1},{onlynewer}{1},{newer}{1},%
-    {overwrite}{2},%
-    {force}{3},{forced}{3},%
-    {pdf}{4},{eps}{5},{ps}{6},{png}{7},%
-    {drawing}{8},{crop}{8},%
-    {page}{9},{nocrop}{9},%
-    {tex}{10},{latex}{10},{exportlatex}{10},{latexexport}{10},%
-    {notex}{11},{nolatex}{11},{noexportlatex}{11},{nolatexexport}{11},%
-    {latexnoexport}{11},{raw}{11},{simple}{11}%
+    {force}{2},{forced}{2},{overwrite}{2},%
+    {pdf}{3},{eps}{4},{ps}{5},{png}{6},%
+    {drawing}{7},{crop}{7},%
+    {page}{8},{nocrop}{8},%
+    {tex}{9},{latex}{9},{exportlatex}{9},{latexexport}{9},%
+    {notex}{10},{nolatex}{10},{noexportlatex}{10},{nolatexexport}{10},%
+    {latexnoexport}{10},{raw}{10},{simple}{10}%
   }{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \ifnum\svg@tempa<4\relax%
+    \ifnum\svg@tempa<\thr@@\relax%
       \let\svg@inkscape@mode\svg@tempa%
     \else%
-      \ifcase\svg@tempa\or\or\or\or% pdf
+      \ifcase\svg@tempa\or\or\or% pdf
         \FamilyOptions{newSVG}{inkscapeformat=pdf}%
       \or% eps
         \FamilyOptions{newSVG}{inkscapeformat=eps}%
@@ -145,14 +144,15 @@
 %}
 
 \ifluatex
-    \newcommand*\svg@inkscape@format{pdf}
+  \newcommand*\svg@inkscape@format{pdf}
 \else\ifpdf
-    \newcommand*\svg@inkscape@format{pdf}
+  \newcommand*\svg@inkscape@format{pdf}
 \else\ifxetex
-    \newcommand*\svg@inkscape@format{pdf}
+  \newcommand*\svg@inkscape@format{pdf}
 \else
-    \newcommand*\svg@inkscape@format{eps}
+  \newcommand*\svg@inkscape@format{eps}
 \fi\fi\fi
+% TODO: mehrere Ausgaben mit kommaliste
 \DefineFamilyKey{newSVG}{inkscapeformat}{%
   \FamilySetNumerical{newSVG}{inkscapeformat}{svg@tempa}{%
     {pdf}{0},{eps}{1},{ps}{2},{png}{3}%
@@ -166,7 +166,6 @@
       \def\svg@inkscape@format{ps}%
     \or% png
       \def\svg@inkscape@format{png}%
-      \FamilyOptions{newSVG}{inkscapelatex=false}%
     \fi%
   \fi%
 }
@@ -185,12 +184,7 @@
   \fi%
 }
 \newif\if@svg@inkscape@latex
-\DefineFamilyKey{newSVG}{inkscapelatex}[true]{%
-  \FamilySetBool{newSVG}{inkscapelatex}{@svg@inkscape@latex}{#1}%
-  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \ifstr{\svg@inkscape@format}{png}{\@svg@inkscape@latexfalse}{}%
-  \fi%
-}
+\FamilyBoolKey{newSVG}{inkscapelatex}{@svg@inkscape@latex}
 
 \newcommand*\svg@inkscape@dpi{}
 \let\svg@inkscape@dpi\relax
@@ -219,16 +213,6 @@
   \def\svg@inkscape@cmd{#1}%
   \FamilyKeyStateProcessed%
 }
-
-\DefineFamilyKey{newSVG}{extract}[true]{%
-  % TODO Warnung zu AtBeginDocument oder so?!
-  \PackageWarning{svg}{%
-    You have to load package `svg-extract' for the\MessageBreak%
-    extraction of standalone graphic files%
-  }%
-}
-
-
 
 \FamilyExecuteOptions{newSVG}{%
   inkscape=true,inkscapearea=drawing,inkscapelatex=true%
@@ -314,6 +298,9 @@
       }%
     \fi%
     \FamilyOptions{newSVG}{#1}%
+    \ifstr{\svg@inkscape@format}{png}{%
+      \FamilyOptions{newSVG}{inkscapelatex=false}%
+    }{}%
     \if@svg@inkscape@latex%
       \edef\svg@file@ext{-svg-tex.\svg@inkscape@format}%
     \else%
@@ -334,6 +321,7 @@
   \endgroup%
 }
 
+% TODO onfailure
 \newcommand*\svg@err@missing@file[1]{%
   \PackageError{svg}{File #1 is missing}{%
     There's no file #1 neither in current\MessageBreak%
@@ -402,18 +390,11 @@
 \newif\if@svg@inkscape@run
 \newcommand*\svg@inkscape@run[2]{%
   \@svg@inkscape@runtrue%
-  \ifnum\svg@inkscape@mode=\thr@@\relax\else%
-    \svg@iffilenewer{#1.svg}{#1#2}{}{%
-      \@svg@inkscape@runfalse%
-      \if@svg@inkscape@latex%
-        \IfFileExists{#1#2_tex}{}{\@svg@inkscape@runtrue}%
-      \fi%
-    }%
-  \fi%
-  \if@svg@inkscape@run%
-    \ifnum\pdf@shellescape=\@ne\relax%
-      \if@svg@inkscape@latex%
-        \ifnum\svg@inkscape@mode<\tw@\relax%
+  \ifnum\svg@inkscape@mode=\tw@\relax\else%
+    \svg@iffilenewer{#1.svg}{#1#2}{}{\@svg@inkscape@runfalse}%
+    \if@svg@inkscape@latex%
+      \IfFileExists{#1#2_tex}{%
+        \ifnum\pdf@shellescape=\@ne\relax\if@svg@inkscape@run%
           \svg@iffilenewer{#1#2_tex}{#1#2}{%
             \@svg@inkscape@runfalse%
             \PackageWarning{svg}{%
@@ -422,40 +403,43 @@
               you customized this file. With intension to avoid a\MessageBreak%
               accidental overwriting of this file, the export with\MessageBreak%
               `Inkscape' won't be done. If you want to overwrite\MessageBreak%
-              the existing file please choose `inkscape=overwrite'%
+              the existing file please choose `inkscape=force'%
             }%
           }{}%
-        \fi%
+        \fi\fi%
+      }{\@svg@inkscape@runtrue}%
+    \fi%
+  \fi%
+  \if@svg@inkscape@run%
+    \ifnum\pdf@shellescape=\@ne\relax%
+      \ifx\svg@inkscape@dpi\relax%
+        \ifstr{\svg@inkscape@format}{png}{\FamilyOptions{newSVG}{dpi=300}}{}%
       \fi%
-      \if@svg@inkscape@run%
-        \ifx\svg@inkscape@dpi\relax%
-          \ifstr{\svg@inkscape@format}{png}{\FamilyOptions{newSVG}{dpi=300}}{}%
+      \PackageInfo{svg}{%
+        Calling Inkscape%
+        \ifx\svg@inkscape@opt\@empty\else%
+          \space with added options `\svg@inkscape@opt'%
         \fi%
-        \PackageInfo{svg}{%
-          Calling Inkscape%
-          \ifx\svg@inkscape@opt\@empty\else%
-            \space with added options `\svg@inkscape@opt'%
-          \fi%
+      }%
+      \ShellEscape{%
+        \svg@inkscape@exe\space-z\space%
+        \svg@inkscape@area\space%
+        \ifx\svg@inkscape@dpi\relax\else--export-dpi=\svg@inkscape@dpi\space\fi%
+        \if@svg@inkscape@latex--export-latex\space\fi%
+        \ifx\svg@inkscape@opt\@empty\else\svg@inkscape@opt\space\fi%
+        --file=#1.svg\space%
+        --export-\svg@inkscape@format=#1#2\space%
+      }%
+      % TODO: die beiden Warungen als Makro für svg-standalone?
+      \IfFileExists{#1#2}{}{%
+        % TODO onfailure
+        \PackageWarning{svg}{%
+          Inkscape export of file `#1#2' failed!\MessageBreak%
+          Troubleshooting: Please check in the log file how\MessageBreak%
+          the invocation of Inkscape took place and try to\MessageBreak%
+          execute it yourself in the terminal%
         }%
-        \ShellEscape{%
-          \svg@inkscape@exe\space-z\space%
-          \svg@inkscape@area\space%
-          \ifx\svg@inkscape@dpi\relax\else--export-dpi=\svg@inkscape@dpi\space\fi%
-          \if@svg@inkscape@latex--export-latex\space\fi%
-          \ifx\svg@inkscape@opt\@empty\else\svg@inkscape@opt\space\fi%
-          --file=#1.svg\space%
-          --export-\svg@inkscape@format=#1#2\space%
-        }%
-        % TODO: die beiden Warungen als Makro für svg-standalone?
-        \IfFileExists{#1#2}{}{%
-          \PackageWarning{svg}{%
-            Inkscape export of file `#1#2' failed!\MessageBreak%
-            Troubleshooting: Please check in the log file how\MessageBreak%
-            the invocation of Inkscape took place and try to\MessageBreak%
-            execute it yourself in the terminal%
-          }%
-        }%
-      \fi%
+      }%
     \else%
       \PackageWarning{svg}{%
         You didn't enable `shell escape' (or `write18')\MessageBreak%
@@ -465,6 +449,7 @@
     \fi%
   \fi%
 }
+% DOC: xelatex!
 \ifx\pdf@filemoddate\@undefined
   \newcommand*\svg@iffilenewer[2]{\@gobbletwo}
 \else

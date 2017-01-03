@@ -1,3 +1,27 @@
+\listfiles 
+% in svg-extract
+
+\AtBeginDocument{%
+  \svgsetup{inkscape=false,extract=false}%
+  \svgsetup{svgpath=svg/}%
+  \svgsetup{width=307.28987pt,angle=30}%
+  \svgxpapersize{image}%
+}
+\documentclass[]{tudscrartcl}
+\usepackage [T1]{fontenc}
+\usepackage {svg-new}
+\usepackage {svg-extract}
+\usepackage {amsmath}
+
+\makeatletter
+\typeout{+++++^^J\meaning\@begindocumenthook}
+\makeatletter
+\begin{document}
+\svgxoutput
+\end{document}
+
+
+
 \PassOptionsToClass{%
   % TODO If nopdflatex
   convert={precommand={%
@@ -28,3 +52,5 @@
   width=250pt%
 ]{image}%
 \end{document}
+
+

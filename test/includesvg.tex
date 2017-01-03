@@ -1,5 +1,7 @@
-%\documentclass[convert]{standalone}
-%\usepackage[english]{babel}
+%\documentclass{article}
+%%\usepackage{luatex85}
+%\usepackage{transparent}
+%\usepackage{pgf}
 %\begin{document}
 %Foo.
 %\end{document}
@@ -8,15 +10,18 @@
 % \documentclass[english,ngerman,BCOR=6mm,parskip=false]{tudscrreprt}
 % \setlength{\parskip}{0.7ex}
 \listfiles
-\documentclass[]{scrartcl}% Test
+\documentclass[parskip=full]{tudscrreprt}% Test
 %\usepackage{selinput}\SelectInputMappings{adieresis={ä},germandbls={ß}}
 \usepackage[T1]{fontenc}
 %\usepackage{babel}
 
-\usepackage[extract]{svg-extract}
+\usepackage{svg-new}
+\usepackage{svg-extract}
+
+%\svgsetup{inkscapeformat=png}
 
 \svghidepreamblestart
-\usepackage{showframe}
+%\usepackage{showframe}
 
 %\usepackage[extract=false]{svg-new}
 
@@ -30,7 +35,7 @@
 \setlength{\@fpsep}{0pt}% twocolumn
 \makeatother
 
-%\pdfsuppresswarningpagegroup=1%
+\pdfsuppresswarningpagegroup=1%
 
 \parskip=0pt
 \parindent=0pt
@@ -40,31 +45,46 @@
 
 
 \begin{document}
-
-
-%\begin{document}
-
-%\svgsetup{inkscapepath="C:/Program Files/Inkscape/inkscape.exe"}
-
-\makeatletter
-\meaning\svg@inkscape@exe
-\makeatother
-\svgpath{{svg/}}
-%\graphicspath{{foo/}}
-
-\blindtext
-
-%\svgsetup{inkscapeexe=ink}
-
+%\blinddocument
+%
+%%\begin{document}
+%
+%%\svgsetup{inkscapepath="C:/Program Files/Inkscape/inkscape.exe"}
+%
 %\makeatletter
-%\filename@parse{svg/newimage-svg-extract.tex}
-%\filename@area,\filename@base,\filename@ext
+%%\newcommand*\svgx@ifinlist[2]{%
+%%  \begingroup%
+%%    \def\svg@tempa##1,#1,##2\@nil{%
+%%      \IfArgIsEmpty{##2}{%
+%%        \aftergroup\@secondoftwo%
+%%      }{%
+%%        \aftergroup\@firstoftwo%
+%%      }%
+%%    }%
+%%    \expandafter\svg@tempa\expandafter,#2,#1,\@nil
+%%  \endgroup%
+%%}%
+%
+%
+%\meaning\svg@inkscape@exe
 %\makeatother
-
+\svgpath{{svg/}}%
+%%\graphicspath{{foo/}}
+%
+%\blindtext
+%
+%%\svgsetup{inkscapeexe=ink}
+%
+%%\makeatletter
+%%\filename@parse{svg/newimage-svg-extract.tex}
+%%\filename@area,\filename@base,\filename@ext
+%%\makeatother
+%
 \begin{figure}
 \newincludesvg[%
   width=\textwidth,
-  extractpath=out/,
+%  extractpath=out/,
+%  extractname=blubb,
 %  height=150pt,
 %  svgpath=bar,%
 %  scale=-1,
@@ -72,7 +92,7 @@
 %  inkscape={-C},%
 %  inkscape=300dai,%
 %  inkscape=aaadpi,%
-%  inkscape=aaadapi,%
+%  inkscape=page,%
 %  inkscape=raw,
 %  dpi=50,
 %  inkscape=page,
@@ -81,6 +101,8 @@
 %  draft,%=false,
 ]{image}
 \end{figure}
+
+
 
 %\the\textwidth
 
