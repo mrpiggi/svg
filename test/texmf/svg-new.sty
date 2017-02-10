@@ -227,7 +227,34 @@
   \svg@tempa%
 }
 
-\newcommand*\svg@inkscape@mode{}
+\newcommand*\svg@out@path{}
+\newcommand*\svg@out@name{\svg@file@name\svg@file@ext}
+\newcommand*\svg@out@base{\svg@out@path\svg@out@name.\svg@ink@type}
+\DefineFamilyKey{newSVG}{outpath}{%
+  \FamilySetNumerical{newSVG}{outpath}{svg@tempa}{%
+    {svgpath}{0},{svgdir}{0},%
+    {svgsubpath}{1},{svgsubdir}{1},%
+    {basepath}{2},{basedir}{2},{jobpath}{2},{jobdir}{2},%
+    {basesubpath}{3},{basesubdir}{3},{jobsubpath}{3},{jobsubdir}{3}
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifcase\svg@tempa\relax% svgpath
+      \def\svg@out@path{\svg@file@path}%
+    \or% svgsubpath
+      \def\svg@out@path{\svg@file@path svg-out/}%
+    \or% basepath
+      \def\svg@out@path{./}%
+    \or% basesubpath
+      \def\svg@out@path{./svg-out/}%
+    \fi%
+  \else%
+    \def\svg@out@path{#1}%
+    \svg@normalize@path{\svg@out@path}%
+    \FamilyKeyStateProcessed%
+  \fi%
+}
+
+\newcommand*\svg@ink@mode{}
 \DefineFamilyKey{newSVG}{inkscape}[true]{%
   \FamilySetNumerical{newSVG}{inkscape}{svg@tempa}{%
     {false}{0},{off}{0},{no}{0},%
@@ -242,9 +269,9 @@
   }{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \ifnum\svg@tempa<\thr@@\relax%
-      \let\svg@inkscape@mode\svg@tempa%
+      \let\svg@ink@mode\svg@tempa%
     \else%
-      \ifcase\svg@tempa\or\or\or% pdf
+      \ifcase\svg@tempa\relax\or\or\or% pdf
         \FamilyOptions{newSVG}{inkscapeformat=pdf}%
       \or% eps
         \FamilyOptions{newSVG}{inkscapeformat=eps}%
@@ -270,30 +297,9 @@
     \svg@tempa#1dpi\@nil%
   \fi%
 }
-
-\newcommand*\svg@inkscape@opt{}
-\DefineFamilyKey{newSVG}{inkscapeopt}{%
-  \def\svg@inkscape@opt{#1}%
-  \FamilyKeyStateProcessed%
-}
-
-\newcommand*\svg@inkscape@exe{inkscape}
-\DefineFamilyKey{newSVG}{inkscapeexe}{%
-  \def\svg@inkscape@exe{#1}%
-  \FamilyKeyStateProcessed%
-}
-
-% TEST Inkscapeaufruf unixoide OS
-%inkscapeexe="C:/Program Files/Inkscape/inkscape.exe"
-%\IfFileExists{/dev/null}{%
-%\newcommand{\Inkscape}{/usr/bin/inkscape}%
-%}{%
-%\newcommand{\Inkscape}{“C:/Program Files (x86)/Inkscape/inkscape.exe”}%
-%}
-
-\newcommand*\svg@inkscape@type{pdf}
+\newcommand*\svg@ink@type{pdf}
 \ifluatex\else\ifpdf\else\ifxetex\else
-  \renewcommand*\svg@inkscape@type{eps}
+  \renewcommand*\svg@ink@type{eps}
 \fi\fi\fi
 
 \DefineFamilyKey{newSVG}{inkscapeformat}{%
@@ -302,17 +308,17 @@
   }{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \ifcase\svg@tempa\relax% latex
-      \def\svg@inkscape@type{pdf}%
+      \def\svg@ink@type{pdf}%
     \or% eps
-      \def\svg@inkscape@type{eps}%
+      \def\svg@ink@type{eps}%
     \or% ps
-      \def\svg@inkscape@type{ps}%
+      \def\svg@ink@type{ps}%
     \or% png
-      \def\svg@inkscape@type{png}%
+      \def\svg@ink@type{png}%
     \fi%
   \fi%
 }
-\newcommand*\svg@inkscape@area{}
+\newcommand*\svg@ink@area{}
 \DefineFamilyKey{newSVG}{inkscapearea}{%
   \FamilySetNumerical{newSVG}{inkscapearea}{svg@tempa}{%
     {drawing}{0},{crop}{0},%
@@ -320,56 +326,47 @@
   }{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \ifcase\svg@tempa\relax% drawing
-      \def\svg@inkscape@area{-D}%
+      \def\svg@ink@area{-D}%
     \else% page
-      \def\svg@inkscape@area{-C}%
+      \def\svg@ink@area{-C}%
     \fi%
   \fi%
 }
-\newif\if@svg@inkscape@latex
-\FamilyBoolKey{newSVG}{inkscapelatex}{@svg@inkscape@latex}
+\newif\if@svg@ink@latex
+\FamilyBoolKey{newSVG}{inkscapelatex}{@svg@ink@latex}
 
-\newcommand*\svg@inkscape@dpi{}
-\let\svg@inkscape@dpi\relax
+\newcommand*\svg@ink@dpi{}
+\let\svg@ink@dpi\relax
 \DefineFamilyKey{newSVG}{inkscapedpi}{%
   \FamilyKeyStateUnknownValue%
   \def\svg@tempa##1dpi##2\@nil{\def\svg@tempa{##1}}%
   \svg@tempa#1dpi\@nil%
   \ifnumber{\svg@tempa}{%
-    \edef\svg@inkscape@dpi{\svg@tempa}%
+    \edef\svg@ink@dpi{\svg@tempa}%
     \FamilyKeyStateProcessed%
   }{}%
 }
 \DefineFamilyKey{newSVG}{inkscapedensity}{%
   \FamilyOptions{newSVG}{inkscapedpi=#1}%
 }
-
-\newcommand*\svg@out@path{}
-\newcommand*\svg@out@name{\svg@file@name\svg@file@ext}
-\newcommand*\svg@out@base{\svg@out@path\svg@out@name.\svg@inkscape@type}
-\DefineFamilyKey{newSVG}{outpath}{%
-  \FamilySetNumerical{newSVG}{outpath}{svg@tempa}{%
-    {svgpath}{0},{svgdir}{0},%
-    {svgsubpath}{1},{svgsubdir}{1},%
-    {basepath}{2},{basedir}{2},{jobpath}{2},{jobdir}{2},%
-    {basesubpath}{3},{basesubdir}{3},{jobsubpath}{3},{jobsubdir}{3}
-  }{#1}%
-  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \ifcase\svg@tempa\relax% svgpath
-      \def\svg@out@path{\svg@file@path}%
-    \or% svgsubpath
-      \def\svg@out@path{\svg@file@path svg-out/}%
-    \or% basepath
-      \def\svg@out@path{./}%
-    \or% basesubpath
-      \def\svg@out@path{./svg-out/}%
-    \fi%
-  \else%
-    \def\svg@out@path{#1}%
-    \svg@normalize@path{\svg@out@path}%
-    \FamilyKeyStateProcessed%
-  \fi%
+\newcommand*\svg@ink@exe{inkscape}
+\DefineFamilyKey{newSVG}{inkscapeexe}{%
+  \def\svg@ink@exe{#1}%
+  \FamilyKeyStateProcessed%
 }
+\newcommand*\svg@ink@opt{}
+\DefineFamilyKey{newSVG}{inkscapeopt}{%
+  \def\svg@ink@opt{#1}%
+  \FamilyKeyStateProcessed%
+}
+
+% TEST Aufruf von Inkscape, ImageMagick und GhostScript unixoide OS
+%inkscapeexe="C:/Program Files/Inkscape/inkscape.exe"
+%\IfFileExists{/dev/null}{%
+%\newcommand{\Inkscape}{/usr/bin/inkscape}%
+%}{%
+%\newcommand{\Inkscape}{“C:/Program Files (x86)/Inkscape/inkscape.exe”}%
+%}
 
 \newcommand*\svg@param@width{\z@}
 \FamilyLengthMacroKey{newSVG}{width}{\svg@param@width}
@@ -425,7 +422,6 @@
 % DOC: 0=auslesen, -1=nix tun
 \newcounter{svg@param@lastpage}
 \FamilyCounterKey{newSVG}{lastpage}{svg@param@lastpage}
-% TODO: notwendig?
 \DefineFamilyKey{newSVG}{outname}{%
   \def\svg@out@name{#1\svg@file@ext}%
   \FamilyKeyStateProcessed%
@@ -446,10 +442,10 @@
   \begingroup%
     \svg@param@setcomp%
     \FamilyOptions{newSVG}{#1}%
-    \ifstr{\svg@inkscape@type}{png}{%
+    \ifstr{\svg@ink@type}{png}{%
       \FamilyOptions{newSVG}{inkscapelatex=false}%
     }{}%
-    \if@svg@inkscape@latex%
+    \if@svg@ink@latex%
       \def\svg@file@ext{_svg-tex}%
     \else%
       \def\svg@file@ext{_svg-raw}%
@@ -457,12 +453,12 @@
     \@onelevel@sanitize\svg@file@ext%
     \svg@get@path{#2}%
     \if@svg@file@found%
-      \svg@inkscape@run%
+      \svg@ink@run%
       \IfFileExists{\svg@out@base}{}{%
         \@svg@file@foundfalse%
         \svg@file@missing{\svg@out@base}%
       }%
-      \if@svg@inkscape@latex%
+      \if@svg@ink@latex%
         \IfFileExists{\svg@out@base_tex}{}{%
           \@svg@file@foundfalse%
           \svg@file@missing{\svg@out@base_tex}%
@@ -536,20 +532,20 @@
     \let\svgscale\@undefined%
   \fi%
 }
-\newif\if@svg@inkscape@run
-\newcommand*\svg@inkscape@run{%[2]{%
-  \ifnum\svg@inkscape@mode>\z@\relax%
+\newif\if@svg@ink@run
+\newcommand*\svg@ink@run{%
+  \ifnum\svg@ink@mode>\z@\relax%
     \begingroup%
-      \@svg@inkscape@runtrue%
-      \ifnum\svg@inkscape@mode=\tw@\relax\else%
+      \@svg@ink@runtrue%
+      \ifnum\svg@ink@mode=\tw@\relax\else%
         \svg@iffilenewer{\svg@file@base.svg}{\svg@out@base}{}{%
-          \@svg@inkscape@runfalse%
+          \@svg@ink@runfalse%
         }%
-        \if@svg@inkscape@latex%
+        \if@svg@ink@latex%
           \IfFileExists{\svg@out@base_tex}{%
-            \ifnum\pdf@shellescape=\@ne\relax\if@svg@inkscape@run%
+            \ifnum\pdf@shellescape=\@ne\relax\if@svg@ink@run%
               \svg@iffilenewer{\svg@out@base_tex}{\svg@out@base}{%
-                \@svg@inkscape@runfalse%
+                \@svg@ink@runfalse%
                 \edef\svg@tempa{\svg@out@base}%
                 \svg@quotes@remove{\svg@tempa}%
                 \PackageWarning{svg}{%
@@ -564,39 +560,33 @@
                 }%
               }{}%
             \fi\fi%
-          }{\@svg@inkscape@runtrue}%
+          }{\@svg@ink@runtrue}%
         \fi%
       \fi%
-      \if@svg@inkscape@run%
+      \if@svg@ink@run%
         \edef\svg@tempa{\svg@file@base}%
         \edef\svg@tempb{\svg@out@name}%
         \svg@quotes@remove{\svg@tempa}%
         \svg@quotes@remove{\svg@tempb}%
         \ifnum\pdf@shellescape=\@ne\relax%
-          \ifx\svg@inkscape@dpi\relax%
-            \ifstr{\svg@inkscape@type}{png}{%
+          \ifx\svg@ink@dpi\relax%
+            \ifstr{\svg@ink@type}{png}{%
               \FamilyOptions{newSVG}{inkscapedpi=300}%
             }{}%
           \fi%
           \PackageInfo{svg}{%
             Calling Inkscape%
-            \ifx\svg@inkscape@opt\@empty\else%
-              \space with added options `\svg@inkscape@opt'%
+            \ifx\svg@ink@opt\@empty\else%
+              \space with added options `\svg@ink@opt'%
             \fi%
           }%
-          \ShellEscape{\svg@inkscape@cmd{\svg@tempa}{\svg@tempb}}%
-          \IfFileExists{\svg@out@name.\svg@inkscape@type}{%
+          \ShellEscape{\svg@ink@cmd{\svg@tempa}{\svg@tempb}}%
+          \IfFileExists{\svg@out@name.\svg@ink@type}{%
             \svg@quotes@remove{\svg@out@base}%
             \svg@shell@mkdir{\svg@out@path}%
-            \ShellEscape{%
-              \svg@shell@move\space"\svg@tempb.\svg@inkscape@type"%
-              \space"\svg@out@base"%
-            }%
-            \if@svg@inkscape@latex%
-              \ShellEscape{%
-                \svg@shell@move\space"\svg@tempb.\svg@inkscape@type_tex"%
-                \space"\svg@out@base_tex"%
-              }%
+            \svg@shell@move{\svg@tempb.\svg@ink@type}{\svg@out@base}%
+            \if@svg@ink@latex%
+              \svg@shell@move{\svg@tempb.\svg@ink@type_tex}{\svg@out@base_tex}%
             \fi%
           }{%
             \PackageWarning{svg}{%
@@ -618,16 +608,14 @@
     \endgroup%
   \fi%
 }
-\newcommand*\svg@inkscape@cmd[2]{%
-  \svg@inkscape@exe\space-z\space\svg@inkscape@area\space%
-  \ifx\svg@inkscape@dpi\relax\else--export-dpi=\svg@inkscape@dpi\space\fi%
-  \if@svg@inkscape@latex--export-latex\space\fi%
-  \ifx\svg@inkscape@opt\@empty\else\svg@inkscape@opt\space\fi%
+\newcommand*\svg@ink@cmd[2]{%
+  \svg@ink@exe\space-z\space\svg@ink@area\space%
+  \ifx\svg@ink@dpi\relax\else--export-dpi=\svg@ink@dpi\space\fi%
+  \if@svg@ink@latex--export-latex\space\fi%
+  \svg@ink@opt\space%
   --file="#1.svg"\space%
-  --export-\svg@inkscape@type="#2.\svg@inkscape@type"\space%
+  --export-\svg@ink@type="#2.\svg@ink@type"\space%
 }
-% DOC: \inkscapecommand
-\newcommand*\inkscapecommand[1]{\def\svg@inkscape@cmd##1##2{#1}}
 % DOC: xelatex!
 \ifx\pdf@filemoddate\@undefined
   \newcommand*\svg@iffilenewer[2]{\@gobbletwo}
@@ -665,10 +653,10 @@
 %  \begingroup%
   \IfArgIsEmpty{#1}{}{\FamilyOptions{newSVG}{#1}}%
   \if@svg@draft%
-    \@svg@inkscape@latexfalse%
+    \@svg@ink@latexfalse%
   \fi%
   \edef\svg@tempa{#2}%
-  \if@svg@inkscape@latex%
+  \if@svg@ink@latex%
     \ifnum\value{svg@param@lastpage}=\z@\relax%
       \expandafter\svg@get@lastpage\expandafter{\svg@tempa}%
     \fi%
@@ -803,11 +791,23 @@
   \let\includegraphics\svg@includegraphics@patched%
 }
 
-% TEST " " auch bei unix möglich oder ' ' (svgx@quote)?
 \ifnum\pdf@shellescape=\@ne\relax\else%
   \expandafter\endinput%
 \fi
 
+\RequirePackage{ifplatform}
+\ifwindows
+  %  \newcommand*\svgx@quote{"}
+    \newcommand*\svg@shell@@mkdir[1]{if not exist "#1" mkdir "#1"}
+    \newcommand*\svg@shell@@mv{move}
+    \newcommand*\svg@shell@@rm{del}
+  \else
+% TEST " " auch bei unix möglich oder ' ' (svgx@quote)?
+  %  \newcommand*\svgx@quote{'}
+    \newcommand*\svg@shell@@mkdir[1]{mkdir -p "#1"}
+    \newcommand*\svg@shell@@mv{mv}
+    \newcommand*\svg@shell@@rm{rm}
+\fi
 \newcommand*\svg@shell@mkdir[1]{%
   \begingroup%
     \edef\svg@tempa{#1}%
@@ -821,21 +821,12 @@
     \fi%
   \endgroup%
 }
-\RequirePackage{ifplatform}
-\ifwindows
-  %  \newcommand*\svgx@quote{"}
-    \newcommand*\svg@shell@@mkdir[1]{if not exist "#1" mkdir "#1"}
-%    \newcommand*\svg@shell@rename{rename}
-    \newcommand*\svg@shell@move{move}
-    \newcommand*\svg@shell@rm{del}
-  \else
-  %  \newcommand*\svgx@quote{'}
-    \newcommand*\svg@shell@@mkdir[1]{mkdir -p "#1"}
-    % TODO: testen
-%    \newcommand*\svg@shell@rename{mv}
-    \newcommand*\svg@shell@move{mv}
-    \newcommand*\svg@shell@rm{rm}
-\fi
+\newcommand*\svg@shell@move[2]{%
+  \ShellEscape{\svg@shell@@mv\space"#1"\space"#2"}%
+}
+\newcommand*\svg@shell@rm[1]{%
+  \ShellEscape{\svg@shell@@rm\space"#1"}%
+}
 \endinput
 %%
 %% End of file `svg.sty'.
