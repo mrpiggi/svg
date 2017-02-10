@@ -1,32 +1,19 @@
-%\documentclass{article}
-%%\usepackage{luatex85}
-%\usepackage{transparent}
-%\usepackage{pgf}
-%\begin{document}
-%Foo.
-%\end{document}
-
 %\RequirePackage[ngerman=ngerman-x-latest]{hyphsubst}
 % \documentclass[english,ngerman,BCOR=6mm,parskip=false]{tudscrreprt}
 % \setlength{\parskip}{0.7ex}
 \listfiles
-\documentclass[parskip=full]{tudscrreprt}% Test
+\documentclass[parskip=full]{scrreprt}% Test
 %\usepackage{selinput}\SelectInputMappings{adieresis={ä},germandbls={ß}}
 \usepackage[T1]{fontenc}
 %\usepackage{babel}
 
 \usepackage{svg-new}
-\usepackage{svg-extract}
+\usepackage[extract=true,clean=true]{svg-extract}
 
 %\svgsetup{inkscapeformat=png}
 
 \svghidepreamblestart
 %\usepackage{showframe}
-
-%\usepackage[extract=false]{svg-new}
-
-%\usepackage{pgf}
-%\usepackage[off]{auto-pst-pdf}
 
 \usepackage{blindtext}
 
@@ -41,13 +28,21 @@
 \parindent=0pt
 
 \svghidepreambleend
+
 \usepackage{amsmath}
 
 
 \begin{document}
+%\begin{equation}
+%a^2+b^2=c^2\label{eq:emc1}
+%\end{equation}
+\begin{equation}
+a^2+b^2=c^2\label{eq:emc2}
+\end{equation}
+
 %\blinddocument
 %
-%%\begin{document}
+%\end{document}
 %
 %%\svgsetup{inkscapepath="C:/Program Files/Inkscape/inkscape.exe"}
 %
@@ -68,7 +63,7 @@
 %
 %\meaning\svg@inkscape@exe
 %\makeatother
-\svgpath{{svg/}}%
+%\svgpath{{"svg test/"}}%
 %%\graphicspath{{foo/}}
 %
 %\blindtext
@@ -80,50 +75,129 @@
 %%\filename@area,\filename@base,\filename@ext
 %%\makeatother
 %
-\begin{figure}
-\newincludesvg[%
-  width=\textwidth,
-%  extractpath=out/,
-%  extractname=blubb,
-%  height=150pt,
-%  svgpath=bar,%
-%  scale=-1,
-%  dpi=300,
-%  inkscape={-C},%
-%  inkscape=300dai,%
-%  inkscape=aaadpi,%
-%  inkscape=page,%
-%  inkscape=raw,
-%  dpi=50,
-%  inkscape=page,
-%  pretex=\Huge,
-%  inkscape=false,
-%  draft,%=false,
-]{image}
-\end{figure}
-
-
-
-%\the\textwidth
-
 %\begin{figure}
-%\includesvg[%
-%  width=250pt,
-%  pdf,eps,png,name=foo,path=convert/
+%\newincludesvg[%
+%  width=307.28987pt,%
+%  angle=30,%
+%  svgpath="svg test",%
+%%  extract=false,
+%%  extractpath=out/,
+%%  extractname=blubb,
+%%  height=150pt,
 %%  svgpath=bar,%
 %%  scale=-1,
-%%  format=raw,%
-%%  filetype=png,
-%%  dpi=600,
+%%  dpi=300,
+%%  inkscape={-C},%
+%%  inkscape=300dai,%
+%%  inkscape=aaadpi,%
+%%  inkscape=page,%
+%%  inkscape=raw,
+%%  dpi=50,
 %%  inkscape=page,
-%%  inkscape=force,
-%%  inkscape={-d=300}
-%%  draft
-%%  lastpage=3
-%]{example}
+%%  pretex=\Huge,
+%%  inkscape=false,
+%%  draft,%=false,
+%]{"test image"}
 %\end{figure}
 
+\svgpath{{svg-test/}{"C:/Users/Hanisch/Documents/Dateien/svg"}}
+%\graphicspath{{"svg-test"/}}
+%\svgpath{{"svg test/"}{svgtest}}
+
+%\makeatletter
+%\let\input@path\Ginput@path
+%\meaning\input@path
+%\filename@parse{newimage-svg-raw.pdf}
+%\meaning\filename@area\newline
+%\meaning\filename@base\newline
+%\meaning\filename@ext\newline
+%\meaning\filename@area\newline
+%\meaning\filename@base\newline
+%\meaning\filename@ext\newline
+
+\svgsetup{%
+  outpath=svgsubdir,%
+%  inkscapeexe="C:/Program Files/Inkscape/inkscape.exe"
+}
+
+%\def\svgwidth{200pt}
+
+\makeatletter
+
+\begin{figure}
+%\def\svgwidth{\textwidth}
+%\def\svgscale{0.8}
+\newincludesvg[%
+  outpath=basesubdir,%
+%  extractpreamble=a.aaa,
+%  inkscape=300,
+  inkscape=nolatex,
+%  convertdensity=600x300,
+%  convertdensity=555x300x,
+%  angle=10,
+%  inkscapedpi=,
+%  outname="bla",
+%  extractname=hamster,
+%  lastpage=0,
+%  draft,
+%  extract=false,%
+%  convertdpi=400dpi,
+%  convertdpi={png+=700x300dpi},
+%  convertdpi={jpg+=333dpix666dpi},
+  convert=true,%
+%  convert=gs64,%
+%  extractformat=,%{pdf,eps,ps},%
+%  convertformat={png,tiff,jpg,eps},%
+%  gsdevice={eps=\relax},
+%  gsopt=bla,%
+%%  gsopt={png=foo},%
+%  gsopt={png+=bar},%
+%  magicksetting=-depth 4,
+%  magicksetting={png=-depth 8},
+%  magickoperator=-resize 25\%,
+%  magickoperator={png=-resize 25\%},
+%  convertformat=png,
+%  convertdensity=,%
+  width=\textwidth,%
+%  height=4cm,
+%  scale=0.5pt,
+%  pretex=aaa,
+%  apptex=bbb,
+]{"Seriell 2"}
+\caption{aaa}
+\end{figure}
+
+\def\bla{\hamster}
+
+
+\meaning\bla
+
+\expandafter\expandafter\expandafter\ifx\csname bla\endcsname\relax
+\expandafter\let\csname bla\endcsname\relax
+\fi
+
+\meaning\bla
+
 %\begin{figure}
+%%\newincludesvg[%
+%%  width=200pt,%
+%%%  path="svgtest",
+%%%  extractname=bla blau,
+%%%  angle=30,%
+%%%  svgpath=svg test,%
+%%]{testimage}
+%\newincludesvg[%
+%%  draft,
+%%  extractname=bla,
+%  width=.2\textwidth,%
+%%  extractformat={eps},%
+%%  angle=30,%
+%%  clean=false,
+%%  inkscape=raw,
+%%  svgpath={"svg test/"},%
+%]{newimage}
 %\end{figure}
+
+\blindtext
 
 \end{document}
