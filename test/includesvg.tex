@@ -22,7 +22,7 @@
 \setlength{\@fpsep}{0pt}% twocolumn
 \makeatother
 
-\pdfsuppresswarningpagegroup=1%
+%\pdfsuppresswarningpagegroup=1%
 
 \parskip=0pt
 \parindent=0pt
@@ -31,7 +31,7 @@
 
 \usepackage{amsmath}
 
-
+%\RequirePackage{luatex85}[2016/06/15]% standalone
 \begin{document}
 %\begin{equation}
 %a^2+b^2=c^2\label{eq:emc1}
@@ -131,7 +131,7 @@ a^2+b^2=c^2\label{eq:emc2}
   outpath=basesubdir,%
 %  extractpreamble=a.aaa,
 %  inkscape=300,
-  inkscape=nolatex,
+%  inkscape=nolatex,
 %  convertdensity=600x300,
 %  convertdensity=555x300x,
 %  angle=10,
@@ -147,7 +147,7 @@ a^2+b^2=c^2\label{eq:emc2}
   convert=true,%
 %  convert=gs64,%
 %  extractformat=,%{pdf,eps,ps},%
-%  convertformat={png,tiff,jpg,eps},%
+  convertformat={png,tiff,jpg,eps},%
 %  gsdevice={eps=\relax},
 %  gsopt=bla,%
 %%  gsopt={png=foo},%
@@ -166,17 +166,6 @@ a^2+b^2=c^2\label{eq:emc2}
 ]{"Seriell 2"}
 \caption{aaa}
 \end{figure}
-
-\def\bla{\hamster}
-
-
-\meaning\bla
-
-\expandafter\expandafter\expandafter\ifx\csname bla\endcsname\relax
-\expandafter\let\csname bla\endcsname\relax
-\fi
-
-\meaning\bla
 
 %\begin{figure}
 %%\newincludesvg[%

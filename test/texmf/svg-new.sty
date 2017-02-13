@@ -4,12 +4,12 @@
 %%
 %% The original source files were:
 %%
-%% svg.dtx  (with options: `svg')
+%% svg.dtx  (with options: `package,base')
 %% 
-%% svg -- Include SVG pictures in pdfLaTeX documents using Inkscape
+%% svg -- Include SVG pictures in LaTeX documents using Inkscape
 %% 
 %% Copyright (C) Philip Ilten <philten@cern.ch>,  2012-2016
-%% Copyright (C) Falk Hanisch <tudscr@gmail.com>, 2016-2017
+%% Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2016-2017
 %% 
 %% This file was generated from file svg.dtx.
 %% ----------------------------------------------------------------------------
@@ -36,10 +36,10 @@
 %% 
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg}[%
-  2016/00/00 v2.00 svg\space%
+  2016/00/00 v2.00\space%
   (include SVG pictures)%
 ]
-
+\RequirePackage{scrbase}[2016/06/14]
 \RequirePackage{ifluatex}[2016/05/16]
 \RequirePackage{ifpdf}[2016/05/14]
 \RequirePackage{ifxetex}[2010/09/12]
@@ -48,50 +48,8 @@
 \RequirePackage{graphicx}[2014/10/28]
 \RequirePackage{xcolor}[2016/05/11]
 \RequirePackage{transparent}[2016/05/16]
-%\ifluatex
-%  \RequirePackage{luatex85}[2016/06/15]% standalone
-%\fi
-\RequirePackage{scrbase}[2016/06/14]
-
 \newcommand*\svg@tempa{}
 \newcommand*\svg@tempb{}
-
-\DefineFamily{newSVG}
-\DefineFamilyMember{newSVG}
-\newcommand*\svgsetup[1]{\FamilyOptions{newSVG}{#1}}
-\providecommand*\setsvg{\svgsetup}
-\newcommand*\svg@deprecated@key[2]{%
-  \PackageWarning{svg}{%
-    The option key `#1' is deprecated\MessageBreak%
-    It's recommended to use `#2'\MessageBreak%
-    instead%
-  }%
-  \FamilyOptions{newSVG}{#2}%
-}
-
-
-\DefineFamilyKey{newSVG}{svgpath}{%
-  \svgpath{{#1}}%
-  \FamilyKeyStateProcessed%
-}
-% TEST: für Mac OS (:)
-\newcommand*\svg@path{}
-\let\svg@path\@undefined
-\newcommand*\svgpath[1]{%
-  \def\svg@path{}%
-  \@tfor\svg@tempa:=#1\do{%
-    \svg@normalize@path{\svg@tempa}%
-    \edef\svg@path{\svg@path{\svg@tempa}}%
-  }%
-  \ifx\svg@path\@empty%
-    \let\svg@path\@undefined%
-  \fi%
-}
-\newif\if@svg@quotes@found
-\newcommand*\svg@quotes@check{}
-\def\svg@quotes@check#1"#2\@nil{%
-  \IfArgIsEmpty{#2}{\@svg@quotes@foundfalse}{\@svg@quotes@foundtrue}%
-}%
 \newcommand*\svg@quotes@remove[1]{%
   \begingroup%
     \edef\svg@tempa{#1}%
@@ -109,6 +67,11 @@
   }{%
     \svg@quotes@@remove#1#2#3""\@nil%
   }%
+}
+\newif\if@svg@quotes@found
+\newcommand*\svg@quotes@check{}
+\def\svg@quotes@check#1"#2\@nil{%
+  \IfArgIsEmpty{#2}{\@svg@quotes@foundfalse}{\@svg@quotes@foundtrue}%
 }
 \newcommand*\svg@normalize@path[1]{%
   \begingroup%
@@ -134,11 +97,237 @@
     \edef\svg@tempa{#1/\unexpanded\expandafter{\svg@tempa}}%
   }%
 }
+\newcommand*\svg@path{}
+\let\svg@path\@undefined
+\newcommand*\svgpath[1]{%
+  \def\svg@path{}%
+  \@tfor\svg@tempa:=#1\do{%
+    \svg@normalize@path{\svg@tempa}%
+    \edef\svg@path{\svg@path{\svg@tempa}}%
+  }%
+  \ifx\svg@path\@empty%
+    \let\svg@path\@undefined%
+  \fi%
+}
+\DefineFamily{SVG}
+\DefineFamilyMember{SVG}
+\newcommand*\svg@deprecated@key[3][svg]{%
+  \PackageWarning{#1}{%
+    The option key `#2' is deprecated\MessageBreak%
+    It's recommended to use `#3'\MessageBreak%
+    instead%
+  }%
+  \FamilyOptions{SVG}{#3}%
+}
+\DefineFamilyKey{SVG}{svgpath}{%
+  \svgpath{{#1}}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svg@ink@mode{}
+\DefineFamilyKey{SVG}{inkscape}[true]{%
+  \FamilySetNumerical{SVG}{inkscape}{svg@tempa}{%
+    {false}{0},{off}{0},{no}{0},%
+    {true}{1},{on}{1},{yes}{1},{onlynewer}{1},{newer}{1},%
+    {force}{2},{forced}{2},{overwrite}{2},%
+    {pdf}{3},{eps}{4},{ps}{5},{png}{6},%
+    {drawing}{7},{crop}{7},%
+    {page}{8},{nocrop}{8},%
+    {tex}{9},{latex}{9},{exportlatex}{9},{latexexport}{9},%
+    {notex}{10},{nolatex}{10},{noexportlatex}{10},{nolatexexport}{10},%
+    {latexnoexport}{10},{raw}{10},{plain}{10},{simple}{10}%
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifnum\svg@tempa<\thr@@\relax%
+      \let\svg@ink@mode\svg@tempa%
+    \else%
+      \ifcase\svg@tempa\relax\or\or\or% pdf
+        \FamilyOptions{SVG}{inkscapeformat=pdf}%
+      \or% eps
+        \FamilyOptions{SVG}{inkscapeformat=eps}%
+      \or% ps
+        \FamilyOptions{SVG}{inkscapeformat=ps}%
+      \or% png
+        \FamilyOptions{SVG}{inkscapeformat=png}%
+      \or% drawing
+        \FamilyOptions{SVG}{inkscapearea=drawing}%
+      \or% page
+        \FamilyOptions{SVG}{inkscapearea=page}%
+      \or% tex
+        \FamilyOptions{SVG}{inkscapelatex=true}%
+      \or% notex
+        \FamilyOptions{SVG}{inkscapelatex=false}%
+      \fi%
+    \fi%
+  \else%
+    % DOC: inkscape=xxxdpi
+    \def\svg@tempa##1dpi##2\@nil{%
+      \ifstr{##2}{dpi}{\FamilyOptions{SVG}{inkscapedpi=##1}}{}%
+    }%
+    \svg@tempa#1dpi\@nil%
+  \fi%
+}
+\newcommand*\svg@ink@format{pdf}
+\ifluatex\else\ifpdf\else\ifxetex\else
+  \renewcommand*\svg@ink@format{eps}
+\fi\fi\fi
+\DefineFamilyKey{SVG}{inkscapeformat}{%
+  \FamilySetNumerical{SVG}{inkscapeformat}{svg@tempa}{%
+    {pdf}{0},{eps}{1},{ps}{2},{png}{3}%
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifcase\svg@tempa\relax% latex
+      \def\svg@ink@format{pdf}%
+    \or% eps
+      \def\svg@ink@format{eps}%
+    \or% ps
+      \def\svg@ink@format{ps}%
+    \or% png
+      \def\svg@ink@format{png}%
+    \fi%
+  \fi%
+}
+\newcommand*\svg@ink@area{}
+\DefineFamilyKey{SVG}{inkscapearea}{%
+  \FamilySetNumerical{SVG}{inkscapearea}{svg@tempa}{%
+    {drawing}{0},{crop}{0},%
+    {page}{1},{nocrop}{1}%
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifcase\svg@tempa\relax% drawing
+      \def\svg@ink@area{-D}%
+    \else% page
+      \def\svg@ink@area{-C}%
+    \fi%
+  \fi%
+}
+\newif\if@svg@ink@latex
+\FamilyBoolKey{SVG}{inkscapelatex}{@svg@ink@latex}
+
+\newcommand*\svg@ink@dpi{}
+\let\svg@ink@dpi\relax
+\DefineFamilyKey{SVG}{inkscapedpi}{%
+  \FamilyKeyStateUnknownValue%
+  \def\svg@tempa##1dpi##2\@nil{\def\svg@tempa{##1}}%
+  \svg@tempa#1dpi\@nil%
+  \ifnumber{\svg@tempa}{%
+    \edef\svg@ink@dpi{\svg@tempa}%
+    \FamilyKeyStateProcessed%
+  }{}%
+}
+\DefineFamilyKey{SVG}{inkscapedensity}{%
+  \FamilyOptions{SVG}{inkscapedpi=#1}%
+}
+\newcommand*\svg@ink@exe{inkscape}
+\DefineFamilyKey{SVG}{inkscapeexe}{%
+  \def\svg@ink@exe{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svg@ink@opt{}
+\DefineFamilyKey{SVG}{inkscapeopt}{%
+  \def\svg@ink@opt{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svg@param@width{\z@}
+\FamilyLengthMacroKey{SVG}{width}{\svg@param@width}
+\newcommand*\svg@param@height{\z@}
+\FamilyLengthMacroKey{SVG}{height}{\svg@param@height}
+\newcommand*\svg@param@scale{1}
+\DefineFamilyKey{SVG}{scale}{%
+  \ifisdimension{#1\p@}{%
+    \ifdim\dimexpr#1\p@\relax>\z@\relax%
+      \def\svg@param@scale{#1}%
+    \else%
+      \PackageWarning{svg}{%
+        Setting for `scale' has to be a positive value but\MessageBreak%
+        `scale=#1' was given, so nothing was changed.\MessageBreak%
+        The setting remains at `scale=\svg@param@scale'%
+      }%
+    \fi%
+    \FamilyKeyStateProcessed%
+  }{\FamilyKeyStateUnknownValue}%
+}
+\newcommand*\svg@param@pretex{}%
+\DefineFamilyKey{SVG}{pretex}{%
+  \def\svg@param@pretex{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svg@param@apptex{}%
+\DefineFamilyKey{SVG}{apptex}{%
+  \def\svg@param@apptex{#1}%
+  \FamilyKeyStateProcessed%
+}
+\DefineFamilyKey{SVG}{postex}{%
+  \svg@deprecated@key{postex=#1}{apptex=#1}%
+}
+\newif\if@svg@exclude
+\FamilyBoolKey{SVG}{exclude}{@svg@exclude}
+
+\newif\if@svg@draft
+\FamilyBoolKey{SVG}{draft}{@svg@draft}
+\AtBeginDocument{%
+  \if@svg@draft\else%
+    \ifGin@draft\@svg@drafttrue\fi%
+  \fi%
+}
+\newcommand*\svg@out@path{}
+\newcommand*\svg@out@name{\svg@file@name\svg@file@ext}
+\newcommand*\svg@out@base{\svg@out@path\svg@out@name.\svg@ink@format}
+\DefineFamilyKey{SVG}{outpath}{%
+  \FamilySetNumerical{SVG}{outpath}{svg@tempa}{%
+    {svgpath}{0},{svgdir}{0},%
+    {svgsubpath}{1},{svgsubdir}{1},%
+    {basepath}{2},{basedir}{2},{jobpath}{2},{jobdir}{2},%
+    {basesubpath}{3},{basesubdir}{3},{jobsubpath}{3},{jobsubdir}{3}
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifcase\svg@tempa\relax% svgpath
+      \def\svg@out@path{\svg@file@path}%
+    \or% svgsubpath
+      \def\svg@out@path{\svg@file@path svg-out/}%
+    \or% basepath
+      \def\svg@out@path{./}%
+    \or% basesubpath
+      \def\svg@out@path{./svg-out/}%
+    \fi%
+  \else%
+    \def\svg@out@path{#1}%
+    \svg@normalize@path{\svg@out@path}%
+    \FamilyKeyStateProcessed%
+  \fi%
+}
+
+\FamilyExecuteOptions{SVG}{%
+  inkscape=true,inkscapearea=drawing,inkscapelatex=true,%
+  outpath=basesubdir,%
+}
+\FamilyProcessOptions{SVG}
+
+\newcommand*\svgsetup[1]{\FamilyOptions{SVG}{#1}}
+\providecommand*\setsvg{\svgsetup}
+% TODO/DOC: Parameter, nicht als Klassenoption nutzbar?
+% DOC: 0=auslesen, -1=nix tun
+\newcounter{svg@param@lastpage}
+\FamilyCounterKey{SVG}{lastpage}{svg@param@lastpage}
+\DefineFamilyKey{SVG}{outname}{%
+  \def\svg@out@name{#1\svg@file@ext}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svg@param@angle{0}
+\DefineFamilyKey{SVG}{angle}{%
+  \def\svg@param@angle{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svg@param@origin{c}
+\DefineFamilyKey{SVG}{origin}[c]{%
+  \def\svg@param@origin{#1}%
+  \FamilyKeyStateProcessed%
+}
 
 \newif\if@svg@file@found
 \newcommand*\svg@file@path{}
 \newcommand*\svg@file@name{}
 \newcommand*\svg@file@base{}
+\newcommand*\svg@file@ext{}
 \newcommand*\svg@get@path[2][svg]{%
   \begingroup%
     \@svg@file@foundfalse%
@@ -226,224 +415,12 @@
     }%
   \svg@tempa%
 }
-
-\newcommand*\svg@out@path{}
-\newcommand*\svg@out@name{\svg@file@name\svg@file@ext}
-\newcommand*\svg@out@base{\svg@out@path\svg@out@name.\svg@ink@type}
-\DefineFamilyKey{newSVG}{outpath}{%
-  \FamilySetNumerical{newSVG}{outpath}{svg@tempa}{%
-    {svgpath}{0},{svgdir}{0},%
-    {svgsubpath}{1},{svgsubdir}{1},%
-    {basepath}{2},{basedir}{2},{jobpath}{2},{jobdir}{2},%
-    {basesubpath}{3},{basesubdir}{3},{jobsubpath}{3},{jobsubdir}{3}
-  }{#1}%
-  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \ifcase\svg@tempa\relax% svgpath
-      \def\svg@out@path{\svg@file@path}%
-    \or% svgsubpath
-      \def\svg@out@path{\svg@file@path svg-out/}%
-    \or% basepath
-      \def\svg@out@path{./}%
-    \or% basesubpath
-      \def\svg@out@path{./svg-out/}%
-    \fi%
-  \else%
-    \def\svg@out@path{#1}%
-    \svg@normalize@path{\svg@out@path}%
-    \FamilyKeyStateProcessed%
-  \fi%
-}
-
-\newcommand*\svg@ink@mode{}
-\DefineFamilyKey{newSVG}{inkscape}[true]{%
-  \FamilySetNumerical{newSVG}{inkscape}{svg@tempa}{%
-    {false}{0},{off}{0},{no}{0},%
-    {true}{1},{on}{1},{yes}{1},{onlynewer}{1},{newer}{1},%
-    {force}{2},{forced}{2},{overwrite}{2},%
-    {pdf}{3},{eps}{4},{ps}{5},{png}{6},%
-    {drawing}{7},{crop}{7},%
-    {page}{8},{nocrop}{8},%
-    {tex}{9},{latex}{9},{exportlatex}{9},{latexexport}{9},%
-    {notex}{10},{nolatex}{10},{noexportlatex}{10},{nolatexexport}{10},%
-    {latexnoexport}{10},{raw}{10},{plain}{10},{simple}{10}%
-  }{#1}%
-  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \ifnum\svg@tempa<\thr@@\relax%
-      \let\svg@ink@mode\svg@tempa%
-    \else%
-      \ifcase\svg@tempa\relax\or\or\or% pdf
-        \FamilyOptions{newSVG}{inkscapeformat=pdf}%
-      \or% eps
-        \FamilyOptions{newSVG}{inkscapeformat=eps}%
-      \or% ps
-        \FamilyOptions{newSVG}{inkscapeformat=ps}%
-      \or% png
-        \FamilyOptions{newSVG}{inkscapeformat=png}%
-      \or% drawing
-        \FamilyOptions{newSVG}{inkscapearea=drawing}%
-      \or% page
-        \FamilyOptions{newSVG}{inkscapearea=page}%
-      \or% tex
-        \FamilyOptions{newSVG}{inkscapelatex=true}%
-      \or% notex
-        \FamilyOptions{newSVG}{inkscapelatex=false}%
-      \fi%
-    \fi%
-  \else%
-    % DOC: inkscape=xxxdpi
-    \def\svg@tempa##1dpi##2\@nil{%
-      \ifstr{##2}{dpi}{\FamilyOptions{newSVG}{inkscapedpi=##1}}{}%
-    }%
-    \svg@tempa#1dpi\@nil%
-  \fi%
-}
-\newcommand*\svg@ink@type{pdf}
-\ifluatex\else\ifpdf\else\ifxetex\else
-  \renewcommand*\svg@ink@type{eps}
-\fi\fi\fi
-
-\DefineFamilyKey{newSVG}{inkscapeformat}{%
-  \FamilySetNumerical{newSVG}{inkscapeformat}{svg@tempa}{%
-    {pdf}{0},{eps}{1},{ps}{2},{png}{3}%
-  }{#1}%
-  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \ifcase\svg@tempa\relax% latex
-      \def\svg@ink@type{pdf}%
-    \or% eps
-      \def\svg@ink@type{eps}%
-    \or% ps
-      \def\svg@ink@type{ps}%
-    \or% png
-      \def\svg@ink@type{png}%
-    \fi%
-  \fi%
-}
-\newcommand*\svg@ink@area{}
-\DefineFamilyKey{newSVG}{inkscapearea}{%
-  \FamilySetNumerical{newSVG}{inkscapearea}{svg@tempa}{%
-    {drawing}{0},{crop}{0},%
-    {page}{1},{nocrop}{1}%
-  }{#1}%
-  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \ifcase\svg@tempa\relax% drawing
-      \def\svg@ink@area{-D}%
-    \else% page
-      \def\svg@ink@area{-C}%
-    \fi%
-  \fi%
-}
-\newif\if@svg@ink@latex
-\FamilyBoolKey{newSVG}{inkscapelatex}{@svg@ink@latex}
-
-\newcommand*\svg@ink@dpi{}
-\let\svg@ink@dpi\relax
-\DefineFamilyKey{newSVG}{inkscapedpi}{%
-  \FamilyKeyStateUnknownValue%
-  \def\svg@tempa##1dpi##2\@nil{\def\svg@tempa{##1}}%
-  \svg@tempa#1dpi\@nil%
-  \ifnumber{\svg@tempa}{%
-    \edef\svg@ink@dpi{\svg@tempa}%
-    \FamilyKeyStateProcessed%
-  }{}%
-}
-\DefineFamilyKey{newSVG}{inkscapedensity}{%
-  \FamilyOptions{newSVG}{inkscapedpi=#1}%
-}
-\newcommand*\svg@ink@exe{inkscape}
-\DefineFamilyKey{newSVG}{inkscapeexe}{%
-  \def\svg@ink@exe{#1}%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svg@ink@opt{}
-\DefineFamilyKey{newSVG}{inkscapeopt}{%
-  \def\svg@ink@opt{#1}%
-  \FamilyKeyStateProcessed%
-}
-
-% TEST Aufruf von Inkscape, ImageMagick und GhostScript unixoide OS
-%inkscapeexe="C:/Program Files/Inkscape/inkscape.exe"
-%\IfFileExists{/dev/null}{%
-%\newcommand{\Inkscape}{/usr/bin/inkscape}%
-%}{%
-%\newcommand{\Inkscape}{“C:/Program Files (x86)/Inkscape/inkscape.exe”}%
-%}
-
-\newcommand*\svg@param@width{\z@}
-\FamilyLengthMacroKey{newSVG}{width}{\svg@param@width}
-\newcommand*\svg@param@height{\z@}
-\FamilyLengthMacroKey{newSVG}{height}{\svg@param@height}
-\newcommand*\svg@param@scale{1}
-\DefineFamilyKey{newSVG}{scale}{%
-  \ifisdimension{#1\p@}{%
-    \ifdim\dimexpr#1\p@\relax>\z@\relax%
-      \def\svg@param@scale{#1}%
-    \else%
-      \PackageWarning{svg}{%
-        Setting for `scale' has to be a positive value but\MessageBreak%
-        `scale=#1' was given, so nothing was changed.\MessageBreak%
-        The setting remains at `scale=\svg@param@scale'%
-      }%
-    \fi%
-    \FamilyKeyStateProcessed%
-  }{\FamilyKeyStateUnknownValue}%
-}
-\newcommand*\svg@param@pretex{}%
-\DefineFamilyKey{newSVG}{pretex}{%
-  \def\svg@param@pretex{#1}%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svg@param@apptex{}%
-\DefineFamilyKey{newSVG}{apptex}{%
-  \def\svg@param@apptex{#1}%
-  \FamilyKeyStateProcessed%
-}
-\DefineFamilyKey{newSVG}{postex}{%
-  \svg@deprecated@key{postex=#1}{apptex=#1}%
-}
-\newif\if@svg@exclude
-\FamilyBoolKey{newSVG}{exclude}{@svg@exclude}
-
-\newif\if@svg@draft
-\FamilyBoolKey{newSVG}{draft}{@svg@draft}
-\AtBeginDocument{%
-  \if@svg@draft\else%
-    \ifGin@draft\@svg@drafttrue\fi%
-  \fi%
-}
-
-
-\FamilyExecuteOptions{newSVG}{%
-  inkscape=true,inkscapearea=drawing,inkscapelatex=true,%
-  outpath=basesubdir,%
-}
-\FamilyProcessOptions{newSVG}
-
-% TODO/DOC: Parameter, nicht als Klassenoption nutzbar?
-% DOC: 0=auslesen, -1=nix tun
-\newcounter{svg@param@lastpage}
-\FamilyCounterKey{newSVG}{lastpage}{svg@param@lastpage}
-\DefineFamilyKey{newSVG}{outname}{%
-  \def\svg@out@name{#1\svg@file@ext}%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svg@param@angle{0}
-\DefineFamilyKey{newSVG}{angle}{%
-  \def\svg@param@angle{#1}%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svg@param@origin{c}
-\DefineFamilyKey{newSVG}{origin}[c]{%
-  \def\svg@param@origin{#1}%
-  \FamilyKeyStateProcessed%
-}
-
-\newcommand*\svg@file@ext{}
 \newcommand*{\newincludesvg}[2][]{%
   \begingroup%
     \svg@param@setcomp%
-    \FamilyOptions{newSVG}{#1}%
-    \ifstr{\svg@ink@type}{png}{%
-      \FamilyOptions{newSVG}{inkscapelatex=false}%
+    \FamilyOptions{SVG}{#1}%
+    \ifstr{\svg@ink@format}{png}{%
+      \FamilyOptions{SVG}{inkscapelatex=false}%
     }{}%
     \if@svg@ink@latex%
       \def\svg@file@ext{_svg-tex}%
@@ -507,12 +484,12 @@
   \ifx\svgwidth\@undefined%
     \ifx\svgscale\@undefined\else%
       \edef\svg@tempa{scale=\svgscale}
-      \FamilyOptions{newSVG}{\svg@tempa}%
+      \FamilyOptions{SVG}{\svg@tempa}%
       \@tempswatrue%
     \fi%
   \else%
     \edef\svg@tempa{width=\svgwidth}
-    \FamilyOptions{newSVG}{\svg@tempa}%
+    \FamilyOptions{SVG}{\svg@tempa}%
     \@tempswatrue%
   \fi%
   \if@tempswa%
@@ -570,8 +547,8 @@
         \svg@quotes@remove{\svg@tempb}%
         \ifnum\pdf@shellescape=\@ne\relax%
           \ifx\svg@ink@dpi\relax%
-            \ifstr{\svg@ink@type}{png}{%
-              \FamilyOptions{newSVG}{inkscapedpi=300}%
+            \ifstr{\svg@ink@format}{png}{%
+              \FamilyOptions{SVG}{inkscapedpi=300}%
             }{}%
           \fi%
           \PackageInfo{svg}{%
@@ -581,12 +558,12 @@
             \fi%
           }%
           \ShellEscape{\svg@ink@cmd{\svg@tempa}{\svg@tempb}}%
-          \IfFileExists{\svg@out@name.\svg@ink@type}{%
+          \IfFileExists{\svg@out@name.\svg@ink@format}{%
             \svg@quotes@remove{\svg@out@base}%
             \svg@shell@mkdir{\svg@out@path}%
-            \svg@shell@move{\svg@tempb.\svg@ink@type}{\svg@out@base}%
+            \svg@shell@move{\svg@tempb.\svg@ink@format}{\svg@out@base}%
             \if@svg@ink@latex%
-              \svg@shell@move{\svg@tempb.\svg@ink@type_tex}{\svg@out@base_tex}%
+              \svg@shell@move{\svg@tempb.\svg@ink@format_tex}{\svg@out@base_tex}%
             \fi%
           }{%
             \PackageWarning{svg}{%
@@ -614,7 +591,7 @@
   \if@svg@ink@latex--export-latex\space\fi%
   \svg@ink@opt\space%
   --file="#1.svg"\space%
-  --export-\svg@ink@type="#2.\svg@ink@type"\space%
+  --export-\svg@ink@format="#2.\svg@ink@format"\space%
 }
 % DOC: xelatex!
 \ifx\pdf@filemoddate\@undefined
@@ -651,7 +628,7 @@
 
 \newcommand*\svg@input[2][]{%
 %  \begingroup%
-  \IfArgIsEmpty{#1}{}{\FamilyOptions{newSVG}{#1}}%
+  \IfArgIsEmpty{#1}{}{\FamilyOptions{SVG}{#1}}%
   \if@svg@draft%
     \@svg@ink@latexfalse%
   \fi%
@@ -716,7 +693,7 @@
     \fi%
     \edef\svg@tempa{%
       \endgroup%
-      \noexpand\FamilyOptions{newSVG}{lastpage=\the\@tempcnta}%
+      \noexpand\FamilyOptions{SVG}{lastpage=\the\@tempcnta}%
     }%
   \svg@tempa%
 }
@@ -755,20 +732,20 @@
     `width' nor `height' are specified\MessageBreak%
   }%
 }
-\DefineFamily{newSVGinternal}
-\DefineFamilyMember{newSVGinternal}
-\DefineFamilyKey{newSVGinternal}{page}{%
+\DefineFamily{SVGinternal}
+\DefineFamilyMember{SVGinternal}
+\DefineFamilyKey{SVGinternal}{page}{%
   \@tempcnta=#1\relax%
   \FamilyKeyStateProcessed%
 }
-\DefineFamilyKey{newSVGinternal}{width}{%
+\DefineFamilyKey{SVGinternal}{width}{%
   \FamilyKeyStateProcessed%
 }
 
 \newcommand*\svg@includegraphics@file{}
 \newcommand*\svg@includegraphics@saved{}
 \newcommand*\svg@includegraphics@patched[2][]{%
-  \FamilyOptions{newSVGinternal}{#1}%
+  \FamilyOptions{SVGinternal}{#1}%
   \ifnum\value{svg@param@lastpage}<\z@\relax%
     \@tempcnta=\value{svg@param@lastpage}\relax%
   \fi%
@@ -797,13 +774,10 @@
 
 \RequirePackage{ifplatform}
 \ifwindows
-  %  \newcommand*\svgx@quote{"}
     \newcommand*\svg@shell@@mkdir[1]{if not exist "#1" mkdir "#1"}
     \newcommand*\svg@shell@@mv{move}
     \newcommand*\svg@shell@@rm{del}
   \else
-% TEST " " auch bei unix möglich oder ' ' (svgx@quote)?
-  %  \newcommand*\svgx@quote{'}
     \newcommand*\svg@shell@@mkdir[1]{mkdir -p "#1"}
     \newcommand*\svg@shell@@mv{mv}
     \newcommand*\svg@shell@@rm{rm}

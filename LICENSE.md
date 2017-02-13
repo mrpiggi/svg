@@ -3,7 +3,7 @@
 ----------------------------------------------------------------------------
 
  Copyright (C) Philip Ilten <philten@cern.ch>,  2012-2016
- Copyright (C) Falk Hanisch <tudscr@gmail.com>, 2016-2017
+ Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2016-2017
 
 ----------------------------------------------------------------------------
 

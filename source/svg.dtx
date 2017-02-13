@@ -1,12 +1,12 @@
-% \CheckSum{465}
+% \CheckSum{0}
 % \iffalse meta-comment
 %
 %  svg -- Include SVG pictures in pdfLaTeX documents using Inkscape
 % ----------------------------------------------------------------------------
 %
 %  Copyright (C) Philip Ilten <philten@cern.ch>,  2012-2016
-%  Copyright (C) Falk Hanisch <tudscr@gmail.com>, 2016-2017
-%
+%  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2016-2017
+% 
 % ----------------------------------------------------------------------------
 %
 %  This work may be distributed and/or modified under the conditions of the
@@ -23,12 +23,12 @@
 \ifx\documentclass\@undefined
 \input docstrip.tex
 \keepsilent
-\preamble
 
-svg -- Include SVG pictures in pdfLaTeX documents using Inkscape
-
+\begingroup
+\catcode`\^^M=13 \catcode`\ =12 %
+\gdef\svgpreamble{%
 Copyright (C) Philip Ilten <philten@cern.ch>,  2012-2016
-Copyright (C) Falk Hanisch <tudscr@gmail.com>, 2016-2017
+Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2016-2017
 
 This file was generated from file svg.dtx.
 ----------------------------------------------------------------------------
@@ -44,15 +44,14 @@ This work has the LPPL maintenance status "author-maintained".
 
 The current maintainer and author of this work is Falk Hanisch.
 
-This work consists of the main source file svg.dtx
-and the derived files
-    README
-    svg.dtx (with derived files svg.sty, svg.pdf, Fig.1a.pdf, Fig.1b.eps, 
-    Fig.2.pdf, Fig.2.png),
-    preamble.tex, example.svg (with derived files example.pdf and 
-    example.pdf_tex), 
-    root.C (with derived files root.svg, root.pdf, and root.pdf_tex). 
-
+This work consists of the main source file svg.dtx%
+%^^A%and the derived files
+%^^A%    README
+%^^A%    svg.dtx (with derived files svg.sty, svg.pdf, Fig.1a.pdf, Fig.1b.eps, 
+%^^A%    Fig.2.pdf, Fig.2.png),
+%^^A%    preamble.tex, example.svg (with derived files example.pdf and 
+%^^A%    example.pdf_tex), 
+%^^A%    root.C (with derived files root.svg, root.pdf, and root.pdf_tex). 
 %^^A%
 %^^A% The svg package by Philip Ilten.
 %^^A%
@@ -75,12 +74,36 @@ and the derived files
 %^^A%      svg.sty
 %^^A%
 %^^A%
+}
+\endgroup
+
+\declarepreamble\svgbasepreamble
+
+svg -- Include SVG pictures in LaTeX documents using Inkscape
+
+\svgpreamble
+
+\endpreamble
+\declarepreamble\svgextractpreamble
+
+svg-extract -- Extract detached graphic files from SVG pictures
+
+\svgpreamble
+
 \endpreamble
 \askforoverwritefalse
 \usedir{tex/latex/svg}
 \generate{%
-  \usepreamble\defaultpreamble
-  \file{svg-new.sty}{\from{svg.dtx}{package}}
+  \usepreamble\svgbasepreamble
+  \file{svg-new.sty}{%
+    \from{svg.dtx}{package,option,base}%
+    \from{svg.dtx}{package,body,base}%
+  }
+  \usepreamble\svgextractpreamble
+  \file{svg-extract.sty}{%
+    \from{svg.dtx}{package,option,extract}%
+    \from{svg.dtx}{package,body,extract}%
+  }
 }
 \else
 \let\endbatchfile\relax
@@ -111,13 +134,15 @@ and the derived files
 \ifx\ProvidesFile\@undefined\def\ProvidesFile#1[#2]{}\fi
 \ProvidesFile{svg.dtx}[%
 %</driver>
-%<package>\NeedsTeXFormat{LaTeX2e}
-%<package>\ProvidesPackage{svg}[%
-%<*driver|package>
-  2017/00/00 v2.00 svg\space%
-  (include SVG pictures)%
+%<package&option>\NeedsTeXFormat{LaTeX2e}
+%<package&option&base>\ProvidesPackage{svg}[%
+%<package&option&extract>\ProvidesPackage{svg-extract}[%
+%<*driver|package&option>
+  2017/00/00 v2.00\space%
+%<package&option&base>  (include SVG pictures)%
+%<package&option&extract>  (extract detached graphics from SVG pictures)%
 ]
-%</driver|package>
+%</driver|package&option>
 %<*driver>
 \documentclass[english,xindy]{tudscrdoc}
 \usepackage{selinput}\SelectInputMappings{adieresis={ä},germandbls={ß}}
@@ -138,19 +163,19 @@ and the derived files
 \CodelineIndex
 \RecordChanges
 \GetFileInfo{svg.dtx}
-\title{The \textsf{svg} Package}
+\title{The packages \pkg{svg} and \pkg{svg-extract}}
 \author{%
   Philip Ilten (2012--2016) \\
   Falk Hanisch (2016--2017) \\
-  \url{https://github.com/tudscr/svg} \\
-  \expandafter\mailto\expandafter{\tudscrmail}
+  \url{https://github.com/mrpiggi/svg} \\
+  \mailto{hanisch.latex@outlook.com}
 }
 \date{\fileversion\nobreakspace(\filedate)}
 
 \begin{document}
   \maketitle
   \ToDo{replace 2017/00/00 with release date}[Release]
-  \ToDo{create \file{svg-new.sty} instead of \file{svg.sty}}[Release]
+  \ToDo{create \file{svg.sty} instead of \file{svg-new.sty}}[Release]
   \ToDo{update derived files in batch preamble}[Release]
   \tableofcontents
   \DocInput{\filename}
@@ -158,7 +183,7 @@ and the derived files
 %</driver>
 % \fi
 %
-% \changes{v1.0}{2004/11/05}{Initial version}
+% \changes{v1.0}{2004/11/05}{Initial version by Philip Ilten}
 % \changes{v2.00}{2016/09/23}{New maintainer: Falk Hanisch}
 %
 % \lstnewenvironment{example}{%
@@ -179,8 +204,9 @@ and the derived files
 %
 % \section{Introduction}\label{sec:intro}
 %
+% \ToDo{REVISE!}
 % \ToDo{hint for inkscape on terminal (inkscape -V)}[Release]
-%  
+% 
 % The open source program \inkscape has provided an excellent resource
 % for the simple and easy creation of images and diagrams using a
 % graphical user interface. The work by Johan B. C. Engelen has
@@ -210,7 +236,7 @@ and the derived files
 % \ref{sec:root}.
 %
 % This documentation is broken into five parts: an explanation of the
-% usage is given in Section \ref{sec:usage}, an example is given in
+% usage is given in Section \ref{sec:svg}, an example is given in
 % Section \ref{sec:example}, further details with use in \croot is
 % given in Section \ref{sec:root}, and finally, the full
 % implementation is given in Section \ref{sec:implementation} which
@@ -229,6 +255,8 @@ and the derived files
 % the appropriate programs are correctly defined.
 %
 % \section{Usage}\label{sec:usage}
+%
+% \ToDo{REPLACE!}
 %
 % \DescribeMacro{\includesvg} The command to include an \svg is
 % similar to the |\includegraphics| command provided by the |graphicx|
@@ -372,9 +400,23 @@ and the derived files
 % default set to |convert -density 300| where |-density|
 % controls the resolution of the extracted \png in dots per inch.
 %
+% \section{Usage of package \pkg{svg}}\label{sec:svg}
+%
+% \DescribeMacro{\svgpath}
+% \ToDo{%
+% With \cs{svgpath} the user can give several root paths to \file{svg}-files in 
+% the same way as \cs{graphicspath} is used.}
+%
+% \section{Usage of package \pkg{svg-extract}}\label{sec:svg-extract}
+%
+% In contrast to package \pkg{svg}, the console commands for graphic extraction 
+% are executed with each LaTeX run by package \pkg{svg-extract} when 
+% shell-escape mode is activated.
+% \ToDo{\dots}
 %
 % \section{Example}\label{sec:example}
 %
+% \ToDo{REVISE!}
 % \ToDo{remove \cs{href}?}
 % As an example\footnote{The image used here is a slightly modified
 % version of the image used in the initial documentation on how to
@@ -430,6 +472,7 @@ and the derived files
 %
 % \section{ROOT}\label{sec:root}
 %
+% \ToDo{REVISE!}
 % \croot has the ability to export directly to an \svg, which means
 % that it is possible to completely by-pass all of \croot's internal
 % text rendering machinery, and let \latex handle the text
@@ -509,41 +552,326 @@ and the derived files
 %
 % \StopEventually{\PrintIndex\PrintChanges\PrintToDos}
 %
+% \iffalse
+%<*package&option>
+% \fi
+%
 % \section{Implementation}\label{sec:implementation}
 %
-% \subsection{Initialization}
-%   The package, which requires the packages |xkeyval| for the
-%   options, |subfig| for automatic labeling within the subfigure
-%   command, the |import| package for correct handling of paths,
-%   |graphicx| for the \pdf inclusion commands, |transparent| for
-%   transparency, and |xcolor| for color, is initialized.
-% \iffalse
-%<*package>
-% \fi
+% The package \pkg{svg} requires \pkg{scrbase} for options processing, the
+% packages \pkg{ifluatex}, \pkg{ifpdf} and \pkg{ifxetex} for detecting the 
+% used \LaTeX{} engine, \pkg{pdftexcmds} for pdf\TeX{} primitives when using
+% Lua\TeX, \pkg{shellesc} for engine independent access to systems commands, 
+% \pkg{graphicx} for the inclusion of \file{pdf}-files as well as \pkg{xcolor} 
+% and \pkg{transparent} as they are used by \app{Inkscape} for exported graphic
+% files. The package \pkg{svg-extract} only needs package \pkg{svg} itself.
 %    \begin{macrocode}
-\@ifpackageloaded{xkeyval}{}{\RequirePackage{xkeyval}}%
-\@ifpackageloaded{subfig}{}{\RequirePackage{subfig}}%
-\@ifpackageloaded{import}{}{\RequirePackage{import}}%
-\@ifpackageloaded{graphicx}{}{\RequirePackage{graphicx}}%
-\@ifpackageloaded{transparent}{}{\RequirePackage{transparent}}%
-\@ifpackageloaded{xcolor}{}{\RequirePackage{xcolor}}%
+%<*base>
+\RequirePackage{scrbase}[2016/06/14]
+\RequirePackage{ifluatex}[2016/05/16]
+\RequirePackage{ifpdf}[2016/05/14]
+\RequirePackage{ifxetex}[2010/09/12]
+\RequirePackage{pdftexcmds}[2016/05/21]
+\RequirePackage{shellesc}[2016/06/07]
+\RequirePackage{graphicx}[2014/10/28]
+\RequirePackage{xcolor}[2016/05/11]
+\RequirePackage{transparent}[2016/05/16]
+%</base>
+%<*extract>
+\RequirePackage{svg-new}[2017/00/00]
+%</extract>
 %    \end{macrocode}
 %
-% \subsection{Input definition}
-%   All commands used for input (i.e. for the \svg and preamble) are
-%   defined within the |\SVG@in| prefix, and set by the key definition
-%   of the line following their definition. The |exclude| boolean,
-%   used to stop the inclusion of the \svg within the document is also
-%   defined.
+% \iffalse
+%<*base>
+% \fi
+%
+% \begin{macro}{\svg@tempa}
+% \begin{macro}{\svg@tempb}
+% Internal temporary macros.
 %    \begin{macrocode}
-\def\SVG@in@preamble{\jobname.tex}%
-\define@key[SVG]{svg.sty}{preamble}{\def\SVG@in@preamble{#1}}%
-\def\SVG@in@path{./}%
-\define@key[SVG]{svg.sty}{svgpath}{\def\SVG@in@path{#1}}%
-\def\SVG@in@end{\begin{document}}%
-\define@key[SVG]{svg.sty}{end}{\def\SVG@in@end{#1}}%
-\define@boolkey[SVG]{svg.sty}[SVG@in@]{exclude}[true]{}%
+\newcommand*\svg@tempa{}
+\newcommand*\svg@tempb{}
 %    \end{macrocode}
+% \end{macro}^^A \svg@tempb
+% \end{macro}^^A \svg@tempa
+%
+% \subsection{Handling path information}
+%
+% Both packages should be able to handle user-defined input and output paths. 
+% As there is the possibility for users to provide paths with or without quotes
+% to \LaTeX, this is taken into account.
+%
+% \begin{macro}{\svg@quotes@remove}
+% \begin{macro}{\svg@quotes@@remove}
+% These two commands are used to remove all occuring quotes within a string. 
+% The only argument passed to \cs{svg@quotes@remove} is not the string itself
+% but a macro in which it is stored.
+%    \begin{macrocode}
+\newcommand*\svg@quotes@remove[1]{%
+  \begingroup%
+    \edef\svg@tempa{#1}%
+    \expandafter\svg@quotes@@remove\svg@tempa""\@nil%
+    \edef\svg@tempb{%
+      \endgroup%
+      \noexpand\def\noexpand#1{\unexpanded\expandafter{\svg@tempa}}%
+    }%
+  \svg@tempb%
+}
+\newcommand*\svg@quotes@@remove{}
+\def\svg@quotes@@remove#1"#2"#3\@nil{%
+  \IfArgIsEmpty{#2}{%
+    \edef\svg@tempa{#1}%
+  }{%
+    \svg@quotes@@remove#1#2#3""\@nil%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@quotes@@remove
+% \end{macro}^^A \svg@quotes@remove
+% \begin{macro}{\svg@quotes@check}
+% \begin{macro}{\svg@quotes@@check}
+% \begin{macro}{\if@svg@quotes@found}
+% During the treatment of paths, it may be necessary to temporarily remove 
+% quotes and, if required, add them again later. For this, the switch 
+% \cs{if@svg@quotes@found} as well as the commands \cs{svg@quotes@check} and
+% \cs{svg@quotes@@check}, which controls the switch, are defined. As before, 
+% the string is passed in a macro to \cs{svg@quotes@check}.
+%    \begin{macrocode}
+\newif\if@svg@quotes@found
+\newcommand*\svg@quotes@check[1]{%
+  \expandafter\svg@quotes@@check#1"\@nil%
+}
+\newcommand*\svg@quotes@@check{}
+\def\svg@quotes@@check#1"#2\@nil{%
+  \IfArgIsEmpty{#2}{\@svg@quotes@foundfalse}{\@svg@quotes@foundtrue}%
+}
+%    \end{macrocode}
+% \end{macro}^^A \if@svg@quotes@found
+% \end{macro}^^A \svg@quotes@@check
+% \end{macro}^^A \svg@quotes@check
+% \begin{macro}{\svg@normalize@path}
+% \begin{macro}{\svg@normalize@@path}
+% If any path is given, a trailing slash is needed. These two macros ensure
+% that this condition is fulfilled in any case, even if this is not considered
+% by the user. As before, a macro is passed to \cs{svg@normalize@path}.
+%    \begin{macrocode}
+\newcommand*\svg@normalize@path[1]{%
+  \begingroup%
+    \svg@quotes@check{#1}%
+    \svg@quotes@remove{#1}%
+    \expandafter\svg@normalize@@path#1//\@nil%
+    \edef\svg@tempb{%
+      \endgroup%
+      \if@svg@quotes@found%
+        \noexpand\def\noexpand#1{"\unexpanded\expandafter{\svg@tempa}"}%
+      \else%
+        \noexpand\def\noexpand#1{\unexpanded\expandafter{\svg@tempa}}%
+      \fi%
+    }%
+  \svg@tempb%
+}
+\newcommand*\svg@normalize@@path{}
+\def\svg@normalize@@path#1/#2/\@nil{%
+  \IfArgIsEmpty{#2}{%
+    \IfArgIsEmpty{#1}{\def\svg@tempa{}}{\def\svg@tempa{#1/}}%
+  }{%
+    \svg@normalize@@path#2/\@nil%
+    \edef\svg@tempa{#1/\unexpanded\expandafter{\svg@tempa}}%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@normalize@@path
+% \end{macro}^^A \svg@normalize@path
+% \begin{macro}{\svgpath}
+% \changes{v2.00}{2017/02/12}{new}
+% \begin{macro}{\svg@path}
+% With \cs{svgpath} the user can give several root paths to \file{svg}-files in 
+% the same way as \cs{graphicspath} is used. The only difference is that a 
+% missing slash is added at the end of the path, if needed.
+%    \begin{macrocode}
+\newcommand*\svg@path{}
+\let\svg@path\@undefined
+\newcommand*\svgpath[1]{%
+  \def\svg@path{}%
+  \@tfor\svg@tempa:=#1\do{%
+    \svg@normalize@path{\svg@tempa}%
+    \edef\svg@path{\svg@path{\svg@tempa}}%
+  }%
+  \ifx\svg@path\@empty%
+    \let\svg@path\@undefined%
+  \fi%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@path
+% \end{macro}^^A \svgpath
+%
+% \iffalse
+%</base>
+%</package&option>
+%<*package&body&base>
+% \fi
+%
+% \begin{macro}{\svg@get@path}
+% \begin{macro}{\svg@get@@path}
+% \begin{macro}{\if@svg@file@found}
+% \begin{macro}{\svg@file@path}
+% \begin{macro}{\svg@file@name}
+% \begin{macro}{\svg@file@base}
+% \begin{macro}{\svg@file@ext}
+% The command \cs{svg@get@path} tries to find a given \file{svg}-file. If the 
+% searched wasn't found in the current path, all paths given with \cs{svgpath} 
+% are evaluated. If there was no appropriate again, then the paths given by
+% \cs{graphicspath} are examined. The results for file path and name are stored 
+% in \cs{svg@file@path} and \cs{svg@file@name} as well as \cs{svg@file@base}.
+%    \begin{macrocode}
+\newif\if@svg@file@found
+\newcommand*\svg@file@path{}
+\newcommand*\svg@file@name{}
+\newcommand*\svg@file@base{}
+\newcommand*\svg@file@ext{}
+\newcommand*\svg@get@path[2][svg]{%
+  \begingroup%
+    \@svg@file@foundfalse%
+    \svg@get@@path{#2}{#1}%
+    \if@svg@file@found\else%
+      \ifx\svg@path\@undefined\else%
+        \let\input@path\svg@path%
+        \svg@get@@path{#2}{#1}%
+      \fi%
+    \fi%
+    \if@svg@file@found\else%
+      \ifx\Ginput@path\@undefined\else%
+        \let\input@path\Ginput@path%
+        \svg@get@@path{#2}{#1}%
+      \fi%
+    \fi%
+    \edef\svg@tempa{%
+      \endgroup%
+      \if@svg@file@found%
+        \noexpand\@svg@file@foundtrue%
+        \noexpand\def\noexpand\svg@file@path{\filename@area}%
+        \noexpand\def\noexpand\svg@file@name{\filename@base}%
+        \noexpand\def\noexpand\svg@file@base{\filename@area\filename@base}%
+      \else%
+        \noexpand\@svg@file@foundfalse%
+        \noexpand\def\noexpand\svg@file@path{}%
+        \noexpand\def\noexpand\svg@file@name{#2}%
+        \noexpand\def\noexpand\svg@file@base{#2}%
+      \fi%
+    }%
+  \svg@tempa%
+}
+%    \end{macrocode}
+% A maybe given, unneeded file extension is removed and the specified file is 
+% searched with \cs{IfFileExists}. If the file search was succesful, the macro
+% \cs{svg@filename@parse} is called with the result.
+%    \begin{macrocode}
+\newcommand*\svg@get@@path[2]{%
+  \edef\svg@tempa{#1}%
+  \svg@quotes@check{\svg@tempa}%
+  \svg@quotes@remove{\svg@tempa}%
+  \def\svg@tempb##1.#2##2\@nil{\def\svg@tempa{##1.#2}}%
+  \expandafter\svg@tempb\svg@tempa.#2\@nil%
+  \if@svg@quotes@found%
+    \edef\svg@tempa{"\svg@tempa"}%
+  \fi%
+  \IfFileExists{\svg@tempa}{%
+    \@svg@file@foundtrue%
+    \expandafter\svg@filename@parse\expandafter{\@filef@und}%
+  }{}%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@file@ext
+% \end{macro}^^A \svg@file@base
+% \end{macro}^^A \svg@file@name
+% \end{macro}^^A \svg@file@path
+% \end{macro}^^A \if@svg@file@found
+% \end{macro}^^A \svg@get@@path
+% \end{macro}^^A \svg@get@path
+% \begin{macro}{\svg@filename@parse}
+% As the internal \LaTeXe{} command \cs{filename@parse} is not able to split a 
+% given file name containing quotes, \cs{svg@filename@parse} is defined to 
+% resolve this problem.
+%    \begin{macrocode}
+\newcommand*\svg@filename@parse[1]{%
+  \begingroup%
+    \def\svg@tempa##1{%
+      \def\svg@tempb####1####2\@nil{%
+        \ifstr{####1}{"}{\def\svg@tempb{####2}}{\def\svg@tempb{####1####2}}%
+      }%
+      \expandafter\svg@tempb##1\@nil%
+      \edef##1{\svg@tempb}%
+    }%
+    \filename@parse{#1}%
+    \ifx\filename@ext\relax\else%
+      \edef\filename@base{\filename@base.\filename@ext}%
+    \fi%
+    \svg@quotes@check{\filename@area}%
+    \if@svg@quotes@found%
+      \svg@quotes@remove{\filename@area}%
+      \edef\filename@area{"\filename@area"}%
+      \svg@tempa{\filename@base}%
+    \fi%
+    \svg@quotes@check{\filename@base}%
+    \if@svg@quotes@found%
+      \svg@quotes@remove{\filename@base}%
+    \fi%
+    \let\svg@tempa\filename@area%
+    \expandafter\filename@parse\expandafter{\filename@base}%
+    \let\filename@area\svg@tempa%
+    \if@svg@quotes@found%
+       \edef\filename@base{"\filename@base"}%
+    \fi%
+    \edef\svg@tempa{%
+      \noexpand\endgroup%
+      \noexpand\def\noexpand\filename@area{\filename@area}%
+      \noexpand\def\noexpand\filename@base{\filename@base}%
+      \ifx\filename@ext\relax%
+        \noexpand\let\noexpand\filename@ext\noexpand\relax%
+      \else%
+        \noexpand\def\noexpand\filename@ext{\filename@ext}%
+      \fi%
+    }%
+  \svg@tempa%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@filename@parse
+%
+% \iffalse
+%</package&body&base>
+%<*package&option>
+% \fi
+%
+% \subsection{Options}
+%
+% All options are defined with the interface provided by package \pkg{scrbase}.
+%    \begin{macrocode}
+\DefineFamily{SVG}
+\DefineFamilyMember{SVG}
+%    \end{macrocode}
+% \begin{macro}{\svg@deprecated@key}
+% With version v2.00 the whole user interface was renewed. For reasons of 
+% compatibility, outdated options and parameters are also provided. If an old 
+% variant is used, a warning is issued and the current variant is executed.
+%    \begin{macrocode}
+%<*base>
+\newcommand*\svg@deprecated@key[3][svg]{%
+  \PackageWarning{#1}{%
+    The option key `#2' is deprecated\MessageBreak%
+    It's recommended to use `#3'\MessageBreak%
+    instead%
+  }%
+  \FamilyOptions{SVG}{#3}%
+}
+%</base>
+%    \end{macrocode}
+% \end{macro}^^A \svg@deprecated@key
+%
+% \iffalse
+%<package&option>
+%<*package&old>
+% \fi
 %
 % \subsection{Length definition}
 %   All commands used for output are defined within the |\SVG@out|
@@ -613,14 +941,11 @@ and the derived files
 \newcounter{svgfigure}[figure]%
 %    \end{macrocode}
 %
-% \begin{macro}{\setsvg}
 %   Define the macro to globally set keys.
 %    \begin{macrocode}
 \def\setsvg#1{\setkeys[SVG]{svg.sty}{#1}}%
 %    \end{macrocode}
-% \end{macro}
 %
-% \begin{macro}{\includesvg}
 %   Define the macro used to include an \svg. Set the keys and
 %   determine if extraction should occur.
 %    \begin{macrocode}
@@ -822,9 +1147,9 @@ and the derived files
   \fi%
 }%
 %    \end{macrocode}
-% \end{macro}
+%
 % \iffalse
-%</package>
+%</package&old>
 % \fi
 %
 % \Finale
