@@ -7,10 +7,10 @@
 \usepackage[T1]{fontenc}
 %\usepackage{babel}
 
-\usepackage{svg-new}
+\usepackage[usexcolor=false,usetransparent=false]{svg-new}
 \usepackage[extract=true,clean=true]{svg-extract}
 
-%\svgsetup{inkscapeformat=png}
+\svgsetup{lastpage=auto}
 
 \svghidepreamblestart
 %\usepackage{showframe}
@@ -124,6 +124,8 @@ a^2+b^2=c^2\label{eq:emc2}
 
 \makeatletter
 
+%\svgsetup{lastpage=false}
+
 \begin{figure}
 %\def\svgwidth{\textwidth}
 %\def\svgscale{0.8}
@@ -138,13 +140,15 @@ a^2+b^2=c^2\label{eq:emc2}
 %  inkscapedpi=,
 %  outname="bla",
 %  extractname=hamster,
-%  lastpage=0,
+  lastpage=-10,
 %  draft,
 %  extract=false,%
 %  convertdpi=400dpi,
 %  convertdpi={png+=700x300dpi},
 %  convertdpi={jpg+=333dpix666dpi},
   convert=true,%
+%  lastpage=7,%
+%  lastpage=false,%
 %  convert=gs64,%
 %  extractformat=,%{pdf,eps,ps},%
   convertformat={png,tiff,jpg,eps},%
@@ -163,7 +167,7 @@ a^2+b^2=c^2\label{eq:emc2}
 %  scale=0.5pt,
 %  pretex=aaa,
 %  apptex=bbb,
-]{"Seriell 2"}
+]{"Seriell"}
 \caption{aaa}
 \end{figure}
 

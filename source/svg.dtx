@@ -400,12 +400,43 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % default set to |convert -density 300| where |-density|
 % controls the resolution of the extracted \png in dots per inch.
 %
+%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% 
 % \section{Usage of package \pkg{svg}}\label{sec:svg}
+%
+% \ToDo{List/name all loaded packages, hint for graphicx with options}
+%
+% \DescribeOption{usexcolor}
+% \DescribeOption{noxcolor}
+% \DescribeOption{usetransparent}
+% \DescribeOption{notransparent}
+%
+% \DescribeMacro{\svgsetup}
 %
 % \DescribeMacro{\svgpath}
 % \ToDo{%
 % With \cs{svgpath} the user can give several root paths to \file{svg}-files in 
 % the same way as \cs{graphicspath} is used.}
+%
+% \DescribeOption{outpath}
+%
+% \DescribeOption{inkscape}
+%
+% \DescribeOption{inkscapeformat}
+%
+% \DescribeOption{inkscapearea}
+%
+% \DescribeOption{inkscapelatex}
+%
+% \DescribeOption{inkscapedpi}
+%
+% \DescribeOption{inkscapeexe}
+%
+% \DescribeOption{inkscapeopt}
+%
+%
 %
 % \section{Usage of package \pkg{svg-extract}}\label{sec:svg-extract}
 %
@@ -557,14 +588,16 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % \fi
 %
 % \section{Implementation}\label{sec:implementation}
+% \subsection{Initialization}
 %
 % The package \pkg{svg} requires \pkg{scrbase} for options processing, the
 % packages \pkg{ifluatex}, \pkg{ifpdf} and \pkg{ifxetex} for detecting the 
 % used \LaTeX{} engine, \pkg{pdftexcmds} for pdf\TeX{} primitives when using
-% Lua\TeX, \pkg{shellesc} for engine independent access to systems commands, 
-% \pkg{graphicx} for the inclusion of \file{pdf}-files as well as \pkg{xcolor} 
-% and \pkg{transparent} as they are used by \app{Inkscape} for exported graphic
-% files. The package \pkg{svg-extract} only needs package \pkg{svg} itself.
+% Lua\TeX, \pkg{shellesc} for engine independent access to systems commands as 
+% well as \pkg{graphicx} for the inclusion of \file{pdf}-files. The usage of 
+% packages \pkg{xcolor} and \pkg{transparent} can be switched of with the 
+% corresponding options. The package \pkg{svg-extract} only needs package
+% \pkg{svg} itself.
 %    \begin{macrocode}
 %<*base>
 \RequirePackage{scrbase}[2016/06/14]
@@ -573,26 +606,108 @@ svg-extract -- Extract detached graphic files from SVG pictures
 \RequirePackage{ifxetex}[2010/09/12]
 \RequirePackage{pdftexcmds}[2016/05/21]
 \RequirePackage{shellesc}[2016/06/07]
-\RequirePackage{graphicx}[2014/10/28]
-\RequirePackage{xcolor}[2016/05/11]
-\RequirePackage{transparent}[2016/05/16]
+\RequirePackage{graphicx}[1999/02/16]
 %</base>
 %<*extract>
 \RequirePackage{svg-new}[2017/00/00]
 %</extract>
+%    \end{macrocode}
+% All options and local parameters for \cs{includesvg} are defined with the
+% interface provided by package \pkg{scrbase}.
+%    \begin{macrocode}
+\DefineFamily{SVG}
+\DefineFamilyMember{SVG}
+\DefineFamilyMember[.param]{SVG}
 %    \end{macrocode}
 %
 % \iffalse
 %<*base>
 % \fi
 %
+% \begin{macro}{\svgsetup}
+% \changes{v2.00}{2017/02/17}{new}
+% \begin{macro}{\setsvg}
+% The macro \cs{svgsetup} can be used to change options after loading the 
+% package \pkg{svg} both in preamble and the document body. For compatibility 
+% reasons, \cs{setsvg} is also defined.
+%    \begin{macrocode}
+\newcommand*\svgsetup{\FamilyOptions{SVG}}
+\newcommand*\setsvg{\FamilyOptions{SVG}}
+%    \end{macrocode}
+% \end{macro}^^A \setsvg
+% \end{macro}^^A \svgsetup
+% \begin{macro}{\svg@local@param@set}
+% \begin{macro}{\svg@local@param@def}
+% Most of the options can also be used as local parameters for \cs{includesvg}. 
+% Some of them are overloaded in the local context and there are some keys, 
+% which only can be used as local parameters. This approach is realized in such 
+% a way that \cs{svg@local@param@set} is extended with \cs{svg@local@param@def} 
+% by the definition of local keys during the loading of package \pkg{svg}.
+%    \begin{macrocode}
+\newcommand*\svg@local@param@set{}%
+\newcommand*\svg@local@param@def[1]{%
+  \edef\svg@local@param@set{%
+    \unexpanded\expandafter{\svg@local@param@set}\unexpanded{#1}%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@local@param@def
+% \end{macro}^^A \svg@local@param@set
+% \begin{option}{usexcolor}
+% \changes{v2.00}{2017/02/17}{new}
+% \begin{option}{noxcolor}
+% \begin{macro}{\if@svg@use@xcolor}
+% \begin{option}{usetransparent}
+% \changes{v2.00}{2017/02/17}{new}
+% \begin{option}{notransparent}
+% \begin{macro}{\if@svg@use@transparent}
+% Options for preventing packages \pkg{xcolor} and \pkg{transparent} to be 
+% loaded. They are only available during the loading process of \pkg{svg}.
+%    \begin{macrocode}
+\newif\if@svg@use@xcolor
+\FamilyBoolKey{SVG}{usexcolor}{@svg@use@xcolor}
+\DeclareOption{noxcolor}{\FamilyOptions{SVG}{usexcolor=false}}
+\newif\if@svg@use@transparent
+\FamilyBoolKey{SVG}{usetransparent}{@svg@use@transparent}
+\DeclareOption{notransparent}{\FamilyOptions{SVG}{usetransparent=false}}
+\AtEndOfPackage{%
+  \RelaxFamilyKey{SVG}{usexcolor}%
+  \RelaxFamilyKey{SVG}{usetransparent}%
+  \if@svg@use@xcolor%
+    \RequirePackage{xcolor}[2016/05/11]%
+  \else%
+    \AfterPackage*{xcolor}{%
+      \PackageWarning{svg}{Package `xcolor' was loaded anyway}%
+    }%
+  \fi%
+  \if@svg@use@transparent%
+    \RequirePackage{transparent}[2016/05/16]%
+  \else%
+    \AfterPackage*{transparent}{%
+      \PackageWarning{svg}{Package `transparent' was loaded anyway}%
+    }%
+  \fi%
+}
+%    \end{macrocode}
+% \end{macro}^^A \if@svg@use@transparent
+% \end{option}^^A notransparent
+% \end{option}^^A usetransparent
+% \end{macro}^^A \if@svg@use@xcolor
+% \end{option}^^A noxcolor
+% \end{option}^^A usexcolor
 % \begin{macro}{\svg@tempa}
 % \begin{macro}{\svg@tempb}
+% \begin{macro}{\if@svg@tempswa}
+% \begin{macro}{\svg@tempcnt}
 % Internal temporary macros.
 %    \begin{macrocode}
 \newcommand*\svg@tempa{}
 \newcommand*\svg@tempb{}
+\newif\if@svg@tempswa
+\newcount\svg@tempcnt
 %    \end{macrocode}
+% \end{macro}^^A \svg@tempcnt
+% \end{macro}^^A \if@svg@tempswa
 % \end{macro}^^A \svg@tempb
 % \end{macro}^^A \svg@tempa
 %
@@ -841,21 +956,16 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % \iffalse
 %</package&body&base>
 %<*package&option>
+%<*base>
 % \fi
 %
 % \subsection{Options}
 %
-% All options are defined with the interface provided by package \pkg{scrbase}.
-%    \begin{macrocode}
-\DefineFamily{SVG}
-\DefineFamilyMember{SVG}
-%    \end{macrocode}
 % \begin{macro}{\svg@deprecated@key}
 % With version v2.00 the whole user interface was renewed. For reasons of 
 % compatibility, outdated options and parameters are also provided. If an old 
 % variant is used, a warning is issued and the current variant is executed.
 %    \begin{macrocode}
-%<*base>
 \newcommand*\svg@deprecated@key[3][svg]{%
   \PackageWarning{#1}{%
     The option key `#2' is deprecated\MessageBreak%
@@ -864,12 +974,369 @@ svg-extract -- Extract detached graphic files from SVG pictures
   }%
   \FamilyOptions{SVG}{#3}%
 }
-%</base>
 %    \end{macrocode}
 % \end{macro}^^A \svg@deprecated@key
 %
+% \subsubsection{Setting folders for the output results}
+%
+% \begin{option}{outpath}
+% \changes{v2.00}{2017/02/17}{new}
+% \begin{option}{outname}
+% \changes{v2.00}{2017/02/17}{new}
+% \begin{macro}{\svg@out@path}
+% \begin{macro}{\svg@out@name}
+% \begin{macro}{\svg@out@base}
+% The option \opt{outpath} controls, in which folder the results of the
+% \app{Inkscape} export will be located. With option \opt{outname} the name of
+% the exported file itself can be changed.
+%    \begin{macrocode}
+\newcommand*\svg@out@path{}
+\newcommand*\svg@out@name{\svg@file@name\svg@file@ext}
+\newcommand*\svg@out@base{\svg@out@path\svg@out@name.\svg@ink@format}
+\DefineFamilyKey{SVG}{outpath}{%
+  \FamilySetNumerical{SVG}{outpath}{svg@tempa}{%
+    {svgpath}{0},{svgdir}{0},%
+    {svgsubpath}{1},{svgsubdir}{1},%
+    {basepath}{2},{basedir}{2},{jobpath}{2},{jobdir}{2},%
+    {basesubpath}{3},{basesubdir}{3},{jobsubpath}{3},{jobsubdir}{3}%
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifcase\svg@tempa\relax% svgpath
+      \def\svg@out@path{\svg@file@path}%
+    \or% svgsubpath
+      \def\svg@out@path{\svg@file@path svg-out/}%
+    \or% basepath
+      \def\svg@out@path{./}%
+    \or% basesubpath
+      \def\svg@out@path{./svg-out/}%
+    \fi%
+  \else%
+    \def\svg@out@path{#1}%
+    \svg@normalize@path{\svg@out@path}%
+    \FamilyKeyStateProcessed%
+  \fi%
+}
+\DefineFamilyKey{SVG}{outname}{%
+  \def\svg@out@name{#1\svg@file@ext}%
+  \FamilyKeyStateProcessed%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@out@base
+% \end{macro}^^A \svg@out@name
+% \end{macro}^^A \svg@out@path
+% \end{option}^^A outname
+% \end{option}^^A outpath
+%
+% \subsubsection{The invocation of \app{Inkscape}}
+%
+% The Application \app{Inkscape} is used to create includable graphic files in 
+% a desired format (\file{pdf/eps/ps/png}) out of files in \file{svg} format, 
+% whereas the support of \LaTeX can be used optionally.
+%
+% \begin{option}{inkscape}
+% \changes{v2.00}{2017/02/17}{new}
+% \begin{macro}{\svg@ink@mode}
+% The intension of option \opt{inkscape} is to control the running behaviour of 
+% \app{Inkscape}. It can be switched off at all or invoked only if necessarry 
+% or the command line call can be forced with every run of \LaTeX. Additionally 
+% option \opt{inkscape} can be used as wrapper for options \opt{inkscapeformat},
+% \opt{inkscapearea}, \opt{inkscapelatex} and \opt{inkscapedpi}, which are
+% declared later.
+%    \begin{macrocode}
+\newcommand*\svg@ink@mode{}
+\DefineFamilyKey{SVG}{inkscape}[true]{%
+  \FamilySetNumerical{SVG}{inkscape}{svg@tempa}{%
+    {false}{0},{off}{0},{no}{0},%
+    {true}{1},{on}{1},{yes}{1},{onlynewer}{1},{newer}{1},%
+    {force}{2},{forced}{2},{overwrite}{2},%
+    {pdf}{3},{eps}{4},{ps}{5},{png}{6},%
+    {drawing}{7},{crop}{7},%
+    {page}{8},{nocrop}{8},%
+    {tex}{9},{latex}{9},{exportlatex}{9},{latexexport}{9},%
+    {notex}{10},{nolatex}{10},{noexportlatex}{10},{nolatexexport}{10},%
+    {latexnoexport}{10},{raw}{10},{plain}{10},{simple}{10}%
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifnum\svg@tempa<\thr@@\relax%
+      \let\svg@ink@mode\svg@tempa%
+    \else%
+      \ifcase\svg@tempa\relax\or\or\or% pdf
+        \FamilyOptions{SVG}{inkscapeformat=pdf}%
+      \or% eps
+        \FamilyOptions{SVG}{inkscapeformat=eps}%
+      \or% ps
+        \FamilyOptions{SVG}{inkscapeformat=ps}%
+      \or% png
+        \FamilyOptions{SVG}{inkscapeformat=png}%
+      \or% drawing
+        \FamilyOptions{SVG}{inkscapearea=drawing}%
+      \or% page
+        \FamilyOptions{SVG}{inkscapearea=page}%
+      \or% tex
+        \FamilyOptions{SVG}{inkscapelatex=true}%
+      \or% notex
+        \FamilyOptions{SVG}{inkscapelatex=false}%
+      \fi%
+    \fi%
+  \else% dpi
+    \def\svg@tempa##1dpi##2\@nil{%
+      \ifstr{##2}{dpi}{\FamilyOptions{SVG}{inkscapedpi=##1}}{}%
+    }%
+    \svg@tempa#1dpi\@nil%
+  \fi%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@ink@mode
+% \end{option}^^A inkscape
+% \begin{option}{inkscapeformat}
+% \changes{v2.00}{2017/02/17}{new}
+% \begin{macro}{\svg@ink@format}
+% With option \opt{inkscapeformat} the output format of the \app{Inkscape} 
+% export function, which is called via \cs{Shellescape}, can be configured.
+% It is set to \file{pdf} or, if dvi output could be detected, to \file{eps} 
+% during initialization.
+%    \begin{macrocode}
+\newcommand*\svg@ink@format{pdf}
+\ifxetex\else\ifpdf\else
+  \renewcommand*\svg@ink@format{eps}
+\fi\fi
+\DefineFamilyKey{SVG}{inkscapeformat}{%
+  \FamilySetNumerical{SVG}{inkscapeformat}{svg@tempa}{%
+    {pdf}{0},{eps}{1},{ps}{2},{png}{3}%
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifcase\svg@tempa\relax% latex
+      \def\svg@ink@format{pdf}%
+    \or% eps
+      \def\svg@ink@format{eps}%
+    \or% ps
+      \def\svg@ink@format{ps}%
+    \or% png
+      \def\svg@ink@format{png}%
+    \fi%
+  \fi%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@ink@format
+% \end{option}^^A inkscapeformat
+% \begin{option}{inkscapearea}
+% \changes{v2.00}{2017/02/17}{new}
+% \begin{macro}{\svg@ink@area}
+% The exported area for an \app{Inkscape} graphic can be set with this option.
+%    \begin{macrocode}
+\newcommand*\svg@ink@area{}
+\DefineFamilyKey{SVG}{inkscapearea}{%
+  \FamilySetNumerical{SVG}{inkscapearea}{svg@tempa}{%
+    {drawing}{0},{crop}{0},%
+    {page}{1},{nocrop}{1}%
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifcase\svg@tempa\relax% drawing
+      \def\svg@ink@area{-D}%
+    \else% page
+      \def\svg@ink@area{-C}%
+    \fi%
+  \fi%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@ink@area
+% \end{option}^^A inkscapearea
+% \begin{option}{inkscapelatex}
+% \changes{v2.00}{2017/02/17}{new}
+% \begin{macro}{\svg@ink@latex}
+% This options controls whether the \app{Inkscape} export will be invoked with 
+% or without the generation of a seperate \LaTeX{} file.
+%    \begin{macrocode}
+\newif\if@svg@ink@latex
+\FamilyBoolKey{SVG}{inkscapelatex}{@svg@ink@latex}
+%    \end{macrocode}
+% \end{macro}^^A \svg@ink@latex
+% \end{option}^^A inkscapelatex
+% \begin{option}{inkscapedpi}
+% \changes{v2.00}{2017/02/17}{new}
+% \begin{option}{inkscapedensity}
+% \begin{macro}{\svg@ink@dpi}
+% A density can be chosen, which is used during export with \app{Inkscape} for 
+% bitmaps and rasterization of filters.
+%    \begin{macrocode}
+\newcommand*\svg@ink@dpi{}
+\let\svg@ink@dpi\relax
+\DefineFamilyKey{SVG}{inkscapedpi}{%
+  \FamilyKeyStateUnknownValue%
+  \ifx\relax#1\relax%
+    \let\svg@ink@dpi\relax%
+    \FamilyKeyStateProcessed%
+  \else%
+    \def\svg@tempa##1dpi##2\@nil{\def\svg@tempa{##1}}%
+    \svg@tempa#1dpi\@nil%
+    \ifnumber{\svg@tempa}{%
+      \edef\svg@ink@dpi{\svg@tempa}%
+      \FamilyKeyStateProcessed%
+    }{}%
+  \fi%
+}
+\DefineFamilyKey{SVG}{inkscapedensity}{\FamilyOptions{SVG}{inkscapedpi=#1}}
+%    \end{macrocode}
+% \end{macro}^^A \svg@ink@dpi
+% \end{option}^^A inkscapedensity
+% \end{option}^^A inkscapedpi
+% \begin{option}{inkscapeexe}
+% \changes{v2.00}{2017/02/17}{new}
+% \begin{macro}{\svg@ink@exe}
+% \begin{option}{inkscapeopt}
+% \changes{v2.00}{2017/02/17}{new}
+% \begin{macro}{\svg@ink@opt}
+% With these options, the terminal command for invoking \app{Inkscape} as well 
+% as additional options can be defined.
+%    \begin{macrocode}
+\newcommand*\svg@ink@exe{inkscape}
+\DefineFamilyKey{SVG}{inkscapeexe}{%
+  \def\svg@ink@exe{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svg@ink@opt{}
+\DefineFamilyKey{SVG}{inkscapeopt}{%
+  \def\svg@ink@opt{#1}%
+  \FamilyKeyStateProcessed%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@ink@opt
+% \end{option}^^A inkscapeopt
+% \end{macro}^^A \svg@ink@exe
+% \end{option}^^A inkscapeexe
+%
 % \iffalse
-%<package&option>
+%</base>
+% \fi
+%
+% \subsubsection{Options for the inclusion of graphics}
+%
+% After the graphic export with \app{Inkscape}, the inclusion of those graphics 
+% can be controlled with the following options.
+%
+% \begin{option}{width}
+% \begin{macro}{\svg@param@width}
+% \begin{option}{height}
+% \begin{macro}{\svg@param@width}
+% \begin{option}{scale}
+% \changes{v2.00}{2017/02/17}{new}
+% \begin{macro}{\svg@param@scale}
+% These options determine the size of the included graphics. An empty value or 
+% \cs{relax} as value resets the respective option to the default behavior.
+%    \begin{macrocode}
+%<*base>
+\newcommand*\svg@param@width{\z@}
+\DefineFamilyKey{SVG}{width}{%
+  \FamilyKeyStateUnknownValue%
+  \ifx\relax#1\relax%
+    \def\svg@param@width{\z@}%
+    \FamilyKeyStateProcessed%
+  \else%
+    \FamilySetLengthMacro{SVG}{width}{\svg@param@width}{#1}%
+  \fi%
+}
+\newcommand*\svg@param@height{\z@}
+\DefineFamilyKey{SVG}{height}{%
+  \FamilyKeyStateUnknownValue%
+  \ifx\relax#1\relax%
+    \def\svg@param@height{\z@}%
+    \FamilyKeyStateProcessed%
+  \else%
+    \FamilySetLengthMacro{SVG}{height}{\svg@param@height}{#1}%
+  \fi%
+}
+\newcommand*\svg@param@scale{1}
+\DefineFamilyKey{SVG}{scale}{%
+  \FamilyKeyStateUnknownValue%
+  \ifx\relax#1\relax%
+    \def\svg@param@scale{1}%
+    \FamilyKeyStateProcessed%
+  \else%
+    \ifisdimension{#1\p@}{%
+      \ifdim\dimexpr#1\p@\relax>\z@\relax%
+        \def\svg@param@scale{#1}%
+      \else%
+        \PackageWarning{svg}{%
+          Setting for `scale' has to be a positive value\MessageBreak%
+          but `scale=#1' was given, so nothing was\MessageBreak%
+          changed. The setting remains at `scale=\svg@param@scale'%
+        }%
+      \fi%
+      \FamilyKeyStateProcessed%
+    }{}%
+  \fi%
+}
+%</base>
+%    \end{macrocode}
+% \end{macro}^^A \svg@param@scale
+% \end{option}^^A scale
+% \end{macro}^^A \svg@param@height
+% \end{option}^^A height
+% \end{macro}^^A \svg@param@width
+% \end{option}^^A width
+% \begin{option}{extractwidth}
+% \begin{macro}{\svgx@param@width}
+% \begin{option}{extractheight}
+% \begin{macro}{\svgx@param@width}
+% \begin{option}{extractscale}
+% \changes{v2.00}{2017/02/17}{new}
+% \begin{macro}{\svgx@param@scale}
+% These options determine the size of the included graphics. An empty value or 
+% \cs{relax} as value resets the respective option to the default behavior.
+%    \begin{macrocode}
+%<*extract>
+\newcommand*\svgx@param@width{\z@}
+\DefineFamilyKey{SVG}{extractwidth}{%
+  \FamilyKeyStateUnknownValue%
+  \ifx\relax#1\relax%
+    \def\svgx@param@width{\z@}%
+    \FamilyKeyStateProcessed%
+  \else%
+    \FamilySetLengthMacro{SVG}{extractwidth}{\svgx@param@width}{#1}%
+  \fi%
+}
+\newcommand*\svgx@param@height{\z@}
+\DefineFamilyKey{SVG}{extractheight}{%
+  \FamilyKeyStateUnknownValue%
+  \ifx\relax#1\relax%
+    \def\svgx@param@height{\z@}%
+    \FamilyKeyStateProcessed%
+  \else%
+    \FamilySetLengthMacro{SVG}{extractheight}{\svgx@param@height}{#1}%
+  \fi%
+}
+\newcommand*\svgx@param@scale{1}
+\DefineFamilyKey{SVG}{extractscale}{%
+  \FamilyKeyStateUnknownValue%
+  \ifx\relax#1\relax%
+    \def\svgx@param@scale{1}%
+    \FamilyKeyStateProcessed%
+  \else%
+    \ifisdimension{#1\p@}{%
+      \ifdim\dimexpr#1\p@\relax>\z@\relax%
+        \def\svgx@param@scale{#1}%
+      \else%
+        \PackageWarning{svg-extract}{%
+          Setting for `extractscale' has to be a positive value\MessageBreak%
+          but `extractscale=#1' was given, so nothing was\MessageBreak%
+          changed. The setting remains at `extractscale=\svgx@param@scale'%
+        }%
+      \fi%
+      \FamilyKeyStateProcessed%
+    }{}%
+  \fi%
+}
+%</extract>
+%    \end{macrocode}
+% \end{macro}^^A \svgx@param@scale
+% \end{option}^^A scale
+% \end{macro}^^A \svgx@param@height
+% \end{option}^^A height
+% \end{macro}^^A \svgx@param@width
+% \end{option}^^A width
+%
+% \iffalse
+%</package&option>
 %<*package&old>
 % \fi
 %
