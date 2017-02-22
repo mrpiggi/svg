@@ -7,8 +7,8 @@
 \usepackage[T1]{fontenc}
 %\usepackage{babel}
 
-\usepackage[usexcolor=false,usetransparent=false]{svg-new}
-\usepackage[extract=true,clean=true]{svg-extract}
+\usepackage[usexcolor=true,usetransparent=false]{svg-new}
+%\usepackage[extract=true,clean=true]{svg-extract}
 
 \svgsetup{lastpage=auto}
 
@@ -39,10 +39,8 @@
 \begin{equation}
 a^2+b^2=c^2\label{eq:emc2}
 \end{equation}
-
 %\blinddocument
 %
-%\end{document}
 %
 %%\svgsetup{inkscapepath="C:/Program Files/Inkscape/inkscape.exe"}
 %
@@ -100,7 +98,7 @@ a^2+b^2=c^2\label{eq:emc2}
 %]{"test image"}
 %\end{figure}
 
-\svgpath{{svg-test/}{"C:/Users/Hanisch/Documents/Dateien/svg"}}
+\svgpath{{svg-test/}{C:/Users/Hanisch/Documents/Dateien/svg}}
 %\graphicspath{{"svg-test"/}}
 %\svgpath{{"svg test/"}{svgtest}}
 
@@ -115,43 +113,58 @@ a^2+b^2=c^2\label{eq:emc2}
 %\meaning\filename@base\newline
 %\meaning\filename@ext\newline
 
-\svgsetup{%
-  outpath=svgsubdir,%
-%  inkscapeexe="C:/Program Files/Inkscape/inkscape.exe"
-}
+%\svgsetup{%
+%  inkscape=bla/inkscape.exe -z -C,%
+%%  inkscapeexe="C:/Program Files/Inkscape/inkscape.exe"
+%}
 
 %\def\svgwidth{200pt}
 
 \makeatletter
 
+\svgsetup{pretex=\color{red}}
+
 %\svgsetup{lastpage=false}
+
+\fboxsep=-\fboxrule
+%\begin{figure}
+%\fbox{\includegraphics[width=\textwidth,angle=10]{svg-out/Seriell_svg-raw.png}}
+
+\fbox{\includegraphics[angle=10,width=\textwidth]{svg-out/Seriell_svg-raw.png}}
+%\end{figure}
+
+%\def\svgwidth{400pt}
+%\def\svgscale{0.6}
 
 \begin{figure}
 %\def\svgwidth{\textwidth}
 %\def\svgscale{0.8}
-\newincludesvg[%
+\fbox{\newincludesvg[%
   outpath=basesubdir,%
+%  exclude=true,
+  angle=10,%origin=c,
+%  svgpath=bla,
 %  extractpreamble=a.aaa,
-%  inkscape=300,
-%  inkscape=nolatex,
+  inkscape=raw,
+%  inkscape=eps,
 %  convertdensity=600x300,
 %  convertdensity=555x300x,
 %  angle=10,
 %  inkscapedpi=,
 %  outname="bla",
 %  extractname=hamster,
-  lastpage=-10,
+%  lastpage=false,
 %  draft,
 %  extract=false,%
 %  convertdpi=400dpi,
 %  convertdpi={png+=700x300dpi},
 %  convertdpi={jpg+=333dpix666dpi},
-  convert=true,%
-%  lastpage=7,%
+%  convert=true,%
+%  lastpage=3,%
 %  lastpage=false,%
 %  convert=gs64,%
 %  extractformat=,%{pdf,eps,ps},%
-  convertformat={png,tiff,jpg,eps},%
+%  convertformat={png,tiff,jpg,eps},%
 %  gsdevice={eps=\relax},
 %  gsopt=bla,%
 %%  gsopt={png=foo},%
@@ -163,13 +176,25 @@ a^2+b^2=c^2\label{eq:emc2}
 %  convertformat=png,
 %  convertdensity=,%
   width=\textwidth,%
+%  extractwidth=\relax,
+%  extractwidth=400pt,
+%  scale=1.1,
+%  extractscale=1.2,
+%  extractpretex=inherit,
+%  extractwidth=,
+%  clean=false,
+%  angle=-180,
+%  draft,
 %  height=4cm,
 %  scale=0.5pt,
 %  pretex=aaa,
 %  apptex=bbb,
-]{"Seriell"}
+]{"Seriell"}%
+}%
 \caption{aaa}
 \end{figure}
+
+\blindtext
 
 %\begin{figure}
 %%\newincludesvg[%
@@ -191,6 +216,5 @@ a^2+b^2=c^2\label{eq:emc2}
 %]{newimage}
 %\end{figure}
 
-\blindtext
 
 \end{document}
