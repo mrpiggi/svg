@@ -7,8 +7,8 @@
 \usepackage[T1]{fontenc}
 %\usepackage{babel}
 
-\usepackage[usexcolor=true,usetransparent=false]{svg-new}
-%\usepackage[extract=true,clean=true]{svg-extract}
+\usepackage[usexcolor=true,usetransparent=false,draft=false]{svg-new}
+\usepackage[extract=true,clean=false,exclude=false]{svg-extract}
 
 \svgsetup{lastpage=auto}
 
@@ -89,7 +89,7 @@ a^2+b^2=c^2\label{eq:emc2}
 %%  inkscape=300dai,%
 %%  inkscape=aaadpi,%
 %%  inkscape=page,%
-%%  inkscape=raw,
+%  inkscape=raw,
 %%  dpi=50,
 %%  inkscape=page,
 %%  pretex=\Huge,
@@ -130,7 +130,6 @@ a^2+b^2=c^2\label{eq:emc2}
 %\begin{figure}
 %\fbox{\includegraphics[width=\textwidth,angle=10]{svg-out/Seriell_svg-raw.png}}
 
-\fbox{\includegraphics[angle=10,width=\textwidth]{svg-out/Seriell_svg-raw.png}}
 %\end{figure}
 
 %\def\svgwidth{400pt}
@@ -140,10 +139,10 @@ a^2+b^2=c^2\label{eq:emc2}
 %\def\svgwidth{\textwidth}
 %\def\svgscale{0.8}
 \fbox{\newincludesvg[%
-  outpath=basesubdir,%
+%  inkscapepath=basesubdir,%
 %  exclude=true,
-  angle=10,%origin=c,
-%  svgpath=bla,
+%  angle=10,%origin=c,
+%  svgpath=C:/Users/Hanisch/Documents/Dateien/svg,
 %  extractpreamble=a.aaa,
   inkscape=raw,
 %  inkscape=eps,
@@ -194,7 +193,19 @@ a^2+b^2=c^2\label{eq:emc2}
 \caption{aaa}
 \end{figure}
 
+
+\newbox\blabox
+%\savebox\blabox{\newincludesvg[height=200pt]{Seriell}}
+
+\usebox\blabox
+
+\the\ht\blabox
+
+\the\dp\blabox
+
 \blindtext
+
+\the\dimexpr 30pt*2\relax
 
 %\begin{figure}
 %%\newincludesvg[%
