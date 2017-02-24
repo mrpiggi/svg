@@ -49,20 +49,18 @@
 \RequirePackage{graphicx}[1999/02/16]
 \DefineFamily{SVG}
 \DefineFamilyMember{SVG}
-\DefineFamilyMember[.param]{SVG}
-\newcommand*\svgsetup{\FamilyOptions{SVG}}
-\newcommand*\setsvg{\FamilyOptions{SVG}}
-\newcommand*\svg@local@param@set[1]{%
-  \svg@local@param@use%
-  \FamilyOptions{SVG}{#1}%
-  \ifstr{\svg@ink@format}{png}{\FamilyOptions{SVG}{inkscapelatex=false}}{}%
-}
-\newcommand*\svg@local@param@use{}
-\newcommand*\svg@local@param@def[1]{%
-  \edef\svg@local@param@use{%
-    \unexpanded\expandafter{\svg@local@param@use}\unexpanded{#1}%
+\newcommand*\svg@deprecated@key[3][svg]{%
+  \PackageWarning{#1}{%
+    The option key `#2' is deprecated.\MessageBreak%
+    It's recommended to use `#3'\MessageBreak%
+    instead%
   }%
+  \FamilyOptions{SVG}{#3}%
 }
+\newcommand*\svg@tempa{}
+\newcommand*\svg@tempb{}
+\newif\if@svg@tempswa
+\newcount\svg@tempcnt
 \newif\if@svg@use@xcolor
 \FamilyBoolKey{SVG}{usexcolor}{@svg@use@xcolor}
 \DeclareOption{noxcolor}{\FamilyOptions{SVG}{usexcolor=false}}
@@ -86,91 +84,6 @@
       \PackageWarning{svg}{Package `transparent' was loaded anyway}%
     }%
   \fi%
-}
-\newcommand*\svg@tempa{}
-\newcommand*\svg@tempb{}
-\newif\if@svg@tempswa
-\newcount\svg@tempcnt
-\newcommand*\svg@quotes@remove[1]{%
-  \begingroup%
-    \edef\svg@tempa{#1}%
-    \expandafter\svg@quotes@@remove\svg@tempa""\@nil%
-    \edef\svg@tempb{%
-      \endgroup%
-      \noexpand\def\noexpand#1{\unexpanded\expandafter{\svg@tempa}}%
-    }%
-  \svg@tempb%
-}
-\newcommand*\svg@quotes@@remove{}
-\def\svg@quotes@@remove#1"#2"#3\@nil{%
-  \IfArgIsEmpty{#2}{%
-    \edef\svg@tempa{#1}%
-  }{%
-    \svg@quotes@@remove#1#2#3""\@nil%
-  }%
-}
-\newif\if@svg@quotes@found
-\newcommand*\svg@quotes@check[1]{%
-  \expandafter\svg@quotes@@check#1"\@nil%
-}
-\newcommand*\svg@quotes@@check{}
-\def\svg@quotes@@check#1"#2\@nil{%
-  \IfArgIsEmpty{#2}{\@svg@quotes@foundfalse}{\@svg@quotes@foundtrue}%
-}
-\newcommand*\svg@normalize@path[1]{%
-  \begingroup%
-    \svg@quotes@check{#1}%
-    \svg@quotes@remove{#1}%
-    \expandafter\svg@normalize@@path#1//\@nil%
-    \edef\svg@tempb{%
-      \endgroup%
-      \if@svg@quotes@found%
-        \noexpand\def\noexpand#1{"\unexpanded\expandafter{\svg@tempa}"}%
-      \else%
-        \noexpand\def\noexpand#1{\unexpanded\expandafter{\svg@tempa}}%
-      \fi%
-    }%
-  \svg@tempb%
-}
-\newcommand*\svg@normalize@@path{}
-\def\svg@normalize@@path#1/#2/\@nil{%
-  \IfArgIsEmpty{#2}{%
-    \IfArgIsEmpty{#1}{\def\svg@tempa{}}{\def\svg@tempa{#1/}}%
-  }{%
-    \svg@normalize@@path#2/\@nil%
-    \edef\svg@tempa{#1/\unexpanded\expandafter{\svg@tempa}}%
-  }%
-}
-\newcommand*\svg@path{}
-\let\svg@path\@undefined
-\newcommand*\svgpath[1]{%
-  \def\svg@path{}%
-  \@tfor\svg@tempa:=#1\do{%
-    \svg@normalize@path{\svg@tempa}%
-    \edef\svg@path{\svg@path{\svg@tempa}}%
-  }%
-  \ifx\svg@path\@empty%
-    \let\svg@path\@undefined%
-  \fi%
-}
-\newcommand*\svg@deprecated@key[3][svg]{%
-  \PackageWarning{#1}{%
-    The option key `#2' is deprecated.\MessageBreak%
-    It's recommended to use `#3'\MessageBreak%
-    instead%
-  }%
-  \FamilyOptions{SVG}{#3}%
-}
-\newcommand*\svg@ifvalueisrelax[1]{%
-  \begingroup%
-    \def\svg@tempa{#1}%
-    \def\svg@tempb{\relax}%
-    \ifx\svg@tempa\svg@tempb\relax%
-      \aftergroup\@firstoftwo%
-    \else%
-      \aftergroup\@secondoftwo%
-    \fi%
-  \endgroup%
 }
 \newcommand*\svg@ink@mode{}
 \DefineFamilyKey{SVG}{inkscape}[true]{%
@@ -308,14 +221,18 @@
     The key `svgpath' is deprecated. It's recommended\MessageBreak%
     to use `\string\svgpath' instead%
   }%
-  \svgpath{{#1}}%
+  \ifx\svgpath\@undefined%
+    \AtEndOfPackage{\svgpath{{#1}}}%
+  \else%
+    \svgpath{{#1}}%
+  \fi%
   \FamilyKeyStateProcessed%
 }
 \newcommand*\svg@out@path{}
 \newcommand*\svg@out@name{\svg@file@name\svg@file@ext}
 \newcommand*\svg@out@base{\svg@out@path\svg@out@name.\svg@ink@format}
-\DefineFamilyKey{SVG}{outpath}{%
-  \FamilySetNumerical{SVG}{outpath}{svg@tempa}{%
+\DefineFamilyKey{SVG}{inkscapepath}{%
+  \FamilySetNumerical{SVG}{inkscapepath}{svg@tempa}{%
     {svgpath}{0},{svgdir}{0},%
     {svgsubpath}{1},{svgsubdir}{1},%
     {basepath}{2},{basedir}{2},{jobpath}{2},{jobdir}{2},%
@@ -337,7 +254,7 @@
     \FamilyKeyStateProcessed%
   \fi%
 }
-\DefineFamilyKey{SVG}{outname}{%
+\DefineFamilyKey{SVG}{inkscapename}{%
   \renewcommand*\svg@out@name{#1\svg@file@ext}%
   \FamilyKeyStateProcessed%
 }
@@ -422,9 +339,70 @@
 \newif\if@svg@draft
 \FamilyBoolKey{SVG}{draft}{@svg@draft}
 \AtBeginDocument{\if@svg@draft\else\ifGin@draft\@svg@drafttrue\fi\fi}
+\newcommand*\svg@quotes@remove[1]{%
+  \begingroup%
+    \edef\svg@tempa{#1}%
+    \expandafter\svg@quotes@@remove\svg@tempa""\@nil%
+    \edef\svg@tempb{%
+      \endgroup%
+      \noexpand\def\noexpand#1{\unexpanded\expandafter{\svg@tempa}}%
+    }%
+  \svg@tempb%
+}
+\newcommand*\svg@quotes@@remove{}
+\def\svg@quotes@@remove#1"#2"#3\@nil{%
+  \IfArgIsEmpty{#2}{%
+    \edef\svg@tempa{#1}%
+  }{%
+    \svg@quotes@@remove#1#2#3""\@nil%
+  }%
+}
+\newif\if@svg@quotes@found
+\newcommand*\svg@quotes@check[1]{%
+  \expandafter\svg@quotes@@check#1"\@nil%
+}
+\newcommand*\svg@quotes@@check{}
+\def\svg@quotes@@check#1"#2\@nil{%
+  \IfArgIsEmpty{#2}{\@svg@quotes@foundfalse}{\@svg@quotes@foundtrue}%
+}
+\newcommand*\svg@normalize@path[1]{%
+  \begingroup%
+    \svg@quotes@check{#1}%
+    \svg@quotes@remove{#1}%
+    \expandafter\svg@normalize@@path#1//\@nil%
+    \edef\svg@tempb{%
+      \endgroup%
+      \if@svg@quotes@found%
+        \noexpand\def\noexpand#1{"\unexpanded\expandafter{\svg@tempa}"}%
+      \else%
+        \noexpand\def\noexpand#1{\unexpanded\expandafter{\svg@tempa}}%
+      \fi%
+    }%
+  \svg@tempb%
+}
+\newcommand*\svg@normalize@@path{}
+\def\svg@normalize@@path#1/#2/\@nil{%
+  \IfArgIsEmpty{#2}{%
+    \IfArgIsEmpty{#1}{\def\svg@tempa{}}{\def\svg@tempa{#1/}}%
+  }{%
+    \svg@normalize@@path#2/\@nil%
+    \edef\svg@tempa{#1/\unexpanded\expandafter{\svg@tempa}}%
+  }%
+}
+\newcommand*\svg@ifvalueisrelax[1]{%
+  \begingroup%
+    \def\svg@tempa{#1}%
+    \def\svg@tempb{\relax}%
+    \ifx\svg@tempa\svg@tempb\relax%
+      \aftergroup\@firstoftwo%
+    \else%
+      \aftergroup\@secondoftwo%
+    \fi%
+  \endgroup%
+}
 \FamilyExecuteOptions{SVG}{%
-  inkscape=true,inkscapearea=drawing,inkscapelatex=true,%
-  outpath=basesubdir,usexcolor=true,usetransparent=true%
+  inkscape=true,inkscapepath=basesubdir,inkscapelatex=true,%
+  inkscapearea=drawing,usexcolor=true,usetransparent=true%
 }
 \FamilyProcessOptions{SVG}
 \newif\if@svg@file@found
@@ -432,22 +410,45 @@
 \newcommand*\svg@file@name{}
 \newcommand*\svg@file@base{}
 \newcommand*\svg@file@ext{}
-\newcommand*\svg@get@path[2][svg]{%
+\newcommand*\svg@get@path[3][svg]{%
   \begingroup%
+    \edef\svg@tempa{#2}%
+    \svg@quotes@check{\svg@tempa}%
+    \svg@quotes@remove{\svg@tempa}%
+    \def\svg@tempb##1.#1##2\@nil{%
+      \IfArgIsEmpty{##2}{%
+        \def\svg@tempa{##1.#1}%
+      }{%
+        \ifstr{##2}{_tex.#1}{\def\svg@tempa{##1.#1}}{}%
+      }%
+    }%
+    \expandafter\svg@tempb\svg@tempa.#1\@nil%
+    \if@svg@quotes@found%
+      \edef\svg@tempa{"\svg@tempa"}%
+    \fi%
     \@svg@file@foundfalse%
-    \svg@get@@path{#2}{#1}%
+    \svg@get@@path{\svg@tempa}%
     \if@svg@file@found\else%
       \ifx\svg@path\@undefined\else%
         \let\input@path\svg@path%
-        \svg@get@@path{#2}{#1}%
+        \svg@get@@path{\svg@tempa}%
       \fi%
     \fi%
     \if@svg@file@found\else%
       \ifx\Ginput@path\@undefined\else%
         \let\input@path\Ginput@path%
-        \svg@get@@path{#2}{#1}%
+        \svg@get@@path{\svg@tempa}%
       \fi%
     \fi%
+    \IfArgIsEmpty{#3}{}{%
+      \if@svg@file@found\else%
+        \ifx#3\@undefined\else%
+          \edef\svg@tempb{{#3}}%
+          \let\input@path\svg@tempb%
+          \svg@get@@path{\svg@tempa}%
+        \fi%
+      \fi%
+    }%
     \edef\svg@tempa{%
       \endgroup%
       \if@svg@file@found%
@@ -464,16 +465,8 @@
     }%
   \svg@tempa%
 }
-\newcommand*\svg@get@@path[2]{%
-  \edef\svg@tempa{#1}%
-  \svg@quotes@check{\svg@tempa}%
-  \svg@quotes@remove{\svg@tempa}%
-  \def\svg@tempb##1.#2##2\@nil{\def\svg@tempa{##1.#2}}%
-  \expandafter\svg@tempb\svg@tempa.#2\@nil%
-  \if@svg@quotes@found%
-    \edef\svg@tempa{"\svg@tempa"}%
-  \fi%
-  \IfFileExists{\svg@tempa}{%
+\newcommand*\svg@get@@path[1]{%
+  \expandafter\IfFileExists\expandafter{#1}{%
     \@svg@file@foundtrue%
     \expandafter\svg@filename@parse\expandafter{\@filef@und}%
   }{}%
@@ -519,18 +512,47 @@
     }%
   \svg@tempa%
 }
-\newcommand*\svg@file@missing[1]{%
+\newcommand*\svg@file@missing[3][]{%
   \begingroup%
-    \edef\svg@tempa{#1}%
+    \edef\svg@tempa{#2}%
     \expandafter\svg@filename@parse\expandafter{\svg@tempa}%
     \svg@quotes@remove{\filename@area}%
     \svg@quotes@remove{\filename@base}%
+    \svg@quotes@remove{\filename@ext}%
+    \IfArgIsEmpty{#1}{%
+      \def\svg@tempa{%
+        Did you run the export with Inkscape? There's no file\MessageBreak%
+        `\filename@area\filename@base.\filename@ext'%
+      }%
+    }{%
+      \edef\filename@ext{#1}%
+      \edef\svg@tempb{#3}%
+      \ifstr{\svg@tempb}{./}{\let\svg@tempb\@empty}{}%
+      \ifstr{\filename@area}{./}{\let\filename@area\@empty}{}%
+      \def\svg@tempa{%
+        There's no file `\filename@base.\filename@ext'\MessageBreak%
+        \ifx\filename@area\@empty%
+          neither in the current directory nor\MessageBreak%
+          any other searched path given by\MessageBreak%
+          \string\svgpath%
+          \ifx\svg@path\@undefined\space\else%
+            \space(\svg@path)\MessageBreak%
+          \fi%
+           or \string\graphicspath%
+          \ifx\Ginput@path\@undefined\else%
+            \space(\Ginput@path)%
+          \fi%
+          \ifx\svg@tempb\@empty\else%
+            \MessageBreak or even `inkscapepath' (`\svg@tempb')%
+          \fi.%
+        \else%
+          in folder `\filename@area'.%
+        \fi%
+      }%
+    }%
     \PackageError{svg}{%
       File `\filename@base.\filename@ext' is missing%
-    }{%
-      Did you run the export with Inkscape? There's no file\MessageBreak%
-      `\filename@area\filename@base.\filename@ext'%
-    }%
+    }{\svg@tempa}%
   \endgroup%
 }
 \ifx\pdf@filemoddate\@undefined
@@ -548,6 +570,111 @@
     \endgroup%
   }
 \fi
+\newcommand*\svg@local@param@set[1]{%
+  \svg@local@param@use%
+  \FamilyOptions{SVG}{#1}%
+  \ifstr{\svg@ink@format}{png}{\FamilyOptions{SVG}{inkscapelatex=false}}{}%
+}
+\newcommand*\svg@local@param@use{}
+\newcommand*\svg@local@param@def[1]{%
+  \edef\svg@local@param@use{%
+    \unexpanded\expandafter{\svg@local@param@use}\unexpanded{#1}%
+  }%
+}
+\DefineFamilyMember[.param]{SVG}
+\newcommand*\svgsetup{\FamilyOptions{SVG}}
+\newcommand*\setsvg{\FamilyOptions{SVG}}
+\newcommand*\svg@path{}
+\let\svg@path\@undefined
+\newcommand*\svgpath[1]{%
+  \def\svg@path{}%
+  \@tfor\svg@tempa:=#1\do{%
+    \svg@normalize@path{\svg@tempa}%
+    \edef\svg@path{\svg@path{\svg@tempa}}%
+  }%
+  \ifx\svg@path\@empty%
+    \let\svg@path\@undefined%
+  \fi%
+}
+\newcommand*{\newincludesvg}[2][]{%
+  \begingroup%
+    \svg@deprecated@param%
+    \svg@local@param@set{#1}%
+    \if@svg@ink@latex%
+      \def\svg@file@ext{_svg-tex}%
+    \else%
+      \def\svg@file@ext{_svg-raw}%
+    \fi%
+    \@onelevel@sanitize\svg@file@ext%
+    \svg@get@path{#2}{}%
+    \if@svg@file@found%
+      \svg@ink@run%
+      \IfFileExists{\svg@out@base}{}{%
+        \@svg@file@foundfalse%
+        \svg@file@missing{\svg@out@base}{}%
+      }%
+      \if@svg@ink@latex%
+        \IfFileExists{\svg@out@base_tex}{}{%
+          \@svg@file@foundfalse%
+          \svg@file@missing{\svg@out@base_tex}{}%
+        }%
+      \fi%
+      \if@svg@file@found%
+        \svg@input{\svg@out@base}%
+        \svg@extract{\svg@out@base}%
+      \fi%
+    \else%
+      \svg@file@missing[svg]{\svg@file@base}{}%
+    \fi%
+  \endgroup%
+}
+\svg@local@param@def{%
+  \FamilyCounterKey[.param]{SVG}{lastpage}{svg@param@lastpage}%
+}
+\newcommand*\svg@param@angle{0}
+\svg@local@param@def{%
+  \DefineFamilyKey[.param]{SVG}{angle}{%
+    \renewcommand*\svg@param@angle{#1}%
+    \FamilyKeyStateProcessed%
+  }%
+}
+\newcommand*\svg@param@origin{c}
+\svg@local@param@def{%
+  \DefineFamilyKey[.param]{SVG}{origin}[c]{%
+    \renewcommand*\svg@param@origin{#1}%
+    \FamilyKeyStateProcessed%
+  }%
+}
+\newcommand*{\includeinkscape}[2][]{%
+  \begingroup%
+    \svg@deprecated@param%
+    \filename@parse{#2}%
+    \ifx\filename@ext\relax\else%
+      \svg@quotes@remove{\filename@ext}%
+      \ifstr{\filename@ext}{\svg@ink@format_tex}{%
+        \FamilyOptions{SVG}{inkscapelatex=true}%
+      }{}%
+    \fi%
+    \svg@local@param@set{#1}%
+    \expandafter\svg@get@path\expandafter[\svg@ink@format]{#2}{\svg@out@path}%
+    \if@svg@file@found%
+      \edef\svg@out@name{\svg@file@name}%
+      \edef\svg@out@base{\svg@file@path\svg@file@name.\svg@ink@format}%
+      \if@svg@ink@latex%
+        \IfFileExists{\svg@out@base_tex}{}{%
+          \@svg@file@foundfalse%
+          \svg@file@missing{\svg@out@base_tex}{}%
+        }%
+      \fi%
+      \if@svg@file@found%
+        \svg@input{\svg@out@base}%
+        \svg@extract{\svg@out@base}%
+      \fi%
+    \else%
+      \svg@file@missing[\svg@ink@format]{\svg@file@base}{\svg@out@path}%
+    \fi%
+  \endgroup%
+}
 \newcommand*\svg@deprecated@param{%
   \@svg@tempswafalse%
   \ifx\svgwidth\@undefined\else%
@@ -569,121 +696,6 @@
     \let\svgwidth\@undefined%
     \let\svgscale\@undefined%
   \fi%
-}
-\newcommand*\svg@wrn@scale{%
-  \ifdim\dimexpr\svg@param@scale\p@\relax=\p@\relax\else%
-    \@svg@tempswafalse%
-    \ifdim\svg@param@width>\z@\relax%
-      \@svg@tempswatrue%
-    \fi%
-    \ifdim\svg@param@height>\z@\relax%
-      \@svg@tempswatrue%
-    \fi%
-    \if@svg@tempswa%
-      \PackageWarning{svg}{%
-        The parameter `scale' is only considered if neither\MessageBreak%
-        `width' nor `height' are specified%
-      }%
-    \fi%
-  \fi%
-}
-\newcommand*\svg@get@lastpage[1]{%
-  \ifstr{\svg@ink@format}{pdf}{%
-    \begingroup%
-      \svg@tempcnt=\m@ne\relax%
-      \ifx\XeTeXpdfpagecount\@undefined%
-        \ifpdf%
-          \ifx\pdfximage\@undefined%
-            \ifx\saveimageresource\@undefined\else%
-              \saveimageresource{#1}%
-              \svg@tempcnt=\lastsavedimageresourcepages\relax%
-            \fi%
-          \else%
-            \pdfximage{#1}%
-            \svg@tempcnt=\pdflastximagepages\relax%
-          \fi%
-        \fi%
-      \else%
-        \svg@tempcnt=\XeTeXpdfpagecount#1\relax%
-      \fi%
-      \ifnum\svg@tempcnt=\m@ne\relax%
-        \PackageWarning{svg}{%
-          It wasn't possible to detect the last page\MessageBreak%
-          of `#1'%
-        }%
-      \else%
-        \PackageInfo{svg}{Last page of `#1' is \the\svg@tempcnt}%
-      \fi%
-      \edef\svg@tempa{%
-        \noexpand\endgroup%
-        \noexpand\FamilyOptions{SVG}{lastpage=\the\svg@tempcnt}%
-      }%
-    \svg@tempa%
-  }{}%
-}
-\svg@local@param@def{%
-  \FamilyCounterKey[.param]{SVG}{lastpage}{svg@param@lastpage}%
-}
-\newcommand*\svg@param@angle{0}
-\svg@local@param@def{%
-  \DefineFamilyKey[.param]{SVG}{angle}{%
-    \renewcommand*\svg@param@angle{#1}%
-    \FamilyKeyStateProcessed%
-  }%
-}
-\newcommand*\svg@param@origin{c}
-\svg@local@param@def{%
-  \DefineFamilyKey[.param]{SVG}{origin}[c]{%
-    \renewcommand*\svg@param@origin{#1}%
-    \FamilyKeyStateProcessed%
-  }%
-}
-% TODO: Befehl für Einbindung von inkscape export
-% TODO: outpath beachten!
-\newcommand*{\newincludesvg}[2][]{%
-  \begingroup%
-    \svg@deprecated@param%
-    \svg@local@param@set{#1}%
-    \if@svg@ink@latex%
-      \def\svg@file@ext{_svg-tex}%
-    \else%
-      \def\svg@file@ext{_svg-raw}%
-    \fi%
-    \@onelevel@sanitize\svg@file@ext%
-    \svg@get@path{#2}%
-    \if@svg@file@found%
-      \svg@ink@run%
-      \IfFileExists{\svg@out@base}{}{%
-        \@svg@file@foundfalse%
-        \svg@file@missing{\svg@out@base}%
-      }%
-      \if@svg@ink@latex%
-        \IfFileExists{\svg@out@base_tex}{}{%
-          \@svg@file@foundfalse%
-          \svg@file@missing{\svg@out@base_tex}%
-        }%
-      \fi%
-      \if@svg@file@found%
-        \svg@input{\svg@out@base}%
-        \svg@extract{\svg@out@base}%
-      \fi%
-    \else%
-      \edef\svg@tempa{#2.svg}%
-      \svg@quotes@remove{\svg@tempa}%
-      \PackageError{svg}{File `\svg@tempa' is missing}{%
-        There's no file `\svg@tempa' neither in current\MessageBreak%
-        directory nor any other searched path given by\MessageBreak%
-        \string\svgpath%
-        \ifx\svg@path\@undefined\space\else%
-          \space(\svg@path)\MessageBreak%
-        \fi%
-         or \string\graphicspath%
-        \ifx\Ginput@path\@undefined\else%
-          \space(\Ginput@path)%
-        \fi.%
-      }%
-    \fi%
-  \endgroup%
 }
 \newif\if@svg@ink@run
 \newcommand*\svg@ink@run{%
@@ -772,6 +784,57 @@
   --file="#1.svg"\space%
   --export-\svg@ink@format="#2.\svg@ink@format"\space%
 }
+\newcommand*\svg@get@lastpage[1]{%
+  \ifstr{\svg@ink@format}{pdf}{%
+    \begingroup%
+      \svg@tempcnt=\m@ne\relax%
+      \ifx\XeTeXpdfpagecount\@undefined%
+        \ifpdf%
+          \ifx\pdfximage\@undefined%
+            \ifx\saveimageresource\@undefined\else%
+              \saveimageresource{#1}%
+              \svg@tempcnt=\lastsavedimageresourcepages\relax%
+            \fi%
+          \else%
+            \pdfximage{#1}%
+            \svg@tempcnt=\pdflastximagepages\relax%
+          \fi%
+        \fi%
+      \else%
+        \svg@tempcnt=\XeTeXpdfpagecount#1\relax%
+      \fi%
+      \ifnum\svg@tempcnt=\m@ne\relax%
+        \PackageWarning{svg}{%
+          It wasn't possible to detect the last page\MessageBreak%
+          of `#1'%
+        }%
+      \else%
+        \PackageInfo{svg}{Last page of `#1' is \the\svg@tempcnt}%
+      \fi%
+      \edef\svg@tempa{%
+        \noexpand\endgroup%
+        \noexpand\FamilyOptions{SVG}{lastpage=\the\svg@tempcnt}%
+      }%
+    \svg@tempa%
+  }{}%
+}
+\newcommand*\svg@wrn@scale{%
+  \ifdim\dimexpr\svg@param@scale\p@\relax=\p@\relax\else%
+    \@svg@tempswafalse%
+    \ifdim\svg@param@width>\z@\relax%
+      \@svg@tempswatrue%
+    \fi%
+    \ifdim\svg@param@height>\z@\relax%
+      \@svg@tempswatrue%
+    \fi%
+    \if@svg@tempswa%
+      \PackageWarning{svg}{%
+        The parameter `scale' is only considered if neither\MessageBreak%
+        `width' nor `height' are specified%
+      }%
+    \fi%
+  \fi%
+}
 \newcommand*\svg@input{\svg@@input}
 \newcommand*\svg@@input[2][]{%
   \IfArgIsEmpty{#1}{}{\svg@local@param@set{#1}}%
@@ -811,7 +874,9 @@
       \edef\svg@tempb{\svg@tempb,width=\svg@param@width}%
     \fi%
     \ifdim\dimexpr\svg@param@angle\p@\relax=\z@\relax\else%
-      \edef\svg@tempb{\svg@tempb,origin=\svg@param@origin,angle=\svg@param@angle}%
+      \edef\svg@tempb{%
+        \svg@tempb,origin=\svg@param@origin,angle=\svg@param@angle%
+      }%
     \fi%
     \if@svg@draft%
       \edef\svg@tempb{\svg@tempb,draft}%
@@ -821,7 +886,6 @@
     \expandafter\includegraphics\expandafter[\svg@tempb]{\svg@tempa}%
   \fi%
 }
-\newcommand*\svg@includegraphics@file{}
 \newcommand*\svg@patches[1]{%
   \let\svg@picture@saved\picture%
   \let\picture\svg@picture@patched%
@@ -859,6 +923,7 @@
 \setcounter{svg@param@currpage}{\m@ne}
 \FamilyCounterKey{SVGpatch}{page}{svg@param@currpage}
 \DefineFamilyKey{SVGpatch}{width}{\FamilyKeyStateProcessed}
+\newcommand*\svg@includegraphics@file{}
 \newcommand*\svg@includegraphics@saved{}
 \newcommand*\svg@includegraphics@patched[2][]{%
   \FamilyOptions{SVGpatch}{#1}%
@@ -868,14 +933,7 @@
     }%
   \fi%
   \ifnum\value{svg@param@currpage}>\value{svg@param@lastpage}\relax\else%
-    \if@svg@draft%
-      \def\svg@tempb{#1,draft}%
-    \else%
-      \def\svg@tempb{#1,draft=false}%
-    \fi%
-    \expandafter\svg@includegraphics@saved\expandafter[\svg@tempb]{%
-      \svg@includegraphics@file%
-    }%
+    \svg@includegraphics@saved[#1]{\svg@includegraphics@file}%
   \fi%
 }
 \newcommand*\svg@extract[1]{}

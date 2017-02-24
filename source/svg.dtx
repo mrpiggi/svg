@@ -404,7 +404,6 @@ svg-extract -- Extract detached graphic files from SVG pictures
 %
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%
 % \section{Usage of package \pkg{svg}}\label{sec:svg}
 %
 % \ToDo{List/name all loaded packages, hint for graphicx with options}
@@ -459,7 +458,6 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % \DescribeParameter{origin}
 % \end{DescribeParameterParent}
 %
-%
 % \section{Usage of package \pkg{svg-extract}}\label{sec:svg-extract}
 %
 % In contrast to package \pkg{svg}, the console commands for graphic extraction 
@@ -475,7 +473,6 @@ svg-extract -- Extract detached graphic files from SVG pictures
 %
 % \DescribeOption{exclude}
 % \DescribeOption{clean}
-%
 %
 % \section{Example}\label{sec:example}
 %
@@ -693,6 +690,7 @@ svg-extract -- Extract detached graphic files from SVG pictures
 %
 % \section{Including \file{svg} files with package \pkg{svg}}
 % \subsection{Options}
+%
 % Within the exported \LaTeX~files of \app{Inkscape}, some commands are used 
 % out of additional packages. But maybe the user doesn't want to load this 
 % packages anyways.
@@ -972,11 +970,11 @@ svg-extract -- Extract detached graphic files from SVG pictures
     The key `svgpath' is deprecated. It's recommended\MessageBreak%
     to use `\string\svgpath' instead%
   }%
-  \scr@ifundefinedorrelax{svgpath}{%
+  \ifx\svgpath\@undefined%
     \AtEndOfPackage{\svgpath{{#1}}}%
-  }{%
+  \else%
     \svgpath{{#1}}%
-  }%
+  \fi%
   \FamilyKeyStateProcessed%
 }
 %    \end{macrocode}
@@ -1295,31 +1293,60 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % The command \cs{svg@get@path} tries to find a given \file{svg}~file. If the 
 % searched file wasn't found in the current path, all paths given with 
 % \cs{svgpath} are evaluated. If there was no appropriate file again, all paths
-% given by \cs{graphicspath} are examined. The results for file path and name 
-% are stored in \cs{svg@file@path} and \cs{svg@file@name} as well as the 
-% compound of both is saved in \cs{svg@file@base}.
+% given by \cs{graphicspath} are examined. In the last step, a given path 
+% within the second mandatory argument is browsed. The results for file path
+% and name are stored in \cs{svg@file@path} and \cs{svg@file@name} as well as
+% the compound of both is saved in \cs{svg@file@base}.
 %    \begin{macrocode}
 \newif\if@svg@file@found
 \newcommand*\svg@file@path{}
 \newcommand*\svg@file@name{}
 \newcommand*\svg@file@base{}
 \newcommand*\svg@file@ext{}
-\newcommand*\svg@get@path[2][svg]{%
+\newcommand*\svg@get@path[3][svg]{%
   \begingroup%
+%    \end{macrocode}
+% A maybe given, unneeded file extension is removed.
+%    \begin{macrocode}
+    \edef\svg@tempa{#2}%
+    \svg@quotes@check{\svg@tempa}%
+    \svg@quotes@remove{\svg@tempa}%
+    \def\svg@tempb##1.#1##2\@nil{%
+      \IfArgIsEmpty{##2}{%
+        \def\svg@tempa{##1.#1}%
+      }{%
+        \ifstr{##2}{_tex.#1}{\def\svg@tempa{##1.#1}}{}%
+      }%
+    }%
+    \expandafter\svg@tempb\svg@tempa.#1\@nil%
+    \if@svg@quotes@found%
+      \edef\svg@tempa{"\svg@tempa"}%
+    \fi%
+%    \end{macrocode}
+%    \begin{macrocode}
     \@svg@file@foundfalse%
-    \svg@get@@path{#2}{#1}%
+    \svg@get@@path{\svg@tempa}%
     \if@svg@file@found\else%
       \ifx\svg@path\@undefined\else%
         \let\input@path\svg@path%
-        \svg@get@@path{#2}{#1}%
+        \svg@get@@path{\svg@tempa}%
       \fi%
     \fi%
     \if@svg@file@found\else%
       \ifx\Ginput@path\@undefined\else%
         \let\input@path\Ginput@path%
-        \svg@get@@path{#2}{#1}%
+        \svg@get@@path{\svg@tempa}%
       \fi%
     \fi%
+    \IfArgIsEmpty{#3}{}{%
+      \if@svg@file@found\else%
+        \ifx#3\@undefined\else%
+          \edef\svg@tempb{{#3}}%
+          \let\input@path\svg@tempb%
+          \svg@get@@path{\svg@tempa}%
+        \fi%
+      \fi%
+    }%
     \edef\svg@tempa{%
       \endgroup%
       \if@svg@file@found%
@@ -1339,23 +1366,11 @@ svg-extract -- Extract detached graphic files from SVG pictures
 %    \end{macrocode}
 % The macro \cs{svg@get@@path} does the actual search job.
 %    \begin{macrocode}
-\newcommand*\svg@get@@path[2]{%
-  \edef\svg@tempa{#1}%
-  \svg@quotes@check{\svg@tempa}%
-  \svg@quotes@remove{\svg@tempa}%
-%    \end{macrocode}
-% A maybe given, unneeded file extension is removed.
-%    \begin{macrocode}
-  \def\svg@tempb##1.#2##2\@nil{\def\svg@tempa{##1.#2}}%
-  \expandafter\svg@tempb\svg@tempa.#2\@nil%
-  \if@svg@quotes@found%
-    \edef\svg@tempa{"\svg@tempa"}%
-  \fi%
-%    \end{macrocode}
+\newcommand*\svg@get@@path[1]{%
 % The specified file is searched with \cs{IfFileExists}. If the file search was 
 % succesful, the macro \cs{svg@filename@parse} is called with the result.
 %    \begin{macrocode}
-  \IfFileExists{\svg@tempa}{%
+  \expandafter\IfFileExists\expandafter{#1}{%
     \@svg@file@foundtrue%
     \expandafter\svg@filename@parse\expandafter{\@filef@und}%
   }{}%
@@ -1435,21 +1450,50 @@ svg-extract -- Extract detached graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svg@filename@parse
 % \begin{macro}{\svg@file@missing}
-% The error message, which is raised, if an file is missing after the export 
-% with \app{Inkscape}.
+% The error message, which is raised, if an file is missing either after the 
+% export with \app{Inkscape} or in general.
 %    \begin{macrocode}
-\newcommand*\svg@file@missing[1]{%
+\newcommand*\svg@file@missing[3][]{%
   \begingroup%
-    \edef\svg@tempa{#1}%
+    \edef\svg@tempa{#2}%
     \expandafter\svg@filename@parse\expandafter{\svg@tempa}%
     \svg@quotes@remove{\filename@area}%
     \svg@quotes@remove{\filename@base}%
+    \svg@quotes@remove{\filename@ext}%
+    \IfArgIsEmpty{#1}{%
+      \def\svg@tempa{%
+        Did you run the export with Inkscape? There's no file\MessageBreak%
+        `\filename@area\filename@base.\filename@ext'%
+      }%
+    }{%
+      \edef\filename@ext{#1}%
+      \edef\svg@tempb{#3}%
+      \ifstr{\svg@tempb}{./}{\let\svg@tempb\@empty}{}%
+      \ifstr{\filename@area}{./}{\let\filename@area\@empty}{}%
+      \def\svg@tempa{%
+        There's no file `\filename@base.\filename@ext'\MessageBreak%
+        \ifx\filename@area\@empty%
+          neither in the current directory nor\MessageBreak%
+          any other searched path given by\MessageBreak%
+          \string\svgpath%
+          \ifx\svg@path\@undefined\space\else%
+            \space(\svg@path)\MessageBreak%
+          \fi%
+           or \string\graphicspath%
+          \ifx\Ginput@path\@undefined\else%
+            \space(\Ginput@path)%
+          \fi%
+          \ifx\svg@tempb\@empty\else%
+            \MessageBreak or even `inkscapepath' (`\svg@tempb')%
+          \fi.%
+        \else%
+          in folder `\filename@area'.%
+        \fi%
+      }%
+    }%
     \PackageError{svg}{%
       File `\filename@base.\filename@ext' is missing%
-    }{%
-      Did you run the export with Inkscape? There's no file\MessageBreak%
-      `\filename@area\filename@base.\filename@ext'%
-    }%
+    }{\svg@tempa}%
   \endgroup%
 }
 %    \end{macrocode}
@@ -1570,7 +1614,7 @@ svg-extract -- Extract detached graphic files from SVG pictures
 %    \end{macrocode}
 % Searching all given paths for the relevant \file{svg}~file.
 %    \begin{macrocode}
-    \svg@get@path{#2}%
+    \svg@get@path{#2}{}%
     \if@svg@file@found%
 %    \end{macrocode}
 % Running the export with \app{Inkscape} (if necessarry) and checking the 
@@ -1579,12 +1623,12 @@ svg-extract -- Extract detached graphic files from SVG pictures
       \svg@ink@run%
       \IfFileExists{\svg@out@base}{}{%
         \@svg@file@foundfalse%
-        \svg@file@missing{\svg@out@base}%
+        \svg@file@missing{\svg@out@base}{}%
       }%
       \if@svg@ink@latex%
         \IfFileExists{\svg@out@base_tex}{}{%
           \@svg@file@foundfalse%
-          \svg@file@missing{\svg@out@base_tex}%
+          \svg@file@missing{\svg@out@base_tex}{}%
         }%
       \fi%
 %    \end{macrocode}
@@ -1598,20 +1642,7 @@ svg-extract -- Extract detached graphic files from SVG pictures
 %    \end{macrocode}
 % Raise an error, if the requested \file{svg}~file wasn't found.
 %    \begin{macrocode}
-      \edef\svg@tempa{#2.svg}%
-      \svg@quotes@remove{\svg@tempa}%
-      \PackageError{svg}{File `\svg@tempa' is missing}{%
-        There's no file `\svg@tempa' neither in current\MessageBreak%
-        directory nor any other searched path given by\MessageBreak%
-        \string\svgpath%
-        \ifx\svg@path\@undefined\space\else%
-          \space(\svg@path)\MessageBreak%
-        \fi%
-         or \string\graphicspath%
-        \ifx\Ginput@path\@undefined\else%
-          \space(\Ginput@path)%
-        \fi.%
-      }%
+      \svg@file@missing[svg]{\svg@file@base}{}%
     \fi%
   \endgroup%
 }
@@ -1681,7 +1712,6 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % \begin{macro}{\includeinkscape}
 % The command \cs{includeinkscape} can be used for including the export results 
 % of \app{Inkscape}, if this part of the job was done in another way.
-% \ToDo{test and implementation}
 %    \begin{macrocode}
 \newcommand*{\includeinkscape}[2][]{%
   \begingroup%
@@ -1689,6 +1719,17 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % Checking for deprecated commands \cs{svgwidth} and \cs{svgscale}.
 %    \begin{macrocode}
     \svg@deprecated@param%
+%    \end{macrocode}
+% The given file extension is examined. If there's a suffix \val{\_tex}, the 
+% option \opt{inkscapelatex} is set to \val{true} by default.
+%    \begin{macrocode}
+    \filename@parse{#2}%
+    \ifx\filename@ext\relax\else%
+      \svg@quotes@remove{\filename@ext}%
+      \ifstr{\filename@ext}{\svg@ink@format_tex}{%
+        \FamilyOptions{SVG}{inkscapelatex=true}%
+      }{}%
+    \fi%
 %    \end{macrocode}
 % Setting all FamilyOptions in local context (within a group).
 % \ToDo{%
@@ -1699,19 +1740,18 @@ svg-extract -- Extract detached graphic files from SVG pictures
     \svg@local@param@set{#1}%
 %    \end{macrocode}
 % Searching all given paths for the relevant \file{pdf/eps}~file.
-% \ToDo{search also in inkscapepath}
 %    \begin{macrocode}
-    \svg@get@path[\svg@ink@format]{#2}%
+    \expandafter\svg@get@path\expandafter[\svg@ink@format]{#2}{\svg@out@path}%
     \if@svg@file@found%
 %    \end{macrocode}
 % Checking the required files for graphic inclusion.
 %    \begin{macrocode}
-      \edef\svg@out@name{\svg@file@name}% TODO ???
-      \edef\svg@out@base{\svg@file@path\svg@file@name.\svg@ink@format}% TODO ???
+      \edef\svg@out@name{\svg@file@name}%
+      \edef\svg@out@base{\svg@file@path\svg@file@name.\svg@ink@format}%
       \if@svg@ink@latex%
         \IfFileExists{\svg@out@base_tex}{}{%
           \@svg@file@foundfalse%
-          \svg@file@missing{\svg@out@base_tex}%
+          \svg@file@missing{\svg@out@base_tex}{}%
         }%
       \fi%
 %    \end{macrocode}
@@ -1724,22 +1764,8 @@ svg-extract -- Extract detached graphic files from SVG pictures
     \else%
 %    \end{macrocode}
 % Raise an error, if the requested \file{pdf/eps}~file wasn't found.
-% \ToDo{error message with a macro}
 %    \begin{macrocode}
-      \edef\svg@tempa{#2.\svg@ink@format}%
-      \svg@quotes@remove{\svg@tempa}%
-      \PackageError{svg}{File `\svg@tempa' is missing}{%
-        There's no file `\svg@tempa' neither in current\MessageBreak%
-        directory nor any other searched path given by\MessageBreak%
-        \string\svgpath%
-        \ifx\svg@path\@undefined\space\else%
-          \space(\svg@path)\MessageBreak%
-        \fi%
-         or \string\graphicspath%
-        \ifx\Ginput@path\@undefined\else%
-          \space(\Ginput@path)%
-        \fi.%
-      }%
+      \svg@file@missing[\svg@ink@format]{\svg@file@base}{\svg@out@path}%
     \fi%
   \endgroup%
 }
@@ -1758,32 +1784,7 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % Most of the optional parameters have the same effect as the identically named
 % options. Moreover, there are some additional parameters, which can only be
 % used as optional argument for \cs{includesvg} but not as an option.
-%
-% In addition to the automatic finding of the last page, which is included, it 
-% can also be given directly as parameter.
-%    \begin{macrocode}
-\svg@local@param@def{%
-  \FamilyCounterKey[.param]{SVG}{lastpage}{svg@param@lastpage}%
-}
-%    \end{macrocode}
-% The parameters \prm{angle} and \prm{origin} are definied as pendants to the 
-% keys provided by \cs{includegraphics}.
-%    \begin{macrocode}
-\newcommand*\svg@param@angle{0}
-\svg@local@param@def{%
-  \DefineFamilyKey[.param]{SVG}{angle}{%
-    \renewcommand*\svg@param@angle{#1}%
-    \FamilyKeyStateProcessed%
-  }%
-}
-\newcommand*\svg@param@origin{c}
-\svg@local@param@def{%
-  \DefineFamilyKey[.param]{SVG}{origin}[c]{%
-    \renewcommand*\svg@param@origin{#1}%
-    \FamilyKeyStateProcessed%
-  }%
-}
-%    \end{macrocode}
+% \ToDo{Describe?!}
 % \end{parameter}^^A origin
 % \end{parameter}^^A angle
 % \end{parameter}^^A lastpage
@@ -1796,9 +1797,9 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % \end{parameter}^^A inkscapelatex
 % \end{parameter}^^A inkscapeformat
 % \end{macro}^^A \includeinkscape
-
-
+%
 % \subsection{Auxiliary macros}
+%
 % \begin{macro}{\svg@deprecated@param}
 % This macro checks, if \cs{svgwidth} or \cs{svgscale} are defined. In this 
 % case, the given values are passed to the correlating parameters and a warning 
@@ -2204,8 +2205,10 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % \end{macro}^^A \svg@includegraphics@file
 % \end{macro}^^A \svg@includegraphics@patched
 % \end{macro}^^A \svg@includegraphics@saved
+%
 % \subsection{Macros for file access}
-% Last, platform dependend macros for creating directories as well as moving 
+%
+% Finally, platform dependend macros for creating directories as well as moving 
 % and deleting files are provided, if \val{--shell-escape} is enabled. Only then
 % package \pkg{ifplatform} is only used in order to do not raise a warning.
 %    \begin{macrocode}
@@ -2405,28 +2408,6 @@ svg-extract -- Extract detached graphic files from SVG pictures
 %
 % \subsubsection{Miscellaneous options}
 %
-% \begin{option}{exclude}
-% If it is desired not to include but only extract graphics with package 
-% \pkg{svg-extract}, option \opt{exclude} can be used.
-%    \begin{macrocode}
-\DefineFamilyKey{SVG}{exclude}[true]{%
-  \FamilySetBool{SVG}{exclude}{@svg@tempswa}{#1}%
-  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \if@svg@tempswa%
-      \renewcommand*\svg@input[2][]{%
-        \ifnum\svgx@mode=\z@\relax%
-          \PackageWarning{svg-extract}{%
-            The image was neither extracted nor included%
-          }%
-        \fi%
-      }%
-    \else%
-      \renewcommand*\svg@input{\svg@@input}%
-    \fi%
-  \fi%
-}
-%    \end{macrocode}
-% \end{option}^^A exclude
 % \begin{option}{clean}
 % \begin{option}{clear}
 % \begin{macro}{\svgx@clean}
@@ -2453,6 +2434,28 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % \end{macro}^^A \svgx@clean
 % \end{option}^^A clear
 % \end{option}^^A clean
+% \begin{option}{exclude}
+% If it is desired not to include but only extract graphics with package 
+% \pkg{svg-extract}, option \opt{exclude} can be used.
+%    \begin{macrocode}
+\DefineFamilyKey{SVG}{exclude}[true]{%
+  \FamilySetBool{SVG}{exclude}{@svg@tempswa}{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \if@svg@tempswa%
+      \renewcommand*\svg@input[2][]{%
+        \ifnum\svgx@mode=\z@\relax%
+          \PackageWarning{svg-extract}{%
+            The image was neither extracted nor included%
+          }%
+        \fi%
+      }%
+    \else%
+      \renewcommand*\svg@input{\svg@@input}%
+    \fi%
+  \fi%
+}
+%    \end{macrocode}
+% \end{option}^^A exclude
 %
 % \subsection{User commands}
 % \subsection{Auxiliary macros}

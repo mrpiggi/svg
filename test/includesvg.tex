@@ -40,6 +40,17 @@
 a^2+b^2=c^2\label{eq:emc2}
 \end{equation}
 %\blinddocument
+
+\svgsetup{inkscapelatex=false}
+\svgpath{{svg-test/}{"C:/Users/Hanisch/Documents/Dateien/svg"}}
+
+\includeinkscape[]{"Serielal_svg-raw"}
+
+%\newincludesvg[]{"Saeriell".svg}
+
+%\includegraphics[]{S.bla.pdf}
+
+\end{document}
 %
 %
 %%\svgsetup{inkscapepath="C:/Program Files/Inkscape/inkscape.exe"}
@@ -98,7 +109,6 @@ a^2+b^2=c^2\label{eq:emc2}
 %]{"test image"}
 %\end{figure}
 
-\svgpath{{svg-test/}{C:/Users/Hanisch/Documents/Dateien/svg}}
 %\graphicspath{{"svg-test"/}}
 %\svgpath{{"svg test/"}{svgtest}}
 
@@ -143,10 +153,11 @@ a^2+b^2=c^2\label{eq:emc2}
 %  exclude=true,
 %  angle=10,%origin=c,
 %  svgpath=C:/Users/Hanisch/Documents/Dateien/svg,
-%  extractpreamble=a.aaa,
-  inkscape=raw,
+%  extractpreamble=test.aaa,
+  clean=false,
+%  inkscape=raw,
 %  inkscape=eps,
-%  convertdensity=600x300,
+  convertdensity=600x300,
 %  convertdensity=555x300x,
 %  angle=10,
 %  inkscapedpi=,
@@ -226,6 +237,20 @@ a^2+b^2=c^2\label{eq:emc2}
 %%  svgpath={"svg test/"},%
 %]{newimage}
 %\end{figure}
+
+\def\bla{fafa}
+
+\expandafter\ifx\csname bla\endcsname\@empty\relax
+aaa
+\else
+nbbb
+\fi
+
+\expandafter\expandafter\expandafter\ifx\@nameuse{bla}\@empty\relax
+aaa
+\else
+nbbb
+\fi
 
 
 \end{document}
