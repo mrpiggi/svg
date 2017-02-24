@@ -71,10 +71,227 @@
 \ifxetex\else\ifpdf\else
   \renewcommand*\svgx@format{eps}
 \fi\fi
-\newcommand*\svgx@cnv@in[1]{}
-\let\svgx@cnv@in\svgx@format
 \DefineFamilyKey{SVG}{extractformat}{%
   \renewcommand*\svgx@format{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@preamble{\jobname.\svgx@latex@ext}%
+\DefineFamilyKey{SVG}{extractpreamble}{%
+  \renewcommand*\svgx@preamble{#1}%
+  \FamilyKeyStateProcessed%
+}
+\DefineFamilyKey{SVG}{preamble}{%
+  \svg@deprecated@key[svg-extract]{preamble=#1}{extractpreamble=#1}%
+}
+\newcommand*\svgx@endpreamble{}
+\expandafter\def\expandafter\svgx@endpreamble\expandafter{%
+  \csname begin\endcsname{document}%
+}
+\DefineFamilyKey{SVG}{extractpreambleend}{%
+  \renewcommand*\svgx@endpreamble{#1}%
+  \FamilyKeyStateProcessed%
+}
+\DefineFamilyKey{SVG}{end}{%
+  \svg@deprecated@key[svg-extract]{end=#1}{extractpreambleend=#1}%
+}
+\newcounter{svgx@runs}
+\DefineFamilyKey{SVG}{extractruns}{%
+  \FamilySetCounter{SVG}{extractruns}{svgx@runs}{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifnum\value{svgx@runs}<\@ne\relax%
+      \PackageWarning{svg-extract}{%
+        The count for runs has to be at least one%
+      }%
+      \FamilySetCounter{SVG}{extractruns}{svgx@runs}{\@ne}%
+    \fi%
+  \fi%
+}
+\ifxetex
+  \newcommand*\svgx@latex@exe{xelatex}
+\else\ifluatex
+  \ifpdf
+    \newcommand*\svgx@latex@exe{lualatex}
+  \else
+    \newcommand*\svgx@latex@exe{lualatex --output-format=dvi}
+  \fi
+\else\ifpdf
+  \newcommand*\svgx@latex@exe{pdflatex}
+\else
+  \newcommand*\svgx@latex@exe{latex}
+\fi\fi\fi
+\DefineFamilyKey{SVG}{latexexe}{%
+  \renewcommand*\svgx@latex@exe{#1}%
+  \FamilyKeyStateProcessed%
+}
+\DefineFamilyKey{SVG}{pdflatex}{%
+  \svg@deprecated@key[svg-extract]{pdflatex=#1}{latexexe=#1}%
+}
+\newcommand*\svgx@latex@opt{}
+\DefineFamilyKey{SVG}{latexopt}{%
+  \renewcommand*\svgx@latex@opt{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@latex@ext{tex}
+\DefineFamilyKey{SVG}{latexext}{%
+  \renewcommand*\svgx@latex@ext{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@dvips@exe{dvips}
+\newcommand*\svgx@dvips@opt{}
+\DefineFamilyKey{SVG}{dvipsopt}{%
+  \renewcommand*\svgx@dvips@opt{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@pstoeps@exe{ps2eps}
+\newcommand*\svgx@pstoeps@opt{-B -C}
+\DefineFamilyKey{SVG}{pstoepsopt}{%
+  \renewcommand*\svgx@pstoeps@opt{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@pstopdf@exe{ps2pdf}
+\newcommand*\svgx@pstopdf@opt{}
+\DefineFamilyKey{SVG}{pstopdfopt}{%
+  \renewcommand*\svgx@pstopdf@opt{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@pdftoeps@exe{pdftops -eps}
+\newcommand*\svgx@pdftoeps@opt{}
+\DefineFamilyKey{SVG}{pdftoepsopt}{%
+  \renewcommand*\svgx@pdftoeps@opt{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@pdftops@exe{pdftops}
+\newcommand*\svgx@pdftops@opt{}
+\DefineFamilyKey{SVG}{pdftopsopt}{%
+  \renewcommand*\svgx@pdftops@opt{#1}%
+  \FamilyKeyStateProcessed%
+}
+\DefineFamilyKey{SVG}{pdftops}{%
+  \PackageWarning{#1}{%
+    The option key `pdftops' is deprecated.\MessageBreak%
+    You should use either `pdftoepsopt' or\MessageBreak%
+    `pdftopsopt' instead. See the manual for\MessageBreak%
+    more. Nothing was done%
+  }%
+  \FamilyKeyStateProcessed
+}
+\newif\if@svgx@cnv@run
+\newcommand*\svgx@cnv@cmd{\svgx@magick@cmd}
+\DefineFamilyKey{SVG}{convert}[true]{%
+  \FamilySetNumerical{SVG}{convert}{svg@tempa}{%
+    {false}{0},{off}{0},{no}{0},%
+    {true}{1},{on}{1},{yes}{1},{onlynewer}{1},{newer}{1},%
+    {overwrite}{1},{force}{1},{forced}{1},%
+    {magick}{2},{imagemagick}{2},%
+    {gs}{3},{ghostscript}{3},%
+    {gs64}{4},{ghostscript64}{4},%
+    {gs32}{5},{ghostscript32}{5}%
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifcase\svg@tempa\relax% false
+      \@svgx@cnv@runfalse%
+    \or% true
+      \@svgx@cnv@runtrue%
+    \or% magick
+      \@svgx@cnv@runtrue%
+      \renewcommand*\svgx@cnv@cmd{\svgx@magick@cmd}%
+    \or% gs
+      \@svgx@cnv@runtrue%
+      \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
+    \or% gs64
+      \@svgx@cnv@runtrue%
+      \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
+      \svgx@onlywindows{%
+        \renewcommand*\svgx@gs@exe{gswin64c}%
+      }%
+    \or% gs32
+      \@svgx@cnv@runtrue%
+      \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
+      \svgx@onlywindows{%
+        \renewcommand*\svgx@gs@exe{gswin32c}%
+      }%
+    \fi%
+  \else%
+    \def\svg@tempa##1-##2\@nil{%
+      \IfArgIsEmpty{##2}{\def\svg@tempb{}}{%
+        \def\svg@tempa##1####1\@nil{\def\svg@tempb{####1}}%
+        \svg@tempa#1\@nil%
+      }%
+      \def\svg@tempa{##1}%
+    }%
+    \svg@tempa#1-\@nil%
+    \PackageWarning{svg-extract}{%
+      Setting the executable and associated options\MessageBreak%
+      for ImageMagick should be done with options\MessageBreak%
+      `magickexe=\svg@tempa'%
+      \ifx\svg@tempb\@empty\else%
+        \MessageBreak and `magicksetting' and/or `magickoperator'%
+      \fi.\MessageBreak%
+      Nevertheless, this was done by now%
+      \ifx\svg@tempb\@empty\else%
+        , whereby \MessageBreak `magicksetting=\svg@tempb' was used%
+    }%
+    \edef\svg@tempa{%
+      \noexpand\FamilyOptions{SVG}{magickexe=\svg@tempa}%
+      \ifx\svg@tempb\@empty\else%
+        \noexpand\FamilyOptions{SVG}{magicksetting=\svg@tempb}%
+      \fi%
+    }%
+    \svg@tempa%
+  \fi%
+}
+\newcommand*\svgx@cnv@format{png}
+\DefineFamilyKey{SVG}{convertformat}{%
+  \renewcommand*\svgx@cnv@format{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@cnv@dpi{}
+\let\svgx@cnv@dpi\relax
+\DefineFamilyKey{SVG}{convertdpi}{%
+  \FamilyKeyStateUnknownValue%
+  \svgx@ifkeyandval{#1}{%
+    \svgx@cnv@get@dpi{##2}%
+    \ifx\svg@tempa\relax\else%
+      \expandafter\edef\csname svgx@cnv@dpi@##1\endcsname{\svg@tempa}%
+      \FamilyKeyStateProcessed%
+    \fi%
+  }{%
+    \svgx@cnv@get@dpi{##1}%
+    \ifx\svg@tempa\relax\else%
+      \edef\svgx@cnv@dpi{\svg@tempa}%
+      \FamilyKeyStateProcessed%
+    \fi%
+  }%
+}
+\DefineFamilyKey{SVG}{convertdensity}{\FamilyOptions{SVG}{convertdpi=#1}}
+\newcommand*\svgx@magick@exe{}
+\DefineFamilyKey{SVG}{magickexe}{%
+  \renewcommand*\svgx@magick@exe{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@magick@set{}
+\DefineFamilyKey{SVG}{magicksetting}{%
+  \svgx@settypekey{#1}{svgx@magick@set}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@magick@opr{}
+\DefineFamilyKey{SVG}{magickoperator}{%
+  \svgx@settypekey{#1}{svgx@magick@opr}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@gs@exe{}
+\DefineFamilyKey{SVG}{gsexe}{%
+  \renewcommand*\svgx@gs@exe{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@gs@opt{}
+\DefineFamilyKey{SVG}{gsopt}{%
+  \svgx@settypekey{#1}{svgx@gs@opt}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@gs@device{}
+\DefineFamilyKey{SVG}{gsdevice}{%
+  \svgx@settypekey{#1}{svgx@gs@device}%
   \FamilyKeyStateProcessed%
 }
 \newcommand*\svgx@out@path{}
@@ -106,103 +323,12 @@
 \DefineFamilyKey{SVG}{path}{%
   \svg@deprecated@key[svg-extract]{path=#1}{extractpath=#1}%
 }
-% DOC aktuelle figure nummerierung (fast) unmöglich, da unterschiedliche Pakete
 \DefineFamilyKey{SVG}{extractname}{%
   \renewcommand*\svgx@out@name{#1\svg@file@ext-extract}%
   \FamilyKeyStateProcessed%
 }
 \DefineFamilyKey{SVG}{name}{%
   \svg@deprecated@key[svg-extract]{name=#1}{extractname=#1}%
-}
-\newcommand*\svgx@preamble{\jobname.\svgx@ext@latex}%
-\DefineFamilyKey{SVG}{extractpreamble}{%
-  \renewcommand*\svgx@preamble{#1}%
-  \FamilyKeyStateProcessed%
-}
-\DefineFamilyKey{SVG}{preamble}{%
-  \svg@deprecated@key[svg-extract]{preamble=#1}{extractpreamble=#1}%
-}
-\newcommand*\svgx@endpreamble{}
-\expandafter\def\expandafter\svgx@endpreamble\expandafter{%
-  \csname begin\endcsname{document}%
-}
-\DefineFamilyKey{SVG}{extractpreambleend}{%
-  \renewcommand*\svgx@endpreamble{#1}%
-  \FamilyKeyStateProcessed%
-}
-\DefineFamilyKey{SVG}{end}{%
-  \svg@deprecated@key[svg-extract]{end=#1}{extractpreambleend=#1}%
-}
-\let\svghidepreamblestart\relax
-\let\svghidepreambleend\relax
-\newcounter{svgx@runs}
-\DefineFamilyKey{SVG}{extractruns}{%
-  \FamilySetCounter{SVG}{extractruns}{svgx@runs}{#1}%
-  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \ifnum\value{svgx@runs}<\@ne\relax%
-      \PackageWarning{svg-extract}{%
-        The count for runs has to be at least one%
-      }%
-      \FamilySetCounter{SVG}{extractruns}{svgx@runs}{\@ne}%
-    \fi%
-  \fi%
-}
-\ifxetex
-  \newcommand*\svgx@exe@latex{xelatex}
-\else\ifluatex
-  \ifpdf
-    \newcommand*\svgx@exe@latex{lualatex}
-  \else
-    \newcommand*\svgx@exe@latex{lualatex --output-format=dvi}
-  \fi
-\else\ifpdf
-  \newcommand*\svgx@exe@latex{pdflatex}
-\else
-  \newcommand*\svgx@exe@latex{latex}
-\fi\fi\fi
-\DefineFamilyKey{SVG}{latexexe}{%
-  \renewcommand*\svgx@exe@latex{#1}%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svgx@opt@latex{}
-\DefineFamilyKey{SVG}{latexopt}{%
-  \renewcommand*\svgx@opt@latex{#1}%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svgx@ext@latex{tex}
-\DefineFamilyKey{SVG}{latexext}{%
-  \renewcommand*\svgx@ext@latex{#1}%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svgx@exe@dvips{dvips}
-\newcommand*\svgx@opt@dvips{}
-\DefineFamilyKey{SVG}{dvipsopt}{%
-  \renewcommand*\svgx@opt@dvips{#1}%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svgx@exe@pstoeps{ps2eps}
-\newcommand*\svgx@opt@pstoeps{-B -C}
-\DefineFamilyKey{SVG}{pstoepsopt}{%
-  \renewcommand*\svgx@opt@pstoeps{#1}%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svgx@exe@pstopdf{ps2pdf}
-\newcommand*\svgx@opt@pstopdf{}
-\DefineFamilyKey{SVG}{pstopdfopt}{%
-  \renewcommand*\svgx@opt@pstopdf{#1}%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svgx@exe@pdftops{pdftops}
-\newcommand*\svgx@opt@pdftops{}
-\DefineFamilyKey{SVG}{pdftopsopt}{%
-  \renewcommand*\svgx@opt@pdftops{#1}%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svgx@exe@pdftoeps{pdftops -eps}
-\newcommand*\svgx@opt@pdftoeps{}
-\DefineFamilyKey{SVG}{pdftoepsopt}{%
-  \renewcommand*\svgx@opt@pdftoeps{#1}%
-  \FamilyKeyStateProcessed%
 }
 \newcommand*\svgx@param@width{\svg@param@width}
 \DefineFamilyKey{SVG}{extractwidth}{%
@@ -289,104 +415,12 @@
 \DefineFamilyKey{SVG}{extractpostex}{%
   \svg@deprecated@key[svg-extract]{extractpostex=#1}{extractapptex=#1}%
 }
-\newif\if@svgx@cnv@run
-\newcommand*\svgx@cnv@cmd{\svgx@magick@cmd}
-\DefineFamilyKey{SVG}{convert}[true]{%
-  \FamilySetNumerical{SVG}{convert}{svg@tempa}{%
-    {false}{0},{off}{0},{no}{0},%
-    {true}{1},{on}{1},{yes}{1},{onlynewer}{1},{newer}{1},%
-    {overwrite}{1},{force}{1},{forced}{1},%
-    {magick}{2},{imagemagick}{2},%
-    {gs}{3},{ghostscript}{3},%
-    {gs64}{4},{ghostscript64}{4},%
-    {gs32}{5},{ghostscript32}{5}%
-  }{#1}%
-  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \ifcase\svg@tempa\relax% false
-      \@svgx@cnv@runfalse%
-    \or% true
-      \@svgx@cnv@runtrue%
-    \or% magick
-      \@svgx@cnv@runtrue%
-      \renewcommand*\svgx@cnv@cmd{\svgx@magick@cmd}%
-    \or% gs
-      \@svgx@cnv@runtrue%
-      \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
-    \or% gs64
-      \@svgx@cnv@runtrue%
-      \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
-      \svgx@onlywindows{%
-        \renewcommand*\svgx@gs@exe{gswin64c}%
-      }%
-    \or% gs32
-      \@svgx@cnv@runtrue%
-      \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
-      \svgx@onlywindows{%
-        \renewcommand*\svgx@gs@exe{gswin32c}%
-      }%
-    \fi%
-  \fi%
-}
-\newcommand*\svgx@cnv@format{png}
-\DefineFamilyKey{SVG}{convertformat}{%
-  \renewcommand*\svgx@cnv@format{#1}%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svgx@cnv@dpi{}
-\let\svgx@cnv@dpi\relax
-\DefineFamilyKey{SVG}{convertdpi}{%
-  \FamilyKeyStateUnknownValue%
-  \svgx@ifkeyandval{#1}{%
-    \svgx@cnv@get@dpi{##2}%
-    \ifx\svg@tempa\relax\else%
-      \expandafter\edef\csname svgx@cnv@dpi@##1\endcsname{\svg@tempa}%
-      \FamilyKeyStateProcessed%
-    \fi%
-  }{%
-    \svgx@cnv@get@dpi{##1}%
-    \ifx\svg@tempa\relax\else%
-      \edef\svgx@cnv@dpi{\svg@tempa}%
-      \FamilyKeyStateProcessed%
-    \fi%
-  }%
-}
-\DefineFamilyKey{SVG}{convertdensity}{\FamilyOptions{SVG}{convertdpi=#1}}
-\newcommand*\svgx@magick@exe{}
-\DefineFamilyKey{SVG}{magickexe}{%
-  \renewcommand*\svgx@magick@exe{#1}%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svgx@magick@set{}
-\DefineFamilyKey{SVG}{magicksetting}{%
-  \svgx@settypekey{#1}{svgx@magick@set}%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svgx@magick@opr{}
-\DefineFamilyKey{SVG}{magickoperator}{%
-  \svgx@settypekey{#1}{svgx@magick@opr}%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svgx@gs@exe{}
-\DefineFamilyKey{SVG}{gsexe}{%
-  \renewcommand*\svgx@gs@exe{#1}%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svgx@gs@opt{}
-\DefineFamilyKey{SVG}{gsopt}{%
-  \svgx@settypekey{#1}{svgx@gs@opt}%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svgx@gs@device{}
-\DefineFamilyKey{SVG}{gsdevice}{%
-  \svgx@settypekey{#1}{svgx@gs@device}%
-  \FamilyKeyStateProcessed%
-}
 \newcommand*\svgx@clean{}
 \DefineFamilyKey{SVG}{clean}{%
   \FamilySetBool{SVG}{clean}{@svg@tempswa}{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \if@svg@tempswa%
-      \renewcommand*\svgx@clean{log,aux,dvi,ps,eps,pdf,\svgx@ext@latex}%
+      \renewcommand*\svgx@clean{log,aux,dvi,ps,eps,pdf,\svgx@latex@ext}%
     \else%
       \renewcommand*\svgx@clean{}%
     \fi%
@@ -516,6 +550,8 @@
   gsdevice={eps=eps2write},gsdevice={ps=ps2write}%
 }
 \FamilyProcessOptions{SVG}
+\let\svghidepreamblestart\relax
+\let\svghidepreambleend\relax
 \newif\if@svgx@beamer
 \@ifclassloaded{beamer}{\@svgx@beamertrue}{}%
 \newbox\svgx@box
@@ -607,7 +643,7 @@
     \begingroup%
       \endlinechar=\m@ne%
       \def\svgx@read@line{}%
-      \immediate\openout\svgx@write@out=\svgx@out@name.\svgx@ext@latex%
+      \immediate\openout\svgx@write@out=\svgx@out@name.\svgx@latex@ext%
       \IfFileExists{\svgx@preamble}{%
         \immediate\openin\svgx@read@in=\svgx@preamble%
         \@svg@tempswatrue%
@@ -644,7 +680,7 @@
         \fi%
       }%
       \immediate\closeout\svgx@write@out%
-      \immediate\openin\svgx@read@in=\svgx@out@name.\svgx@ext@latex%
+      \immediate\openin\svgx@read@in=\svgx@out@name.\svgx@latex@ext%
       \def\svg@tempa{}%
       \loop\unless\ifeof\svgx@read@in%
         \readline\svgx@read@in to\svgx@read@line%
@@ -656,7 +692,7 @@
         \fi%
       \repeat%
       \immediate\closein\svgx@read@in%
-      \immediate\openout\svgx@write@out=\svgx@out@name.\svgx@ext@latex%
+      \immediate\openout\svgx@write@out=\svgx@out@name.\svgx@latex@ext%
       \immediate\write\svgx@write@out{%
         \string\AtBeginDocument{\string\svgxsetpapersize}\@percentchar^^J%
       }%
@@ -694,8 +730,6 @@
       \ifx\svgx@param@apptex\relax\else%
         \svg@tempa{apptex=\unexpanded\expandafter{\svgx@param@apptex}}%
       \fi%
-      % TODO: alle Varianten mit lastpage durchtesten
-      % TODO: falls auto gesetzt war, dann berechneten wert direkt eintragen!
       \ifnum\value{svg@param@lastpage}>\z@\relax%
         \immediate\write\svgx@write@out{%
           \string\svgxinput[lastpage=\the\value{svg@param@lastpage}]{#1}%
@@ -732,20 +766,20 @@
       \svg@quotes@remove{\svgx@out@name}%
       \PackageInfo{svg-extract}{%
         Running LaTeX for graphic extraction%
-        \ifx\svgx@opt@latex\@empty\else%
-          \space with added options `\svgx@opt@latex'%
+        \ifx\svgx@latex@opt\@empty\else%
+          \space with added options `\svgx@latex@opt'%
         \fi%
       }%
       \loop\ifnum\value{svgx@runs}>\z@\relax%
         \ShellEscape{%
-          \svgx@exe@latex\space\svgx@opt@latex\space%
-          "\svgx@out@name.\svgx@ext@latex"%
+          \svgx@latex@exe\space\svgx@latex@opt\space%
+          "\svgx@out@name.\svgx@latex@ext"%
         }%
         \advance\c@svgx@runs\m@ne%
       \repeat%
       \def\svg@tempa##1##2##3{%
         \edef\svg@tempb{%
-          \@nameuse{svgx@exe@##1}\space\@nameuse{svgx@opt@##1}\space%
+          \@nameuse{svgx@##1@exe}\space\@nameuse{svgx@##1@opt}\space%
           "\svgx@out@name.##2"%
         }%
         \PackageInfo{svg-extract}{Running ##1}%
@@ -799,6 +833,7 @@
     }%
   \fi%
 }
+\newcommand*\svgx@cnv@in{}
 \newcommand*\svgx@cnv@get@input[1]{%
   \begingroup%
     \def\svg@tempa##1,##2\@nil{%

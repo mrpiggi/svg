@@ -153,6 +153,8 @@
     \fi%
   \fi%
 }
+\DeclareOption{on}{\FamilyOptions{SVG}{inkscape=true}}
+\DeclareOption{off}{\FamilyOptions{SVG}{inkscape=false}}
 \newcommand*\svg@ink@format{pdf}
 \ifxetex\else\ifpdf\else
   \renewcommand*\svg@ink@format{eps}
@@ -400,6 +402,58 @@
     \fi%
   \endgroup%
 }
+\DefineFamilyMember[.dummy]{SVG}
+\newcommand*\svg@dummy@key[1]{%
+  \DefineFamilyKey[.dummy]{SVG}{#1}{%
+    \PackageWarning{svg}{%
+      The option key `#1' can only\MessageBreak%
+      be used with package `svg-extract', but\MessageBreak%
+      you didn't load it%
+    }%
+    \FamilyKeyStateProcessed%
+  }%
+  \BeforePackage{svg-extract}{\RelaxFamilyKey[.dummy]{SVG}{#1}}%
+}
+\svg@dummy@key{extract}
+\svg@dummy@key{extractformat}
+\svg@dummy@key{extractpreamble}
+\svg@dummy@key{preamble}
+\svg@dummy@key{extractpreambleend}
+\svg@dummy@key{end}
+\svg@dummy@key{extractruns}
+\svg@dummy@key{latexexe}
+\svg@dummy@key{pdflatex}
+\svg@dummy@key{latexopt}
+\svg@dummy@key{latexext}
+\svg@dummy@key{dvipsopt}
+\svg@dummy@key{pstoepsopt}
+\svg@dummy@key{pstopdfopt}
+\svg@dummy@key{pdftoepsopt}
+\svg@dummy@key{pdftopsopt}
+\svg@dummy@key{pdftops}
+\svg@dummy@key{convert}
+\svg@dummy@key{convertformat}
+\svg@dummy@key{convertdpi}
+\svg@dummy@key{convertdensity}
+\svg@dummy@key{magickexe}
+\svg@dummy@key{magicksetting}
+\svg@dummy@key{magickoperator}
+\svg@dummy@key{gsexe}
+\svg@dummy@key{gsopt}
+\svg@dummy@key{gsdevice}
+\svg@dummy@key{extractpath}
+\svg@dummy@key{path}
+\svg@dummy@key{extractname}
+\svg@dummy@key{name}
+\svg@dummy@key{extractwidth}
+\svg@dummy@key{extractheight}
+\svg@dummy@key{extractscale}
+\svg@dummy@key{extractpretex}
+\svg@dummy@key{extractapptex}
+\svg@dummy@key{extractpostex}
+\svg@dummy@key{clean}
+\svg@dummy@key{clear}
+\svg@dummy@key{exclude}
 \FamilyExecuteOptions{SVG}{%
   inkscape=true,inkscapepath=basesubdir,inkscapelatex=true,%
   inkscapearea=drawing,usexcolor=true,usetransparent=true%

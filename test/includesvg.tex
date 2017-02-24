@@ -8,9 +8,9 @@
 %\usepackage{babel}
 
 \usepackage[usexcolor=true,usetransparent=false,draft=false]{svg-new}
-\usepackage[extract=true,clean=false,exclude=false]{svg-extract}
+\usepackage[extract=true,clean=true,exclude=false]{svg-extract}
 
-\svgsetup{lastpage=auto}
+\svgsetup{lastpage=auto,convertformat={png,jpg,tif},convert=gs}
 
 \svghidepreamblestart
 %\usepackage{showframe}
@@ -22,7 +22,7 @@
 \setlength{\@fpsep}{0pt}% twocolumn
 \makeatother
 
-%\pdfsuppresswarningpagegroup=1%
+\pdfsuppresswarningpagegroup=1%
 
 \parskip=0pt
 \parindent=0pt
@@ -41,16 +41,13 @@ a^2+b^2=c^2\label{eq:emc2}
 \end{equation}
 %\blinddocument
 
-\svgsetup{inkscapelatex=false}
 \svgpath{{svg-test/}{"C:/Users/Hanisch/Documents/Dateien/svg"}}
 
-\includeinkscape[]{"Serielal_svg-raw"}
+%\includeinkscape[]{"Serielal_svg-raw"}
 
 %\newincludesvg[]{"Saeriell".svg}
 
 %\includegraphics[]{S.bla.pdf}
-
-\end{document}
 %
 %
 %%\svgsetup{inkscapepath="C:/Program Files/Inkscape/inkscape.exe"}

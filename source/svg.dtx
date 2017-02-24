@@ -464,6 +464,20 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % are executed with each LaTeX run by package \pkg{svg-extract} when 
 % shell-escape mode is activated.
 %
+%
+%
+%
+% In version~v1.0 the option \opt{name} could be used to name the extracted 
+% files like the numbering of the current \env{subfig} environment. As the 
+% package \pkg{subfig} causes problems very often this feature was removed. 
+% Because of the large amount of different packages, which all provide the 
+% possibility to include subfigures with very different implemetations, this 
+% functionality can't be provided relaibly by \pkg{svg-extract}.
+%
+%
+%
+%
+%
 % \DescribeOption{extractwidth}
 % \DescribeOption{extractheight}
 % \DescribeOption{extractscale}
@@ -614,6 +628,7 @@ svg-extract -- Extract detached graphic files from SVG pictures
 %<*package&option>
 % \fi
 %
+% \appendix
 % \part{Implementation}\label{sec:implementation}
 % \section{Initialization}
 %
@@ -625,6 +640,7 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % \file{pdf}~files. The usage of packages \pkg{xcolor} and \pkg{transparent}
 % can be switched of with the corresponding options. Package \pkg{svg-extract} 
 % only needs package \pkg{svg} itself.
+% \ToDo{update required release date of scrbase}[v3.23]
 %    \begin{macrocode}
 %<*base>
 \RequirePackage{scrbase}[2016/06/14]
@@ -639,9 +655,11 @@ svg-extract -- Extract detached graphic files from SVG pictures
 \RequirePackage{svg-new}[2017/00/00]
 %</extract>
 %    \end{macrocode}
-% With the interface provided by package \pkg{scrbase} all package options and 
-% the optional parameters for \cs{includesvg}\oarg{parameters}\marg{svgfile} 
-% are defined.
+% With the interface provided by package \pkg{scrbase} all options, which can 
+% be set either as package options or with \cs{svgsetup}, as well as the
+% optional parameters for both user commands  
+% \cs{includesvg}\oarg{parameters}\marg{svgfile} and
+% \cs{includeinkscape}\oarg{parameters}\marg{exportfile} are defined.
 %    \begin{macrocode}
 \DefineFamily{SVG}
 \DefineFamilyMember{SVG}
@@ -698,10 +716,12 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % \begin{option}{usexcolor}
 % \changes{v2.00}{2017/02/17}{new}
 % \begin{option}{noxcolor}
+% \changes{v2.00}{2017/02/17}{new}
 % \begin{macro}{\if@svg@use@xcolor}
 % \begin{option}{usetransparent}
 % \changes{v2.00}{2017/02/17}{new}
 % \begin{option}{notransparent}
+% \changes{v2.00}{2017/02/17}{new}
 % \begin{macro}{\if@svg@use@transparent}
 % Options for preventing packages \pkg{xcolor} and \pkg{transparent} to be 
 % loaded.
@@ -748,8 +768,12 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % whereas the support of \LaTeX{} can optionally be used.
 %
 % \begin{option}{inkscape}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{changed/extended}
 % \begin{macro}{\svg@ink@mode}
+% \begin{option}{on}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{option}{off}
+% \changes{v2.00}{2017/02/24}{new}
 % The intension of option \opt{inkscape} is to control the running behaviour of 
 % \app{Inkscape}. It can be switched off at all or invoked only if necessarry 
 % or the command line call can be forced with every run of \LaTeX. Additionally 
@@ -802,7 +826,7 @@ svg-extract -- Extract detached graphic files from SVG pictures
     }%
     \svg@tempa#1dpi\@nil%
 %    \end{macrocode}
-% In version~v1.0 tHe option \opt{inkscape} was used to set both the executable 
+% In version~v1.0 the option \opt{inkscape} was used to set both the executable 
 % and options for \app{Inkscape}. This is taken into account here.
 %    \begin{macrocode}
     \ifx\FamilyKeyState\FamilyKeyStateProcessed\else%
@@ -839,7 +863,11 @@ svg-extract -- Extract detached graphic files from SVG pictures
     \fi%
   \fi%
 }
+\DeclareOption{on}{\FamilyOptions{SVG}{inkscape=true}}
+\DeclareOption{off}{\FamilyOptions{SVG}{inkscape=false}}
 %    \end{macrocode}
+% \end{option}^^A off
+% \end{option}^^A on
 % \end{macro}^^A \svg@ink@mode
 % \end{option}^^A inkscape
 % \begin{option}{inkscapeformat}
@@ -909,6 +937,7 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % \begin{option}{inkscapedpi}
 % \changes{v2.00}{2017/02/17}{new}
 % \begin{option}{inkscapedensity}
+% \changes{v2.00}{2017/02/17}{new}
 % \begin{macro}{\svg@ink@dpi}
 % A density can be chosen, which is used during export with \app{Inkscape} for 
 % bitmaps and rasterization of filters.
@@ -1038,6 +1067,7 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % \begin{option}{width}
 % \begin{macro}{\svg@param@width}
 % \begin{option}{height}
+% \changes{v2.00}{2017/02/17}{new}
 % \begin{macro}{\svg@param@width}
 % \begin{option}{scale}
 % \changes{v2.00}{2017/02/17}{new}
@@ -1159,6 +1189,7 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % \end{counter}^^A svg@param@lastpage
 % \end{option}^^A lastpage
 % \begin{option}{draft}
+% \changes{v2.00}{2017/02/17}{new}
 % \begin{macro}{\if@svg@draft}
 % The option \opt{draft} has the same effect as the eponymous option of package
 % \pkg{graphicx}.
@@ -1528,11 +1559,11 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % \begin{macro}{\svg@local@param@use}
 % \begin{macro}{\svg@local@param@def}
 % Most of the package options can also be used as optional parameters for 
-% \cs{includesvg}. Some of them are overloaded for the usage as optional 
-% argument and there are some keys, which \emph{only} can be used as optional
-% parameters. This is realized in such a way that \cs{svg@local@param@use} is 
-% extended with \cs{svg@local@param@def} by the definition of local keys during
-% the loading of package \pkg{svg}.
+% \cs{includesvg} or \cs{includeinkscape}. Some of them are overloaded for the 
+% usage as optional argument and there are some keys, which \emph{only} can be
+% used as optional parameters. This is realized in such a way that
+% \cs{svg@local@param@use} is extended with \cs{svg@local@param@def} by the
+% definition of local keys during the loading of package \pkg{svg}.
 %    \begin{macrocode}
 \newcommand*\svg@local@param@set[1]{%
   \svg@local@param@use%
@@ -1593,6 +1624,7 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % \end{macro}^^A \svg@path
 % \end{macro}^^A \svgpath
 % \begin{macro}{\includesvg}
+% \changes{v2.00}{2017/02/17}{changes especially to optional arguments}
 % For the inclusion of \file{svg}~files the command \cs{includesvg} is defined.
 %    \begin{macrocode}
 \newcommand*{\includesvg}[2][]{%
@@ -1648,21 +1680,33 @@ svg-extract -- Extract detached graphic files from SVG pictures
 }
 %    \end{macrocode}
 % \begin{parameter}{inkscape}
+% \changes{v2.00}{2017/02/17}{new}
 % \begin{parameter}{inkscapeformat}
+% \changes{v2.00}{2017/02/17}{new}
 % \begin{parameter}{inkscapearea}
+% \changes{v2.00}{2017/02/17}{new}
 % \begin{parameter}{inkscapelatex}
+% \changes{v2.00}{2017/02/17}{new}
 % \begin{parameter}{inkscapedpi}
+% \changes{v2.00}{2017/02/17}{new}
 % \begin{parameter}{inkscapeexe}
 % \begin{parameter}{inkscapeopt}
 % \begin{parameter}{inkscapepath}
+% \changes{v2.00}{2017/02/17}{new}
 % \begin{parameter}{width}
 % \begin{parameter}{height}
+% \changes{v2.00}{2017/02/17}{new}
 % \begin{parameter}{scale}
+% \changes{v2.00}{2017/02/17}{new}
 % \begin{parameter}{pretex}
 % \begin{parameter}{apptex}
 % \begin{parameter}{lastpage}
+% \changes{v2.00}{2017/02/17}{new}
 % \begin{parameter}{angle}
+% \changes{v2.00}{2017/02/17}{new}
 % \begin{parameter}{origin}
+% \changes{v2.00}{2017/02/17}{new}
+% \ToDo{kill some parameters? (inkscapeexe, inkscapeopt)}
 % Most of the optional parameters have the same effect as the identically named
 % options. Moreover, there are some additional parameters, which can only be
 % used as optional argument for \cs{includesvg} but not as an option.
@@ -1710,6 +1754,7 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % \end{parameter}^^A inkscape
 % \end{macro}^^A \includesvg
 % \begin{macro}{\includeinkscape}
+% \changes{v2.00}{2017/02/23}{new}
 % The command \cs{includeinkscape} can be used for including the export results 
 % of \app{Inkscape}, if this part of the job was done in another way.
 %    \begin{macrocode}
@@ -1781,9 +1826,6 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % \begin{parameter}{lastpage}
 % \begin{parameter}{angle}
 % \begin{parameter}{origin}
-% Most of the optional parameters have the same effect as the identically named
-% options. Moreover, there are some additional parameters, which can only be
-% used as optional argument for \cs{includesvg} but not as an option.
 % \ToDo{Describe?!}
 % \end{parameter}^^A origin
 % \end{parameter}^^A angle
@@ -2095,12 +2137,12 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % \end{macro}^^A \svg@@input
 % \end{macro}^^A \svg@input
 %
-% \subsection{Patches to \env{picture} and \cs{includegraphics}}
+% \subsection{Patches}
 %
 % \begin{macro}{\svg@patches}
 % For including the export results from \app{Inkscape} with \LaTeX{} support 
-% enabled, there are some minor patches necessarry. Those patches are done with 
-% \cs{svg@patches}.
+% enabled, there are some patches necessarry for environment \env{picture} and 
+% \cs{includegraphics}. Those patches are done with \cs{svg@patches}.
 %    \begin{macrocode}
 \newcommand*\svg@patches[1]{%
   \let\svg@picture@saved\picture%
@@ -2206,7 +2248,931 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % \end{macro}^^A \svg@includegraphics@patched
 % \end{macro}^^A \svg@includegraphics@saved
 %
-% \subsection{Macros for file access}
+% \iffalse
+%</body>
+%</package&base>
+%<*package&option>
+% \fi
+%
+% \section{Extracting detached graphic files with package \pkg{svg-extract}}
+% \subsection{Options}
+%
+% For package \pkg{svg-extract} the user interface is extended. The following 
+% options can either be set with \cs{svgsetup} or be used as local optional 
+% parameters for \cs{includesvg} and \cs{includeinkscape}.
+%
+% \begin{macro}{\svg@dummy@key}
+% If package \pkg{svg-extract} wasn't loaded, the following options are defined 
+% for package \pkg{svg} in order to raise a warning message. Primarily this is 
+% done for compatibility reasons.
+%    \begin{macrocode}
+%<*base>
+\DefineFamilyMember[.dummy]{SVG}
+\newcommand*\svg@dummy@key[1]{%
+  \DefineFamilyKey[.dummy]{SVG}{#1}{%
+    \PackageWarning{svg}{%
+      The option key `#1' can only\MessageBreak%
+      be used with package `svg-extract', but\MessageBreak%
+      you didn't load it%
+    }%
+    \FamilyKeyStateProcessed%
+  }%
+%    \end{macrocode}
+% Before package \pkg{svg-extract} the key of family member \val{.dummy} is 
+% relaxed.
+%    \begin{macrocode}
+  \BeforePackage{svg-extract}{\RelaxFamilyKey[.dummy]{SVG}{#1}}%
+}
+%</base>
+%    \end{macrocode}
+% \end{macro}^^A \svg@dummy@key
+%
+% \subsubsection{Controlling the extract process}
+%
+% \begin{option}{extract}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{macro}{\svgx@mode}
+% \begin{option}{on}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{option}{off}
+% \changes{v2.00}{2017/02/24}{new}
+% With option \opt{extract} it can be controlled, if the extraction of detached 
+% graphic files should be done.
+%    \begin{macrocode}
+%<*extract>
+\newcommand*\svgx@mode{0}
+\DefineFamilyKey{SVG}{extract}[true]{%
+  \FamilySetNumerical{SVG}{extract}{svg@tempa}{%
+    {false}{0},{off}{0},{no}{0},%
+    {true}{1},{on}{1},{yes}{1},{onlynewer}{1},{newer}{1},%
+    {overwrite}{1},{force}{1},{forced}{1},%
+    {pdf}{2},{eps}{3},{ps}{4}%
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifcase\svg@tempa\relax% false
+      \let\svgx@mode\svg@tempa%
+    \or% true
+      \let\svgx@mode\svg@tempa%
+    \or% pdf
+      \FamilyOptions{SVG}{extractformat=pdf}%
+    \or% eps
+      \FamilyOptions{SVG}{extractformat=eps}%
+    \or% ps
+      \FamilyOptions{SVG}{extractformat=ps}%
+    \fi%
+  \fi%
+}
+\DeclareOption{on}{\FamilyOptions{SVG}{extract=true}}
+\DeclareOption{off}{\FamilyOptions{SVG}{extract=false}}
+%</extract>
+%<*base>
+\svg@dummy@key{extract}
+%</base>
+%    \end{macrocode}
+% \end{option}^^A off
+% \end{option}^^A on
+% \end{macro}^^A \svgx@mode
+% \end{option}^^A extract
+% \begin{option}{extractformat}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{macro}{\svgx@format}
+% Option \opt{extractformat} controls the output format (\val{pdf/eps/ps}). It
+% is set to \val{pdf} or, if dvi output could be detected, to \val{eps} during
+% initialization.
+%    \begin{macrocode}
+%<*extract>
+\newcommand*\svgx@format{pdf}
+\ifxetex\else\ifpdf\else
+  \renewcommand*\svgx@format{eps}
+\fi\fi
+\DefineFamilyKey{SVG}{extractformat}{%
+  \renewcommand*\svgx@format{#1}%
+  \FamilyKeyStateProcessed%
+}
+%</extract>
+%<*base>
+\svg@dummy@key{extractformat}
+%</base>
+%    \end{macrocode}
+% \end{macro}^^A \svgx@format
+% \end{option}^^A extractformat
+% \begin{option}{extractpreamble}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{option}{preamble}
+% \begin{macro}{\svgx@preamble}
+% \begin{option}{extractpreambleend}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{option}{end}
+% \begin{macro}{\svgx@endpreamble}
+% For the extraction process, a preamble is needed for the standalone auxiliary 
+% \LaTeX~file. By default, the preamble of the main document is used, which end 
+% is detected at \cs{begin\{document\}}.
+%    \begin{macrocode}
+%<*extract>
+\newcommand*\svgx@preamble{\jobname.\svgx@latex@ext}%
+\DefineFamilyKey{SVG}{extractpreamble}{%
+  \renewcommand*\svgx@preamble{#1}%
+  \FamilyKeyStateProcessed%
+}
+\DefineFamilyKey{SVG}{preamble}{%
+  \svg@deprecated@key[svg-extract]{preamble=#1}{extractpreamble=#1}%
+}
+\newcommand*\svgx@endpreamble{}
+\expandafter\def\expandafter\svgx@endpreamble\expandafter{%
+  \csname begin\endcsname{document}%
+}
+\DefineFamilyKey{SVG}{extractpreambleend}{%
+  \renewcommand*\svgx@endpreamble{#1}%
+  \FamilyKeyStateProcessed%
+}
+\DefineFamilyKey{SVG}{end}{%
+  \svg@deprecated@key[svg-extract]{end=#1}{extractpreambleend=#1}%
+}
+%</extract>
+%<*base>
+\svg@dummy@key{extractpreamble}
+\svg@dummy@key{preamble}
+\svg@dummy@key{extractpreambleend}
+\svg@dummy@key{end}
+%</base>
+%    \end{macrocode}
+% \end{macro}^^A \svgx@endpreamble
+% \end{option}^^A end
+% \end{option}^^A extractpreambleend
+% \end{macro}^^A \svgx@preamble
+% \end{option}^^A preamble
+% \end{option}^^A extractpreamble
+% \begin{option}{extractruns}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{counter}{svgx@runs}
+% With this option, the number of \LaTeX~runs for standalone auxiliary file can 
+% be set.
+%    \begin{macrocode}
+%<*extract>
+\newcounter{svgx@runs}
+\DefineFamilyKey{SVG}{extractruns}{%
+  \FamilySetCounter{SVG}{extractruns}{svgx@runs}{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifnum\value{svgx@runs}<\@ne\relax%
+      \PackageWarning{svg-extract}{%
+        The count for runs has to be at least one%
+      }%
+      \FamilySetCounter{SVG}{extractruns}{svgx@runs}{\@ne}%
+    \fi%
+  \fi%
+}
+%</extract>
+%<*base>
+\svg@dummy@key{extractruns}
+%</base>
+%    \end{macrocode}
+% \end{counter}^^A svgx@runs
+% \end{option}^^A extractruns
+% \begin{option}{latexexe}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{option}{pdflatex}
+% \begin{macro}{\svgx@latex@exe}
+% \begin{option}{latexopt}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{macro}{\svgx@latex@opt}
+% \begin{option}{latexext}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{macro}{\svgx@latex@ext}
+% The command and facultative options for the \LaTeX~call auf the auxiliary 
+% standalone file. The default is set according to the currently used compiler.
+%    \begin{macrocode}
+%<*extract>
+\ifxetex
+  \newcommand*\svgx@latex@exe{xelatex}
+\else\ifluatex
+  \ifpdf
+    \newcommand*\svgx@latex@exe{lualatex}
+  \else
+    \newcommand*\svgx@latex@exe{lualatex --output-format=dvi}
+  \fi
+\else\ifpdf
+  \newcommand*\svgx@latex@exe{pdflatex}
+\else
+  \newcommand*\svgx@latex@exe{latex}
+\fi\fi\fi
+\DefineFamilyKey{SVG}{latexexe}{%
+  \renewcommand*\svgx@latex@exe{#1}%
+  \FamilyKeyStateProcessed%
+}
+\DefineFamilyKey{SVG}{pdflatex}{%
+  \svg@deprecated@key[svg-extract]{pdflatex=#1}{latexexe=#1}%
+}
+\newcommand*\svgx@latex@opt{}
+\DefineFamilyKey{SVG}{latexopt}{%
+  \renewcommand*\svgx@latex@opt{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@latex@ext{tex}
+\DefineFamilyKey{SVG}{latexext}{%
+  \renewcommand*\svgx@latex@ext{#1}%
+  \FamilyKeyStateProcessed%
+}
+%</extract>
+%<*base>
+\svg@dummy@key{latexexe}
+\svg@dummy@key{pdflatex}
+\svg@dummy@key{latexopt}
+\svg@dummy@key{latexext}
+%</base>
+%    \end{macrocode}
+% \end{macro}^^A \svgx@latex@ext
+% \end{option}^^A latexext
+% \end{macro}^^A \svgx@latex@opt
+% \end{option}^^A latexopt
+% \end{macro}^^A \svgx@latex@exe
+% \end{option}^^A latexexe
+% \end{option}^^A pdflatexexe
+% \begin{option}{dvipsopt}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{macro}{\svgx@dvips@exe}
+% \begin{macro}{\svgx@dvips@opt}
+% \begin{option}{pstoepsopt}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{macro}{\svgx@pstoeps@exe}
+% \begin{macro}{\svgx@pstoeps@opt}
+% \begin{option}{pstopdfopt}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{macro}{\svgx@pstopdf@exe}
+% \begin{macro}{\svgx@pstopdf@opt}
+% \begin{option}{pdftoepsopt}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{macro}{\svgx@pdftoeps@exe}
+% \begin{macro}{\svgx@pdftoeps@opt}
+% \begin{option}{pdftopsopt}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{macro}{\svgx@pdftops@exe}
+% \begin{macro}{\svgx@pdftops@opt}
+% \begin{option}{pdftops}
+% Options and macros for calling convert commands, which are supplied by most
+% \LaTeXe~distributions. These are used to generate all files, which are 
+% supported by option \opt{extractformat}, as they don't need an additional
+% application.
+%    \begin{macrocode}
+%<*extract>
+\newcommand*\svgx@dvips@exe{dvips}
+\newcommand*\svgx@dvips@opt{}
+\DefineFamilyKey{SVG}{dvipsopt}{%
+  \renewcommand*\svgx@dvips@opt{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@pstoeps@exe{ps2eps}
+\newcommand*\svgx@pstoeps@opt{-B -C}
+\DefineFamilyKey{SVG}{pstoepsopt}{%
+  \renewcommand*\svgx@pstoeps@opt{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@pstopdf@exe{ps2pdf}
+\newcommand*\svgx@pstopdf@opt{}
+\DefineFamilyKey{SVG}{pstopdfopt}{%
+  \renewcommand*\svgx@pstopdf@opt{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@pdftoeps@exe{pdftops -eps}
+\newcommand*\svgx@pdftoeps@opt{}
+\DefineFamilyKey{SVG}{pdftoepsopt}{%
+  \renewcommand*\svgx@pdftoeps@opt{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@pdftops@exe{pdftops}
+\newcommand*\svgx@pdftops@opt{}
+\DefineFamilyKey{SVG}{pdftopsopt}{%
+  \renewcommand*\svgx@pdftops@opt{#1}%
+  \FamilyKeyStateProcessed%
+}
+\DefineFamilyKey{SVG}{pdftops}{%
+  \PackageWarning{#1}{%
+    The option key `pdftops' is deprecated.\MessageBreak%
+    You should use either `pdftoepsopt' or\MessageBreak%
+    `pdftopsopt' instead. See the manual for\MessageBreak%
+    more. Nothing was done%
+  }%
+  \FamilyKeyStateProcessed
+}
+%</extract>
+%<*base>
+\svg@dummy@key{dvipsopt}
+\svg@dummy@key{pstoepsopt}
+\svg@dummy@key{pstopdfopt}
+\svg@dummy@key{pdftoepsopt}
+\svg@dummy@key{pdftopsopt}
+\svg@dummy@key{pdftops}
+%</base>
+%    \end{macrocode}
+% \end{option}^^A pdftops
+% \end{macro}^^A \svgx@pdftops@opt
+% \end{macro}^^A \svgx@pdftops@exe
+% \end{option}^^A pdftopsopt
+% \end{macro}^^A \svgx@pdftoeps@opt
+% \end{macro}^^A \svgx@pdftoeps@exe
+% \end{option}^^A pdftoepsopt
+% \end{macro}^^A \svgx@pstopdf@opt
+% \end{macro}^^A \svgx@pstopdf@exe
+% \end{option}^^A pstopdfopt
+% \end{macro}^^A \svgx@pstoeps@opt
+% \end{macro}^^A \svgx@pstoeps@exe
+% \end{option}^^A pstoepsopt
+% \end{macro}^^A \svgx@dvips@opt
+% \end{macro}^^A \svgx@dvips@exe
+% \end{option}^^A dvipsopt
+%
+% \subsubsection{Invoking external application for graphic conversion}
+%
+% Besides the use of converting command supplied by \LaTeXe, the applications 
+% \app{ImageMagick} and \app{Ghostscript} can be used for graphic conversion.
+%
+% \begin{option}{convert}
+% \changes{v2.00}{2017/02/24}{changed}
+% \begin{macro}{\svgx@cnv@cmd}
+% \begin{macro}{\if@svgx@cnv@run}
+% The option \opt{convert} can be used to define, which of both applications 
+% should be use. \app{ImageMagick} is set by default.
+% \ToDo{Doc: Input format for conversation}
+%    \begin{macrocode}
+%<*extract>
+\newif\if@svgx@cnv@run
+\newcommand*\svgx@cnv@cmd{\svgx@magick@cmd}
+\DefineFamilyKey{SVG}{convert}[true]{%
+  \FamilySetNumerical{SVG}{convert}{svg@tempa}{%
+    {false}{0},{off}{0},{no}{0},%
+    {true}{1},{on}{1},{yes}{1},{onlynewer}{1},{newer}{1},%
+    {overwrite}{1},{force}{1},{forced}{1},%
+    {magick}{2},{imagemagick}{2},%
+    {gs}{3},{ghostscript}{3},%
+    {gs64}{4},{ghostscript64}{4},%
+    {gs32}{5},{ghostscript32}{5}%
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifcase\svg@tempa\relax% false
+      \@svgx@cnv@runfalse%
+    \or% true
+      \@svgx@cnv@runtrue%
+    \or% magick
+      \@svgx@cnv@runtrue%
+      \renewcommand*\svgx@cnv@cmd{\svgx@magick@cmd}%
+    \or% gs
+      \@svgx@cnv@runtrue%
+      \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
+    \or% gs64
+      \@svgx@cnv@runtrue%
+      \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
+      \svgx@onlywindows{%
+        \renewcommand*\svgx@gs@exe{gswin64c}%
+      }%
+    \or% gs32
+      \@svgx@cnv@runtrue%
+      \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
+      \svgx@onlywindows{%
+        \renewcommand*\svgx@gs@exe{gswin32c}%
+      }%
+    \fi%
+%    \end{macrocode}
+% In version~v1.0 the option \opt{convert} was used to set both the executable 
+% and options for the conversion application, meant for the usage of 
+% \app{ImageMagick}. This is taken into account here.
+%    \begin{macrocode}
+  \else%
+%    \end{macrocode}
+% Same doing like with option \opt{inkscape}.
+%    \begin{macrocode}
+    \def\svg@tempa##1-##2\@nil{%
+      \IfArgIsEmpty{##2}{\def\svg@tempb{}}{%
+        \def\svg@tempa##1####1\@nil{\def\svg@tempb{####1}}%
+        \svg@tempa#1\@nil%
+      }%
+      \def\svg@tempa{##1}%
+    }%
+    \svg@tempa#1-\@nil%
+    \PackageWarning{svg-extract}{%
+      Setting the executable and associated options\MessageBreak% 
+      for ImageMagick should be done with options\MessageBreak%
+      `magickexe=\svg@tempa'%
+      \ifx\svg@tempb\@empty\else%
+        \MessageBreak and `magicksetting' and/or `magickoperator'%
+      \fi.\MessageBreak% 
+      Nevertheless, this was done by now%
+      \ifx\svg@tempb\@empty\else%
+        , whereby \MessageBreak `magicksetting=\svg@tempb' was used%
+    }%
+    \edef\svg@tempa{%
+      \noexpand\FamilyOptions{SVG}{magickexe=\svg@tempa}%
+      \ifx\svg@tempb\@empty\else%
+        \noexpand\FamilyOptions{SVG}{magicksetting=\svg@tempb}%
+      \fi%
+    }%
+    \svg@tempa%
+  \fi%
+}
+%</extract>
+%<*base>
+\svg@dummy@key{convert}
+%</base>
+%    \end{macrocode}
+% \end{macro}^^A \if@svgx@cnv@run
+% \end{macro}^^A \svgx@cnv@cmd
+% \end{option}^^A convert
+% \begin{option}{convertformat}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{macro}{\svgx@cnv@format}
+% Option \opt{convertformat} controls the output format for converted files. It
+% is set to \val{png} by default.
+%    \begin{macrocode}
+%<*extract>
+\newcommand*\svgx@cnv@format{png}
+\DefineFamilyKey{SVG}{convertformat}{%
+  \renewcommand*\svgx@cnv@format{#1}%
+  \FamilyKeyStateProcessed%
+}
+%</extract>
+%<*base>
+\svg@dummy@key{convertformat}
+%</base>
+%    \end{macrocode}
+% \end{macro}^^A \svgx@cnv@format
+% \end{option}^^A convertformat
+% \begin{option}{convertdpi}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{option}{convertdensity}
+% \begin{macro}{\svgx@cnv@dpi}
+% The option \opt{convertdpi} is meant to define the used density during the 
+% conversion process. It can be set either for all designated output formats or 
+% targeted for a specific format. It's also possible to use something like 
+% \val{500x300} as value. The given value is resolved by \cs{svgx@cnv@get@dpi}.
+% The option ist used like \opt{convertdpi=300} or \opt{convertdpi={png=600}}.
+% If the option is used for a specific or for all output formats is recocnized 
+% by \cs{svgx@ifkeyandval}.
+%    \begin{macrocode}
+%<*extract>
+\newcommand*\svgx@cnv@dpi{}
+\let\svgx@cnv@dpi\relax
+\DefineFamilyKey{SVG}{convertdpi}{%
+  \FamilyKeyStateUnknownValue%
+  \svgx@ifkeyandval{#1}{%
+    \svgx@cnv@get@dpi{##2}%
+    \ifx\svg@tempa\relax\else%
+      \expandafter\edef\csname svgx@cnv@dpi@##1\endcsname{\svg@tempa}%
+      \FamilyKeyStateProcessed%
+    \fi%
+  }{%
+    \svgx@cnv@get@dpi{##1}%
+    \ifx\svg@tempa\relax\else%
+      \edef\svgx@cnv@dpi{\svg@tempa}%
+      \FamilyKeyStateProcessed%
+    \fi%
+  }%
+}
+\DefineFamilyKey{SVG}{convertdensity}{\FamilyOptions{SVG}{convertdpi=#1}}
+%</extract>
+%<*base>
+\svg@dummy@key{convertdpi}
+\svg@dummy@key{convertdensity}
+%</base>
+%    \end{macrocode}
+% \end{macro}^^A \svgx@cnv@dpi
+% \end{option}^^A convertdensity
+% \end{option}^^A convertdpi
+% \begin{option}{magickexe}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{macro}{\svgx@magick@exe}
+% \begin{option}{magicksetting}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{macro}{\svgx@magick@set}
+% \begin{option}{magickoperator}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{macro}{\svgx@magick@opr}
+% Setting the command including maybe the path to \app{ImageMagick}. The keys
+% \opt{magicksetting} and \app{magickoperator} should be used to add optional
+% arguments before (\emph{Settings}) or after (\emph{Operators}) the input
+% file. They can either be set for all or a specific output format as like
+% option \opt{convertdpi}.
+%    \begin{macrocode}
+%<*extract>
+\newcommand*\svgx@magick@exe{}
+\DefineFamilyKey{SVG}{magickexe}{%
+  \renewcommand*\svgx@magick@exe{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@magick@set{}
+\DefineFamilyKey{SVG}{magicksetting}{%
+  \svgx@settypekey{#1}{svgx@magick@set}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@magick@opr{}
+\DefineFamilyKey{SVG}{magickoperator}{%
+  \svgx@settypekey{#1}{svgx@magick@opr}%
+  \FamilyKeyStateProcessed%
+}
+%</extract>
+%<*base>
+\svg@dummy@key{magickexe}
+\svg@dummy@key{magicksetting}
+\svg@dummy@key{magickoperator}
+%</base>
+%    \end{macrocode}
+% \end{macro}^^A \svgx@magick@opr
+% \end{option}^^A magickoperator
+% \end{macro}^^A \svgx@magick@set
+% \end{option}^^A magicksetting
+% \end{macro}^^A \svgx@magick@exe
+% \end{option}^^A magickexe
+% \begin{option}{gsexe}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{macro}{\svgx@gs@exe}
+% \begin{option}{gsopt}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{macro}{\svgx@gs@opt}
+% \begin{option}{gsdevice}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{macro}{\svgx@gs@device}
+% Options to set the command including maybe the path to \app{Ghostscript}. As 
+% \app{Ghostscript} needs a specific device defined for different output
+% formats, the option \opt{gsdevice} can be used. It can either be set for all 
+% or a specific output format just like \opt{gsopt} in the same manner like 
+% option \opt{convertdpi}. 
+%    \begin{macrocode}
+%<*extract>
+\newcommand*\svgx@gs@exe{}
+\DefineFamilyKey{SVG}{gsexe}{%
+  \renewcommand*\svgx@gs@exe{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@gs@opt{}
+\DefineFamilyKey{SVG}{gsopt}{%
+  \svgx@settypekey{#1}{svgx@gs@opt}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@gs@device{}
+\DefineFamilyKey{SVG}{gsdevice}{%
+  \svgx@settypekey{#1}{svgx@gs@device}%
+  \FamilyKeyStateProcessed%
+}
+%</extract>
+%<*base>
+\svg@dummy@key{gsexe}
+\svg@dummy@key{gsopt}
+\svg@dummy@key{gsdevice}
+%</base>
+%    \end{macrocode}
+% \end{macro}^^A \svgx@gs@device
+% \end{option}^^A gsdevice
+% \end{macro}^^A \svgx@gs@opt
+% \end{option}^^A gsopt
+% \end{macro}^^A \svgx@gs@exe
+% \end{option}^^A gsexe
+%
+% \subsubsection{Setting output folder}
+%
+% \begin{option}{extractpath}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{option}{path}
+% \begin{option}{extractname}
+% \changes{v2.00}{2017/02/24}{new}
+% \begin{option}{name}
+% \changes{v2.00}{2017/02/24}{support of \pkg{subfig} removed}
+% \begin{macro}{\svgx@out@path}
+% \begin{macro}{\svgx@out@name}
+% \begin{macro}{\svgx@out@base}
+% The option \opt{extractpath} controls, in which folder the results both of 
+% the extraction as well as the conversion of \app{ImageMagick} or 
+% \app{Ghostscript} will be located. With option \opt{extractname} the 
+% name of the extracted and maybe converted file itself can be changed.
+%    \begin{macrocode}
+%<*extract>
+\newcommand*\svgx@out@path{}
+\newcommand*\svgx@out@name{\svg@out@name-extract}
+\newcommand*\svgx@out@base{\svgx@out@path\svgx@out@name}
+\DefineFamilyKey{SVG}{extractpath}{%
+  \FamilySetNumerical{SVG}{extractpath}{svg@tempa}{%
+    {svgpath}{0},{svgdir}{0},%
+    {svgsubpath}{1},{svgsubdir}{1},%
+    {basepath}{2},{basedir}{2},{jobpath}{2},{jobdir}{2},%
+    {basesubpath}{3},{basesubdir}{3},{jobsubpath}{3},{jobsubdir}{3}%
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifcase\svg@tempa\relax% svgpath
+      \renewcommand*\svgx@out@path{\svg@file@path}%
+    \or% svgsubpath
+      \renewcommand*\svgx@out@path{\svg@file@path svg-extract/}%
+    \or% basepath
+      \renewcommand*\svgx@out@path{./}%
+    \or% basesubpath
+      \renewcommand*\svgx@out@path{./svg-extract/}%
+    \fi%
+  \else%
+    \renewcommand*\svgx@out@path{#1}%
+    \svg@normalize@path{\svgx@out@path}%
+    \FamilyKeyStateProcessed%
+  \fi%
+}
+\DefineFamilyKey{SVG}{path}{%
+  \svg@deprecated@key[svg-extract]{path=#1}{extractpath=#1}%
+}
+\DefineFamilyKey{SVG}{extractname}{%
+  \renewcommand*\svgx@out@name{#1\svg@file@ext-extract}%
+  \FamilyKeyStateProcessed%
+}
+\DefineFamilyKey{SVG}{name}{%
+  \svg@deprecated@key[svg-extract]{name=#1}{extractname=#1}%
+}
+%</extract>
+%<*base>
+\svg@dummy@key{extractpath}
+\svg@dummy@key{path}
+\svg@dummy@key{extractname}
+\svg@dummy@key{name}
+%</base>
+%    \end{macrocode}
+% \end{macro}^^A \svgx@out@base
+% \end{macro}^^A \svgx@out@name
+% \end{macro}^^A \svgx@out@path
+% \end{option}^^A name
+% \end{option}^^A extractname
+% \end{option}^^A path
+% \end{option}^^A extractpath
+%
+% \subsubsection{Options for the extraction of graphics}
+%
+% \begin{option}{extractwidth}
+% \changes{v2.00}{2017/02/20}{new}
+% \begin{macro}{\svgx@param@width}
+% \begin{option}{extractheight}
+% \changes{v2.00}{2017/02/20}{new}
+% \begin{macro}{\svgx@param@width}
+% \begin{option}{extractscale}
+% \changes{v2.00}{2017/02/20}{new}
+% \begin{macro}{\svgx@param@scale}
+% For graphic extraction, the given settings regarding the size for inclusion 
+% can be overwritten with these options. Using \val{\cs{relax}} as value leads 
+% to reseting an option as unset, regardless of what was previously given. The
+% value \val{inherit} means, that the actual option for including is used for
+% extraction as well. This is the default setting.
+%    \begin{macrocode}
+%<*extract>
+\newcommand*\svgx@param@width{\svg@param@width}
+\DefineFamilyKey{SVG}{extractwidth}{%
+  \FamilyKeyStateUnknownValue%
+  \svg@ifvalueisrelax{#1}{%
+    \renewcommand*\svgx@param@width{\z@}%
+    \FamilyKeyStateProcessed%
+  }{%
+    \ifstr{#1}{inherit}{%
+      \renewcommand*\svgx@param@width{\svg@param@width}%
+      \FamilyKeyStateProcessed%
+    }{%
+      \FamilySetLengthMacro{SVG}{extractwidth}{\svgx@param@width}{#1}%
+      \ifdim\svgx@param@width<\z@\relax%
+        \FamilyKeyStateUnknownValue%
+      \fi%
+    }%
+  }%
+}
+\newcommand*\svgx@param@height{\svg@param@height}
+\DefineFamilyKey{SVG}{extractheight}{%
+  \FamilyKeyStateUnknownValue%
+  \svg@ifvalueisrelax{#1}{%
+    \renewcommand*\svgx@param@height{\z@}%
+    \FamilyKeyStateProcessed%
+  }{%
+    \ifstr{#1}{inherit}{%
+      \renewcommand*\svgx@param@height{\svg@param@height}%
+      \FamilyKeyStateProcessed%
+    }{%
+      \FamilySetLengthMacro{SVG}{extractheight}{\svgx@param@height}{#1}%
+      \ifdim\svgx@param@height<\z@\relax%
+        \FamilyKeyStateUnknownValue%
+      \fi%
+    }%
+  }%
+}
+\newcommand*\svgx@param@scale{\svg@param@scale}
+\DefineFamilyKey{SVG}{extractscale}{%
+  \FamilyKeyStateUnknownValue%
+  \svg@ifvalueisrelax{#1}{%
+    \renewcommand*\svgx@param@scale{1}%
+    \FamilyKeyStateProcessed%
+  }{%
+    \ifstr{#1}{inherit}{%
+      \renewcommand*\svgx@param@scale{\svg@param@scale}%
+      \FamilyKeyStateProcessed%
+    }{%
+      \ifisdimension{#1\p@}{%
+        \ifdim\dimexpr#1\p@\relax>\z@\relax%
+          \renewcommand*\svgx@param@scale{#1}%
+          \FamilyKeyStateProcessed%
+        \fi%
+      }{}%
+    }%
+  }%
+}
+%</extract>
+%<*base>
+\svg@dummy@key{extractwidth}
+\svg@dummy@key{extractheight}
+\svg@dummy@key{extractscale}
+%</base>
+%    \end{macrocode}
+% \end{macro}^^A \svgx@param@scale
+% \end{option}^^A extractscale
+% \end{macro}^^A \svgx@param@height
+% \end{option}^^A extractheight
+% \end{macro}^^A \svgx@param@width
+% \end{option}^^A extractwidth
+% \begin{option}{extractpretex}
+% \changes{v2.00}{2017/02/20}{new}
+% \begin{macro}{\svgx@param@pretex}
+% \begin{option}{extractapptex}
+% \changes{v2.00}{2017/02/20}{new}
+% \begin{macro}{\svgx@param@apptex}
+% \begin{option}{extractpostex}
+% The similar hooks for executing code right before or after the graphic 
+% extraction.
+%    \begin{macrocode}
+%<*extract>
+\newcommand*\svgx@param@pretex{\svg@param@pretex}
+\DefineFamilyKey{SVG}{extractpretex}{%
+  \svg@ifvalueisrelax{#1}{%
+    \let\svgx@param@pretex\relax%
+  }{%
+    \ifstr{#1}{inherit}{%
+      \def\svgx@param@pretex{\svg@param@pretex}%
+    }{%
+      \def\svgx@param@pretex{#1}%
+    }%
+  }%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@param@apptex{\svg@param@apptex}
+\DefineFamilyKey{SVG}{extractapptex}{%
+  \svg@ifvalueisrelax{#1}{%
+    \let\svgx@param@apptex\relax%
+  }{%
+    \ifstr{#1}{inherit}{%
+      \def\svgx@param@apptex{\svg@param@apptex}%
+    }{%
+      \def\svgx@param@apptex{#1}%
+    }%
+  }%
+  \FamilyKeyStateProcessed%
+}
+\DefineFamilyKey{SVG}{extractpostex}{%
+  \svg@deprecated@key[svg-extract]{extractpostex=#1}{extractapptex=#1}%
+}
+%</extract>
+%<*base>
+\svg@dummy@key{extractpretex}
+\svg@dummy@key{extractapptex}
+\svg@dummy@key{extractpostex}
+%</base>
+%    \end{macrocode}
+% \end{option}^^A extractpostex
+% \end{macro}^^A \svgx@param@apptex
+% \end{option}^^A extractapptex
+% \end{macro}^^A \svgx@param@pretex
+% \end{option}^^A extractpretex
+%
+% \subsubsection{Miscellaneous options}
+%
+% \ToDo{options pdf, eps, png with changes note}
+% \begin{option}{clean}
+% \changes{v2.00}{2017/02/24}{changes, file list possible}
+% \begin{option}{clear}
+% \begin{macro}{\svgx@clean}
+% With option \opt{clean} files generated during the extraction process can be 
+% deleted. Setting \val{true} will remove all files, \val{false} won't clear 
+% any file. Additionally, a specific file list of suffixes can be given.
+%    \begin{macrocode}
+%<*extract>
+\newcommand*\svgx@clean{}
+\DefineFamilyKey{SVG}{clean}{%
+  \FamilySetBool{SVG}{clean}{@svg@tempswa}{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \if@svg@tempswa%
+      \renewcommand*\svgx@clean{log,aux,dvi,ps,eps,pdf,\svgx@latex@ext}%
+    \else%
+      \renewcommand*\svgx@clean{}%
+    \fi%
+  \else%
+    \renewcommand*\svgx@clean{#1}%
+    \FamilyKeyStateProcessed%
+  \fi%
+}
+\DefineFamilyKey{SVG}{clear}{\FamilyOptions{SVG}{clean=#1}}
+%</extract>
+%<*base>
+\svg@dummy@key{clean}
+\svg@dummy@key{clear}
+%</base>
+%    \end{macrocode}
+% \end{macro}^^A \svgx@clean
+% \end{option}^^A clear
+% \end{option}^^A clean
+% \begin{option}{exclude}
+% If it is desired not to include but only extract graphics with package 
+% \pkg{svg-extract}, option \opt{exclude} can be used.
+%    \begin{macrocode}
+%<*extract>
+\DefineFamilyKey{SVG}{exclude}[true]{%
+  \FamilySetBool{SVG}{exclude}{@svg@tempswa}{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \if@svg@tempswa%
+      \renewcommand*\svg@input[2][]{%
+        \ifnum\svgx@mode=\z@\relax%
+          \PackageWarning{svg-extract}{%
+            The image was neither extracted nor included%
+          }%
+        \fi%
+      }%
+    \else%
+      \renewcommand*\svg@input{\svg@@input}%
+    \fi%
+  \fi%
+}
+%</extract>
+%<*base>
+\svg@dummy@key{exclude}
+%</base>
+%    \end{macrocode}
+% \end{option}^^A exclude
+%
+% \iffalse
+%</package&option>
+%<*package&body>
+% \fi
+%
+% \subsection{User commands}
+%
+% \begin{macro}{\svghidepreamblestart}
+% \begin{macro}{\svghidepreambleend}
+% These two macros can be used to hide some parts of the preamble during 
+% reading the preamble of the main document.
+%    \begin{macrocode}
+%<*extract>
+\let\svghidepreamblestart\relax
+\let\svghidepreambleend\relax
+%</extract>
+%    \end{macrocode}
+% Some dummys for package \pkg{svg}.
+%    \begin{macrocode}
+%<*base>
+\newcommand*\svghidepreamblestart{%
+  \PackageWarning{svg}{%
+    The macro `\string\svghidepreamblestart' is only meant\MessageBreak%
+    to be used together with package `svg-extract'.\MessageBreak%
+    Nevertheless, nothing will happen%
+  }%
+}
+\newcommand*\svghidepreambleend{%
+  \PackageWarning{svg}{%
+    The macro `\string\svghidepreambleend' is only meant\MessageBreak%
+    to be used together with package `svg-extract'.\MessageBreak%
+    Nevertheless, nothing will happen%
+  }%
+}
+%</base>
+%    \end{macrocode}
+% \end{macro}^^A \svghidepreambleend
+% \end{macro}^^A \svghidepreamblestart
+%
+% \subsection{Auxiliary macros}
+%
+%
+% \iffalse
+%</package&body>
+%<*package&option>
+% \fi
+%
+% \section{Processing Options}
+%
+% Setting the default options and processing the given ones during when loading 
+% the packages.
+%    \begin{macrocode}
+%<*base>
+\FamilyExecuteOptions{SVG}{%
+  inkscape=true,inkscapepath=basesubdir,inkscapelatex=true,%
+  inkscapearea=drawing,usexcolor=true,usetransparent=true%
+}
+%</base>
+%<*extract>
+\FamilyExecuteOptions{SVG}{%
+  extract=true,extractpath=basesubdir,extractruns=2,%
+  gsdevice={png=png16m},gsdevice={jpeg=jpeg},gsdevice={jpg=jpeg},%
+  gsdevice={tif=tiff48nc},gsdevice={tiff=tiff48nc},%
+  gsdevice={eps=eps2write},gsdevice={ps=ps2write}%
+}
+%</extract>
+\FamilyProcessOptions{SVG}
+%    \end{macrocode}
+%
+% \iffalse
+%</package&option>
+%<*package&body&base>
+% \fi
+%
+% \section{Macros for file access}
 %
 % Finally, platform dependend macros for creating directories as well as moving 
 % and deleting files are provided, if \val{--shell-escape} is enabled. Only then
@@ -2268,235 +3234,7 @@ svg-extract -- Extract detached graphic files from SVG pictures
 % \end{macro}^^A \svg@shell@mkdir
 %
 % \iffalse
-%</body>
-%</package&base>
-%<*package&extract>
-%<*option>
-% \fi
-%
-% \section{Extracting detached graphic files with package \pkg{svg-extract}}
-% \subsection{Options}
-% \subsubsection{Controlling the extract process}
-% \subsubsection{Controlling the convert process}
-% \subsubsection{Setting input folder}
-% \subsubsection{Setting output folder}
-% \subsubsection{Options for the extraction of graphics}
-%
-% \begin{option}{extractwidth}
-% \changes{v2.00}{2017/02/20}{new}
-% \begin{macro}{\svgx@param@width}
-% \begin{option}{extractheight}
-% \changes{v2.00}{2017/02/20}{new}
-% \begin{macro}{\svgx@param@width}
-% \begin{option}{extractscale}
-% \changes{v2.00}{2017/02/17}{new}
-% \begin{macro}{\svgx@param@scale}
-% For graphic extraction, the given settings regarding the size for inclusion 
-% can be overwritten with these options. Using \val{\cs{relax}} as value leads 
-% to reseting an option as unset, regardless of what was previously given. The
-% value \val{inherit} means, that the actual option for including is used for
-% extraction as well. This is the default setting.
-%    \begin{macrocode}
-\newcommand*\svgx@param@width{\svg@param@width}
-\DefineFamilyKey{SVG}{extractwidth}{%
-  \FamilyKeyStateUnknownValue%
-  \svg@ifvalueisrelax{#1}{%
-    \renewcommand*\svgx@param@width{\z@}%
-    \FamilyKeyStateProcessed%
-  }{%
-    \ifstr{#1}{inherit}{%
-      \renewcommand*\svgx@param@width{\svg@param@width}%
-      \FamilyKeyStateProcessed%
-    }{%
-      \FamilySetLengthMacro{SVG}{extractwidth}{\svgx@param@width}{#1}%
-      \ifdim\svgx@param@width<\z@\relax%
-        \FamilyKeyStateUnknownValue%
-      \fi%
-    }%
-  }%
-}
-\newcommand*\svgx@param@height{\svg@param@height}
-\DefineFamilyKey{SVG}{extractheight}{%
-  \FamilyKeyStateUnknownValue%
-  \svg@ifvalueisrelax{#1}{%
-    \renewcommand*\svgx@param@height{\z@}%
-    \FamilyKeyStateProcessed%
-  }{%
-    \ifstr{#1}{inherit}{%
-      \renewcommand*\svgx@param@height{\svg@param@height}%
-      \FamilyKeyStateProcessed%
-    }{%
-      \FamilySetLengthMacro{SVG}{extractheight}{\svgx@param@height}{#1}%
-      \ifdim\svgx@param@height<\z@\relax%
-        \FamilyKeyStateUnknownValue%
-      \fi%
-    }%
-  }%
-}
-\newcommand*\svgx@param@scale{\svg@param@scale}
-\DefineFamilyKey{SVG}{extractscale}{%
-  \FamilyKeyStateUnknownValue%
-  \svg@ifvalueisrelax{#1}{%
-    \renewcommand*\svgx@param@scale{1}%
-    \FamilyKeyStateProcessed%
-  }{%
-    \ifstr{#1}{inherit}{%
-      \renewcommand*\svgx@param@scale{\svg@param@scale}%
-      \FamilyKeyStateProcessed%
-    }{%
-      \ifisdimension{#1\p@}{%
-        \ifdim\dimexpr#1\p@\relax>\z@\relax%
-          \renewcommand*\svgx@param@scale{#1}%
-          \FamilyKeyStateProcessed%
-        \fi%
-      }{}%
-    }%
-  }%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svgx@param@scale
-% \end{option}^^A scale
-% \end{macro}^^A \svgx@param@height
-% \end{option}^^A height
-% \end{macro}^^A \svgx@param@width
-% \end{option}^^A width
-% \begin{option}{extractpretex}
-% \changes{v2.00}{2017/02/20}{new}
-% \begin{macro}{\svgx@param@pretex}
-% \begin{option}{extractapptex}
-% \changes{v2.00}{2017/02/20}{new}
-% \begin{macro}{\svgx@param@apptex}
-% \begin{option}{extractpostex}
-% The similar hooks for executing code right before or after the graphic 
-% extraction.
-%    \begin{macrocode}
-\newcommand*\svgx@param@pretex{\svg@param@pretex}
-\DefineFamilyKey{SVG}{extractpretex}{%
-  \svg@ifvalueisrelax{#1}{%
-    \let\svgx@param@pretex\relax%
-  }{%
-    \ifstr{#1}{inherit}{%
-      \def\svgx@param@pretex{\svg@param@pretex}%
-    }{%
-      \def\svgx@param@pretex{#1}%
-    }%
-  }%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svgx@param@apptex{\svg@param@apptex}
-\DefineFamilyKey{SVG}{extractapptex}{%
-  \svg@ifvalueisrelax{#1}{%
-    \let\svgx@param@apptex\relax%
-  }{%
-    \ifstr{#1}{inherit}{%
-      \def\svgx@param@apptex{\svg@param@apptex}%
-    }{%
-      \def\svgx@param@apptex{#1}%
-    }%
-  }%
-  \FamilyKeyStateProcessed%
-}
-\DefineFamilyKey{SVG}{extractpostex}{%
-  \svg@deprecated@key[svg-extract]{extractpostex=#1}{extractapptex=#1}%
-}
-%    \end{macrocode}
-% \end{option}^^A extractpostex
-% \end{macro}^^A \svgx@param@apptex
-% \end{option}^^A extractapptex
-% \end{macro}^^A \svgx@param@pretex
-% \end{option}^^A extractpretex
-%
-% \subsubsection{Miscellaneous options}
-%
-% \begin{option}{clean}
-% \begin{option}{clear}
-% \begin{macro}{\svgx@clean}
-% With option \opt{clean} files generated during the extraction process can be 
-% deleted. Setting \val{true} will remove all files, \val{false} won't clear 
-% any file. Additionally, a specific file list of suffixes can be given.
-%    \begin{macrocode}
-\newcommand*\svgx@clean{}
-\DefineFamilyKey{SVG}{clean}{%
-  \FamilySetBool{SVG}{clean}{@svg@tempswa}{#1}%
-  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \if@svg@tempswa%
-      \renewcommand*\svgx@clean{log,aux,dvi,ps,eps,pdf,\svgx@ext@latex}%
-    \else%
-      \renewcommand*\svgx@clean{}%
-    \fi%
-  \else%
-    \renewcommand*\svgx@clean{#1}%
-    \FamilyKeyStateProcessed%
-  \fi%
-}
-\DefineFamilyKey{SVG}{clear}{\FamilyOptions{SVG}{clean=#1}}
-%    \end{macrocode}
-% \end{macro}^^A \svgx@clean
-% \end{option}^^A clear
-% \end{option}^^A clean
-% \begin{option}{exclude}
-% If it is desired not to include but only extract graphics with package 
-% \pkg{svg-extract}, option \opt{exclude} can be used.
-%    \begin{macrocode}
-\DefineFamilyKey{SVG}{exclude}[true]{%
-  \FamilySetBool{SVG}{exclude}{@svg@tempswa}{#1}%
-  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \if@svg@tempswa%
-      \renewcommand*\svg@input[2][]{%
-        \ifnum\svgx@mode=\z@\relax%
-          \PackageWarning{svg-extract}{%
-            The image was neither extracted nor included%
-          }%
-        \fi%
-      }%
-    \else%
-      \renewcommand*\svg@input{\svg@@input}%
-    \fi%
-  \fi%
-}
-%    \end{macrocode}
-% \end{option}^^A exclude
-%
-% \subsection{User commands}
-% \subsection{Auxiliary macros}
-%
-% \iffalse
-%</option>
-%<*body>
-% \fi
-%
-%
-%
-% \iffalse
-%</body>
-%</package&extract>
-%<*package&option>
-% \fi
-%
-% \section{Processing Options}
-%
-% Setting the default options and processing the given ones during when loading 
-% the packages.
-%    \begin{macrocode}
-%<*base>
-\FamilyExecuteOptions{SVG}{%
-  inkscape=true,inkscapepath=basesubdir,inkscapelatex=true,%
-  inkscapearea=drawing,usexcolor=true,usetransparent=true%
-}
-%</base>
-%<*extract>
-\FamilyExecuteOptions{SVG}{%
-  extract=true,extractpath=basesubdir,extractruns=2,%
-  gsdevice={png=png16m},gsdevice={jpeg=jpeg},gsdevice={jpg=jpeg},%
-  gsdevice={tif=tiff48nc},gsdevice={tiff=tiff48nc},%
-  gsdevice={eps=eps2write},gsdevice={ps=ps2write}%
-}
-%</extract>
-\FamilyProcessOptions{SVG}
-%    \end{macrocode}
-%
-% \iffalse
-%</package&option>
+%</package&body&base>
 % \fi
 %
 % \Finale
