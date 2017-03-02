@@ -124,7 +124,7 @@
     \def\svg@tempa##1dpi##2\@nil{%
       \ifstr{##2}{dpi}{\FamilyOptions{SVG}{inkscapedpi=##1}}{}%
     }%
-    \svg@tempa#1dpi\@nil%
+    \lowercase{\svg@tempa#1dpi\@nil}%
     \ifx\FamilyKeyState\FamilyKeyStateProcessed\else%
       \def\svg@tempa##1-##2\@nil{%
         \IfArgIsEmpty{##2}{\def\svg@tempb{}}{%
@@ -200,7 +200,7 @@
     \FamilyKeyStateProcessed%
   }{%
     \def\svg@tempa##1dpi##2\@nil{\def\svg@tempa{##1}}%
-    \svg@tempa#1dpi\@nil%
+    \lowercase{\svg@tempa#1dpi\@nil}%
     \ifnumber{\svg@tempa}{%
       \edef\svg@ink@dpi{\svg@tempa}%
       \FamilyKeyStateProcessed%
@@ -416,6 +416,8 @@
 }
 \svg@dummy@key{extract}
 \svg@dummy@key{extractformat}
+\svg@dummy@key{pdf}
+\svg@dummy@key{eps}
 \svg@dummy@key{extractpreamble}
 \svg@dummy@key{preamble}
 \svg@dummy@key{extractpreambleend}
@@ -433,6 +435,7 @@
 \svg@dummy@key{pdftops}
 \svg@dummy@key{convert}
 \svg@dummy@key{convertformat}
+\svg@dummy@key{png}
 \svg@dummy@key{convertdpi}
 \svg@dummy@key{convertdensity}
 \svg@dummy@key{magickexe}
@@ -990,7 +993,6 @@
     \svg@includegraphics@saved[#1]{\svg@includegraphics@file}%
   \fi%
 }
-\newcommand*\svg@extract[1]{}
 \newcommand*\svghidepreamblestart{%
   \PackageWarning{svg}{%
     The macro `\string\svghidepreamblestart' is only meant\MessageBreak%
@@ -1005,6 +1007,7 @@
     Nevertheless, nothing will happen%
   }%
 }
+\newcommand*\svg@extract[1]{}
 \ifnum\pdf@shellescape=\@ne\relax\else%
   \expandafter\endinput%
 \fi

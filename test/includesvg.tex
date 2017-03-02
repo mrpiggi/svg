@@ -10,7 +10,7 @@
 \usepackage[usexcolor=true,usetransparent=false,draft=false]{svg-new}
 \usepackage[extract=true,clean=true,exclude=false]{svg-extract}
 
-\svgsetup{lastpage=auto,convertformat={png,jpg,tif},convert=gs}
+\svgsetup{lastpage=auto,convertformat=,convert=gs}
 
 \svghidepreamblestart
 %\usepackage{showframe}
@@ -33,6 +33,8 @@
 
 %\RequirePackage{luatex85}[2016/06/15]% standalone
 \begin{document}
+
+
 %\begin{equation}
 %a^2+b^2=c^2\label{eq:emc1}
 %\end{equation}
@@ -43,7 +45,7 @@ a^2+b^2=c^2\label{eq:emc2}
 
 \svgpath{{svg-test/}{"C:/Users/Hanisch/Documents/Dateien/svg"}}
 
-%\includeinkscape[]{"Serielal_svg-raw"}
+%\includeinkscape[]{/svg-out/Seriell_svg-tex.pdf}
 
 %\newincludesvg[]{"Saeriell".svg}
 
@@ -151,7 +153,8 @@ a^2+b^2=c^2\label{eq:emc2}
 %  angle=10,%origin=c,
 %  svgpath=C:/Users/Hanisch/Documents/Dateien/svg,
 %  extractpreamble=test.aaa,
-  clean=false,
+  clean=false,pdf=on,eps,png,
+%  extractpreamble=ssss.tex,
 %  inkscape=raw,
 %  inkscape=eps,
   convertdensity=600x300,
