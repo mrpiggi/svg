@@ -1,16 +1,12 @@
-%\RequirePackage[ngerman=ngerman-x-latest]{hyphsubst}
-% \documentclass[english,ngerman,BCOR=6mm,parskip=false]{tudscrreprt}
-% \setlength{\parskip}{0.7ex}
 \listfiles
 \documentclass[parskip=full]{scrreprt}% Test
-%\usepackage{selinput}\SelectInputMappings{adieresis={ä},germandbls={ß}}
+\usepackage{selinput}\SelectInputMappings{adieresis={ä},germandbls={ß}}
 \usepackage[T1]{fontenc}
 %\usepackage{babel}
-
 \usepackage[usexcolor=true,usetransparent=false,draft=false]{svg-new}
-\usepackage[extract=true,clean=true,exclude=false]{svg-extract}
+\usepackage[extract=true,clean=false,exclude=false]{svg-extract}
 
-\svgsetup{lastpage=auto,convertformat=,convert=gs}
+\svgsetup{lastpage=false,convertformat=,convert=gs}
 
 \svghidepreamblestart
 %\usepackage{showframe}
@@ -33,7 +29,7 @@
 
 %\RequirePackage{luatex85}[2016/06/15]% standalone
 \begin{document}
-
+\svgpath{{svg-test/}{"C:/Users/Hanisch/Documents/Dateien/svg"}}
 
 %\begin{equation}
 %a^2+b^2=c^2\label{eq:emc1}
@@ -41,95 +37,6 @@
 \begin{equation}
 a^2+b^2=c^2\label{eq:emc2}
 \end{equation}
-%\blinddocument
-
-\svgpath{{svg-test/}{"C:/Users/Hanisch/Documents/Dateien/svg"}}
-
-%\includeinkscape[]{/svg-out/Seriell_svg-tex.pdf}
-
-%\newincludesvg[]{"Saeriell".svg}
-
-%\includegraphics[]{S.bla.pdf}
-%
-%
-%%\svgsetup{inkscapepath="C:/Program Files/Inkscape/inkscape.exe"}
-%
-%\makeatletter
-%%\newcommand*\svgx@ifinlist[2]{%
-%%  \begingroup%
-%%    \def\svg@tempa##1,#1,##2\@nil{%
-%%      \IfArgIsEmpty{##2}{%
-%%        \aftergroup\@secondoftwo%
-%%      }{%
-%%        \aftergroup\@firstoftwo%
-%%      }%
-%%    }%
-%%    \expandafter\svg@tempa\expandafter,#2,#1,\@nil
-%%  \endgroup%
-%%}%
-%
-%
-%\meaning\svg@inkscape@exe
-%\makeatother
-%\svgpath{{"svg test/"}}%
-%%\graphicspath{{foo/}}
-%
-%\blindtext
-%
-%%\svgsetup{inkscapeexe=ink}
-%
-%%\makeatletter
-%%\filename@parse{svg/newimage-svg-extract.tex}
-%%\filename@area,\filename@base,\filename@ext
-%%\makeatother
-%
-%\begin{figure}
-%\newincludesvg[%
-%  width=307.28987pt,%
-%  angle=30,%
-%  svgpath="svg test",%
-%%  extract=false,
-%%  extractpath=out/,
-%%  extractname=blubb,
-%%  height=150pt,
-%%  svgpath=bar,%
-%%  scale=-1,
-%%  dpi=300,
-%%  inkscape={-C},%
-%%  inkscape=300dai,%
-%%  inkscape=aaadpi,%
-%%  inkscape=page,%
-%  inkscape=raw,
-%%  dpi=50,
-%%  inkscape=page,
-%%  pretex=\Huge,
-%%  inkscape=false,
-%%  draft,%=false,
-%]{"test image"}
-%\end{figure}
-
-%\graphicspath{{"svg-test"/}}
-%\svgpath{{"svg test/"}{svgtest}}
-
-%\makeatletter
-%\let\input@path\Ginput@path
-%\meaning\input@path
-%\filename@parse{newimage-svg-raw.pdf}
-%\meaning\filename@area\newline
-%\meaning\filename@base\newline
-%\meaning\filename@ext\newline
-%\meaning\filename@area\newline
-%\meaning\filename@base\newline
-%\meaning\filename@ext\newline
-
-%\svgsetup{%
-%  inkscape=bla/inkscape.exe -z -C,%
-%%  inkscapeexe="C:/Program Files/Inkscape/inkscape.exe"
-%}
-
-%\def\svgwidth{200pt}
-
-\makeatletter
 
 \svgsetup{pretex=\color{red}}
 
@@ -148,16 +55,17 @@ a^2+b^2=c^2\label{eq:emc2}
 %\def\svgwidth{\textwidth}
 %\def\svgscale{0.8}
 \fbox{\newincludesvg[%
+  inkscapelatex=false,
 %  inkscapepath=basesubdir,%
 %  exclude=true,
 %  angle=10,%origin=c,
 %  svgpath=C:/Users/Hanisch/Documents/Dateien/svg,
 %  extractpreamble=test.aaa,
-  clean=false,pdf=on,eps,png,
+  clean=false,extractformat={pdf,eps},convertformat=eps,
 %  extractpreamble=ssss.tex,
 %  inkscape=raw,
 %  inkscape=eps,
-  convertdensity=600x300,
+%  convertdensity=600x300,
 %  convertdensity=555x300x,
 %  angle=10,
 %  inkscapedpi=,
@@ -185,7 +93,7 @@ a^2+b^2=c^2\label{eq:emc2}
 %  magickoperator={png=-resize 25\%},
 %  convertformat=png,
 %  convertdensity=,%
-  width=\textwidth,%
+  width=300pt,%
 %  extractwidth=\relax,
 %  extractwidth=400pt,
 %  scale=1.1,
@@ -199,7 +107,7 @@ a^2+b^2=c^2\label{eq:emc2}
 %  scale=0.5pt,
 %  pretex=aaa,
 %  apptex=bbb,
-]{"Seriell"}%
+]{Seriell}%
 }%
 \caption{aaa}
 \end{figure}

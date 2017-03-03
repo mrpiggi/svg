@@ -634,7 +634,6 @@
       \usebox\svgx@box%
       \end{frame}%
     \else%
-      \pagestyle{empty}%
       \usebox\svgx@box%
     \fi%
     \endgraf%
@@ -725,7 +724,6 @@
         \def\svg@tempa{}%
       }%
       \immediate\openout\svgx@stream@out=\svgx@out@name.\svgx@latex@ext%
-% This macro is used several times within the auxiliary \LaTeX~file.
       \immediate\write\svgx@stream@out{%
         \string\AtBeginDocument{\string\svgxsetpapersize}\@percentchar^^J%
       }%
@@ -765,33 +763,35 @@
       \ifx\svgx@param@apptex\relax\else%
         \svg@tempa{apptex=\unexpanded\expandafter{\svgx@param@apptex}}%
       \fi%
-      \ifnum\value{svg@param@lastpage}>\z@\relax%
-        \immediate\write\svgx@stream@out{%
-          \string\svgxsetbox[lastpage=\the\value{svg@param@lastpage}]{#1}%
-        }%
-      \else%
-        \ifnum\value{svg@param@lastpage}=\z@\relax%
-          \immediate\write\svgx@stream@out{%
-            \string\svgxsetbox[lastpage=true]{#1}%
-          }%
+      \ifstr{\svg@ink@format}{pdf}{%
+        \ifnum\value{svg@param@lastpage}>\z@\relax%
+          \edef\svg@tempa{lastpage=\the\value{svg@param@lastpage}}%
         \else%
-          \immediate\write\svgx@stream@out{%
-            \string\svgxsetbox[lastpage=false]{#1}%
-          }%
+          \ifnum\value{svg@param@lastpage}=\z@\relax%
+            \def\svg@tempa{lastpage=true}%
+          \else%
+            \def\svg@tempa{lastpage=false}%
+          \fi%
         \fi%
+        \immediate\write\svgx@stream@out{\string\svgxsetbox[\svg@tempa]{#1}}%
+      }{%
+        \immediate\write\svgx@stream@out{\string\svgxsetbox{#1}}%
+      }%
+      \if@svg@ink@latex%
+        \IfFileExists{xr.sty}{%
+          \immediate\write\svgx@stream@out{%
+            ^^J%
+            \string\usepackage{xr}^^J%
+            \string\externaldocument{\jobname}%
+          }%
+        }{}%
       \fi%
-      \IfFileExists{xr.sty}{%
-        \immediate\write\svgx@stream@out{%
-          ^^J%
-          \string\usepackage{xr}^^J%
-          \string\externaldocument{\jobname}%
-        }%
-      }{}%
       \immediate\write\svgx@stream@out{%
         ^^J%
         \string\svgxsetpapersize^^J%
         \string\AtBeginDocument{\string\svgxsetpapersize}^^J^^J%
         \string\begin{document}^^J%
+        \string\pagestyle{empty}^^J%
         \string\svgxoutputbox\@percentchar^^J%
         \string\end{document}%
       }%
@@ -844,15 +844,24 @@
             \def\svgx@cnv@dpi@png{300}%
           \fi%
         \fi%
-        \expandafter\svgx@cnv@get@input\expandafter{\svgx@format}%
+        \expandafter\svgx@cnv@get@informat\expandafter{\svgx@format}%
         \@for\svg@tempa:=\svgx@cnv@format\do{%
           \ifx\svg@tempa\@empty\else%
-            \PackageInfo{svg-extract}{%
-              Converting `\svgx@out@name.\svgx@cnv@in'\MessageBreak%
-              to `\svgx@out@name.\svg@tempa'%
-            }%
-            \ShellEscape{%
-              \svgx@cnv@cmd{\svgx@out@name}{\svgx@cnv@in}{\svg@tempa}%
+            \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{\svgx@format}{%
+              \PackageWarning{svg-extract}{%
+                File type `\svg@tempa' was specified for option\MessageBreak%
+                `extractformat' (\svgx@format) as well as for \MessageBreak
+                option `convertformat' (\svgx@cnv@format) so the\MessageBreak%
+                conversion won't be done%
+              }%
+            }{%
+              \PackageInfo{svg-extract}{%
+                Converting `\svgx@out@name.\svgx@cnv@informat'\MessageBreak%
+                to `\svgx@out@name.\svg@tempa'%
+              }%
+              \ShellEscape{%
+                \svgx@cnv@cmd{\svgx@out@name}{\svgx@cnv@informat}{\svg@tempa}%
+              }%
             }%
           \fi%
         }%
@@ -873,54 +882,6 @@
       }%
     }%
   \fi%
-}
-\newcommand*\svgx@cnv@in{}
-\newcommand*\svgx@cnv@get@input[1]{%
-  \begingroup%
-    \def\svg@tempa##1,##2\@nil{%
-      \def\svg@tempa{##1}%
-    }%
-    \svg@tempa#1,\@nil%
-    \edef\svg@tempa{%
-      \noexpand\endgroup%
-      \noexpand\def\noexpand\svgx@cnv@in{\svg@tempa}%
-    }%
-  \svg@tempa%
-  \ifx\svgx@cnv@in\@empty%
-    \renewcommand*\svgx@cnv@in{pdf}%
-    \ifxetex\else\ifpdf\else%
-      \renewcommand*\svgx@cnv@in{ps}%
-    \fi\fi%
-  \fi%
-}
-\ifx\svgx@magick@exe\@empty
-  \ifwindows
-    \renewcommand*\svgx@magick@exe{magick}
-  \else
-    \renewcommand*\svgx@magick@exe{convert}
-  \fi
-\fi
-\newcommand*\svgx@magick@cmd[3]{%
-  \svgx@magick@exe\space%
-  \svgx@useformatkey{svgx@cnv@dpi}{#3}{-density }%
-  \svgx@useformatkey{svgx@magick@set}{#3}{}%
-  "#1.#2"\space%
-  \svgx@useformatkey{svgx@magick@opr}{#3}{}%
-  "#1.#3"%
-}
-\ifx\svgx@gs@exe\@empty
-  \ifwindows
-    \renewcommand*\svgx@gs@exe{gswin64c}
-  \else
-    \renewcommand*\svgx@gs@exe{gs}
-  \fi
-\fi
-\newcommand*\svgx@gs@cmd[3]{%
-  \svgx@gs@exe\space-dSAFER -dBATCH -dNOPAUSE\space%
-  \svgx@useformatkey{svgx@gs@device}{#3}{-sDEVICE=}%
-  \svgx@useformatkey{svgx@cnv@dpi}{#3}{-r}%
-  \svgx@useformatkey{svgx@gs@opt}{#3}{}%
-  -sOutputFile="#1.#3"\space"#1.#2"%
 }
 \newif\if@svgx@classfound
 \newcommand*\svgx@documentclass{}
@@ -964,6 +925,54 @@
   }%
   \expandafter\svg@tempa\svg@tempb\@nil%
 }
+\newcommand*\svgx@cnv@informat{}
+\newcommand*\svgx@cnv@get@informat[1]{%
+  \begingroup%
+    \def\svg@tempa##1,##2\@nil{%
+      \def\svg@tempa{##1}%
+    }%
+    \svg@tempa#1,\@nil%
+    \edef\svg@tempa{%
+      \noexpand\endgroup%
+      \noexpand\def\noexpand\svgx@cnv@informat{\svg@tempa}%
+    }%
+  \svg@tempa%
+  \ifx\svgx@cnv@informat\@empty%
+    \renewcommand*\svgx@cnv@informat{pdf}%
+    \ifxetex\else\ifpdf\else%
+      \renewcommand*\svgx@cnv@informat{ps}%
+    \fi\fi%
+  \fi%
+}
+\ifx\svgx@magick@exe\@empty
+  \ifwindows
+    \renewcommand*\svgx@magick@exe{magick}
+  \else
+    \renewcommand*\svgx@magick@exe{convert}
+  \fi
+\fi
+\newcommand*\svgx@magick@cmd[3]{%
+  \svgx@magick@exe\space%
+  \svgx@useformatkey{svgx@cnv@dpi}{#3}{-density }%
+  \svgx@useformatkey{svgx@magick@set}{#3}{}%
+  "#1.#2"\space%
+  \svgx@useformatkey{svgx@magick@opr}{#3}{}%
+  "#1.#3"%
+}
+\ifx\svgx@gs@exe\@empty
+  \ifwindows
+    \renewcommand*\svgx@gs@exe{gswin64c}
+  \else
+    \renewcommand*\svgx@gs@exe{gs}
+  \fi
+\fi
+\newcommand*\svgx@gs@cmd[3]{%
+  \svgx@gs@exe\space-dSAFER -dBATCH -dNOPAUSE\space%
+  \svgx@useformatkey{svgx@gs@device}{#3}{-sDEVICE=}%
+  \svgx@useformatkey{svgx@cnv@dpi}{#3}{-r}%
+  \svgx@useformatkey{svgx@gs@opt}{#3}{}%
+  -sOutputFile="#1.#3"\space"#1.#2"%
+}
 \newcommand*\svgx@checkandmove[3]{%
   \begingroup%
     \IfFileExists{"#1".#2}{%
@@ -971,22 +980,22 @@
     }{%
       \edef\svg@tempa{#2}%
       \@svg@tempswafalse%
-      \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{pdf,ps,eps}{%
+      \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{\svgx@cnv@format}{%
         \@svg@tempswatrue%
-        \def\svg@tempb{extraction}%
+        \def\svg@tempb{conversion}%
       }{%
-        \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{\svgx@cnv@format}{%
+        \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{pdf,ps,eps}{%
           \@svg@tempswatrue%
-          \def\svg@tempb{conversion}%
+          \def\svg@tempb{extraction}%
         }{}%
       }%
       \if@svg@tempswa%
         \edef\svg@tempb{%
           The graphic file \svg@tempb\space failed\MessageBreak%
           for `#1.#2'\MessageBreak%
-          Troubleshooting: Please check in the log file how\MessageBreak%
-          the invocation of the extraction took place and\MessageBreak%
-          try to execute it yourself in the terminal%
+          Troubleshooting: Please check the log file how the\MessageBreak%
+          invocation of the extraction took place and try\MessageBreak%
+          to execute it yourself in the terminal%
         }%
       \else%
         \def\svg@tempb{%

@@ -1,4 +1,4 @@
-% \CheckSum{0}
+% \CheckSum{3131}
 % \iffalse meta-comment
 %
 %  svg -- Include SVG pictures in pdfLaTeX documents using Inkscape
@@ -456,6 +456,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \DescribeParameter{lastpage}
 % \DescribeParameter{angle}
 % \ToDo{angle after widht, height and scale}
+% \ToDo{no quotes with dvi for file name!}
 % \DescribeParameter{origin}
 % \end{DescribeParameterParent}
 %
@@ -492,6 +493,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \section{Example}\label{sec:example}
 %
 % \ToDo{REVISE!, remove \cs{href}?}
+% \ToDo{automated creation, how to deal with comments in \file{.pdf\_tex}}
 % As an example\footnote{The image used here is a slightly modified
 % version of the image used in the initial documentation on how to
 % include an \svg in \latex by J. Engelen available on
@@ -3250,8 +3252,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \def\svgx@read@line{}%
 %    \end{macrocode}
 % The given preamble file is read line by line and written to the separate 
-% \LaTeX~file \cs{svgx@out@name}\file{.}\cs{svgx@latex@ext} via the output 
-% stream.
+% auxiliary \LaTeX~file \cs{svgx@out@name}\file{.}\cs{svgx@latex@ext} via the
+% output stream.
 %    \begin{macrocode}
         \@whilesw\if@svg@tempswa\fi{%
           \immediate\read\svgx@stream@in to\svgx@read@line%
@@ -3267,15 +3269,15 @@ svg-extract -- Extract independent graphic files from SVG pictures
             \svgx@read@preamble@till{\svghidepreamblestart}{}%
             \svgx@read@preamble@from{\svghidepreambleend}{}%
 %    \end{macrocode}
-% If the desired end of the preamble (\cs{svgx@endpreambl}) was found, the 
+% If the desired end of the preamble (\cs{svgx@endpreamble}) was found, the 
 % readout is terminated by switching \cs{if@svg@tempswa} to \val{false}.
 %    \begin{macrocode}
             \svgx@read@preamble@till{\svgx@endpreamble}{\@svg@tempswafalse}%
             \if@svgx@preamble@write%
 %    \end{macrocode}
-% During readout, it is searched for the appearance of \cs{documentclass} with 
-% \cs{svgx@documentclass} and \cs{if@svgx@classfound} is set to \val{true} if 
-% it was found.
+% During the readout process, it is searched with \cs{svgx@documentclass} for 
+% the appearance of \cs{documentclass} and \cs{if@svgx@classfound} is set to 
+% \val{true} if it was found.
 %    \begin{macrocode}
               \if@svgx@classfound\else%
                 \expandafter\svgx@documentclass%
@@ -3295,9 +3297,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \immediate\closein\svgx@stream@in%
         \immediate\closeout\svgx@stream@out%
 %    \end{macrocode}
-% Once the separate \LaTeX~file is wriiten, it is read in again and its content 
-% is stored in \cs{svg@tempa}, since it is necessary to prepend some stuff to 
-% the preamble, for example a maybe not existent document class.
+% Once the separate auxiliary \LaTeX~file is written, it is read in again and 
+% its content is stored in \cs{svg@tempa}, since it is necessary to prepend
+% some stuff to the preamble, for example a maybe not existent document class.
 %    \begin{macrocode}
         \immediate\openin\svgx@stream@in=\svgx@out@name.\svgx@latex@ext%
         \def\svg@tempa{}%
@@ -3313,7 +3315,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \immediate\closein\svgx@stream@in%
       }{%
 %    \end{macrocode}
-% If a file wa sgiven that doesn't exist, a warning is issued.
+% If a file was given that doesn't exist, a warning is issued.
 %    \begin{macrocode}
         \svg@quotes@remove{\svgx@preamble}%
         \ifx\svgx@preamble\@empty\else%
@@ -3324,7 +3326,238 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \fi%
         \def\svg@tempa{}%
       }%
+%    \end{macrocode}
+% After the preamble was read in and stored in \cs{svg@tempa}, the separate 
+% auxiliary \LaTeX~file is written again.
+%    \begin{macrocode}
+      \immediate\openout\svgx@stream@out=\svgx@out@name.\svgx@latex@ext%
+%    \end{macrocode}
+% With the intention of passing the correct paper dimensions when creating a
+% DVI~file, \cs{AtBeginDocument} is executed even before the document class for 
+% calculating the paper size so that this is definitely the first thing to
+% happen at the beginning of the document. This ensures that any \cs{special} 
+% command is definitely used with the correct paper size.
+%    \begin{macrocode}
+      \immediate\write\svgx@stream@out{%
+        \string\AtBeginDocument{\string\svgxsetpapersize}\@percentchar^^J%
+      }%
+%    \end{macrocode}
+% If no document class was found during reading the preamble file, then class 
+% \cs{article} is used.
+%    \begin{macrocode}
+      \if@svgx@classfound\else%
+        \immediate\write\svgx@stream@out{\string\documentclass{article}}%
+      \fi%
+%    \end{macrocode}
+% And now the stored preamble.
+%    \begin{macrocode}
+      \ifx\svg@tempa\@empty\else%
+        \immediate\write\svgx@stream@out{\unexpanded\expandafter{\svg@tempa}}%
+      \fi%
+%    \end{macrocode}
+% After the given preamble was written, package \pkg{svg-extract} will be 
+% loaded in case it was forgotten.
+%    \begin{macrocode}
+      \immediate\write\svgx@stream@out{\string\usepackage{svg-extract}}%
+%    \end{macrocode}
+% Now all parameters relevant for the export are evaluated and appended.
+%    \begin{macrocode}
+      \def\svg@tempa##1{%
+        \immediate\write\svgx@stream@out{\string\svgsetup{##1}}%
+      }%
+      \if@svg@ink@latex\else%
+        \svg@tempa{inkscapelatex=false}%
+      \fi%
+      \ifdim\svgx@param@width>\z@\relax%
+        \svg@tempa{width=\svgx@param@width}%
+      \fi%
+      \ifdim\svgx@param@height>\z@\relax%
+        \svg@tempa{height=\svgx@param@height}%
+      \fi%
+      \ifdim\dimexpr\svgx@param@scale\p@\relax=\p@\relax\else%
+        \svg@tempa{scale=\svgx@param@scale}%
+      \fi%
+      \def\svg@tempb{\svg@param@pretex}%
+      \ifx\svgx@param@pretex\svg@tempb\relax%
+        \let\svgx@param@pretex\svg@param@pretex%
+      \fi%
+      \ifx\svgx@param@pretex\relax\else%
+        \svg@tempa{pretex=\unexpanded\expandafter{\svgx@param@pretex}}%
+      \fi%
+      \def\svg@tempb{\svg@param@apptex}%
+      \ifx\svgx@param@apptex\svg@tempb\relax%
+        \let\svgx@param@apptex\svg@param@apptex%
+      \fi%
+      \ifx\svgx@param@apptex\relax\else%
+        \svg@tempa{apptex=\unexpanded\expandafter{\svgx@param@apptex}}%
+      \fi%
+%    \end{macrocode}
+% Parameter \prm{lastpage} is only considered for including \file{pdf} files.
+%    \begin{macrocode}
+      \ifstr{\svg@ink@format}{pdf}{%
+        \ifnum\value{svg@param@lastpage}>\z@\relax%
+          \edef\svg@tempa{lastpage=\the\value{svg@param@lastpage}}%
+        \else%
+          \ifnum\value{svg@param@lastpage}=\z@\relax%
+            \def\svg@tempa{lastpage=true}%
+          \else%
+            \def\svg@tempa{lastpage=false}%
+          \fi%
+        \fi%
+        \immediate\write\svgx@stream@out{\string\svgxsetbox[\svg@tempa]{#1}}%
+      }{%
+        \immediate\write\svgx@stream@out{\string\svgxsetbox{#1}}%
+      }%
+%    \end{macrocode}
+% If package \pkg{xr} exists, it is used to evaluate possible existing labels 
+% within the included \LaTeX~file created by \app{Inkscape}
+%    \begin{macrocode}
+      \if@svg@ink@latex%
+        \IfFileExists{xr.sty}{%
+          \immediate\write\svgx@stream@out{%
+            ^^J%
+            \string\usepackage{xr}^^J%
+            \string\externaldocument{\jobname}%
+          }%
+        }{}%
+      \fi%
+      \immediate\write\svgx@stream@out{%
+        ^^J%
+%    \end{macrocode}
+% As we are now at the end of the preamble and júst before the beginning of the 
+% document, the paper dimension are set again to make sure, that these settings 
+% are active at the end of the preamble. Additionally it is executed again at 
+% the very end of \cs{AtBeginDocument} to ensure, that no other package used 
+% this hook for manipulating the paper size.
+%    \begin{macrocode}
+        \string\svgxsetpapersize^^J%
+        \string\AtBeginDocument{\string\svgxsetpapersize}^^J^^J%
+        \string\begin{document}^^J%
+        \string\pagestyle{empty}^^J%
+        \string\svgxoutputbox\@percentchar^^J%
+        \string\end{document}%
+      }%
+      \immediate\closeout\svgx@stream@out%
     \endgroup%
+%    \end{macrocode}
+% After creating the separate auxiliary \LaTeX~file, the actual export and 
+% convert processes can be done.
+%    \begin{macrocode}
+    \ifstr{\svgx@format\svgx@cnv@format}{}{%
+      \PackageWarning{svg-extract}{%
+        Both keys `extractformat' and `convertformat' are\MessageBreak%
+        empty, so nothing to do so far%
+      }%
+    }{%
+%    \end{macrocode}
+% First of all the separate auxiliary \LaTeX~file is compiled with the detected 
+% \LaTeX~processor (\cs{svgx@latex@exe}) as often as defined by counter option 
+% \opt{extractruns}.
+%    \begin{macrocode}
+      \svg@quotes@remove{\svgx@out@path}%
+      \svg@quotes@remove{\svgx@out@name}%
+      \PackageInfo{svg-extract}{%
+        Running LaTeX for graphic extraction%
+        \ifx\svgx@latex@opt\@empty\else%
+          \space with added options `\svgx@latex@opt'%
+        \fi%
+      }%
+      \loop\ifnum\value{svgx@runs}>\z@\relax%
+        \ShellEscape{%
+          \svgx@latex@exe\space\svgx@latex@opt\space%
+          "\svgx@out@name.\svgx@latex@ext"%
+        }%
+        \advance\c@svgx@runs\m@ne%
+      \repeat%
+%    \end{macrocode}
+% All files requested with option \opt{extractformat} are created with internal 
+% converting tools supplied by most \LaTeXe~distributions if necessarry.
+%    \begin{macrocode}
+      \def\svg@tempa##1##2##3{%
+        \edef\svg@tempb{%
+          \@nameuse{svgx@##1@exe}\space\@nameuse{svgx@##1@opt}\space%
+          "\svgx@out@name.##2"%
+        }%
+        \PackageInfo{svg-extract}{Running ##1}%
+        \ShellEscape{\svg@tempb}%
+      }%
+      \@svg@tempswafalse%
+      \ifxetex\else\ifpdf\else%
+        \@svg@tempswatrue%
+      \fi\fi%
+      \if@svg@tempswa%
+        \svg@tempa{dvips}{dvi}{ps}%
+        \svgx@ifinlist{eps}{\svgx@format}{\svg@tempa{pstoeps}{ps}{eps}}{}%
+        \svgx@ifinlist{pdf}{\svgx@format}{\svg@tempa{pstopdf}{ps}{pdf}}{}%
+      \else%
+        \svgx@ifinlist{ps}{\svgx@format}{\svg@tempa{pdftops}{pdf}{ps}}{}%
+        \svgx@ifinlist{eps}{\svgx@format}{\svg@tempa{pdftoeps}{pdf}{eps}}{}%
+      \fi%
+%    \end{macrocode}
+% Now the desired conversion tool is invoked if requested.
+%    \begin{macrocode}
+      \if@svgx@cnv@run%
+%    \end{macrocode}
+% If no density was given at all, the density for \file{png}~files is set to 
+% \val{300dpi} by default.
+%    \begin{macrocode}
+        \ifx\svgx@cnv@dpi\relax%
+          \ifx\svgx@cnv@dpi@png\@undefined%
+            \def\svgx@cnv@dpi@png{300}%
+          \fi%
+        \fi%
+%    \end{macrocode}
+% The first given file type with option \opt{extractformat} is used as source 
+% for the conversion process.
+%    \begin{macrocode}
+        \expandafter\svgx@cnv@get@informat\expandafter{\svgx@format}%
+%    \end{macrocode}
+% The conversion is done for each desired file type given in a list by option 
+% \opt{convertformat}.
+%    \begin{macrocode}
+        \@for\svg@tempa:=\svgx@cnv@format\do{%
+          \ifx\svg@tempa\@empty\else%
+            \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{\svgx@format}{%
+              \PackageWarning{svg-extract}{%
+                File type `\svg@tempa' was specified for option\MessageBreak% 
+                `extractformat' (\svgx@format) as well as for \MessageBreak
+                option `convertformat' (\svgx@cnv@format) so the\MessageBreak%
+                conversion won't be done%
+              }%
+            }{%
+              \PackageInfo{svg-extract}{%
+                Converting `\svgx@out@name.\svgx@cnv@informat'\MessageBreak%
+                to `\svgx@out@name.\svg@tempa'%
+              }%
+              \ShellEscape{%
+                \svgx@cnv@cmd{\svgx@out@name}{\svgx@cnv@informat}{\svg@tempa}%
+              }%
+            }%
+          \fi%
+        }%
+      \fi%
+%    \end{macrocode}
+% As both extraction and conversion are done, all files are moved to the 
+% desired output folder (\opt{extractpath}).
+%    \begin{macrocode}
+      \svg@shell@mkdir{\svgx@out@path}%
+      \edef\svg@tempb{\svgx@format,\svgx@cnv@format}%
+      \@for\svg@tempa:=\svg@tempb\do{%
+        \ifx\svg@tempa\@empty\else%
+          \svgx@checkandmove{\svgx@out@name}{\svg@tempa}{\svgx@out@base}%
+        \fi%
+      }%
+%    \end{macrocode}
+% At the very end, all unwanted auxiliary files are deleted.
+%    \begin{macrocode}
+      \@for\svg@tempa:=\svgx@clean\do{%
+        \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{\svg@tempb}{}{%
+          \IfFileExists{"\svgx@out@name".\svg@tempa}{%
+            \svg@shell@rm{\svgx@out@name.\svg@tempa}%
+          }{}%
+        }%
+      }%
+    }%
   \fi%
 }
 %</extract>
@@ -3340,6 +3573,123 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<*package&extract&body>
 % \fi
 %
+% \begin{macro}{\svgx@documentclass}
+% \begin{macro}{\if@svgx@classfound}
+% This delimited macro is used to find a occurrence of \cs{documentclass} 
+% within a read in line. The delinmiter \cs{documentclass} is used twice in
+% order to ignore the possible occurrence of white space or anything else right
+% before \cs{documentclass}.
+%    \begin{macrocode}
+\newif\if@svgx@classfound
+\newcommand*\svgx@documentclass{}
+\def\svgx@documentclass#1\documentclass#2\documentclass#3\@nil{%
+  \IfArgIsEmpty{#2}{}{\@svgx@classfoundtrue}%
+}
+%    \end{macrocode}
+% \end{macro}^^A \if@svgx@classfound
+% \end{macro}^^A \svgx@documentclass
+% \begin{macro}{\svgx@read@preamble@till}
+% \begin{macro}{\svgx@read@preamble@from}
+% \begin{macro}{\svgx@read@preamble@skip}
+% These macros are used to skip some parts of a read in preamble file.
+%    \begin{macrocode}
+\newcommand*\svgx@read@preamble@till[2]{%
+  \svgx@read@preamble@skip#1\@nil{till}{#2}%
+}
+\newcommand*\svgx@read@preamble@from[2]{%
+  \svgx@read@preamble@skip#1\@nil{from}{#2}%
+}
+%    \end{macrocode}
+% In principle, the functionality is the same as for \cs{svgx@documentclass}.
+%    \begin{macrocode}
+\newcommand*\svgx@read@preamble@skip{}
+\def\svgx@read@preamble@skip#1\@nil#2#3{%
+%    \end{macrocode}
+% A given token is used to create the macro \cs{svg@tempa} delimited by the 
+% token itself which is used twice to get any stuff right before or after the
+% occurrence.
+%    \begin{macrocode}
+  \def\svg@tempa##1{%
+    \def\svg@tempa####1##1####2##1####3\@nil{%
+      \IfArgIsEmpty{####3}{}{%
+%    \end{macrocode}
+% Write everything which was found right before the macro which starts hiding 
+% area to the output stream and stop writing with \cs{if@svgx@preamble@write}.
+%    \begin{macrocode}
+        \ifstr{#2}{till}{%
+          \IfArgIsEmpty{####1}{}{%
+            \immediate\write\svgx@stream@out{####1}%
+          }%
+          \@svgx@preamble@writefalse%
+        }{%
+%    \end{macrocode}
+% Write everything which was found right after the macro which ends the hiding 
+% area and start writing again with \cs{if@svgx@preamble@write}.
+%    \begin{macrocode}
+          \ifstr{#2}{from}{%
+            \IfArgIsEmpty{####2}{%
+              \def\svgx@read@line{}%
+            }{%
+              \def\svgx@read@line{####2}%
+            }%
+            \@svgx@preamble@writetrue%
+          }{}%
+        }%
+%    \end{macrocode}
+% Additonal stuff which should be done.
+%    \begin{macrocode}
+        #3%
+      }%
+    }%
+  }%
+%    \end{macrocode}
+% Creating the macro \cs{svg@tempa} delimited by the first argument.
+%    \begin{macrocode}
+  \edef\svg@tempb{\expandafter\detokenize\expandafter{#1}}%
+  \expandafter\svg@tempa\expandafter{\svg@tempb}%
+%    \end{macrocode}
+% Calling the created macro.
+%    \begin{macrocode}
+  \edef\svg@tempb{%
+    \expandafter\detokenize\expandafter{\svgx@read@line}\svg@tempb\svg@tempb%
+  }%
+  \expandafter\svg@tempa\svg@tempb\@nil%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svgx@read@preamble@skip
+% \end{macro}^^A \svgx@read@preamble@from
+% \end{macro}^^A \svgx@read@preamble@till
+% \begin{macro}{\svgx@cnv@informat}
+% \begin{macro}{\svgx@cnv@get@informat}
+% Macro \cs{svgx@cnv@get@informat} extracts the first list entry out of the 
+% first argument (\cs{svgx@format}).
+%    \begin{macrocode}
+\newcommand*\svgx@cnv@informat{}
+\newcommand*\svgx@cnv@get@informat[1]{%
+  \begingroup%
+    \def\svg@tempa##1,##2\@nil{%
+      \def\svg@tempa{##1}%
+    }%
+    \svg@tempa#1,\@nil%
+    \edef\svg@tempa{%
+      \noexpand\endgroup%
+      \noexpand\def\noexpand\svgx@cnv@informat{\svg@tempa}%
+    }%
+  \svg@tempa%
+%    \end{macrocode}
+% If the first argument (\cs{svgx@format}) was empty, \cs{svgx@cnv@informat} is 
+% set to the a file type, which is generated anyway.
+%    \begin{macrocode}
+  \ifx\svgx@cnv@informat\@empty%
+    \renewcommand*\svgx@cnv@informat{pdf}%
+    \ifxetex\else\ifpdf\else%
+      \renewcommand*\svgx@cnv@informat{ps}%
+    \fi\fi%
+  \fi%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svgx@cnv@get@informat
+% \end{macro}^^A \svgx@cnv@informat
 % \begin{macro}{\svgx@magick@cmd}
 % \begin{macro}{\svgx@gs@cmd}
 % Depending on option \opt{convert}, one of these two macros is actually used
@@ -3380,6 +3730,47 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svgx@gs@cmd
 % \end{macro}^^A \svgx@magick@cmd
+% \begin{macro}{\svgx@checkandmove}
+% If the file doesn't exist
+%    \begin{macrocode}
+\newcommand*\svgx@checkandmove[3]{%
+  \begingroup%
+    \IfFileExists{"#1".#2}{%
+      \svg@shell@move{#1.#2}{#3.#2}%
+    }{%
+      \edef\svg@tempa{#2}%
+      \@svg@tempswafalse%
+      \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{\svgx@cnv@format}{%
+        \@svg@tempswatrue%
+        \def\svg@tempb{conversion}%
+      }{%
+        \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{pdf,ps,eps}{%
+          \@svg@tempswatrue%
+          \def\svg@tempb{extraction}%
+        }{}%
+      }%
+      \if@svg@tempswa%
+        \edef\svg@tempb{%
+          The graphic file \svg@tempb\space failed\MessageBreak%
+          for `#1.#2'\MessageBreak%
+          Troubleshooting: Please check the log file how the\MessageBreak%
+          invocation of the extraction took place and try\MessageBreak%
+          to execute it yourself in the terminal%
+        }%
+      \else%
+        \def\svg@tempb{%
+          The extraction to format `#2' failed\MessageBreak%
+          for `#1.#2'\MessageBreak%
+          Only file types `pdf,ps,eps' are supported for\MessageBreak%
+          key `exportformat'%
+        }%
+      \fi%
+      \PackageWarning{svg-extract}{\svg@tempb}%
+    }%
+  \endgroup%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svgx@checkandmove
 %
 % \iffalse
 %</package&extract&body>
@@ -3631,7 +4022,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \usebox\svgx@box%
       \end{frame}%
     \else%
-      \pagestyle{empty}%
       \usebox\svgx@box%
     \fi%
     \endgraf%
