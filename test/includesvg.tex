@@ -55,7 +55,7 @@ a^2+b^2=c^2\label{eq:emc2}
 %\def\svgwidth{\textwidth}
 %\def\svgscale{0.8}
 \fbox{\newincludesvg[%
-  inkscapelatex=false,
+%  inkscapelatex=false,
 %  inkscapepath=basesubdir,%
 %  exclude=true,
 %  angle=10,%origin=c,
@@ -112,20 +112,6 @@ a^2+b^2=c^2\label{eq:emc2}
 \caption{aaa}
 \end{figure}
 
-
-\newbox\blabox
-%\savebox\blabox{\newincludesvg[height=200pt]{Seriell}}
-
-\usebox\blabox
-
-\the\ht\blabox
-
-\the\dp\blabox
-
-\blindtext
-
-\the\dimexpr 30pt*2\relax
-
 %\begin{figure}
 %%\newincludesvg[%
 %%  width=200pt,%
@@ -145,20 +131,6 @@ a^2+b^2=c^2\label{eq:emc2}
 %%  svgpath={"svg test/"},%
 %]{newimage}
 %\end{figure}
-
-\def\bla{fafa}
-
-\expandafter\ifx\csname bla\endcsname\@empty\relax
-aaa
-\else
-nbbb
-\fi
-
-\expandafter\expandafter\expandafter\ifx\@nameuse{bla}\@empty\relax
-aaa
-\else
-nbbb
-\fi
 
 
 \end{document}

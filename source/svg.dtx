@@ -1,4 +1,4 @@
-% \CheckSum{3131}
+% \CheckSum{3137}
 % \iffalse meta-comment
 %
 %  svg -- Include SVG pictures in pdfLaTeX documents using Inkscape
@@ -149,13 +149,23 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \usepackage[T1]{fontenc}
 \usepackage{babel}
 \KOMAoptions{parskip=half-}
+\usepackage{marginnote}
 
-\usepackage{svg}
-%\newcommand*\includesvg[2][]{}
+\usepackage{svg-new}
+\usepackage{xpatch}
+\ifdefined\includesvg
+  \xpretocmd{\includesvg}{\MakePercentComment}{}{}
+  \xapptocmd{\includesvg}{\MakePercentIgnore}{}{}
+\fi
+\ifdefined\includeinkscape
+  \xpretocmd{\includeinkscape}{\MakePercentComment}{}{}
+  \xapptocmd{\includeinkscape}{\MakePercentIgnore}{}{}
+\fi
+\pdfsuppresswarningpagegroup=1
 
 \usepackage{relsize}
 \usepackage{listings}
-%\usepackage{subfig}
+\usepackage{subfig}
 
 \usepackage{bookmark}
 \usepackage[babel]{microtype}
@@ -281,9 +291,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{example}
 % where |<options>| is a comma separated list of options.
 %
-% \DescribeOption{width}
-% \DescribeOption{height}
-% \DescribeOption{svgpath}
+% \DescribeOptions{width,height,svgpath}
 % The width of the \svg can be
 % specified via the |width| option and the height by the |height|
 % option. If both the width and height are specified, the width will
@@ -292,9 +300,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % option, where the path must terminate in a |/|. The default
 % |svgpath| is set to the current directory, |./|.
 %
-% \DescribeOption{pdf}
-% \DescribeOption{eps}
-% \DescribeOption{png}
+% \DescribeOptions{pdf,eps,png}
 % The included \svg can be extracted
 % from the document into a \pdf, \eps, or \png independent of the
 % document. The |pdf| flag enables \pdf extraction, while the |eps|
@@ -311,8 +317,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % text in the extracted output(s) will remain identical to the scale
 % within the document from which the \svg was extracted.
 %
-% \DescribeOption{name}
-% \DescribeOption{path}
+% \DescribeOptions{name,path}
 % The root name of the extracted
 % output can be specified with the |name| option. For example,
 % \begin{example}
@@ -329,8 +334,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % must terminate with a |/|. The default |path| is set to the current
 % directory, |./|.
 %
-% \DescribeOption{clean}
-% \DescribeOption{exclude}
+% \DescribeOptions{clean,exclude}
 % Because a large number of files is
 % generated for each \svg extraction, it is oftentimes desirable to
 % automatically remove the temporary files. Using the option |clean|
@@ -341,8 +345,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % flag |exclude| is specified, the \svg will not be rendered in the
 % current document, but will be extracted to the requested output(s).
 %
-% \DescribeOption{pretex}
-% \DescribeOption{postex}
+% \DescribeOptions{pretex,postex}
 % Commands prior and post to the
 % inclusion of the \svg may be desired, such as font or color
 % commands. For example, to change the text size of the include \svg
@@ -362,8 +365,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % where now the changed font size will be propagated to the extracted
 % output.
 %
-% \DescribeOption{preamble}
-% \DescribeOption{end}
+% \DescribeOptions{preamble,end}
 % Specialized \latex macros can be used
 % in the \svg which can then be defined in the preamble of the \latex
 % document in which the \svg is to be included. Additionally,
@@ -380,10 +382,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % if any comments or text are on the same line after the
 % |\begin{document}|, the preamble will not be correctly extracted.
 %
-% \DescribeOption{inkscape}
-% \DescribeOption{pdflatex}
-% \DescribeOption{pdftops}
-% \DescribeOption{convert}
+% \DescribeOptions{inkscape,pdflatex,pdftops,convert}
 % A variety of
 % commands are executed directly to the system, via |\write18| using
 % this package and consequently, it may be necessary to change the
@@ -409,10 +408,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \ToDo{List/name all loaded packages, hint for graphicx with options}
 %
-% \DescribeOption{usexcolor}
-% \DescribeOption{noxcolor}
-% \DescribeOption{usetransparent}
-% \DescribeOption{notransparent}
+% \DescribeOptions{usexcolor,noxcolor,usetransparent,notransparent}
 %
 % \DescribeMacro{\svgsetup}
 %
@@ -424,39 +420,42 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \DescribeOption{inkscape}
 % \ToDo{onlynewer not with xelatex}
+%
 % \DescribeOption{inkscapeformat}
+%
 % \DescribeOption{inkscapearea}
+%
 % \DescribeOption{inkscapelatex}
+%
 % \DescribeOption{inkscapedpi}
-% \DescribeOption{inkscapeexe}
-% \DescribeOption{inkscapeopt}
+%
+% \DescribeOptions{inkscapeexe,inkscapeopt}
+%
 % \DescribeOption{inkscapepath}
-% \DescribeOption{width}
-% \DescribeOption{height}
-% \DescribeOption{scale}
-% \DescribeOption{pretex}
-% \DescribeOption{apptex}
+%
+% \DescribeOptions{width,height,scale}
+%
+% \DescribeOptions{pretex,apptex}
+%
+% \DescribeOption{lastpage}
 %
 % \DescribeMacro{\includesvg}
 % \ToDo{onlynewer not with xelatex}
+% \ToDo{no quotes with dvi for file name!}
 % \begin{DescribeParameterParent}{Macro}{\includesvg}
-% \DescribeParameter{inkscape}
-% \DescribeParameter{inkscapeformat}
-% \DescribeParameter{inkscapearea}
-% \DescribeParameter{inkscapelatex}
-% \DescribeParameter{inkscapedpi}
-% \DescribeParameter{inkscapeexe}
-% \DescribeParameter{inkscapeopt}
-% \DescribeParameter{inkscapepath}
-% \DescribeParameter{width}
-% \DescribeParameter{height}
-% \DescribeParameter{scale}
-% \DescribeParameter{pretex}
-% \DescribeParameter{apptex}
+% \DescribeParameters{%
+%   inkscape,inkscapeformat,inkscapearea,inkscapelatex,inkscapedpi,%
+%   inkscapeexe,inkscapeopt,inkscapepath%
+% }
+%
+% \DescribeParameters{width,height,scale}
+%
+% \DescribeParameters{pretex,apptex}
+%
 % \DescribeParameter{lastpage}
+%
 % \DescribeParameter{angle}
 % \ToDo{angle after widht, height and scale}
-% \ToDo{no quotes with dvi for file name!}
 % \DescribeParameter{origin}
 % \end{DescribeParameterParent}
 %
@@ -480,20 +479,17 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 %
 %
-% \DescribeOption{extractwidth}
-% \DescribeOption{extractheight}
-% \DescribeOption{extractscale}
+% \DescribeOptions{extractwidth,extractheight,extractscale}
 %
-% \DescribeOption{extractpretex}
-% \DescribeOption{extractapptex}
+% \DescribeOptions{extractpretex,extractapptex}
 %
 % \DescribeOption{exclude}
+%
 % \DescribeOption{clean}
 %
 % \section{Example}\label{sec:example}
 %
 % \ToDo{REVISE!, remove \cs{href}?}
-% \ToDo{automated creation, how to deal with comments in \file{.pdf\_tex}}
 % As an example\footnote{The image used here is a slightly modified
 % version of the image used in the initial documentation on how to
 % include an \svg in \latex by J. Engelen available on
@@ -594,7 +590,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{figure}
 %   \begin{center}
 %     \includesvg[%
-%       clean,preamble=examples/preamble.tex,pdf,png,height=6cm,pretex=\tiny%
+%       clean,preamble=examples/preamble.tex,pdf,png,height=6cm,pretex=\tiny,%
+%       inkscapearea=page%
 %     ]{examples/root}
 %   \end{center}
 %   \caption{%
@@ -2271,20 +2268,31 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 %<*base>
 \DefineFamilyMember[.dummy]{SVG}
-\newcommand*\svg@dummy@key[1]{%
-  \DefineFamilyKey[.dummy]{SVG}{#1}{%
-    \PackageWarning{svg}{%
-      The option key `#1' can only\MessageBreak%
-      be used with package `svg-extract', but\MessageBreak%
-      you didn't load it%
+\newcommand*\svg@dummy@key[2][]{%
+  \IfArgIsEmpty{#1}{%
+    \DefineFamilyKey[.dummy]{SVG}{#2}{%
+      \PackageWarning{svg}{%
+        The option key `#2' can only\MessageBreak%
+        be used with package `svg-extract', but\MessageBreak%
+        you didn't load it%
+      }%
+      \FamilyKeyStateProcessed%
     }%
-    \FamilyKeyStateProcessed%
+  }{%
+    \DefineFamilyKey[.dummy]{SVG}{#2}[{#1}]{%
+      \PackageWarning{svg}{%
+        The option key `#2' can only\MessageBreak%
+        be used with package `svg-extract', but\MessageBreak%
+        you didn't load it%
+      }%
+      \FamilyKeyStateProcessed%
+    }%
   }%
 %    \end{macrocode}
 % Before package \pkg{svg-extract} the key of family member \val{.dummy} is 
 % relaxed.
 %    \begin{macrocode}
-  \BeforePackage{svg-extract}{\RelaxFamilyKey[.dummy]{SVG}{#1}}%
+  \BeforePackage{svg-extract}{\RelaxFamilyKey[.dummy]{SVG}{#2}}%
 }
 %</base>
 %    \end{macrocode}
@@ -2303,7 +2311,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % independent graphic files should be done.
 %    \begin{macrocode}
 %<*base>
-\svg@dummy@key{extract}
+\svg@dummy@key[true]{extract}
 %</base>
 %<*extract>
 \newif\if@svgx@run
@@ -2349,8 +2357,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 %<*base>
 \svg@dummy@key{extractformat}
-\svg@dummy@key{pdf}
-\svg@dummy@key{eps}
+\svg@dummy@key[true]{pdf}
+\svg@dummy@key[true]{eps}
 %</base>
 %<*extract>
 \newcommand*\svgx@format{pdf}
@@ -2631,7 +2639,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \ToDo{Doc: Input format for conversation}
 %    \begin{macrocode}
 %<*base>
-\svg@dummy@key{convert}
+\svg@dummy@key[true]{convert}
 %</base>
 %<*extract>
 \newif\if@svgx@cnv@run
@@ -2723,7 +2731,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 %<*base>
 \svg@dummy@key{convertformat}
-\svg@dummy@key{png}
+\svg@dummy@key[true]{png}
 %</base>
 %<*extract>
 \newcommand*\svgx@cnv@format{png}
@@ -3103,8 +3111,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % any file. Additionally, a specific file list of suffixes can be given.
 %    \begin{macrocode}
 %<*base>
-\svg@dummy@key{clean}
-\svg@dummy@key{clear}
+\svg@dummy@key[true]{clean}
+\svg@dummy@key[true]{clear}
 %</base>
 %<*extract>
 \newcommand*\svgx@clean{}
@@ -3132,7 +3140,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \pkg{svg-extract}, option \opt{exclude} can be used.
 %    \begin{macrocode}
 %<*base>
-\svg@dummy@key{exclude}
+\svg@dummy@key[true]{exclude}
 %</base>
 %<*extract>
 \DefineFamilyKey{SVG}{exclude}[true]{%
