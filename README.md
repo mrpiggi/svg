@@ -1,11 +1,13 @@
 
- svg -- Include SVG pictures in pdfLaTeX documents using Inkscape
+ svg         -- Include SVG pictures in LaTeX documents using Inkscape
+----------------------------------------------------------------------------
+ svg-extract -- Extract independent graphic files from SVG pictures
 ----------------------------------------------------------------------------
 
- Copyright (C) Philip Ilten <philten@cern.ch>,  2012-2016
- Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2016-2017
+ Copyright (C) Philip Ilten <philten@cern.ch>,  2012-2016  
+ Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
 
- svg 2017/xx/xx v2.00
+ svg 2017/00/00 v2.00
 
 ============================================================================
 
@@ -31,8 +33,15 @@ particle physics analysis package ROOT.
 Versions
 --------
 
-**v2.00** (2017/xx/xx)
+**v2.00** (2017/00/00)
++ New maintainer: Falk Hanisch
++ Re-implementation from scratch
++ package `subfig` not required anymore
++ support of subfigures stopped due to the huge number of packages which deal 
+  with this topic and the large variety of implementing this functionality; 
+  naming exported graphics after their consecutive numbering can't be ensured
+  for all variants of subfigures, so it's neglected
 
 
 **v1.0** (2016/10/10)
-+ first version of `svg` by Philip Ilten
++ initial version by Philip Ilten

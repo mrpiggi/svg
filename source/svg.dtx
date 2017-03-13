@@ -1,11 +1,13 @@
-% \CheckSum{3149}
+% \CheckSum{3155}
 % \iffalse meta-comment
 %
-%  svg -- Include SVG pictures in pdfLaTeX documents using Inkscape
+%  svg         -- Include SVG pictures in LaTeX documents using Inkscape
+% ----------------------------------------------------------------------------
+%  svg-extract -- Extract independent graphic files from SVG pictures
 % ----------------------------------------------------------------------------
 %
-%  Copyright (C) Philip Ilten <philten@cern.ch>,  2012-2016
-%  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2016-2017
+%  Copyright (C) Philip Ilten <philten@cern.ch>,  2012-2016  
+%  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
 %
 % ----------------------------------------------------------------------------
 %
@@ -27,8 +29,8 @@
 \begingroup
 \catcode`\^^M=13 \catcode`\ =12 %
 \gdef\svgpreamble{%
-Copyright (C) Philip Ilten <philten@cern.ch>,  2012-2016
-Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2016-2017
+Copyright (C) Philip Ilten <philten@cern.ch>,  2012-2016  
+Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
 
 This file was generated from file svg.dtx.
 ----------------------------------------------------------------------------
@@ -163,7 +165,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \fi
 \pdfsuppresswarningpagegroup=1
 
-\usepackage{relsize}
 \usepackage{listings}
 \lstnewenvironment{example}{%
   \lstset{%
@@ -172,6 +173,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
     xrightmargin=\fboxsep,gobble=1%
   }%
 }{}
+
+%TODO out!
+\usepackage{relsize}
 \usepackage{subfig}
 
 \usepackage{bookmark}
@@ -184,7 +188,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \title{The packages \pkg{svg} and \pkg{svg-extract}}
 \author{%
   Philip Ilten (2012--2016) \\
-  Falk Hanisch (2016--2017) \\
+  Falk Hanisch (2017--) \\
   \url{https://github.com/mrpiggi/svg} \\
   \mailto{hanisch.latex@outlook.com}
 }
@@ -203,7 +207,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     In addition, the package \pkg{svg-extract} is provided which allows n.
     extracting these graphics into independent files in different file formats.
   \end{abstract}
-  \ToDo{replace 2017/00/00 with release date}[Release]
+  \ToDo{replace 2017/00/00 with release date in svg.dtx and README.md}[Release]
   \ToDo{create \file{svg.sty} instead of \file{svg-new.sty}}[Release]
   \ToDo{update derived files in batch preamble}[Release]
   \ToDo{mail to Johan B. C. Engelen (\pkg{svg-inkscape})}[Release]
@@ -213,15 +217,15 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %</driver>
 % \fi
 %
-% \changes{v1.0}{2004/11/05}{Initial version by Philip Ilten}
-% \changes{v2.00}{2016/09/23}{New maintainer: Falk Hanisch}
-% \changes{v2.00}{2017/00/00}{Re-implementation from scratch}
-% \changes{v2.00}{2017/00/00}{Requirement of \pkg{subfig} removed}
+% \changes{v1.0}{2004/11/05}{initial version by Philip Ilten}
+% \changes{v2.00}{2016/09/23}{new maintainer: Falk Hanisch}
+% \changes{v2.00}{2017/00/00}{re-implementation from scratch}
+% \changes{v2.00}{2017/00/00}{package \pkg{subfig} not required anymore}
 % \changes{v2.00}{2017/00/00}{%
-%   stoped support of subfigures due to the huge number of packages which deal 
-%   with this topic and the large variety of the implementations of this 
-%   functionality; naming exported graphics after their consecutive numbering
-%   can't be ensured for all variants, so it's neglected
+%   support of subfigures stopped due to the huge number of packages which deal 
+%   with this topic and the large variety of implementing this functionality; 
+%   naming exported graphics after their consecutive numbering can't be ensured
+%   for all variants of subfigures, so it's neglected
 % }
 %
 % \part{User documentation}
