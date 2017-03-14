@@ -9,7 +9,7 @@
 
  svg 2017/00/00 v2.00
 
-============================================================================
+----------------------------------------------------------------------------
 
  This material is subject to the LaTeX Project Public License version 1.3c 
  or later. See http://www.latex-project.org/lppl.txt for details.
@@ -19,16 +19,17 @@
 Summary
 -------
 
-This package provides a command similar to the \includegraphics command of the 
-graphicx package, but for the inclusion of SVGs using Inkscape.
+The package **svg** is intended for the automated integration of SVG graphics 
+using the command line tool of ***Inkscape***. The capabilities of 
+***Inkscape*** are used to export the text within a SVG graphic to a separate 
+file, which is then rendered or compiled by LaTeX. Therefor the commands 
+`\includesvg` and `\includeinkscape` are provided which are similar to the 
+`\includegraphics` command of the **graphicx** package.
 
-    \includesvg[<options>]{<svg filename>}
-
-A variety of options are available, including width, height, and path of the 
-SVG. Additionally, it is possible to extract the SVG image to a PDF, EPS, or 
-PNG, exactly as it is rendered within the LaTeX document. Within the
-documentation an example is given using an SVG created from the high energy
-particle physics analysis package ROOT.
+In addition, the package **svg-extract** allows the extraction of these 
+graphics into independent files in different graphic formats, exactly as 
+it is rendered within the LaTeX document using either ***ImageMagick*** or 
+***Ghostscript***
 
 Versions
 --------
@@ -36,7 +37,7 @@ Versions
 **v2.00** (2017/00/00)
 + New maintainer: Falk Hanisch
 + Re-implementation from scratch
-+ package `subfig` not required anymore
++ package **subfig** not required anymore
 + support of subfigures stopped due to the huge number of packages which deal 
   with this topic and the large variety of implementing this functionality; 
   naming exported graphics after their consecutive numbering can't be ensured
