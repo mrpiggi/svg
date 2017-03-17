@@ -4,7 +4,7 @@
  svg-extract -- Extract independent graphic files from SVG pictures
 ----------------------------------------------------------------------------
 
- Copyright (C) Philip Ilten <philten@cern.ch>,  2012-2016  
+ Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
 
 ----------------------------------------------------------------------------

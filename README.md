@@ -4,7 +4,7 @@
  svg-extract -- Extract independent graphic files from SVG pictures
 ----------------------------------------------------------------------------
 
- Copyright (C) Philip Ilten <philten@cern.ch>,  2012-2016  
+ Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
 
  svg 2017/00/00 v2.00
@@ -39,6 +39,11 @@ Versions
 **v2.00** (2017/00/00)
 + New maintainer: Falk Hanisch
 + Re-implementation from scratch
++ functionality split in two packages **svg** and **svg-extract**
++ package **svg** intended for including SVG files
++ package **svg-extract** for extracting graphic files rendered with LaTeX
++ **svg-extract**: enhanced support for ***ImageMagick***
++ **svg-extract**: support for ***Ghostscript*** added
 + package **subfig** not required anymore
 + support of subfigures stopped due to the huge number of packages which deal 
   with this topic and the large variety of implementing this functionality; 
