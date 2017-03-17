@@ -166,6 +166,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \pdfsuppresswarningpagegroup=1
 
 \usepackage{listings}
+\newcommand*\svglstbelowskip{\medskipamount}
+\AtBeginDocument{%
+  \edef\svglstbelowskip{\the\glueexpr\medskipamount-\parskip\relax}
+}
 \lstnewenvironment{example}{%
   \lstset{%
 %    language=[LaTeX]TeX,%
@@ -176,10 +180,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
     xleftmargin=\fboxsep,%
     xrightmargin=\fboxsep,%
     gobble=2,%
-    escapechar=§%
+    escapechar=§,
+    belowskip=\svglstbelowskip%
   }%
 }{}
-
 \usepackage{enumitem}
 \newlist{DescribeValues}{description}{1}
 \setlist[DescribeValues]{font=\normalfont\val,style=nextline,noitemsep}
@@ -256,7 +260,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \hrfn{http://www.ctan.org/pkg/svg-inkscape}{\pkg{svg-inkscape} on CTAN}.
 % The procedure described therein is taken up and consistently expanded. 
 % Consequently, the commands \cs{includesvg} and \cs{includeinkscape} are 
-% provided as central interface for the user. Thus, it is now possible to
+% provided as central user\hbox{-}interface. Thus, it is now possible to 
 % include a SVG~file into a \LaTeX~document where the text within the
 % SVG~graphic will be rendered natively by \LaTeX.
 % 
@@ -287,11 +291,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \item[\pkg{pdftexcmds}, \pkg{shellesc}]
 %   to allocate the same primitives independent of the used \LaTeX~engine
 % \item[\pkg{ifplatform}]
-%   to control the file access depending on the operating system
+%   to control the file~access depending on the operating system
 % \item[\pkg{graphicx}]
-%   for including the graphic files after the \app{Inkscape}~export
+%   for including the graphic~files after the \app{Inkscape}~export
 % \item[\pkg{xcolor},\pkg{transparent}]
-%   are possibly needed by the separate text files created with \app{Inkscape}
+%   are possibly needed by the separate \LaTeX~files created by \app{Inkscape}
 % \end{description}
 %
 % If you want to pass options to package \pkg{graphicx}, you must either load 
@@ -319,11 +323,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % The purpose of this package is to include SVG~graphics into a \LaTeX~document.
 % The command \cs{includesvg} is defined which does all necessarry steps for
-% this task. It first launches the export of a SVG~file to a supported file 
-% format with Inkscape, if necessary, and includes the exported graphic file 
-% afterwards. The usage and the syntax is quite similiar to the command
-% \cs{includegraphics} from the \pkg{graphicx} package. In fact, the inclusion 
-% the exported graphic file is done with \cs{includegraphics}.
+% this task. It first launches the export of a SVG~file to a supported 
+% file~format with Inkscape, if necessary, and includes the exported 
+% graphic~file afterwards. The usage and the syntax is quite similiar to the
+% command \cs{includegraphics} from the \pkg{graphicx} package. In fact, the
+% inclusion of the exported graphic~file is done with \cs{includegraphics}.
 %
 % \DescribeOptions{usexcolor,usetransparent,noxcolor,notransparent}
 % The packages \pkg{xcolor} and \pkg{transparent} are loaded by default at the 
@@ -351,8 +355,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{example}
 %   \svgsetup§\marg{options}§
 % \end{example}
-% Additonally it is possible to reset any setting locally with the optional
-% argument of the \cs{includesvg}\oarg{options}|{svg-file}| command.
+% Further, it's possible to reset any setting locally with the optional 
+% argument of the commands \cs{includesvg}\oarg{options}\marg{svg filename} or
+% \cs{includesvg}\oarg{options}\marg{graphic filename}.
 %
 % \DescribeMacro{\svgpath}
 % Most likely you want to organize your SVG~files in a separate folder either 
@@ -365,11 +370,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   \svgpath{{svg/}{/usr/local/svg/}}
 % \end{example}
 % would cause the system to look first in the subdirectory \file{svg/} and 
-% afterwards in the absolute path \file{/usr/local/svg/}. Additionaly if you 
-% didn't specify a path with \cs{svgpath} or the specified file wasn't found, 
-% all directories given with \cs{graphicspath} are searched too. Please keep in
-% mind that the current working directory is searched first in any case. It's 
-% recommended to avoid any spaces and/or quotes both in paths an file~names.
+% afterwards in the absolute path \file{/usr/local/svg/}. Further, if no path 
+% was specified with \cs{svgpath} or the desired file wasn't found, all
+% directories given with \cs{graphicspath} are searched too. Please keep in 
+% mind that the current working directory is browsed first in any case. It's 
+% recommended to avoid any spaces and/or quotes both in paths and file~names, 
+% espacially when DVI~output is active.
 %
 %
 %
@@ -382,12 +388,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \item[false/off/no]
 %   \app{Inkscape} won't be invoked in any case, no export is done.
 % \item[\textbf{true}/on/yes/newer/onlynewer]
-%   The export with \app{Inkscape} will only be done, if the exported graphic 
-%   file either does not exist or the file modification date of the SVG~file is 
-%   newer than that of the exported graphic file. Thus the compilation time of 
-%   the \LaTeX~document can be reduced to the necessary minimum. Unfortunately 
-%   a primitive like \cs{pdffilemoddate} is missing for XeTeX, so. With this 
-%   engine, the behaviour will be the same as \opt{inkscape=\val{forced}}.
+%   The export with \app{Inkscape} will only be done, if the exported 
+%   graphic~file either does not exist or the file~modification date of the
+%   SVG~file is newer than that of the exported graphic~file. Thus the
+%   compilation time of the \LaTeX~document can be reduced to the necessary
+%   minimum. Unfortunately a primitive like \cs{pdffilemoddate} is missing for
+%   XeTeX, so with this engine, the behaviour will be the same as
+%   \opt{inkscape=\val{forced}}.
 % \item[forced/force/overwrite]
 %   The \app{Inkscape}~export will definitely be done, any already existing 
 %   exported file will overwritten regardlessly.
@@ -398,10 +405,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % the options described below.
 %
 % \begin{DescribeValues}
-% \item[latex/nolatex]
-%   see \opt{inkscapelatex=\val{true/false}}
 % \item[pdf/eps/ps/png]
 %   see \opt{inkscapeformat=\val{pdf/eps/ps/png}}
+% \item[latex/nolatex]
+%   see \opt{inkscapelatex=\val{true/false}}
 % \item[drawing/page]
 %   see \opt{inkscapearea=\val{drawing/page}}
 % \item[\meta{integer}dpi]
@@ -415,8 +422,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % (\opt{inkscapepath=\val{basesubdir}}).
 % \begin{DescribeValues}
 % \item[svgdir/svgpath]
-%   The exported PDF/EPS/PS/PNG~graphic files as well as the \LaTeX~files will 
-%   be located in the same directory as the corresponding SVG~file.
+%   The PDF/EPS/PS/PNG~graphic~files as well as the \LaTeX~files generated by 
+%   \app{Inkscape} will be located in the same directory as the corresponding
+%   SVG~file.
 % \item[svgsubdir/svgsubpath]
 %   Within the folder of the encountered SVG~file, all exported files will be 
 %   located in a subfolder named \file{svg-export/}.
@@ -424,10 +432,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   All exported files will be located in the current working directory.
 % \item[\textbf{basesubdir}/basesubpath/jobsubdir/jobsubpath]
 %   A subfolder named \file{svg-export/} within the current working directory 
-%   will be used for all exported files.
-% \item[/path/to/somewhere]
+%   will be used for files generated by \app{Inkscape}.
+% \item[/path/to/somewhere/]
 %   It is also possible to give a custom path, either relative to the current 
-%   working directory or as an absolute path.
+%   working directory (\file{./relative/path/}) or as an absolute path.
 % \end{DescribeValues}
 %
 % \DescribeOption{inkscapeexe}
@@ -437,20 +445,23 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % operating system. You can check this by typing \file{inkscape -V} into the 
 % shell. If this check fails and you don't want to change environment variable
 % \file{path} on your OS, you can use option \opt{inkscapeexe} to set the 
-% absolute path where the executable of \app{Inkscape} is located. By default
-% the \opt{inkscapeexe} option is set to \file{inkscape}.
-%
-% \DescribeOption{inkscapelatex}
-% If option \opt{inkscapelatex} is set to \val{true}, the output is split into 
-% a PDF/EPS/PS~file (see option \opt{inkscapeformat}) and a corresponding 
-% \LaTeX~file. This is the default setting. Switching \opt{inkscapelatex} to 
-% \val{false} will result in a single PDF/EPS/PS~file, where any contained text 
-% won't be rendered by \LaTeX.
+% absolute path where the executable of \app{Inkscape} is located. The option 
+% is set to \opt{inkscapeexe=\val{inkscape}} by default.
 % 
 % \DescribeOption{inkscapeformat}
 % With this option, the \app{Inkscape}~export~format can be controlled. Valid 
 % values are \val{pdf}, \val{eps}, \val{ps} and \val{png}, where a \LaTeX~export
-% is not possible for \val{png}.
+% is not possible for \val{png} and option \opt{inkscapelatex} won't have any 
+% effect. By default, \opt{inkscapeformat=\val{pdf}} is set unless DVI~output
+% was detected. In this case \opt{inkscapeformat=\val{eps}} is the default
+% setting.
+%
+% \DescribeOption{inkscapelatex}
+% If option \opt{inkscapelatex=\val{true}} is set, the output is split into 
+% a seperate PDF/EPS/PS~file (see option \opt{inkscapeformat}) and a 
+% corresponding \LaTeX~file. This is the default setting. Setting 
+% \opt{inkscapelatex=\val{false}} will result in a single PDF/EPS/PS~file,
+% where any contained text won't be rendered by \LaTeX. 
 %
 % \DescribeOption{inkscapearea}
 % This option controls which area of the SVG~file should be exported, 
@@ -460,8 +471,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   The area exported corresponds to the bounding box of all objects in a
 %   drawing, including any that are not on the page.
 % \item[page/nocrop]
-%   The area exported will correspond to the area defined by the page within 
-%   the SVG~file
+%   The area exported will correspond to the defined page~area within the
+%   SVG~file.
 % \end{DescribeValues}
 %
 % \DescribeOption{inkscapedpi}
@@ -481,30 +492,30 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \subsection{Options for the graphic inclusion}
 %
 % \DescribeOptions{width,height,scale}
-% The width of the included graphic file can be specified via the \opt{width} 
+% The width of the included graphic~file can be specified via the \opt{width} 
 % option and the height by the \opt{height} option. If both the width and
 % height are specified, the figure won't be distort but scaled such that
 % neither of the specified dimensions is exceeded. If \opt{width} and/or 
 % \opt{height} once have been set, this can be reversed by setting them to 
 % \val{0pt} or \cs{relax}.
 %
-% If neither \opt{width} nor \opt{height} are set, the included graphic file 
+% If neither \opt{width} nor \opt{height} are set, the included graphic~file 
 % can also be scaled by setting \opt{scale} to a positive real number.
 %
 % \DescribeOptions{pretex,apptex}
-% Commands prior and post to the inclusion of the graphic file may be desired, 
+% Commands prior and post to the inclusion of the graphic~file may be desired, 
 % such as font or color commands. The options \opt{pretex} and \opt{apptex} are
 % provided where the \LaTeX~code given to \opt{pretex} is included before the 
-% graphic file and \opt{apptex} right afterwards. For example, to change the 
+% graphic~file and \opt{apptex} right afterwards. For example, to change the 
 % size of the included text one could use:
 % \begin{example}
 %   \includsvg[pretex=\tiny,§\meta{additional options}§]§\marg{svg filename}§
 % \end{example}
 %
 % \DescribeOption{draft}
-% This option is equal to the identically named option of the \pkg{graphicx} 
-% package. If the \pkg{draft} option is given to \pkg{graphicx}, it's activated 
-% for \pkg{svg} as well.
+% This option can be used with booelan values and is equal to the identically 
+% named option of the \pkg{graphicx} package. If the \opt{draft} option is
+% given to \pkg{graphicx}, it's activated for \pkg{svg} as well.
 %
 % \DescribeOption{lastpage}
 % A \hrfn{https://bugs.launchpad.net/ubuntu/+source/inkscape/+bug/1417470}{bug} 
@@ -513,47 +524,49 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % attempted to include more pages of the PDF~graphics than actually exist. The
 % \pkg{svg} package attempts to bypass the resulting error.
 %
-% If option \opt{lastpage} is set to \val{true} the total number of pages is 
-% read and only existing pages are included. This is the default setting and 
-% can be switched off with \opt{lastpage=\val{false}}. It's also possible to set
-% the number of the last page included of a PDF~graphic as optional parameter 
-% to \cs{includesvg} or \cs{includeinkscape}. For details, see the description 
-% of the respective commands.
+% Consequently, if \opt{inkscapeformat=\val{pdf}} and \opt{lastpage=\val{true}} 
+% are set, the total number of pages is read and only existing PDF~pages are
+% included. This is the default setting and can be switched off with
+% \opt{lastpage=\val{false}}. It's also possible to set the number of the last
+% page included of a PDF~graphic manually as optional parameter for
+% \cs{includesvg} or \cs{includeinkscape}. For details, see the description of
+% the respective commands.
 %
 %
 %
 % \subsection{Including SVG~files}
 %
 % \DescribeMacro{\includesvg}
-% The command \cs{includesvg} to include a SVG~file is similar to the 
+% The command \cs{includesvg} to include a SVG~file is quite similar to the 
 % \cs{includegraphics} command provided by the \pkg{graphicx} package.
 % \begin{example}
-%   \includsvg§\oarg{parameters}\marg{svg filename}§
+%   \includesvg§\oarg{parameters}\marg{svg filename}§
 % \end{example}
 %
 % \begin{DescribeParameterParent}{Macro}{\includesvg}
 % \DescribeParameters{%
-%   inkscape,inkscapelatex,inkscapeformat,inkscapearea,inkscapedpi,inkscapeopt,%
-%   width,height,scale,pretex,apptex,draft%
+%   inkscape,inkscapeformat,inkscapelatex,inkscapearea,inkscapedpi,inkscapeopt,%
+%   width,height,scale,pretex,apptex,draft,%
 % }
 % It is used right in the same way but where \marg{svg filename} is the 
-% filename of the SVG~file. If this file is not located in the current working
-% directory but elsewhere on your file~system, the command \cs{svgpath} could 
-% be used to specify this path. It is recommended to avoid any spaces and/or 
-% quotes both in paths an file~names. Espacially when DVI~output is active 
-% using quotes will certainly cause an error. 
+% file~name of the SVG~file, where any given file~extension will be replaced
+% with \file{.svg} ruthlessly. If this file is not located in the current 
+% working directory but elsewhere on your file~system, the command \cs{svgpath}
+% could be used to specify this path. It is recommended to avoid any spaces
+% and/or quotes both in paths an file~names. Espacially when DVI~output is
+% active using quotes will certainly cause an error. 
 %
 % The command \cs{includesvg} is intended to do an automated export with 
 % \app{Inkscape} at first, where the given SVG~file is exported to a
 % PDF/EPS/PS/PNG~file (see~\opt{inkscapeformat}) and perhaps a correlating
 % \LaTeX~file (see~\opt{inkscapelatex}). The export with \app{Inkscape} is only
-% invoked, if the SVG~file is newer than the exported graphic file or latter 
-% doesn't exist at all\footnote{\ignorespaces%
-%  Due to the lack of XeTeX to compare file modification dates, using this 
+% invoked, if the SVG~file is newer than the exported graphic~file or latter 
+% doesn't exist at all.\footnote{\ignorespaces%
+%  Due to the lack of XeTeX to compare file~modification dates, using this 
 %  \LaTeX~engine leads to \app{Inkscape}~exports with every run unless 
 %  \opt{inkscape=\val{false}} is used.%
 % }%
-% Once the export has been done, the graphic file and maybe the \LaTeX~file are
+% Once the export has been done, the graphic~file and maybe the \LaTeX~file are
 % included.
 % 
 % All previously described options can also be used as optional parameters to 
@@ -562,9 +575,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % is executed and remain unchanged afterwards.
 %
 % \DescribeParameter{lastpage}
-% In addition to the use of boolean values, the parameter 'lastpage' can also 
-% be assigned a specific (integer) page number, which defines the last used 
-% page of a PDF~graphic.
+% In addition to the use of boolean values, the parameter \prm{lastpage} can 
+% also be assigned a specific (integer) page number, which defines the last
+% used page of a PDF~graphic. This, just like the identically named option, has 
+% an effect only when \prm{inkscapeformat=\val{pdf}} is set.
 %
 % \DescribeParameters{angle,origin}
 % Both parameters correlate to the identically named parameters of the  
@@ -572,7 +586,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % unlike to \cs{includegraphics}, parameters \prm{angle} and \prm{origin} are
 % \emph{always evaluated after} the parameters \prm{widht}, \prm{height} and
 % \prm{scale} by \cs{includesvg}, regardless of the used order of the given
-% parameters.
+% parameters. This is mainly due to the inclusion of the \LaTeX~files 
+% corresponding to the graphic~files generated by \app{Inkscape}.
 % \end{DescribeParameterParent}
 %
 % \DescribeMacro{\includeinkscape}
@@ -585,24 +600,24 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % 
 % \begin{DescribeParameterParent}{Macro}{\includeinkscape}
 % \DescribeParameters{%
-%   inkscapelatex,inkscapeformat,%
-%   width,height,scale,pretex,apptex,draft,lastpage,angle,origin
+%   inkscapeformat,inkscapelatex,%
+%   width,height,scale,pretex,apptex,draft,lastpage,angle,origin,%
 % }
 % You can use it similar to \cs{includesvg} but \marg{graphic filename} has to 
-% be the filename of the already exported graphic file. If a valid file 
-% extension (\file{pdf/eps/ps/png}) is given, the current setting for 
-% \opt{inkscapeformat} is overwritten. It's even possible to specify a file 
-% extension like \file{pdf\_tex} to activate \opt{inkscapelatex}. Furthermore, 
-% all optional parameters for \cs{includeinkscape} do have the same effect as 
-% described before for command \cs{includesvg} once when \cs{includeinkscape}
-% is executed and remain unchanged afterwards.
+% be the filename of the already exported graphic file. If a valid 
+% file~extension (\file{pdf/eps/ps/png}) is given, the current setting for 
+% \opt{inkscapeformat} is overwritten. It's even possible to specify a 
+% file~extension like \file{pdf\_tex} to activate \opt{inkscapelatex}.
+% Furthermore, all optional parameters for \cs{includeinkscape} do have the
+% same effect as described before for command \cs{includesvg} once when
+% \cs{includeinkscape} is executed and remain unchanged afterwards.
 % \end{DescribeParameterParent}
 % 
 %
 %
 % \section{Usage of package \pkg{svg-extract}}
 %
-% This package allows the extraction of independent graphic files out of 
+% This package allows the extraction of independent graphic~files out of 
 % SVG~files which have been included and rendered with \LaTeX{} by the 
 % \pkg{svg} package. This is particularly useful when attempting to provide
 % images to journals or collaborators, and one wishes the image to appear
@@ -614,10 +629,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \app{ImageMagick} and \app{Ghostscript} can be invoked for converting images 
 % in formats like PNG, JPG, TIF or something else. It's also possible to create 
 % PDF, EPS or PS~files with one of the two programs. Therefor the desired 
-% program---\app{magick} on Windows or \app{convert} on unix-like operating 
-% systems respectively \app{gs}---must be installed respectively.
+% program---\file{magick} and/or \file{gswin32c}/\file{gswin64c} on Windows 
+% respectively \file{convert} and/or \file{gs} on unix-like operating 
+% systems---must be installed. By typing \file{\meta{program} -{}-version} on 
+% shell, this can be checked.
 %
-% If you want to extract independent graphic files from included SVG~files, you 
+% If you want to extract independent graphic~files from included SVG~files, you 
 % only have to load \pkg{svg-extract}. All actions for the extraction process 
 % will be done by using \cs{includesvg} or \cs{includeinkscape}. Without any 
 % additional settings, the extraction will render the SVG~file to the specified 
@@ -632,27 +649,34 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % with option \opt{extract=\val{false}}.
 %
 % \minisec{Important changes}
-% In version~v1.0 the option \opt{name} could be used to name the extracted 
-% files like the numbering of the current \env{subfig} environment. As the 
-% package \pkg{subfig} causes problems very often this feature was removed. 
-% Because of the large amount of different packages, which all provide the 
-% possibility to include subfigures with very different implemetations, this 
-% functionality can't be provided relaibly by \pkg{svg-extract}.
+% In version~v1.0 of package \pkg{svg} the extracted files were named like the 
+% numbering of the current \env{subfig} environment by default. As package 
+% \pkg{subfig} sometime causes problems and because of the large amount of
+% different \LaTeX~packages which all provide the possibility to include
+% subfigures with very different implemetations, this feature can't be provided
+% reliably by \pkg{svg-extract}. The suffix \file{-extract} is attached to the
+% names of the extracted files instead.
 %
 % \DescribeOptions{on,off}
 % This options have to be given while loading the \pkg{svg-extract} package and 
 % are intended to toggle the functionality of this package. As both extracting 
-% and converting independent graphic files is invoked with every \LaTeX~run 
+% and converting independent graphic~files is invoked with every \LaTeX~run 
 % when \file{-{}-shell-escape} is activated, the option \opt{off} can be given  
 % to save compilation time, once the creation of all desired images has been 
-% done and they no longer need to be re-generated.
+% done and they no longer need to be re-generated. The option \opt{on} can be 
+% used to reactivate functionality of this package. This can also be done by 
+% using \opt{extract=\val{true}/\val{false}}.
 %
 % \DescribeMacros{\svgsetup,\includesvg,\includeinkscape}
-% All option described below can either be used togehter with \cs{svgsetup} and 
-% are then valid in the current scope. There also exist identically named 
-% parameters for the optional arguments of \cs{includesvg} and 
-% \cs{includeinkscape}. They have an effect only once when either the commands 
-% are executed and remain unchanged afterwards.
+% All option described below can be used togehter with \cs{svgsetup} and are
+% then valid in the current scope. There also exist identically named 
+% parameters for the optional arguments of 
+% \begin{example}
+%   \includesvg§\oarg{parameters}\marg{svg filename}§
+%   \includeinkscape§\oarg{parameters}\marg{graphic filename}§
+% \end{example}
+% These parameters have an effect only once when the commands are executed and
+% remain unchanged afterwards.
 % \begingroup
 % \renewcommand*\marginpar[2][]{}%
 % \begin{DescribeParameterParent}{Macro}{\includesvg}
@@ -661,7 +685,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   extractwidth,extractheight,extractscale,extractpretex,extractapptex,%
 %   convert,convertformat,convertdpi,%
 %   magicksetting,magickoperator,gsopt,gsdevice,%
-%   clean,exclude%
+%   clean,exclude,%
 % }%
 % \end{DescribeParameterParent}
 % \begin{DescribeParameterParent}{Macro}{\includeinkscape}
@@ -670,7 +694,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   extractwidth,extractheight,extractscale,extractpretex,extractapptex,%
 %   convert,convertformat,convertdpi,%
 %   magicksetting,magickoperator,gsopt,gsdevice,%
-%   clean,exclude%
+%   clean,exclude,%
 % }%
 % \end{DescribeParameterParent}
 % \endgroup
@@ -680,29 +704,29 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \subsection{Extract independent grahic files}
 % \DescribeOption{extract}
 % This option can be used with boolean values. Using \opt{extract=\val{true}}
-% activates the functionality of package \pkg{svg-extract} which is the default 
-% setting, whereas \opt{extract=\val{false}} turns it off completely.
+% activates the functionality for both extracting and converting which is the 
+% default setting, whereas \opt{extract=\val{false}} turns it off completely.
 %
 % \DescribeOption{extractformat}
 % The included SVG~file can be extracted from the document into a independent
-% graphic file of type PDF, EPS or PS. The option can be used either with a
-% single value (e.g.~\opt{extractformat=\val{pdf}}) or a comma separated list. 
+% graphic~file of type PDF, EPS or PS. The option can be used with either a
+% single value (\opt{extractformat=\val{pdf}}) or a comma separated list. 
 % For example,
 % \begin{example}
 %   \includesvg[extractformat={pdf,eps,ps}]§\marg{svg filename}§
 % \end{example}
 % will extract the SVG~file to both PDF and EPS~formats and generates two 
-% independent graphic files. By default, \opt{extractformat=\val{pdf}} is set 
+% independent graphic~files. By default, \opt{extractformat=\val{pdf}} is set 
 % unless DVI~output was detected. In this case \opt{extractformat=\val{eps}} is 
 % the default setting.
 %
-% \DescribeOptions{extractpath}
+% \DescribeOption{extractpath}
 % The path where the extracted and converted files are located can be specified 
 % with option \opt{extractpath}. By default, \opt{extractpath=\val{basesubdir}} 
 % is set.
 % \begin{DescribeValues}
 % \item[svgdir/svgpath]
-%   The extracted and converted independent graphic files are located in the 
+%   The extracted and converted independent graphic~files are located in the 
 %   same directory as the corresponding SVG~file.
 % \item[svgsubdir/svgsubpath]
 %   Within the folder of the encountered SVG~file, all extracted and converted
@@ -715,22 +739,24 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   will be used for all extracted and converted files.
 % \item[/path/to/somewhere]
 %   It is also possible to give a custom path, either relative to the current 
-%   working directory or as an absolute path.
+%   working directory (\file{./relative/path/}) or as an absolute path.
 % \end{DescribeValues}
 %
 % \DescribeOptions{%
-%   extractwidth,extractheight,extractscale,extractpretex,extractapptex%
+%   extractwidth,extractheight,extractscale,extractpretex,extractapptex,%
 % }
 % These options can be used to overwrite the settings given for the appearance 
 % of a SVG~file within the document. For example, a SVG~file should cover the 
-% entire text width within the document but be exported to a fixed width, this 
+% entire text width within the document but be extracted to a fixed width, this 
 % can be done with:
 % \begin{example}
 %   \includesvg[width=\textwidth,extractwidth=500pt]§\marg{svg filename}§
 % \end{example}
-% Assigning the value \val{inherit} to one of this options leads to the usage 
-% of the corresponding option of package \pkg{svg}, whereas \val{\cs{relax}} 
-% can be used to ignore a parent option utterly.
+% Assigning the value \val{inherit} to one of these options---which is set by 
+% default---leads to the usage of the corresponding option of package \pkg{svg} 
+% (\opt{width}/\opt{height}/\opt{scale}/\opt{pretex}/\opt{apptex}), whereas
+% \opt{extract\dots=\val{\cs{relax}}} can be used to ignore a parent option
+% utterly.
 % 
 %
 % \DescribeOptions{extractpreamble,extractpreambleend}
@@ -744,18 +770,22 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % 
 % However, it is possible to specify a different \emph{preamble~file} with the 
 % option \opt{extractpreamble} where the file to use as the preamble is given
-% as the argument---including path, file name and file extension. The default 
+% as the argument---including path, file~name and file~extension. The default 
 % definition of \opt{extractpreamble} is \file{\cs{jobname}.tex}---more 
-% precisely the file extension given by option \opt{latexext} is used---and
+% precisely the file~extension given by option \opt{latexext} is used---and
 % should suffice for most cases. The preamble up to the line defined by the 
 % option \opt{extractpreambleend} will be used, which is set to a default with
 % \cs{begin}|{document}|. 
 %
 % \DescribeMacros{\svghidepreamblestart,\svghidepreambleend}
 % In case, the preamble of the current \LaTeX~document is used, there are maybe 
-% some parts or packages included, which should not be used within the separate 
-% auxiliary \LaTeX~file. These parts can be excluded if they are enclosed by 
-% \cs{svghidepreamblestart} and \cs{svghidepreambleend}.
+% packages included or some parts within the preamble, which should not be used
+% within the separate auxiliary \LaTeX~file. These parts can be excluded if
+% they are enclosed by \cs{svghidepreamblestart} and \cs{svghidepreambleend}.
+%
+% For example, your current \LaTeX~document uses package \pkg{showframe} which 
+% causes some problems with the extraction of independent graphic~files. So you
+% want to get rid of it within the auxiliary \LaTeX~file. This can be done with:
 % \begin{example}
 %   \documentclass§\marg{documentclassname}§
 %   §\dots§
@@ -766,28 +796,25 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   \svghidepreambleend
 %   §\dots§
 % \end{example}
-% With this approach, the package \pkg{showframe} is used within the current 
-% \LaTeX~document but not for the grahic extration.
 %
 % \DescribeOption{extractruns}
-% When extracting independent grahic files by compiling the generated auxiliary 
+% When extracting independent grahic~files by compiling the generated auxiliary 
 % \LaTeX~file, it's maybe necessarry to do multiple \LaTeX~runs on this file. 
 % The number of runs can be controlled with option \opt{extractruns}. It's set
 % to \opt{extractruns=\val{2}} by default.
 %
 % \DescribeOptions{latexexe,latexopt,latexext}
-% For the extraction of an independent grahic file, the \LaTeX~program is used
+% For the extraction of an independent grahic~file, the \LaTeX~program is used
 % which is set by the \opt{latexexe} option. Depending on the \LaTeX~processor 
 % used for the current \LaTeX~document, it is set to either \file{pdflatex}, 
 % \file{lualatex}, \file{xelatex} or \file{latex} by default. It's also
 % possible to specify additional flags or switches for the \LaTeX~runs, which
 % are performed during the extraction process by the \opt{latexopt} option. If
-% you are used to utilize a different file extension for \LaTeX~files than
-% \file{tex}, option \opt{latexext} can be used, for example for something like 
-% \opt{latexext=\val{ltx}}.
+% you are used to utilize a different file~extension for \LaTeX~files than
+% \file{tex}, option \opt{latexext} can be used like \opt{latexext=\val{ltx}}.
 %
 % \DescribeOptions{dvipsopt,pstoepsopt,pstopdfopt,pdftoepsopt,pdftopsopt}
-% Depending on the used \LaTeX~processor the file type of the extracted graphic 
+% Depending on the used \LaTeX~processor the file~type of the extracted graphic 
 % differs. In order to create all formats, which where requested with option 
 % \opt{extractformat}, several converting tools provided by most of the 
 % \LaTeXe~distributions are invoked. Specifically, these are \file{dvips}, 
@@ -802,71 +829,91 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % temporary files. Using the option \opt{clean=\val{true}} will remove any 
 % generated files created other than the extracted output format(s) requested. 
 % This is the default setting. Setting \opt{clean=\val{false}} is useful for
-% debugging. Addtionally it's possible to use option \opt{clean} with a list of
-% file extensions in order to specify auxiliary files generated by package 
+% debugging. Additionally, it's possible to use option \opt{clean} with a list 
+% of file~extensions in order to specify auxiliary files generated by package 
 % \pkg{svg-extract} to be deleted, for example \opt{clean=\val{\{log,aux\}}}.
 %
 % \DescribeOption{exclude}
-% Sometimes it may be necessary to export a SVG~file without including it in
-% the current document. If the flag \opt{exclude} is specified, the SVG~file
-% will not be rendered in the current document, but will be extracted to the
-% requested output format(s).
+% Sometimes it may be necessary to extract and/or convert a SVG~file without 
+% including it. If the flag \opt{exclude} is specified, the SVG~file will not 
+% be rendered in the current \LaTeX~document, but will be extracted and/or
+% converted to the requested output format(s).
 %
 %
 %
 % \subsection{Convert extracted grahic files}
 % 
-% Based on the extraction of independent graphic files, the \pkg{svg-extract} 
+% Based on the extraction of independent graphic~files, the \pkg{svg-extract} 
 % packages also provides the possibility to convert those extracted graphics in 
-% another format than PDF, EPS or PS with either \app{ImageMagick} or 
-% \app{Ghostscript}.
+% another format than PDF, EPS or PS with either \app{ImageMagick}---which is 
+% set by default---or \app{Ghostscript}.
 %
 % \DescribeOption{convert}
 % This option can be used to control the invocation of the conversion process. 
-% By default, \opt{convert=\val{false}} is set.
+% By default, \opt{convert=\val{false}} is set. For Windows, there exist two 
+% different versions of \app{Ghostscript}, either 64\,bit or 32\,bit. If 
+% it is selected as converting tool the 64\,bit~executable is set by default.
 % \begin{DescribeValues}
 % \item[\textbf{false}/off/no]
 %   No conversion is done.
 % \item[true/on/yes]
-%   The conversion will be done with the current chosen converting tool. By 
-%   default, \app{ImageMagick} is selected.
+%   The conversion will be done with the current chosen converting tool. 
 % \item[magick/imagemagick]
 %   The conversion is activated and \app{ImageMagick} is selected.
 % \item[gs/ghostscript]
 %   The conversion is activated and \app{Ghostscript} is selected.
 % \item[gs64/ghostscript64]
-%   There exist two different versions of \app{Ghostscript} for Windows, either 
-%   64bit or 32bit. This value activates \app{Ghostscript} as conversion tool 
-%   and sets \opt{gsexe=\val{gswin64c}}. On unix-like operating systems, the 
-%   value for \opt{gsexe} remains unchanged.
+%   This value activates \app{Ghostscript} as conversion tool and sets
+%   \opt{gsexe=\val{gswin64c}}. On unix-like operating systems, the value for
+%   \opt{gsexe} remains unchanged.
 % \item[gs32/ghostscript32]
-%   Here, the same as for the case described above applies, only the option 
-%   \opt{gsexe=\val{gswin32c}} is set on Windows.
+%   The same as for the latter case applies, only option
+%  \opt{gsexe=\val{gswin32c}} is set on Windows.
 % \end{DescribeValues}
 % 
-%
 % \DescribeOption{convertformat}
 % With this option, the desired output format(s) can be given. Multiple graphic 
 % formats can be specified in a list, for example something like 
 % \opt{convertformat=\val{\{png,jpg,tif\}}}. The value specified in 
 % \opt{extractformat} is used as the source format for the conversion. If 
-% \opt{extractformat} itself contains a file list, the first value within this 
+% \opt{extractformat} itself contains a file~list, the first value within this 
 % list is considered. If \opt{extractformat} is defined empty, the file
 % generated anyway during the extraction is used.
 %
+% \minisec{Settings for specific converting formats}
+% Maybe it's desired to apply varying settings for different output formats. 
+% Therefor some options described below can either be set for all converted 
+% files or for a specific output format. In particular, these are the options
+% \opt{convertdpi} as well as \opt{magicksetting}, \opt{magickoperator}, 
+% \opt{gsdevice} and \opt{gsopt}. All these mentioned options can be used like 
+% either \opt{\meta{option}}|=|\val{\meta{value}} or 
+% \opt{\meta{option}}|=|\val{\{\meta{outputformat}=\meta{value}\}} and even
+% \opt{\meta{option}}|=|\val{\{\meta{outputformat}+=\meta{value}\}} where the 
+% desired output~format is trailed with \val{+} as inner key.
+%
+% The first variant is applied to all output formats in general. If one of
+% these mentioned options is evaluated and a output format specific value was
+% given like in the second variant, the general setting is overwritten. If the 
+% general setting should be used and extended by an additional output format
+% specific settings, then the third variant is to be used. In this case, no 
+% output format specific setting (second variant) must not have been used.
+%
+% If you want to reverse any setting, you only have to use \cs{relax} as a 
+% value, either for a general option (\opt{\meta{option}}|=|\val{\cs{relax}})
+% or a specific one 
+% (\opt{\meta{option}}|=|\val{\{\meta{outputformat}[+]=\cs{relax}\}}).
+%
 % \DescribeOption{convertdpi}
-% This options controls the used density for all file formats or a specific one,
+% This options controls the used density for all file~formats or a specific one,
 % whether \app{ImageMagick} or \app{Ghostscript} is used for the graphic 
 % conversion. The desired resolution of the converted file is given in dots per
 % inch~(DPI) either as a scalar value (e.g.~\opt{convertdpi=\val{600}}) or with 
-% different resolutions in x- and y"~direction 
+% different resolutions in x- and y\hbox{-}direction 
 % (e.g.~\opt{convertdpi=\val{600x400}}).
 %
-% It's also possible to declare a specific resolution for each desired 
-% converting format. Therefor, you have to declare the density in the following 
-% form: \opt{convertdpi=\{\meta{filetype}=\meta{value}\}}. For exapmle, you 
-% want to set different resolution for PNG and JPG~formats and something for 
-% all other formats:
+% As described before, it's also possible to declare a specific resolution for
+% each desired converting format. For example, you want to set different
+% resolution for PNG and JPG~formats and something for all other formats:
 % \begin{example}
 %   \svgsetup{%
 %     convertdpi={png=600},%
@@ -874,24 +921,22 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %     convertdpi=300%
 %   }%
 % \end{example}
-% If a setting for a specific format is given, any unspecific setting is 
-% overwritten. With \opt{convertdpi=\{\meta{filetype}=\val{\cs{relax}}\}} the 
-% setting for a specific file type can be reversed.
+% If a setting for a specific output format is given, any unspecific setting is 
+% overwritten, when the conversion to this format is done. With 
+% \opt{convertdpi=\{\meta{outputformat}=\val{\cs{relax}}\}} a specific setting 
+% can be reversed.
 %
 % \DescribeOptions{magickexe,magicksetting,magickoperator}
-% The conversion with \app{ImageMagick} via the \app{magick} or \app{convert} 
+% The conversion with \app{ImageMagick} via the \file{magick} or \file{convert} 
 % command-line~tool can be controlled with these options. The option
 % \opt{magickexe} determines the used executable and is set to \file{magick} on
-% Windows and otherwise to \file{convert} by default. Additionally there are
+% Windows and otherwise to \file{convert} by default. Additionally, there are
 % the two options \opt{magicksetting} and \opt{magickoperator} which can be
 % used to define \emph{settings} and \emph{operators} for the conversion
-% process. As previous for option \opt{convertdpi}, \opt{magicksetting} and 
-% \opt{magickoperator} can be used either for all output formats or a 
-% \emph{specific} one. If some settings for a specifc output format should be 
-% applied \emph{additionally} after the general settings, you can use something
-% like \opt{magicksetting=\{\meta{filetype+}=\meta{value}\}} where the desired
-% file type is trailed with \val{+} as inner key. For further information see 
-% the documentation of 
+% process. As described before, the two options \opt{magicksetting} and 
+% \opt{magickoperator} can be set for all output formats or a \emph{specific}
+% one either resetting or extending the general settings. For further 
+% information see the documentation of 
 % \hrfn{http://www.imagemagick.org/script/command-line-processing.php}%
 % {\app{ImageMagick} command-line tool}.
 %
@@ -909,32 +954,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   }%
 % \end{example}
 % Furthermore, with \opt{gsopt} additional switches for \app{Ghostscript} can 
-% be set, whereas \opt{gsopt} can also be defined for specific output formats.
-% For further information see the documentation of 
+% be set. As described before, both \opt{gsdevice} and \opt{gsopt} can be 
+% defined in general or for specific output formats. For further information
+% see the documentation of 
 % \hrfn{https://ghostscript.com/doc/current/Use.htm}{\app{Ghostscript}}.
-%
-%
-%
-% \section{Troubleshooting and reporting issues}
-%
-% When using the packages \pkg{svg} and \pkg{svg-extract}, the most likely 
-% occurring problems will be caused by calling the external programs. For this 
-% reason, a short package information is written into the log~file right before 
-% each call of an external program via shell. If a file should have been 
-% created, both packages check after the external call, whether this file
-% exists or not and raise an error or at least a warning, if this file is 
-% missing.
-% 
-% If you got such a message, please check the log file for lines like
-%
-% \file{Package svg Info:} or \file{Package svg-extract Info:}
-%
-% Right afterwards, there should appear \file{runsystem(<command>)...excuted.} 
-% which you should try to execute manually from shell in the right directory. 
-% In most cases, the problem will be an invalid command call. If you are sure 
-% that the problem is not caused by the configuration of your operating system, 
-% you can send an error report either via email or create a new issue on GitHub.
-% Both addresses can be found on the title.
 %
 %
 %
@@ -981,18 +1004,43 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   \end{center}
 % \end{figure}
 %
-% The first subfigure is created with the export option \prm{pdf} with the
-% default \prm{name}, and so the file \file{Fig.1a.pdf} is extracted. However,
+% The first subfigure is created with the extract option \prm{pdf} with the
+% default \prm{name}, and so the file~\file{Fig.1a.pdf} is extracted. However,
 % the text is overrunning the margins of the image, and so the second
 % subfigure decreases the relative size of the text within the image using the
 % \prm{pretex} option. Now, an EPS~file is requested for extraction, and so the
-% file \file{Fig.1b.eps} is created.
+% file~\file{Fig.1b.eps} is created.
 %
 % Notice that for both subfigures, the \prm{preamble} was set to
 % \file{preamble.tex}, also included in this current directory, rather than
 % the default current document. Additionally, the flag \prm{clean} has
 % been used which forces the cleanup of any extraneous generated
 % files.
+%
+%
+%
+% \section{Troubleshooting and reporting issues}
+%
+% When using the packages \pkg{svg} and \pkg{svg-extract}, the most likely 
+% occurring problems will be caused by calling the external programs. For this 
+% reason, a short package information is written into the log~file right before 
+% each call of an external program via shell. If a file should have been 
+% created, both packages check after the external call, whether this file
+% exists or not and raise an error or at least a warning, if this file is 
+% missing. If you got such a message, please check the log~file for lines like:
+%
+% \file{Package svg Info:} or \file{Package svg-extract Info:}
+%
+% Right afterwards, there should appear \file{runsystem(<command>)...excuted.} 
+% which you should try to execute manually from shell in the right directory. 
+% In most cases, the problem will be an invalid command call. If something goes 
+% wrong during the extraction/converting process of package \pkg{svg-extract}, 
+% it would make sense to set option \opt{clean=\val{false}} to not delete any 
+% auxiliary files that might be needed.
+%
+% If you are sure that the problem is not caused by the configuration of your
+% operating system, you can send an error report either via email or create a
+% new issue on GitHub. Both addresses can be found on the title.
 %
 %
 %
@@ -1040,7 +1088,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \item Include the SVG~file within the document using this package.
 %   \begin{example}
 %     \usepackage[clean,pdf]{svg}
-%     ...
+%     §\dots§
 %     \includesvg[width=\columnwidth]{foo}
 %   \end{example}
 % \end{enumerate}
@@ -1060,7 +1108,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Consider the example image produced by \app{ROOT} in Figure
 % \ref{fig:root}. This figure was generated by the \app{ROOT} macro
 % \file{root.C}, provided within this directory, which produces the
-% file \file{root.svg} when run. The code used to produce this SVG~file 
+% file~\file{root.svg} when run. The code used to produce this SVG~file 
 % from within\app{ROOT} is
 % \lstinputlisting[basicstyle=\footnotesize\ttfamily,columns=flexible,
 % frame=single,backgroundcolor=\color{yellow!20},xleftmargin=\fboxsep,
@@ -1119,8 +1167,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % With the interface provided by package \pkg{scrbase} all options, which can 
 % be set either as package options or with \cs{svgsetup}, as well as the
 % optional parameters for both user commands 
-% \cs{includesvg}\oarg{parameters}\marg{svgfile} and
-% \cs{includeinkscape}\oarg{parameters}\marg{exportfile} are defined.
+% \cs{includesvg}\oarg{parameters}\marg{svg filename} and
+% \cs{includeinkscape}\oarg{parameters}\marg{graphic filename} are defined.
 %    \begin{macrocode}
 \DefineFamily{SVG}
 \DefineFamilyMember{SVG}
@@ -1237,9 +1285,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svg@ink@mode}
 % The intension of option \opt{inkscape} is to control the running behaviour of 
 % \app{Inkscape}. It can be switched off at all or invoked only if necessarry 
-% or the command line call can be forced with every run of \LaTeX. Additionally 
+% or the command line call can be forced with every \LaTeX~run. Additionally,
 % option \opt{inkscape} can be used as wrapper for options \opt{inkscapeformat},
-% \opt{inkscapearea}, \opt{inkscapelatex} and \opt{inkscapedpi}, which are
+% \opt{inkscapelatex}, \opt{inkscapearea} and \opt{inkscapedpi}, which are
 % declared later.
 %    \begin{macrocode}
 \newcommand*\svg@ink@mode{}
@@ -1374,6 +1422,17 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svg@ink@format
 % \end{option}^^A inkscapeformat
+% \begin{option}{inkscapelatex}
+% \changes{v2.00}{2017/02/17}{new}
+% \begin{macro}{\svg@ink@latex}
+% This options controls whether the \app{Inkscape} export will be invoked with 
+% or without the generation of a seperate \LaTeX~file.
+%    \begin{macrocode}
+\newif\if@svg@ink@latex
+\FamilyBoolKey{SVG}{inkscapelatex}{@svg@ink@latex}
+%    \end{macrocode}
+% \end{macro}^^A \svg@ink@latex
+% \end{option}^^A inkscapelatex
 % \begin{option}{inkscapearea}
 % \changes{v2.00}{2017/02/17}{new}
 % \begin{macro}{\svg@ink@area}
@@ -1396,17 +1455,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svg@ink@area
 % \end{option}^^A inkscapearea
-% \begin{option}{inkscapelatex}
-% \changes{v2.00}{2017/02/17}{new}
-% \begin{macro}{\svg@ink@latex}
-% This options controls whether the \app{Inkscape} export will be invoked with 
-% or without the generation of a seperate \LaTeX~file.
-%    \begin{macrocode}
-\newif\if@svg@ink@latex
-\FamilyBoolKey{SVG}{inkscapelatex}{@svg@ink@latex}
-%    \end{macrocode}
-% \end{macro}^^A \svg@ink@latex
-% \end{option}^^A inkscapelatex
 % \begin{option}{inkscapedpi}
 % \changes{v2.00}{2017/02/17}{new}
 % \begin{option}{inkscapedensity}
@@ -2125,9 +2173,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.00}{2017/02/17}{new}
 % \begin{parameter}{inkscapeformat}
 % \changes{v2.00}{2017/02/17}{new}
-% \begin{parameter}{inkscapearea}
-% \changes{v2.00}{2017/02/17}{new}
 % \begin{parameter}{inkscapelatex}
+% \changes{v2.00}{2017/02/17}{new}
+% \begin{parameter}{inkscapearea}
 % \changes{v2.00}{2017/02/17}{new}
 % \begin{parameter}{inkscapedpi}
 % \changes{v2.00}{2017/02/17}{new}
@@ -2196,8 +2244,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{parameter}^^A width
 % \end{parameter}^^A inkscapeopt
 % \end{parameter}^^A inkscapedpi
-% \end{parameter}^^A inkscapelatex
 % \end{parameter}^^A inkscapearea
+% \end{parameter}^^A inkscapelatex
 % \end{parameter}^^A inkscapeformat
 % \end{parameter}^^A inkscape
 % The file suffix used by both packages \pkg{svg} and \pkg{svg-extract}.
@@ -3983,7 +4031,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
       \immediate\write\svgx@stream@out{\string\usepackage{svg-extract}}%
 %    \end{macrocode}
-% Now all parameters relevant for the export are evaluated and appended.
+% Now all parameters relevant for the extraction are evaluated and appended.
 %    \begin{macrocode}
       \def\svg@tempa##1{%
         \immediate\write\svgx@stream@out{\string\svgsetup{##1}}%
@@ -4053,7 +4101,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % As we are now at the end of the preamble and júst before the beginning of the 
 % document, the paper dimension are set again to make sure, that these settings 
-% are active at the end of the preamble. Additionally it is executed again at 
+% are active at the end of the preamble. Additionally, it is executed again at 
 % the very end of \cs{AtBeginDocument} to ensure, that no other package used 
 % this hook for manipulating the paper size.
 %    \begin{macrocode}
@@ -4067,8 +4115,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \immediate\closeout\svgx@stream@out%
     \endgroup%
 %    \end{macrocode}
-% After creating the separate auxiliary \LaTeX~file, the actual export and 
-% convert processes can be done.
+% After creating the separate auxiliary \LaTeX~file, the actual extraction and 
+% conversion can be done.
 %    \begin{macrocode}
     \ifstr{\svgx@format\svgx@cnv@format}{}{%
       \PackageWarning{svg-extract}{%
