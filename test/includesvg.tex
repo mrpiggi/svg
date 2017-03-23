@@ -1,34 +1,64 @@
 \listfiles
-\documentclass[parskip=full]{scrreprt}% Test
+\documentclass[parskip=full,ngerman]{scrreprt}% Test
 \usepackage{selinput}\SelectInputMappings{adieresis={ä},germandbls={ß}}
 \usepackage[T1]{fontenc}
-%\usepackage{babel}
-\usepackage[usexcolor=true,usetransparent=false,draft=false]{svg-new}
-\usepackage[extract=true,clean=false,exclude=false]{svg-extract}
+\usepackage{babel}
+\usepackage[usexcolor=true,usetransparent=true,draft=false]{svg}
+\usepackage[extract=true,clean=false]{svg-extract}
 
-\svgsetup{lastpage=false,convertformat=,convert=gs}
+%\usepackage{etoolbox}
 
-\svghidepreamblestart
+%\svgsetup{lastpage=false,convertformat=,convert=gs}
+
+%\svghidepreamblestart
 %\usepackage{showframe}
 
-\usepackage{blindtext}
+%\usepackage{blindtext,subfig}
 
-\makeatletter
-\setlength{\@fptop}{0pt}
-\setlength{\@fpsep}{0pt}% twocolumn
-\makeatother
-
+%\makeatletter
+%\setlength{\@fptop}{0pt}
+%\setlength{\@fpsep}{0pt}% twocolumn
+%\makeatother
+%
 \pdfsuppresswarningpagegroup=1%
+%
+%\parskip=0pt
+%\parindent=0pt
 
-\parskip=0pt
-\parindent=0pt
+%\svghidepreambleend
 
-\svghidepreambleend
-
-\usepackage{amsmath}
+%\usepackage{amsmath,etoolbox}
 
 %\RequirePackage{luatex85}[2016/06/15]% standalone
 \begin{document}
+\svgpath{{./svg/}}
+\begin{figure}
+  \begin{center}
+%  \includegraphics{\dq svg-extract/svg-example_svg-tex-extract\dq}
+%  \subfloat[This text is too large!]{%
+      \includesvg[%
+        extractformat={pdf,eps,ps},clean=false,%convert,%
+        extractpreamble={bla.tex},%latexopt=--shell-escape,
+%        inkscapearea=page,%
+%        extr
+%        name=Fig.1a,preamble=examples/preamble.tex,pdf,width=5cm,eps,%
+      ]{./svg/svg-example}%
+%  }
+%  \subfloat[This text is too large!]{%
+%      \newincludesvg[%
+%%        name=Fig.1b,preamble=examples/preamble.tex,%
+%%        eps,pretex=\small,width=5cm%
+%      ]{svg-example}%
+%  }
+%    \caption{An example figure.}
+  \end{center}
+\end{figure}
+
+\chapter{blubb}
+\chapter{blubb}%\label{fig:example}
+
+\end{document}
+
 \svgpath{{svg-test/}{"C:/Users/Hanisch/Documents/Dateien/svg"}}
 
 %\begin{equation}
