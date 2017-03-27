@@ -23,4 +23,5 @@ void root() {
 
   // Print the plot.
   gPad->Print("root.svg");
+  
 }

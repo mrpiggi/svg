@@ -7,18 +7,28 @@ temp/
 *.bak
 *.cls
 *.dvi
+*.glg
+*.glo
+*.gls
+*.idx
+*.ilg
+*.ind
 *.log
 *.out
 *.pdf
-!doc/examples/*.pdf
 *.ps
 *.run.xml
 *.sty
 *.synctex.gz*
+*.tdo
 *.toc
+*.xdy
+*.xlg
+source/svg-*/
 ## include test files
 !test/*.cls
 !test/*.sty
 !test/*.pdf
 !test/*.svg
+!test/texmf/*.*
 ## include temporary files
