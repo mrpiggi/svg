@@ -24,7 +24,7 @@ temp/
 *.toc
 *.xdy
 *.xlg
-!doc/examples/*.pdf
+source/svg-*/
 ## include test files
 !test/*.cls
 !test/*.sty
