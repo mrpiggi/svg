@@ -7,7 +7,7 @@
  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
 
- svg 2017/00/00 v2.00
+ svg 2017/03/27 v2.00
 
 ----------------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ it is rendered within the LaTeX document using either ***ImageMagick*** or
 Versions
 --------
 
-**v2.00** (2017/00/00)
+**v2.00** (2017/03/27)
 + New maintainer: Falk Hanisch
 + Re-implementation from scratch
 + functionality split in two packages **svg** and **svg-extract**
