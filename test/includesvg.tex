@@ -1,166 +1,18 @@
 \listfiles
 \documentclass[parskip=full,ngerman]{scrreprt}% Test
-\usepackage{selinput}\SelectInputMappings{adieresis={ä},germandbls={ß}}
-\usepackage[T1]{fontenc}
+%\usepackage{selinput}\SelectInputMappings{adieresis={ä},germandbls={ß}}
+%\usepackage[T1]{fontenc}
 \usepackage{babel}
-\usepackage[usexcolor=true,usetransparent=true,draft=false]{svg}
-\usepackage[extract=true,clean=false]{svg-extract}
+\usepackage{svg}
+\usepackage{svg-extract}
+\providecommand{\transparent}[1]{}
 
-%\usepackage{etoolbox}
+%\pdfsuppresswarningpagegroup=1
 
-%\svgsetup{lastpage=false,convertformat=,convert=gs}
+\svgpath{{../source/examples/}}
 
-%\svghidepreamblestart
-%\usepackage{showframe}
-
-%\usepackage{blindtext,subfig}
-
-%\makeatletter
-%\setlength{\@fptop}{0pt}
-%\setlength{\@fpsep}{0pt}% twocolumn
-%\makeatother
-%
-\pdfsuppresswarningpagegroup=1%
-%
-%\parskip=0pt
-%\parindent=0pt
-
-%\svghidepreambleend
-
-%\usepackage{amsmath,etoolbox}
-
-%\RequirePackage{luatex85}[2016/06/15]% standalone
 \begin{document}
-\svgpath{{./svg/}}
-\begin{figure}
-  \begin{center}
-%  \includegraphics{\dq svg-extract/svg-example_svg-tex-extract\dq}
-%  \subfloat[This text is too large!]{%
-      \includesvg[%
-        extractformat={pdf,eps,ps},clean=false,%convert,%
-        extractpreamble={bla.tex},%latexopt=--shell-escape,
-%        inkscapearea=page,%
-%        extr
-%        name=Fig.1a,preamble=examples/preamble.tex,pdf,width=5cm,eps,%
-      ]{./svg/svg-example}%
-%  }
-%  \subfloat[This text is too large!]{%
-%      \newincludesvg[%
-%%        name=Fig.1b,preamble=examples/preamble.tex,%
-%%        eps,pretex=\small,width=5cm%
-%      ]{svg-example}%
-%  }
-%    \caption{An example figure.}
-  \end{center}
-\end{figure}
-
-\chapter{blubb}
-\chapter{blubb}%\label{fig:example}
-
-\end{document}
-
-\svgpath{{svg-test/}{"C:/Users/Hanisch/Documents/Dateien/svg"}}
-
-%\begin{equation}
-%a^2+b^2=c^2\label{eq:emc1}
-%\end{equation}
-\begin{equation}
-a^2+b^2=c^2\label{eq:emc2}
-\end{equation}
-
-\svgsetup{pretex=\color{red}}
-
-%\svgsetup{lastpage=false}
-
-\fboxsep=-\fboxrule
-%\begin{figure}
-%\fbox{\includegraphics[width=\textwidth,angle=10]{svg-out/Seriell_svg-raw.png}}
-
-%\end{figure}
-
-%\def\svgwidth{400pt}
-%\def\svgscale{0.6}
-
-\begin{figure}
-%\def\svgwidth{\textwidth}
-%\def\svgscale{0.8}
-\fbox{\newincludesvg[%
-%  inkscapelatex=false,
-%  inkscapepath=basesubdir,%
-%  exclude=true,
-%  angle=10,%origin=c,
-%  svgpath=C:/Users/Hanisch/Documents/Dateien/svg,
-%  extractpreamble=test.aaa,
-  clean=false,extractformat={pdf,eps},convertformat=eps,
-%  extractpreamble=ssss.tex,
-%  inkscape=raw,
-%  inkscape=eps,
-%  convertdensity=600x300,
-%  convertdensity=555x300x,
-%  angle=10,
-%  inkscapedpi=,
-%  outname="bla",
-%  extractname=hamster,
-%  lastpage=false,
-%  draft,
-%  extract=false,%
-%  convertdpi=400dpi,
-%  convertdpi={png+=700x300dpi},
-%  convertdpi={jpg+=333dpix666dpi},
-%  convert=true,%
-%  lastpage=3,%
-%  lastpage=false,%
-%  convert=gs64,%
-%  extractformat=,%{pdf,eps,ps},%
-%  convertformat={png,tiff,jpg,eps},%
-%  gsdevice={eps=\relax},
-%  gsopt=bla,%
-%%  gsopt={png=foo},%
-%  gsopt={png+=bar},%
-%  magicksetting=-depth 4,
-%  magicksetting={png=-depth 8},
-%  magickoperator=-resize 25\%,
-%  magickoperator={png=-resize 25\%},
-%  convertformat=png,
-%  convertdensity=,%
-  width=300pt,%
-%  extractwidth=\relax,
-%  extractwidth=400pt,
-%  scale=1.1,
-%  extractscale=1.2,
-%  extractpretex=inherit,
-%  extractwidth=,
-%  clean=false,
-%  angle=-180,
-%  draft,
-%  height=4cm,
-%  scale=0.5pt,
-%  pretex=aaa,
-%  apptex=bbb,
-]{Seriell}%
-}%
-\caption{aaa}
-\end{figure}
-
-%\begin{figure}
-%%\newincludesvg[%
-%%  width=200pt,%
-%%%  path="svgtest",
-%%%  extractname=bla blau,
-%%%  angle=30,%
-%%%  svgpath=svg test,%
-%%]{testimage}
-%\newincludesvg[%
-%%  draft,
-%%  extractname=bla,
-%  width=.2\textwidth,%
-%%  extractformat={eps},%
-%%  angle=30,%
-%%  clean=false,
-%%  inkscape=raw,
-%%  svgpath={"svg test/"},%
-%]{newimage}
-%\end{figure}
-
-
+\includesvg[%
+%  inkscapeformat=pdf,
+]{svg-example}%
 \end{document}

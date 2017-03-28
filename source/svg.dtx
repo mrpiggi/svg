@@ -1,9 +1,7 @@
-% \CheckSum{3474}
+% \CheckSum{3456}
 % \iffalse meta-comment
 %
-%  svg         -- Include SVG pictures in LaTeX documents using Inkscape
-% ----------------------------------------------------------------------------
-%  svg-extract -- Extract independent graphic files from SVG pictures
+%  svg and svg-extract -- Include and extract SVG pictures in LaTeX documents
 % ----------------------------------------------------------------------------
 %
 %  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
@@ -117,7 +115,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<package&option&base>\ProvidesPackage{svg}[%
 %<package&option&extract>\ProvidesPackage{svg-extract}[%
 %<*driver|package&option>
-  2017/03/27 v2.00\space%
+  2017/03/28 v2.00a\space%
 %<package&option&base>  (include SVG pictures)%
 %<package&option&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -212,7 +210,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     In addition, the package \pkg{svg-extract} allows the extraction of these 
     graphics into independent files in different graphic formats, exactly as it 
     is rendered within the document. For the creation of these graphics in the 
-    well\hbox{-}known formats PDF, EPS and~PS, \LaTeX and possibly conversion 
+    well\hbox{-}known formats PDF, EPS and~PS, \LaTeX{} and possibly conversion 
     tools shipped with the distribution are used. If the graphics are required 
     in other file formats, either \app{ImageMagick} or \app{Ghostscript} can be 
     invoked.
@@ -223,16 +221,16 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %</driver>
 % \fi
 %
-% \changes{v1.0}{2004/11/05}{initial version by Philip Ilten}
-% \changes{v2.00}{2016/09/23}{new maintainer: Falk Hanisch}
-% \changes{v2.00}{2017/03/27}{re-implementation from scratch}
-% \changes{v2.00}{2017/03/27}{package \pkg{subfig} not required anymore}
+% \changes{v1.0}{2004/11/05}{initial version by Philip Ilten}^^A
+% \changes{v2.00}{2016/09/23}{new maintainer: Falk Hanisch}^^A
+% \changes{v2.00}{2017/03/27}{re-implementation from scratch}^^A
+% \changes{v2.00}{2017/03/27}{package \pkg{subfig} not required anymore}^^A
 % \changes{v2.00}{2017/03/27}{%
 %   support of subfigures stopped due to the huge number of packages which deal 
 %   with this topic and the large variety of implementing this functionality; 
 %   naming exported graphics after their consecutive numbering can't be ensured
-%   for all variants of subfigures, so it's neglected
-% }
+%   for all variants of subfigures, so it's neglected.%
+% }^^A
 %
 %
 %
@@ -1267,17 +1265,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svg@tempa}
 % \begin{macro}{\svg@tempb}
 % \begin{macro}{\if@svg@tempswa}
-% \begin{macro}{\svg@tempcnt}
 % Internal temporary macros.
 %    \begin{macrocode}
 %<*base>
 \newcommand*\svg@tempa{}
 \newcommand*\svg@tempb{}
 \newif\if@svg@tempswa
-\newcount\svg@tempcnt
 %</base>
 %    \end{macrocode}
-% \end{macro}^^A \svg@tempcnt
 % \end{macro}^^A \if@svg@tempswa
 % \end{macro}^^A \svg@tempb
 % \end{macro}^^A \svg@tempa
@@ -1298,14 +1293,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % packages anyways.
 %
 % \begin{option}{usexcolor}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{option}{noxcolor}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{macro}{\if@svg@use@xcolor}
 % \begin{option}{usetransparent}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{option}{notransparent}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{macro}{\if@svg@use@transparent}
 % Options for preventing packages \pkg{xcolor} and \pkg{transparent} to be 
 % loaded.
@@ -1354,14 +1349,15 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % support of \LaTeX{} can optionally be used.
 %
 % \begin{option}{inkscape}
-% \changes{v2.00}{2017/02/17}{changed/extended}
+% \changes{v2.00}{2017/02/17}{changed/extended}^^A
 % \begin{macro}{\svg@ink@mode}
 % The intension of option \opt{inkscape} is to control the running behaviour of 
-% \app{Inkscape}. It can be switched off at all or invoked only if necessarry 
-% or the command line call can be forced with every \LaTeX~run. Additionally,
-% option \opt{inkscape} can be used as wrapper for options \opt{inkscapeformat},
-% \opt{inkscapelatex}, \opt{inkscapearea} and \opt{inkscapedpi}, which are
-% declared later.
+% \app{Inkscape}. It can be switched off at all (\opt{inkscape}|=|\val{false}) 
+% or invoked only if necessarry (\opt{inkscape}|=|\val{true}) or the command
+% line call can be forced with every \LaTeX~run (\opt{inkscape}|=|\val{forced}).
+% Additionally, option \opt{inkscape} can be used as wrapper for options
+% \opt{inkscapeformat}, \opt{inkscapelatex}, \opt{inkscapearea} and
+% \opt{inkscapedpi}, which are declared later.
 %    \begin{macrocode}
 \newcommand*\svg@ink@mode{}
 \DefineFamilyKey{SVG}{inkscape}[true]{%
@@ -1378,9 +1374,15 @@ svg-extract -- Extract independent graphic files from SVG pictures
     {latexnoexport}{10},{raw}{10},{plain}{10},{simple}{10}%
   }{\svg@tempa}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+%    \end{macrocode}
+% Setting the mode for invoking \app{Inkscape}\dots
+%    \begin{macrocode}
     \ifnum\svg@tempa<\thr@@\relax%
       \let\svg@ink@mode\svg@tempa%
     \else%
+%    \end{macrocode}
+% \dots and the part as wrapper for different options.
+%    \begin{macrocode}
       \ifcase\svg@tempa\relax\or\or\or% pdf
         \FamilyOptions{SVG}{inkscapeformat=pdf}%
       \or% eps
@@ -1454,9 +1456,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@ink@mode
 % \end{option}^^A inkscape
 % \begin{option}{on}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{option}{off}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % Package options which can be used to switch functionality on or off during 
 % the loading of package \pkg{svg}.
 %    \begin{macrocode}
@@ -1466,7 +1468,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{option}^^A off
 % \end{option}^^A on
 % \begin{option}{inkscapeformat}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{macro}{\svg@ink@format}
 % With option \opt{inkscapeformat} the output format of the \app{Inkscape} 
 % export function, which is called via \cs{ShellEscape}, can be configured.
@@ -1498,7 +1500,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@ink@format
 % \end{option}^^A inkscapeformat
 % \begin{option}{inkscapelatex}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{macro}{\svg@ink@latex}
 % This options controls whether the \app{Inkscape} export will be invoked with 
 % or without the generation of a seperate \LaTeX~file.
@@ -1509,7 +1511,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@ink@latex
 % \end{option}^^A inkscapelatex
 % \begin{option}{inkscapearea}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{macro}{\svg@ink@area}
 % The exported area for an \app{Inkscape} graphic can be set with this option.
 %    \begin{macrocode}
@@ -1531,7 +1533,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@ink@area
 % \end{option}^^A inkscapearea
 % \begin{option}{inkscapedpi}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{option}{inkscapedensity}
 % \begin{macro}{\svg@ink@dpi}
 % A density can be chosen, which is used during export with \app{Inkscape} for 
@@ -1559,10 +1561,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{option}^^A inkscapedensity
 % \end{option}^^A inkscapedpi
 % \begin{option}{inkscapeexe}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{macro}{\svg@ink@exe}
 % \begin{option}{inkscapeopt}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{macro}{\svg@ink@opt}
 % With these options, the terminal command for invoking \app{Inkscape} as well 
 % as additional options can be defined.
@@ -1588,7 +1590,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \subsubsection{Setting input folder}
 %
 % \begin{option}{svgpath}
-% \changes{v2.00}{2017/02/12}{deprecated}
+% \changes{v2.00}{2017/02/12}{deprecated}^^A
 % In version~v1.0 setting the path to SVG~files was done via option. So 
 % this method is provided as well.
 %    \begin{macrocode}
@@ -1612,9 +1614,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \subsubsection{Setting output folder}
 %
 % \begin{option}{inkscapepath}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{option}{inkscapename}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{macro}{\svg@out@path}
 % \begin{macro}{\svg@out@name}
 % \begin{macro}{\svg@out@base}
@@ -1669,10 +1671,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{option}{width}
 % \begin{macro}{\svg@param@width}
 % \begin{option}{height}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{macro}{\svg@param@width}
 % \begin{option}{scale}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{macro}{\svg@param@scale}
 % These options determine the size of the included graphics. The usage of
 % \val{\cs{relax}} as value resets the respective option to the default 
@@ -1731,7 +1733,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{option}{apptex}
 % \begin{macro}{\svg@param@apptex}
 % \begin{option}{postex}
-% \changes{v2.00}{2017/03/02}{deprecated}
+% \changes{v2.00}{2017/03/02}{deprecated}^^A
 % For executing code right before or after the graphic inclusion, two hooks are 
 % defined.
 %    \begin{macrocode}
@@ -1765,7 +1767,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@param@pretex
 % \end{option}^^A pretex
 % \begin{option}{lastpage}
-% \changes{v2.00}{2017/02/20}{new}
+% \changes{v2.00}{2017/02/20}{new}^^A
 % \begin{counter}{svg@param@lastpage}
 % For \app{Inkscape}~0.91 a bug concerning the \LaTeX~export has been reported
 % (\url{https://bugs.launchpad.net/ubuntu/+source/inkscape/+bug/1417470}). 
@@ -1792,7 +1794,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{counter}^^A svg@param@lastpage
 % \end{option}^^A lastpage
 % \begin{option}{draft}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{macro}{\if@svg@draft}
 % The option \opt{draft} has the same effect as the eponymous option of package
 % \pkg{graphicx}.
@@ -2202,9 +2204,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \subsection{User commands}
 %
 % \begin{macro}{\svgsetup}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{macro}{\setsvg}
-% \changes{v2.00}{2017/02/17}{deprecated}
+% \changes{v2.00}{2017/02/17}{deprecated}^^A
 % The macro \cs{svgsetup} can be used to change options after loading the 
 % package \pkg{svg} both in preamble and the document body. For compatibility 
 % reasons, \cs{setsvg} is also defined.
@@ -2215,7 +2217,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \setsvg
 % \end{macro}^^A \svgsetup
 % \begin{macro}{\svgpath}
-% \changes{v2.00}{2017/02/12}{new}
+% \changes{v2.00}{2017/02/12}{new}^^A
 % \begin{macro}{\svg@path}
 % With \cs{svgpath} the user can give several root paths to SVG~files in the
 % same way as \cs{graphicspath} is used. The only difference is that a missing
@@ -2239,7 +2241,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@path
 % \end{macro}^^A \svgpath
 % \begin{macro}{\includesvg}
-% \changes{v2.00}{2017/02/17}{changes, especially to optional parameters}
+% \changes{v2.00}{2017/02/17}{changes, especially to optional parameters}^^A
 % For the inclusion of SVG~files the command \cs{includesvg} is defined.
 %    \begin{macrocode}
 \newcommand*{\includesvg}[2][]{%
@@ -2250,26 +2252,26 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \svg@deprecated@param%
 %    \end{macrocode}
 % \begin{parameter}{inkscape}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{parameter}{inkscapeformat}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{parameter}{inkscapelatex}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{parameter}{inkscapearea}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{parameter}{inkscapedpi}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{parameter}{inkscapeopt}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{parameter}{width}
 % \begin{parameter}{height}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{parameter}{scale}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{parameter}{pretex}
 % \begin{parameter}{apptex}
 % \begin{parameter}{draft}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{parameter}{extract}
 % \begin{parameter}{extractpreamble}
 % \begin{parameter}{extractformat}
@@ -2373,7 +2375,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 %    \end{macrocode}
 % \begin{parameter}{lastpage}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % In addition to the automatic finding of the last page, which is included, it 
 % can also be given directly as parameter.
 %    \begin{macrocode}
@@ -2383,9 +2385,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{parameter}^^A lastpage
 % \begin{parameter}{angle}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{parameter}{origin}
-% \changes{v2.00}{2017/02/17}{new}
+% \changes{v2.00}{2017/02/17}{new}^^A
 % The parameters \prm{angle} and \prm{origin} are definied as pendants to the 
 % keys provided by \cs{includegraphics}.
 %    \begin{macrocode}
@@ -2408,7 +2410,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{parameter}^^A angle
 % \end{macro}^^A \includesvg
 % \begin{macro}{\includeinkscape}
-% \changes{v2.00}{2017/02/23}{new}
+% \changes{v2.00}{2017/02/23}{new}^^A
 % The command \cs{includeinkscape} can be used for including the export results 
 % of \app{Inkscape}, if this part of the job was done in another way.
 %    \begin{macrocode}
@@ -2714,33 +2716,33 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svg@get@lastpage[1]{%
   \ifstr{\svg@ink@format}{pdf}{%
     \begingroup%
-      \svg@tempcnt=\m@ne\relax%
+      \@tempcnta=\m@ne\relax%
       \ifx\XeTeXpdfpagecount\@undefined%
         \ifpdf%
           \ifx\pdfximage\@undefined%
             \ifx\saveimageresource\@undefined\else%
               \saveimageresource{#1}%
-              \svg@tempcnt=\lastsavedimageresourcepages\relax%
+              \@tempcnta=\lastsavedimageresourcepages\relax%
             \fi%
           \else%
             \pdfximage{#1}%
-            \svg@tempcnt=\pdflastximagepages\relax%
+            \@tempcnta=\pdflastximagepages\relax%
           \fi%
         \fi%
       \else%
-        \svg@tempcnt=\XeTeXpdfpagecount#1\relax%
+        \@tempcnta=\XeTeXpdfpagecount#1\relax%
       \fi%
-      \ifnum\svg@tempcnt=\m@ne\relax%
+      \ifnum\@tempcnta=\m@ne\relax%
         \PackageWarning{svg}{%
           It wasn't possible to detect the last page\MessageBreak%
           of `#1'%
         }%
       \else%
-        \PackageInfo{svg}{Last page of `#1' is \the\svg@tempcnt}%
+        \PackageInfo{svg}{Last page of `#1' is \the\@tempcnta}%
       \fi%
       \edef\svg@tempa{%
         \noexpand\endgroup%
-        \noexpand\FamilyOptions{SVG}{lastpage=\the\svg@tempcnt}%
+        \noexpand\FamilyOptions{SVG}{lastpage=\the\@tempcnta}%
       }%
     \svg@tempa%
   }{}%
@@ -3014,7 +3016,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \subsubsection{Controlling the extract process}
 %
 % \begin{option}{extract}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{macro}{\if@svgx@run}
 % With option \opt{extract} it can be controlled, if the extraction of 
 % independent graphic files should be done.
@@ -3051,9 +3053,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \if@svgx@run
 % \end{option}^^A extract
 % \begin{option}{on}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{option}{off}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % Package options which can be used to switch functionality on or off during 
 % the loading of package \pkg{svg-extract}.
 %    \begin{macrocode}
@@ -3065,12 +3067,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{option}^^A off
 % \end{option}^^A on
 % \begin{option}{extractformat}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{macro}{\svgx@format}
 % \begin{option}{pdf}
-% \changes{v2.00}{2017/03/02}{deprecated}
+% \changes{v2.00}{2017/03/02}{deprecated}^^A
 % \begin{option}{eps}
-% \changes{v2.00}{2017/03/02}{deprecated}
+% \changes{v2.00}{2017/03/02}{deprecated}^^A
 % Option \opt{extractformat} controls the output format (\val{pdf/eps/ps}). It
 % is set to \val{pdf} or, if dvi output could be detected, to \val{eps} during
 % initialization.
@@ -3122,14 +3124,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svgx@format
 % \end{option}^^A extractformat
 % \begin{option}{extractpreamble}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{option}{preamble}
-% \changes{v2.00}{2017/02/24}{deprecated}
+% \changes{v2.00}{2017/02/24}{deprecated}^^A
 % \begin{macro}{\svgx@preamble}
 % \begin{option}{extractpreambleend}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{option}{end}
-% \changes{v2.00}{2017/02/24}{deprecated}
+% \changes{v2.00}{2017/02/24}{deprecated}^^A
 % \begin{macro}{\svgx@endpreamble}
 % For the extraction process, a preamble is necessarry for a separate auxiliary 
 % \LaTeX~file. By default, the preamble of the main document is used, which end
@@ -3170,7 +3172,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{option}^^A preamble
 % \end{option}^^A extractpreamble
 % \begin{option}{extractruns}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{counter}{svgx@runs}
 % With this option, the number of \LaTeX~runs for the separate auxiliary file 
 % can be set.
@@ -3196,15 +3198,15 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{counter}^^A svgx@runs
 % \end{option}^^A extractruns
 % \begin{option}{latexexe}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{option}{pdflatex}
-% \changes{v2.00}{2017/02/24}{deprecated}
+% \changes{v2.00}{2017/02/24}{deprecated}^^A
 % \begin{macro}{\svgx@latex@exe}
 % \begin{option}{latexext}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{macro}{\svgx@latex@ext}
 % \begin{option}{latexopt}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{macro}{\svgx@latex@opt}
 % The command and facultative options for the \LaTeX~call of the separate 
 % auxiliary file. The default is set according to the currently used compiler.
@@ -3256,27 +3258,27 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{option}^^A latexexe
 % \end{option}^^A pdflatexexe
 % \begin{option}{dvipsopt}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{macro}{\svgx@dvips@exe}
 % \begin{macro}{\svgx@dvips@opt}
 % \begin{option}{pstoepsopt}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{macro}{\svgx@pstoeps@exe}
 % \begin{macro}{\svgx@pstoeps@opt}
 % \begin{option}{pstopdfopt}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{macro}{\svgx@pstopdf@exe}
 % \begin{macro}{\svgx@pstopdf@opt}
 % \begin{option}{pdftoepsopt}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{macro}{\svgx@pdftoeps@exe}
 % \begin{macro}{\svgx@pdftoeps@opt}
 % \begin{option}{pdftopsopt}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{macro}{\svgx@pdftops@exe}
 % \begin{macro}{\svgx@pdftops@opt}
 % \begin{option}{pdftops}
-% \changes{v2.00}{2017/02/24}{deprecated}
+% \changes{v2.00}{2017/02/24}{deprecated}^^A
 % Options and macros for calling convert commands, which are supplied by most
 % \LaTeXe~distributions. These are used to generate all files, which are 
 % supported by option \opt{extractformat}, as they don't need an additional
@@ -3357,7 +3359,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \app{ImageMagick} and \app{Ghostscript} can be used for converting graphics.
 %
 % \begin{option}{convert}
-% \changes{v2.00}{2017/02/24}{changed/extended}
+% \changes{v2.00}{2017/02/24}{changed/extended}^^A
 % \begin{macro}{\if@svgx@cnv@run}
 % \begin{macro}{\svgx@cnv@cmd}
 % The option \opt{convert} can be used to define, which of both applications 
@@ -3452,10 +3454,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \if@svgx@cnv@run
 % \end{option}^^A convert
 % \begin{option}{convertformat}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{macro}{\svgx@cnv@format}
 % \begin{option}{png}
-% \changes{v2.00}{2017/03/02}{deprecated}
+% \changes{v2.00}{2017/03/02}{deprecated}^^A
 % Option \opt{convertformat} controls the output format for converted files. It
 % is set to \val{png} by default.
 %    \begin{macrocode}
@@ -3491,7 +3493,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svgx@cnv@format
 % \end{option}^^A convertformat
 % \begin{option}{convertdpi}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{option}{convertdensity}
 % \begin{macro}{\svgx@cnv@dpi}
 % The option \opt{convertdpi} is meant to define the used density during the 
@@ -3532,13 +3534,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{option}^^A convertdensity
 % \end{option}^^A convertdpi
 % \begin{option}{magickexe}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{macro}{\svgx@magick@exe}
 % \begin{option}{magicksetting}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{macro}{\svgx@magick@set}
 % \begin{option}{magickoperator}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{macro}{\svgx@magick@opr}
 % Setting the command including maybe the path to \app{ImageMagick}. The keys
 % \opt{magicksetting} and \opt{magickoperator} should be used to add optional
@@ -3576,13 +3578,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svgx@magick@exe
 % \end{option}^^A magickexe
 % \begin{option}{gsexe}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{macro}{\svgx@gs@exe}
 % \begin{option}{gsopt}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{macro}{\svgx@gs@opt}
 % \begin{option}{gsdevice}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{macro}{\svgx@gs@device}
 % Options to set the command including maybe the path to \app{Ghostscript}. As 
 % \app{Ghostscript} needs a specific device defined for different output
@@ -3625,14 +3627,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \subsubsection{Setting output folder}
 %
 % \begin{option}{extractpath}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{option}{path}
-% \changes{v2.00}{2017/02/24}{deprecated}
+% \changes{v2.00}{2017/02/24}{deprecated}^^A
 % \begin{option}{extractname}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{option}{name}
-% \changes{v2.00}{2017/02/24}{deprecated}
-% \changes{v2.00}{2017/02/24}{support of \pkg{subfig} removed}
+% \changes{v2.00}{2017/02/24}{deprecated}^^A
+% \changes{v2.00}{2017/02/24}{support of \pkg{subfig} removed}^^A
 % \begin{macro}{\svgx@out@path}
 % \begin{macro}{\svgx@out@name}
 % \begin{macro}{\if@svgx@out@sec}
@@ -3723,13 +3725,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \subsubsection{Options for the extraction of graphics}
 %
 % \begin{option}{extractwidth}
-% \changes{v2.00}{2017/02/20}{new}
+% \changes{v2.00}{2017/02/20}{new}^^A
 % \begin{macro}{\svgx@param@width}
 % \begin{option}{extractheight}
-% \changes{v2.00}{2017/02/20}{new}
+% \changes{v2.00}{2017/02/20}{new}^^A
 % \begin{macro}{\svgx@param@width}
 % \begin{option}{extractscale}
-% \changes{v2.00}{2017/02/20}{new}
+% \changes{v2.00}{2017/02/20}{new}^^A
 % \begin{macro}{\svgx@param@scale}
 % For graphic extraction, the given settings regarding the size for inclusion 
 % can be overwritten with these options. Using \val{\cs{relax}} as value leads 
@@ -3808,10 +3810,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svgx@param@width
 % \end{option}^^A extractwidth
 % \begin{option}{extractpretex}
-% \changes{v2.00}{2017/02/20}{new}
+% \changes{v2.00}{2017/02/20}{new}^^A
 % \begin{macro}{\svgx@param@pretex}
 % \begin{option}{extractapptex}
-% \changes{v2.00}{2017/02/20}{new}
+% \changes{v2.00}{2017/02/20}{new}^^A
 % \begin{macro}{\svgx@param@apptex}
 % \begin{option}{extractpostex}
 % The similar hooks for executing code right before or after the graphic 
@@ -3865,7 +3867,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \subsubsection{Miscellaneous options}
 %
 % \begin{option}{clean}
-% \changes{v2.00}{2017/02/24}{changes, file list possible}
+% \changes{v2.00}{2017/02/24}{changes, file list possible}^^A
 % \begin{option}{clear}
 % \begin{macro}{\svgx@clean}
 % With option \opt{clean} files generated during the extraction process can be 
@@ -3936,9 +3938,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \subsection{User commands}
 %
 % \begin{macro}{\svghidepreamblestart}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{macro}{\svghidepreambleend}
-% \changes{v2.00}{2017/02/24}{new}
+% \changes{v2.00}{2017/02/24}{new}^^A
 % Some dummys for package \pkg{svg}.
 %    \begin{macrocode}
 %<*base>
@@ -4873,40 +4875,42 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svgx@box}
 % Within the preamble of the auxiliary \LaTeX~file, the desired grahic is used 
 % to setup a box, which is used both to define the papersize as well as for the 
-% output itself.
+% output itself. For \TUDScript-classes, the crop-mode is acrivated.
 %    \begin{macrocode}
 \newbox\svgx@box
 \newcommand*\svgxsetbox[2][]{%
-  \sbox\svgx@box{\svg@@input[{#1},draft=false]{#2}}%
-%    \end{macrocode}
-% Setting crop-mode for the \TUDScript-classes.
-%    \begin{macrocode}
   \csname @tud@x@standalone@croptrue\endcsname%
+  \sbox\svgx@box{\svg@@input[{#1},draft=false]{#2}}%
   \svgxsetpapersize%
 }
 %    \end{macrocode}
 % \end{macro}^^A \svgx@box
 % \end{macro}^^A \svgxsetbox
 % \begin{macro}{\svgxsetpapersize}
+% \changes{v2.00a}{2017/02/28}{Bug fix for checking stock- and mediasizes}^^A
 % This macro sets all well known length macros for defining the paper size as 
 % well as the type area to the size of \cs{svgx@box}.
 %    \begin{macrocode}
 \newcommand*\svgxsetpapersize{%
   \setlength\paperwidth{\the\wd\svgx@box}%
-  \ifx\stockwidth\@undefined\else%
+%    \end{macrocode}
+% Due to the fact, that the lengths for stock- and mediasizes are maybe set to
+% \cs{relax}, these macros are checked with \cs{scr@ifundefinedorrelax}.
+%    \begin{macrocode}
+  \scr@ifundefinedorrelax{stockwidth}{}{%
     \setlength\stockwidth{\paperwidth}%
-  \fi%
-  \ifx\mediawidth\@undefined\else%
+  }%
+  \scr@ifundefinedorrelax{mediawidth}{}{%
     \setlength\mediawidth{\paperwidth}%
-  \fi%
+  }%
   \setlength\textwidth{\paperwidth}%
   \setlength\paperheight{\the\dimexpr\ht\svgx@box+\dp\svgx@box\relax}%
-  \ifx\stockheight\@undefined\else%
+  \scr@ifundefinedorrelax{stockheight}{}{%
     \setlength\stockheight{\paperheight}%
-  \fi%
-  \ifx\mediaheight\@undefined\else%
+  }%
+  \scr@ifundefinedorrelax{mediaheight}{}{%
     \setlength\mediaheight{\paperheight}%
-  \fi%
+  }%
   \setlength\textheight{\paperheight}%
 %    \end{macrocode}
 % Any other length regarding the layout is set to have no influence at all. 
