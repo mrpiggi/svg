@@ -1,13 +1,11 @@
 
- svg         -- Include SVG pictures in LaTeX documents using Inkscape
-----------------------------------------------------------------------------
- svg-extract -- Extract independent graphic files from SVG pictures
+ svg and svg-extract -- Include and extract SVG pictures in LaTeX documents 
 ----------------------------------------------------------------------------
 
  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
 
- svg 2017/03/27 v2.00
+ svg 2017/03/28 v2.00a
 
 ----------------------------------------------------------------------------
 
@@ -36,6 +34,9 @@ it is rendered within the LaTeX document using either ***ImageMagick*** or
 Versions
 --------
 
+**v2.00a** (2017/03/28)
++ Bug fix for checking stock- and mediasizes
+
 **v2.00** (2017/03/27)
 + New maintainer: Falk Hanisch
 + Re-implementation from scratch
@@ -49,7 +50,6 @@ Versions
   with this topic and the large variety of implementing this functionality; 
   naming exported graphics after their consecutive numbering can't be ensured
   for all variants of subfigures, so it's neglected
-
 
 **v1.0** (2016/10/10)
 + initial version by Philip Ilten

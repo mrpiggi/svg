@@ -1,7 +1,5 @@
 
- svg         -- Include SVG pictures in LaTeX documents using Inkscape
-----------------------------------------------------------------------------
- svg-extract -- Extract independent graphic files from SVG pictures
+ svg and svg-extract -- Include and extract SVG pictures in LaTeX documents 
 ----------------------------------------------------------------------------
 
  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
