@@ -115,7 +115,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<package&option&base>\ProvidesPackage{svg}[%
 %<package&option&extract>\ProvidesPackage{svg-extract}[%
 %<*driver|package&option>
-  2017/03/29 v2.00b\space%
+  2017/04/24 v2.00b\space%
 %<package&option&base>  (include SVG pictures)%
 %<package&option&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -308,7 +308,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \section{Usage of package \pkg{svg}}\label{sec:inkscape}
 %
 % The purpose of this package is to include SVG~graphics into a \LaTeX~document.
-% The command \cs{includesvg} is defined which does all necessarry steps for
+% The command \cs{includesvg} is defined which does all necessary steps for
 % this task. It first launches the export of a SVG~file to a supported 
 % file~format with Inkscape, if necessary, and includes the exported 
 % graphic~file afterwards. The usage and the syntax is quite similiar to the
@@ -809,7 +809,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \DescribeOption{extractruns}
 % When extracting independent grahic~files by compiling the generated auxiliary 
-% \LaTeX~file, it's maybe necessarry to do multiple \LaTeX~runs on this file. 
+% \LaTeX~file, it's maybe necessary to do multiple \LaTeX~runs on this file. 
 % The number of runs can be controlled with option \opt{extractruns}. It's set
 % to \opt{extractruns}|=|\val{2} by default.
 %
@@ -1353,7 +1353,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svg@ink@mode}
 % The intension of option \opt{inkscape} is to control the running behaviour of 
 % \app{Inkscape}. It can be switched off at all (\opt{inkscape}|=|\val{false}) 
-% or invoked only if necessarry (\opt{inkscape}|=|\val{true}) or the command
+% or invoked only if necessary (\opt{inkscape}|=|\val{true}) or the command
 % line call can be forced with every \LaTeX~run (\opt{inkscape}|=|\val{forced}).
 % Additionally, option \opt{inkscape} can be used as wrapper for options
 % \opt{inkscapeformat}, \opt{inkscapelatex}, \opt{inkscapearea} and
@@ -2149,7 +2149,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@file@missing
 % \begin{macro}{\svg@iffilenewer}
 % The macro \cs{svg@iffilenewer} is used to decide, whether the export with 
-% \app{Inkscape} is necessarry due to an updated SVG~file. This can only be
+% \app{Inkscape} is necessary due to an updated SVG~file. This can only be
 % done, if \cs{pdf@filemoddate} is definied. Unfortunately this functionality
 % isn't provided by Xe\TeX.
 %    \begin{macrocode}
@@ -2352,7 +2352,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \svg@get@path{#2}{}%
     \if@svg@file@found%
 %    \end{macrocode}
-% Running the export with \app{Inkscape} (if necessarry) and checking the 
+% Running the export with \app{Inkscape} (if necessary) and checking the 
 % required files for graphic inclusion.
 %    \begin{macrocode}
       \svg@ink@run%
@@ -2599,7 +2599,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % If the mode for \opt{inkscape} was set to \val{forced}, \app{Inkscape} will 
 % be called in any case. Otherwise, some checks are performed to detect, if a
-% run of \app{Inkscape} is actually necessarry.
+% run of \app{Inkscape} is actually necessary.
 %    \begin{macrocode}
       \@svg@ink@runtrue%
       \ifnum\svg@ink@mode=\tw@\relax\else%
@@ -2860,7 +2860,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \begin{macro}{\svg@patches}
 % For including the export results from \app{Inkscape} with \LaTeX~support 
-% enabled, there are some patches necessarry for environment \env{picture} and 
+% enabled, there are some patches necessary for environment \env{picture} and 
 % \cs{includegraphics}. Those patches are done with \cs{svg@patches}.
 %    \begin{macrocode}
 \newcommand*\svg@patches[1]{%
@@ -3141,7 +3141,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{option}{end}
 % \changes{v2.00}{2017/02/24}{deprecated}^^A
 % \begin{macro}{\svgx@endpreamble}
-% For the extraction process, a preamble is necessarry for a separate auxiliary 
+% For the extraction process, a preamble is necessary for a separate auxiliary 
 % \LaTeX~file. By default, the preamble of the main document is used, which end
 % is detected at \cs{begin}|{document}|.
 %    \begin{macrocode}
@@ -4310,7 +4310,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     }{%
 %    \end{macrocode}
 % As the extraction maybe needs to include the main~auxiliary~file with 
-% \cs{externaldocument} provided by package \pkg{xr} it is necessarry to do all 
+% \cs{externaldocument} provided by package \pkg{xr} it is necessary to do all 
 % related stuff after the main~auxiliary~file was written. This is done with
 % \cs{AfterReadingMainAux} provided by package \pkg{scrlfile}.
 %    \begin{macrocode}
@@ -4350,7 +4350,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \repeat%
 %    \end{macrocode}
 % All files requested with option \opt{extractformat} are created with internal 
-% conversion tools supplied by most \LaTeXe~distributions if necessarry.
+% conversion tools supplied by most \LaTeXe~distributions if necessary.
 %    \begin{macrocode}
       \def\svg@tempa##1##2##3{%
         \edef\svg@tempb{%
