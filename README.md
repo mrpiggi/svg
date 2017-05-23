@@ -5,7 +5,7 @@
  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
 
- svg 2017/03/28 v2.00a
+ svg 2017/05/23 v2.00b
 
 ----------------------------------------------------------------------------
 
@@ -33,6 +33,9 @@ it is rendered within the LaTeX document using either ***ImageMagick*** or
 
 Versions
 --------
+
+**v2.00b** (2017/05/23)
++ improved warnings, if package **svg** is loaded by package **svg-extract**
 
 **v2.00a** (2017/03/28)
 + Bug fix for checking stock- and mediasizes
