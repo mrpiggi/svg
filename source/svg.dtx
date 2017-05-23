@@ -1,4 +1,4 @@
-% \CheckSum{3458}
+% \CheckSum{3465}
 % \iffalse meta-comment
 %
 %  svg and svg-extract -- Include and extract SVG pictures in LaTeX documents
@@ -115,7 +115,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<package&option&base>\ProvidesPackage{svg}[%
 %<package&option&extract>\ProvidesPackage{svg-extract}[%
 %<*driver|package&option>
-  2017/04/24 v2.00b\space%
+  2017/05/23 v2.00b\space%
 %<package&option&base>  (include SVG pictures)%
 %<package&option&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -2990,30 +2990,32 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<*base>
 \DefineFamilyMember[.dummy]{SVG}
 \newcommand*\svg@dummy@key[2][]{%
-  \IfArgIsEmpty{#1}{%
-    \DefineFamilyKey[.dummy]{SVG}{#2}{%
-      \PackageWarning{svg}{%
-        The option key `#2' can only\MessageBreak%
-        be used with package `svg-extract', but\MessageBreak%
-        you didn't load it%
+  \@ifpackageloaded{svg-extract}{}{%
+    \IfArgIsEmpty{#1}{%
+      \DefineFamilyKey[.dummy]{SVG}{#2}{%
+        \PackageWarning{svg}{%
+          The option key `#2' can only\MessageBreak%
+          be used with package `svg-extract', but\MessageBreak%
+          you didn't load it%
+        }%
+        \FamilyKeyStateProcessed%
       }%
-      \FamilyKeyStateProcessed%
-    }%
-  }{%
-    \DefineFamilyKey[.dummy]{SVG}{#2}[{#1}]{%
-      \PackageWarning{svg}{%
-        The option key `#2' can only\MessageBreak%
-        be used with package `svg-extract', but\MessageBreak%
-        you didn't load it%
+    }{%
+      \DefineFamilyKey[.dummy]{SVG}{#2}[{#1}]{%
+        \PackageWarning{svg}{%
+          The option key `#2' can only\MessageBreak%
+          be used with package `svg-extract', but\MessageBreak%
+          you didn't load it%
+        }%
+        \FamilyKeyStateProcessed%
       }%
-      \FamilyKeyStateProcessed%
     }%
-  }%
 %    \end{macrocode}
 % Before package \pkg{svg-extract} the given key |#2| of family member |.dummy| 
 % is relaxed.
 %    \begin{macrocode}
-  \BeforePackage{svg-extract}{\RelaxFamilyKey[.dummy]{SVG}{#2}}%
+    \AfterPackage{svg-extract}{\RelaxFamilyKey[.dummy]{SVG}{#2}}%
+  }%
 }
 %</base>
 %    \end{macrocode}
@@ -4288,7 +4290,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
         }{}%
       \fi%
       \immediate\write\svgx@stream@out{%
-        \string\AtBeginDocument{\@percentchar^^J%
+        \string\svgxdelayed{\@percentchar^^J%
           \space\space\svg@tempa\@percentchar^^J%
         }^^J^^J%
         \string\begin{document}^^J%
@@ -4879,6 +4881,20 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % needed. Within this file, the following commands are used to include the 
 % desired graphic.
 %
+% \begin{macro}{\svgxdelayed}
+% \changes{v2.00b}{2017/05/23}{new}^^A
+% This macro executes its argument at the very end of \cs{AtBeginDocument} if 
+% package \pkg{etoolbox} was loaded.
+%    \begin{macrocode}
+\newcommand*\svgxdelayed[1]{
+  \scr@ifundefinedorrelax{AtEndPreamble}{%
+    \AtBeginDocument{#1}%
+  }{%
+    \AtEndPreamble{\AtBeginDocument{#1}}%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svgxdelayed
 % \begin{macro}{\svgxsetbox}
 % \begin{macro}{\svgx@box}
 % Within the preamble of the auxiliary \LaTeX~file, the desired grahic is used 
