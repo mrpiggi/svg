@@ -1,4 +1,4 @@
-% \CheckSum{3491}
+% \CheckSum{3514}
 % \iffalse meta-comment
 %
 %  svg and svg-extract -- Include and extract SVG pictures in LaTeX documents
@@ -1926,6 +1926,70 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \if@svg@quotes@found
 % \end{macro}^^A \svg@quotes@@check
 % \end{macro}^^A \svg@quotes@check
+% \begin{macro}{\svg@set@input@path}
+% \changes{v2.01}{2017/11/28}{new}%
+% \begin{macro}{\svg@append@input@path}
+% \changes{v2.01}{2017/11/28}{new}%
+% In order to import SVG~files from different folders, \cs{svg@set@input@path}
+% evaluates several macros, which are supposed to be used for holding different 
+% search folders. Any given path will be handled by \cs{svg@normalize@path}.
+% The optional argument can be used to append an additional search path.
+%    \begin{macrocode}
+\newcommand*\svg@set@input@path[1][]{%
+  \begingroup%
+%    \end{macrocode}
+% If a path was already found and stored within \cs{svg@file@path}, it is
+% searched first and wrapped in curly braces. This is necessary for using
+% commands like \cs{input}\marg{tex filename} within SVG~files.
+%    \begin{macrocode}
+    \ifx\svg@file@path\@empty\else%
+      \edef\svg@file@path{{\svg@file@path}}%
+    \fi%
+%    \end{macrocode}
+% Afterwards, several search paths are appended. If \cs{svgpath} was used, it 
+% is searched next. If nothing was found, \cs{graphicspath} is considered if 
+% defined followed by a path given in the third argument. If nothing was found
+% yet, the standard \cs{input@path} is searched last.
+%    \begin{macrocode}
+    \svg@append@input@path{\svg@file@path}{\svg@input@path}%
+    \svg@append@input@path{\svg@file@path}{\Ginput@path}%
+    \svg@append@input@path{\svg@file@path}{{#1}}%
+    \svg@append@input@path{\svg@file@path}{\input@path}%
+%    \end{macrocode}
+% Passing each path to \cs{svg@normalize@path}.
+%    \begin{macrocode}
+    \def\svg@tempb{}%
+    \expandafter\@tfor\expandafter\svg@tempa\expandafter:\expandafter=%
+        \svg@file@path\do{%
+      \ifx\svg@tempa\@empty\else%
+        \svg@normalize@path{\svg@tempa}%
+        \edef\svg@tempb{%
+          \unexpanded\expandafter{\svg@tempb}{\svg@tempa}%
+        }%
+      \fi%
+    }%
+%    \end{macrocode}
+% Finally, \cs{input@path} is set.
+%    \begin{macrocode}
+    \edef\svg@tempa{%
+      \endgroup%
+      \ifx\svg@tempb\@empty\else%
+        \noexpand\def\noexpand\input@path{\unexpanded\expandafter{\svg@tempb}}%
+      \fi%
+    }%
+  \svg@tempa%
+}
+%    \end{macrocode}
+% Only, if a certain search path is defined, it is added.
+%    \begin{macrocode}
+\newcommand*\svg@append@input@path[2]{%
+  \ifx#2\@undefined\else%
+    \edef#1{\unexpanded\expandafter{#1}#2}%
+  \fi%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@append@input@path
+% \end{macro}^^A \svg@set@input@path
 % \begin{macro}{\svg@normalize@path}
 % \begin{macro}{\svg@normalize@@path}
 % If any path is given, a trailing slash is needed. These two macros ensure
@@ -1990,7 +2054,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \fi
 %
 % \begin{macro}{\svg@get@path}
-% \begin{macro}{\svg@get@@path}
+% \changes{v2.01}{2017/11/28}{using \cs{svg@set@input@path}}%
 % \begin{macro}{\if@svg@file@found}
 % \begin{macro}{\svg@file@path}
 % \begin{macro}{\svg@file@name}
@@ -2027,32 +2091,23 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \edef\svg@tempa{"\svg@tempa"}%
     \fi%
 %    \end{macrocode}
-% If \cs{svgpath} was used, it is searched first. If nothing was found, 
-% \cs{graphicspath} is considered if defined followed by a path given in the 
-% third argument. If nothing was found yet, the standard \cs{input@path} is 
-% searched last.
+% After calling \cs{svg@set@input@path}, all search paths are stored in
+% \cs{input@path}, a single path given in the third argument will also be 
+% considered.
 %    \begin{macrocode}
-    \@svg@file@foundfalse%
-    \let\input@path\svg@path%
-    \svg@get@@path{\svg@tempa}%
-    \if@svg@file@found\else%
-      \ifx\Ginput@path\@undefined\else%
-        \let\input@path\Ginput@path%
-        \svg@get@@path{\svg@tempa}%
-      \fi%
-    \fi%
-    \IfArgIsEmpty{#3}{}{%
-      \if@svg@file@found\else%
-        \ifx#3\@undefined\else%
-          \edef\svg@tempb{{#3}}%
-          \let\input@path\svg@tempb%
-          \svg@get@@path{\svg@tempa}%
-        \fi%
-      \fi%
-    }%
+    \svg@set@input@path[#3]%
+%    \end{macrocode}
+% The specified file is searched with \cs{IfFileExists}. If the file search was 
+% succesful, the macro \cs{svg@filename@parse} is called with the result.
+%    \begin{macrocode}
+    \@svg@tempswafalse%
+    \expandafter\IfFileExists\expandafter{\svg@tempa}{%
+      \@svg@tempswatrue%
+      \expandafter\svg@filename@parse\expandafter{\@filef@und}%
+    }{}%
     \edef\svg@tempa{%
       \endgroup%
-      \if@svg@file@found%
+      \if@svg@tempswa%
         \noexpand\@svg@file@foundtrue%
         \noexpand\def\noexpand\svg@file@path{\filename@area}%
         \noexpand\def\noexpand\svg@file@name{\filename@base}%
@@ -2067,24 +2122,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \svg@tempa%
 }
 %    \end{macrocode}
-% The macro \cs{svg@get@@path} does the actual search job.
-%    \begin{macrocode}
-\newcommand*\svg@get@@path[1]{%
-% The specified file is searched with \cs{IfFileExists}. If the file search was 
-% succesful, the macro \cs{svg@filename@parse} is called with the result.
-%    \begin{macrocode}
-  \expandafter\IfFileExists\expandafter{#1}{%
-    \@svg@file@foundtrue%
-    \expandafter\svg@filename@parse\expandafter{\@filef@und}%
-  }{}%
-}
-%    \end{macrocode}
 % \end{macro}^^A \svg@file@suffix
 % \end{macro}^^A \svg@file@base
 % \end{macro}^^A \svg@file@name
 % \end{macro}^^A \svg@file@path
 % \end{macro}^^A \if@svg@file@found
-% \end{macro}^^A \svg@get@@path
 % \end{macro}^^A \svg@get@path
 % \begin{macro}{\svg@filename@parse}
 % As the internal \LaTeXe{} command \cs{filename@parse} is not able to split a 
@@ -2172,25 +2214,35 @@ svg-extract -- Extract independent graphic files from SVG pictures
       }%
     }{%
       \edef\filename@ext{#1}%
+      \ifstr{\filename@area}{./}{\let\filename@area\@empty}{}%
+%    \end{macrocode}
+% Collecting all considered path for the error message.
+%    \begin{macrocode}
       \edef\svg@tempb{#3}%
       \ifstr{\svg@tempb}{./}{\let\svg@tempb\@empty}{}%
-      \ifstr{\filename@area}{./}{\let\filename@area\@empty}{}%
+      \ifx\svg@tempb\@empty%
+        \svg@set@input@path%
+      \else%
+        \svg@set@input@path[\svg@tempb]%
+      \fi%
+      \ifx\input@path\@undefined%
+        \def\svg@tempb{No additional path was given.}%
+      \else%
+        \def\svg@tempb{Following folders have been searched:}%
+        \expandafter\@tfor\expandafter\svg@tempa\expandafter:\expandafter=%
+            \input@path\do{%
+          \edef\svg@tempb{\svg@tempb\noexpand\MessageBreak\svg@tempa}%
+        }%
+      \fi%
+%    \end{macrocode}
+% The error message itself.
+%    \begin{macrocode}
       \def\svg@tempa{%
         There's no file `\filename@base.\filename@ext'\MessageBreak%
         \ifx\filename@area\@empty%
-          neither in the current directory nor\MessageBreak%
-          any other searched path given by\MessageBreak%
-          \string\svgpath%
-          \ifx\svg@path\@undefined\space\else%
-            \space(\svg@path)\MessageBreak%
-          \fi%
-           or \string\graphicspath%
-          \ifx\Ginput@path\@undefined\else%
-            \space(\Ginput@path)%
-          \fi%
-          \ifx\svg@tempb\@empty\else%
-            \MessageBreak or even `inkscapepath' (`\svg@tempb')%
-          \fi.%
+          neither in the current directory nor any other searched\MessageBreak%
+          path given by \string\svgpath\space or \string\graphicspath.%
+          \MessageBreak\svg@tempb%
         \else%
           in folder `\filename@area'.%
         \fi%
@@ -2282,27 +2334,18 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svgsetup
 % \begin{macro}{\svgpath}
 % \changes{v2.00}{2017/02/12}{new}^^A
-% \begin{macro}{\svg@path}
+% \begin{macro}{\svg@input@path}
 % With \cs{svgpath} the user can give several root paths to SVG~files in the
 % same way as \cs{graphicspath} is used. The only difference is that a missing
 % slash is added at the end of the path, if needed.
 %    \begin{macrocode}
-\newcommand*\svg@path{}
-\let\svg@path\input@path
+\newcommand*\svg@input@path{}
+\let\svg@input@path\input@path
 \newcommand*\svgpath[1]{%
-  \def\svg@tempb{}%
-  \@tfor\svg@tempa:=#1\do{%
-    \ifx\svg@tempa\@empty\else%
-      \svg@normalize@path{\svg@tempa}%
-      \edef\svg@tempb{\svg@tempb{\svg@tempa}}%
-    \fi%
-  }%
-  \ifx\svg@tempb\@empty\else%
-    \let\svg@path\svg@tempb%
-  \fi%
+  \def\svg@input@path{#1}%
 }
 %    \end{macrocode}
-% \end{macro}^^A \svg@path
+% \end{macro}^^A \svg@input@path
 % \end{macro}^^A \svgpath
 % \begin{macro}{\includesvg}
 % \changes{v2.00}{2017/02/17}{changes, especially to optional parameters}^^A
@@ -2840,12 +2883,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svg@@input}
 % With \cs{svg@@input} the export results of \app{Inkscape} are included. The 
 % macro \cs{svg@input} is defined in order to realize the option \opt{exclude} 
-% for package \pkg{svg-extract}.
-% \ToDo{New command \cs{svginput} to input tex-files from svgpath}[v2.01]
+% for package \pkg{svg-extract}. The macro \cs{svg@set@input@path} is called to 
+% support commands like \cs{input}\marg{tex filename} within SVG~files.
 %    \begin{macrocode}
 \newcommand*\svg@input{\svg@@input}
 \newcommand*\svg@@input[2][]{%
   \IfArgIsEmpty{#1}{}{\svg@local@param@set{#1}}%
+  \svg@set@input@path%
   \if@svg@draft%
     \@svg@ink@latexfalse%
   \fi%
