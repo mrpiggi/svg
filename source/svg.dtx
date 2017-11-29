@@ -115,7 +115,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<package&option&base>\ProvidesPackage{svg}[%
 %<package&option&extract>\ProvidesPackage{svg-extract}[%
 %<*driver|package&option>
-  2017/11/27 v2.01\space%
+  2017/11/29 v2.01\space%
 %<package&option&base>  (include SVG pictures)%
 %<package&option&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -232,13 +232,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   for all variants of subfigures, so it's neglected%
 % }^^A
 % \changes{v2.01}{2017/11/27}{%
-%   added \app{Inkscape} export for other file formats than \file{.svg} with
-%   option \opt{svgextension} 
+%   new option \opt{svgextension} to change the format of files exported by
+%   \app{Inkscape} from \file{svg} to a custom one
 % }^^A
 % \changes{v2.01}{2017/11/28}{%
-%   usage of \cs{input}\marg{tex filename} within \app{Inkscape} files in any%
-%   searched folder implemented
-% }%
+%   usage of \cs{input}\marg{tex filename} within \app{Inkscape}~graphics
+%   locates files in all declared searched folders
+% }^^A
 %
 %
 %
