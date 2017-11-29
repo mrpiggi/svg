@@ -5,7 +5,7 @@
  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
 
- svg 2017/05/23 v2.00b
+ svg 2017/11/29 v2.01
 
 ----------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ Versions
 **v2.01** (2017/11/29)
 + new option `svgextension` to change the format of files exported by
   ***Inkscape*** from `svg` to a custom one
-+ usage of `\input{*tex filename*}` within ***Inkscape*** graphics
++ usage of `\input{tex filename}` within ***Inkscape*** graphics
   locates files in all declared searched folders
 
 **v2.00b** (2017/05/23)
