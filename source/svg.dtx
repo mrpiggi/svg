@@ -115,7 +115,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<package&option&base>\ProvidesPackage{svg}[%
 %<package&option&extract>\ProvidesPackage{svg-extract}[%
 %<*driver|package&option>
-  2017/11/29 v2.01\space%
+  2017/12/11 v2.02\space%
 %<package&option&base>  (include SVG pictures)%
 %<package&option&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -239,6 +239,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   usage of \cs{input}\marg{tex filename} within \app{Inkscape}~graphics
 %   locates files in all declared searched folders
 % }^^A
+%
+% \ToDo{Parameter keepaspectratio unterstützen (wenn kein LaTeX-Export)}[v2.02]
+% \ToDo{Befehl zum direkten Einbinden extrahierter Grafiken (aux lesen)}[v2.02]
 %
 %
 %
@@ -498,9 +501,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The width of the included graphic~file can be specified via the \opt{width} 
 % option and the height by the \opt{height} option. If both the width and
 % height are specified, the figure won't be distort but scaled such that
-% neither of the specified dimensions is exceeded. If \opt{width} and/or 
-% \opt{height} once have been set, this can be reversed by setting them to 
-% \val{0pt} or \cs{relax}.
+% neither of the specified dimensions is exceeded.\footnote{\ignorespaces%
+%   the internal call of \cs{includegraphics} will always be done with 
+%   \prm{keepaspectratio}|=|\val{true}
+% } If \opt{width} and/or \opt{height} once have been set, this can be undone
+% by setting them to \val{0pt} or \cs{relax}.
 %
 % If neither \opt{width} nor \opt{height} are set, the included graphic~file 
 % can also be scaled by setting \opt{scale} to a positive real number.
