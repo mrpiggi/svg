@@ -115,7 +115,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<package&option&base>\ProvidesPackage{svg}[%
 %<package&option&extract>\ProvidesPackage{svg-extract}[%
 %<*driver|package&option>
-  2017/12/11 v2.02\space%
+  2018/08/08 v2.02a\space%
 %<package&option&base>  (include SVG pictures)%
 %<package&option&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -123,7 +123,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<*driver>
 \documentclass[english,xindy]{tudscrdoc}[2017/03/27]
 \usepackage[T1]{fontenc}
-\usepackage{selinput}\SelectInputMappings{adieresis={ä},germandbls={ß}}
 \usepackage{babel}
 \KOMAoptions{parskip=half-}
 \usepackage{marginnote}
@@ -1023,7 +1022,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{svgexample}
 %   \documentclass{article}
 %   \usepackage[T1]{fontenc}
-%   \usepackage{selinput}\SelectInputMappings{adieresis={ä},germandbls={ß}}
 %   \usepackage{svg}
 %   \usepackage[off]{svg-extract}
 %   \svgsetup{clean=true}
@@ -1264,11 +1262,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \RequirePackage{svg}[2017/03/27]
 %</extract>
 %    \end{macrocode}
-% With the interface provided by package \pkg{scrbase} all options, which can 
-% be set either as package options or with \cs{svgsetup}, as well as the
-% optional parameters for both user commands 
+% All options, which can be set either as package options or with 
+% \cs{svgsetup}, as well as the optional parameters for both user commands 
 % \cs{includesvg}\oarg{parameters}\marg{svg filename} and
-% \cs{includeinkscape}\oarg{parameters}\marg{graphic filename} are defined.
+% \cs{includeinkscape}\oarg{parameters}\marg{graphic filename} are defined with
+% the interface provided by package \pkg{scrbase}.
 %    \begin{macrocode}
 \DefineFamily{SVG}
 \DefineFamilyMember{SVG}
@@ -2589,7 +2587,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{parameter}{gsdevice}
 % \begin{parameter}{clean}
 % \begin{parameter}{exclude}
-% All parameters which are supported by \cs{includesvg} can also be used with 
+% Parameters, which are supported by \cs{includesvg}, can also be used with 
 % \cs{includeinkscape} even if some of them---more precisely those that control 
 % the export with \app{Inkscape}---don't have an effect at all. Nevertheless, 
 % they are set right now in local context (within a group).
@@ -3055,10 +3053,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
     }%
   \fi%
 %    \end{macrocode}
-% Pages are only included, if counter \cnt{svg@param@lastpage} is smaller than 
-% \cnt{svg@param@currpage}, where \cnt{svg@param@lastpage} was either given as 
-% a number with parameter \prm{lastpage} or was automatically calculated with 
-% \cs{svg@get@lastpage}.
+% Only if counter \cnt{svg@param@lastpage} is smaller than 
+% \cnt{svg@param@currpage}, pages are included, where \cnt{svg@param@lastpage}
+% was either given as a number with parameter \prm{lastpage} or was
+% automatically calculated with \cs{svg@get@lastpage}.
 %    \begin{macrocode}
   \ifnum\value{svg@param@currpage}>\value{svg@param@lastpage}\relax\else%
 %    \end{macrocode}
