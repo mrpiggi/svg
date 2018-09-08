@@ -36,7 +36,7 @@ Versions
 
 **v2.02** (2018/09/08)
 + distortion of included and extracted graphics supported with options `distort` 
-  (or `keepaspectratio=false`) and `extractdistort` as well as rotation for 
+  (or `keepaspectratio`) and `extractdistort` as well as rotation for 
   extractions (`extractangle`)
 + fixed errors with active double qoutes from **babel** in path arguments
 + multiple dots within file names possible
