@@ -1,10 +1,10 @@
 \listfiles
 \documentclass[parskip=full,ngerman]{scrreprt}% Test
-%\usepackage[T1]{fontenc}
-%\usepackage{selinput}\SelectInputMappings{adieresis={ä},germandbls={ß}}
+\usepackage[T1]{fontenc}
 \usepackage{babel}
 \usepackage{svg}
 \usepackage{svg-extract}
+%\svgsetup{clean=true}
 \providecommand{\transparent}[1]{}
 
 %\pdfsuppresswarningpagegroup=1
@@ -13,6 +13,22 @@
 
 \begin{document}
 \includesvg[%
+  width=20cm,height=8cm,%inkscapelatex=false
 %  inkscapeformat=pdf,
+%  inkscapelatex=false,
+%  distort=true,
+  angle=-12.5,
+%  extractdistort=false,
+%  extractangle=inherit,
 ]{svg-example}%
+
+
+\includeinkscape[%
+  width=20cm,height=8cm,%inkscapelatex=false
+%  inkscapeformat=pdf,
+%  distort=true,
+  angle=12.5,
+%  extractdistort=false,
+%  extractangle=inherit,
+]{svg-example_svg-tex.pdf}%
 \end{document}

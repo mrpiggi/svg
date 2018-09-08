@@ -5,7 +5,7 @@
  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
 
- svg 2017/11/29 v2.01
+ svg 2018/09/08 v2.02
 
 ----------------------------------------------------------------------------
 
@@ -33,6 +33,14 @@ it is rendered within the LaTeX document using either ***ImageMagick*** or
 
 Versions
 --------
+
+**v2.02** (2018/09/08)
++ distortion of included and extracted graphics supported with options `distort` 
+  (or `keepaspectratio=false`) and `extractdistort` as well as rotation for 
+  extractions (`extractangle`)
++ fixed errors with active double qoutes from **babel** in path arguments
++ multiple dots within file names possible
++ package **trimspaces** required
 
 **v2.01** (2017/11/29)
 + new option `svgextension` to change the format of files exported by
