@@ -35,6 +35,8 @@ pdflatex --shell-escape "\def\tudfinalflag{}\input{svg.dtx}"
 pdflatex "\def\tudfinalflag{}\input{svg.dtx}"
 pdflatex --shell-escape "\def\tudfinalflag{}\input{svg.dtx}"
 pdflatex "\def\tudfinalflag{}\input{svg.dtx}"
+pdflatex "\def\tudfinalflag{}\input{svg.dtx}"
+pdflatex --shell-escape "\def\tudfinalflag{}\input{svg.dtx}"
 move  *.dtx           source\latex\svg\
 copy ..\*.md          doc\latex\svg\
 move svg.pdf          doc\latex\svg\
