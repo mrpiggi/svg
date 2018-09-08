@@ -11,25 +11,24 @@
 
 \svgpath{{../source/examples/}}
 
-\makeatletter
-\newcommand*\includesvgextracted[2][]{
-  \includesvg[#1]{#2}\endgraf
-  % TODO in aux schreiben und dateinamen inkl. pfad auslesen
-  % TODO evtl einfach mit counter arbeiten, als eine art indexmap?
-%  \xdef\svgx@test{"\svgx@out@path\svgx@out@name"}%
-%  \meaning\svgx@test\endgraf
-%  \includegraphics[#1]{\svgx@test}
-}
-\makeatother
 \begin{document}
 \includesvg[%
   width=20cm,height=8cm,%inkscapelatex=false
 %  inkscapeformat=pdf,
+%  inkscapelatex=false,
+%  distort=true,
+  angle=-12.5,
+%  extractdistort=false,
+%  extractangle=inherit,
 ]{svg-example}%
 
 
-\includesvgextracted[%
-  ext=png,width=20cm,height=3cm,%inkscapelatex=false
+\includeinkscape[%
+  width=20cm,height=8cm,%inkscapelatex=false
 %  inkscapeformat=pdf,
-]{dp}%
+%  distort=true,
+  angle=12.5,
+%  extractdistort=false,
+%  extractangle=inherit,
+]{svg-example_svg-tex.pdf}%
 \end{document}
