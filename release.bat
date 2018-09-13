@@ -3,11 +3,13 @@ cd %~dp0
 echo =========================================================================
 echo  Set the version to create
 echo =========================================================================
-for /f "tokens=1,2 delims= " %%a in (
-  'findstr /r /c:"[ ][ ][0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]" source\svg.dtx'
+set version=
+for /f "delims=" %%a in (
+  'findstr /r /c:"^  [1-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]" source\svg.dtx'
 ) do (
-  set version=%%b
+  set version=%%a
 )
+set version=%version:~13%
 set version=%version:\space%=%
 echo.
 echo Package svg and svg-extract %version%
@@ -38,6 +40,7 @@ pdflatex "\def\tudfinalflag{}\input{svg.dtx}"
 pdflatex "\def\tudfinalflag{}\input{svg.dtx}"
 pdflatex --shell-escape "\def\tudfinalflag{}\input{svg.dtx}"
 move  *.dtx           source\latex\svg\
+move examples         source\latex\svg\examples
 copy ..\*.md          doc\latex\svg\
 move svg.pdf          doc\latex\svg\
 move examples         doc\latex\svg\examples
@@ -73,7 +76,7 @@ CScript  ..\temp\winzip.vbs %cd%\svg.zip %cd%\CTAN\
 move svg.zip CTAN\
 echo.
 echo =========================================================================
-echo  Loeschen aller temporaeren Dateien
+echo  Delete all temporary files
 echo =========================================================================
 echo.
 pause.

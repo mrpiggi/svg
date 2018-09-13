@@ -141,7 +141,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \xpretocmd{\includeinkscape}{\MakePercentComment}{}{}
   \xapptocmd{\includeinkscape}{\MakePercentIgnore}{}{}
 \fi
-\pdfsuppresswarningpagegroup=1
+\ifdefined\pdfsuppresswarningpagegroup
+  \pdfsuppresswarningpagegroup=1
+\fi
 
 \usepackage{listings}
 \lstset{%
@@ -248,6 +250,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   \opt{distort} (or \opt{keepaspectratio}) and \opt{extractdistort}
 %   as well as rotation for extractions (\opt{extractangle})
 % }^^A
+% \ToDo{Workaround for missing \cs{transparent} (Lua\TeX lacks support)}[v2.03]
 %
 %
 %

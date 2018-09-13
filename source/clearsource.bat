@@ -1,4 +1,5 @@
 @echo off
+attrib +h "Makefile*" /s
 attrib +h "*.bat" /s
 attrib +h "*.dtx" /s
 attrib +h "examples\*.*" /s
