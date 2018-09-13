@@ -1,4 +1,3 @@
-
 ifeq ($(OS),Windows_NT)
 define get_rawversion
 	$(shell findstr /r /c:"^  [1-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]" $(1))
@@ -8,55 +7,10 @@ define get_rawversion
 	$(shell grep "^  [1-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]" $(1))
 endef
 endif
+
 define get_version
 	$(subst %,,$(subst \space,,$(word 2, $(call get_rawversion,$(1)))))
 endef
-
-
-ifeq ($(OS),Windows_NT)
-RM = del /Q /F
-RD = rmdir /Q /S
-MD = mkdir
-CP = copy /Y
-define rm_files
-	$(foreach FILE,$(subst /,\,$(1)),
-		$(shell if exist $(FILE) $(RM) $(FILE))
-	)
-endef
-define rm_dirs
-	$(foreach DIR,$(subst /,\,$(1)),
-		$(shell if exist $(DIR) $(RD) $(DIR))
-	)
-endef
-define mk_dirs
-	$(foreach DIR,$(subst /,\,$(1)),
-		$(shell if not exist $(DIR) $(MD) $(DIR))
-	)
-endef
-define cp_files
-	$(foreach FILE,$(subst /,\,$(1)),
-		$(shell echo $(CP) $(FILE) $(subst /,\,$(2)))
-	)
-endef
-else
-# TODO check
-RM = rm -f
-RD = rm -f -r
-MD = mkdir -p
-CP = cp
-define rm_files
-	$(foreach FILE,$(1),$(RM) $(FILE))
-endef
-define rm_dirs
-	$(foreach DIR,$(1),$(RD) $(DIR))
-endef
-define mk_dirs
-	$(foreach DIR,$(1),$(MD) $(DIR))
-endef
-define cp_files
-	$(foreach DIR,$(1),$(CP) $(DIR))
-endef
-endif
 
 define copy_tds
 	$(call mk_dirs,$(addprefix $(1),$(subst $(2),,$(TDS_DIRS))))
@@ -70,3 +24,4 @@ endef
 define rm_tds
 	$(call rm_dirs,$(addprefix $(1),$(subst $(TDS_SUFFIX),,$(TDS_DIRS))))
 endef
+
