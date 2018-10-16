@@ -1985,11 +1985,15 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \begin{macro}{\svg@deactivate@dq}
 % \changes{v2.02}{2018/09/07}{new}^^A
-% In order to avoid errors concerning file names with package \pkg{babel} and 
-% it's active double quotes, this command is defined. 
+% In order to avoid errors concerning file names with packages
+% \pkg{babel} and \pkg{polyglossia} and active double quotes, this
+% command is defined.
 %    \begin{macrocode}
 \newcommand*\svg@deactivate@dq{}
 \AfterPackage*{babel}{%
+  \renewcommand*\svg@deactivate@dq{\bbl@deactivate{"}}%
+}
+\AfterPackage*{polyglossia}{%
   \renewcommand*\svg@deactivate@dq{\bbl@deactivate{"}}%
 }
 %    \end{macrocode}
