@@ -5,7 +5,7 @@
  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
 
- svg 2018/10/17 v2.02a
+ svg 2018/11/12 v2.02b
 
 ----------------------------------------------------------------------------
 
@@ -34,8 +34,11 @@ it is rendered within the LaTeX document using either ***ImageMagick*** or
 Versions
 --------
 
+**v2.02b** (2018/11/12)
++ fix bug for package **tikzscale** which changes `includgraphics` globally
+
 **v2.02a** (2018/10/17)
-+ fix bug of package **polyglossia** which fakes **babel** poorly
++ fix bug for package **polyglossia** which fakes **babel** poorly
 
 **v2.02** (2018/09/08)
 + distortion of included and extracted graphics supported with options `distort` 
