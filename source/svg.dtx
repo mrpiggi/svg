@@ -115,7 +115,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<package&option&base>\ProvidesPackage{svg}[%
 %<package&option&extract>\ProvidesPackage{svg-extract}[%
 %<*driver|package&option>
-  2018/10/17 v2.02a\space%
+  2018/11/12 v2.02b\space%
 %<package&option&base>  (include SVG pictures)%
 %<package&option&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -251,7 +251,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   as well as rotation for extractions (\opt{extractangle})
 % }^^A
 % \changes{v2.02a}{2018/10/17}{%
-%   fix bug of package \pkg{polyglossia} which fakes \pkg{babel} poorly%
+%   fix bug for package \pkg{polyglossia} which fakes \pkg{babel} poorly%
+% }^^A
+% \changes{v2.02b}{2018/11/12}{%
+%   fix bug for package \pkg{tikzscale} which changes \cs{includegraphics} 
+%   globally%
 % }^^A
 % \ToDo{Workaround for missing \cs{transparent} (Lua\TeX lacks support)}[v2.03]
 %
@@ -3220,26 +3224,34 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \subsection{Patches}
 %
 % \begin{macro}{\svg@patches}
+% \changes{v2.02b}{2018/11/12}{%
+%   fix bug for package \pkg{tikzscale}: store original definitions of 
+%   \cs{picture} and \cs{includegraphics} right after loading package \pkg{svg}
+% }^^A
+% \begin{macro}{\svg@picture@saved}
+% \begin{macro}{\svg@includegraphics@saved}
 % For including the export results from \app{Inkscape} with \LaTeX~support 
 % enabled, there are some patches necessary for environment \env{picture} and 
 % \cs{includegraphics}. Those patches are done with \cs{svg@patches}.
 %    \begin{macrocode}
+\newcommand*\svg@picture@saved{}
+\let\svg@picture@saved\picture
+\newcommand*\svg@includegraphics@saved{}
+\let\svg@includegraphics@saved\includegraphics
 \newcommand*\svg@patches[1]{%
-  \let\svg@picture@saved\picture%
   \let\picture\svg@picture@patched%
-  \let\svg@includegraphics@saved\includegraphics%
   \let\includegraphics\svg@includegraphics@patched%
   \edef\svg@includegraphics@file{#1}%
 }
 %    \end{macrocode}
+% \end{macro}^^A \svg@includegraphics@saved
+% \end{macro}^^A \svg@picture@saved
 % \end{macro}^^A \svg@patches
-% \begin{macro}{\svg@picture@saved}
 % \begin{macro}{\svg@pictur@patched}
 % In order to provide the possibility specify the desired width of a graphic, 
 % the appropriate \cs{unitlength} is calculated at the beginning of the 
 % \env{picture}~environment.
 %    \begin{macrocode}
-\newcommand*\svg@picture@saved{}
 \newcommand*\svg@picture@patched{}
 \newcommand*\svg@pictur@patched{}
 \long\def\svg@picture@patched#1{\svg@pictur@patched@#1}
@@ -3279,8 +3291,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 %    \end{macrocode}
 % \end{macro}^^A \svg@pictur@patched
-% \end{macro}^^A \svg@picture@saved
-% \begin{macro}{\svg@includegraphics@saved}
 % \begin{macro}{\svg@includegraphics@patched}
 % \begin{macro}{\svg@includegraphics@file}
 % The patch to \cs{includegraphics} is meant to dissolve the \app{Inkscape} bug 
@@ -3297,7 +3307,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \FamilyCounterKey{SVGpatch}{page}{svg@param@currpage}
 \DefineFamilyKey{SVGpatch}{width}{\FamilyKeyStateProcessed}
 \newcommand*\svg@includegraphics@file{}
-\newcommand*\svg@includegraphics@saved{}
 \newcommand*\svg@includegraphics@patched[2][]{%
   \FamilyOptions{SVGpatch}{#1}%
 %    \end{macrocode}
@@ -3326,7 +3335,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svg@includegraphics@file
 % \end{macro}^^A \svg@includegraphics@patched
-% \end{macro}^^A \svg@includegraphics@saved
 %
 % \iffalse
 %</body>
