@@ -1,4 +1,4 @@
-% \CheckSum{3795}
+% \CheckSum{3864}
 % \iffalse meta-comment
 %
 %  svg and svg-extract -- Include and extract SVG pictures in LaTeX documents
@@ -262,7 +262,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   fix bug for package \pkg{tikzscale} which changes \cs{includegraphics} 
 %   globally%
 % }^^A
-% \ToDo{Workaround for missing \cs{transparent} (Xe\TeX lacks support)}[v2.03]
 %
 %
 %
@@ -1444,6 +1443,15 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \PackageWarning{svg}{Package `transparent' was loaded anyway}%
     }%
   \fi%
+  \AtBeginDocument{%
+    \providecommand\transparent[1]{%
+      \PackageWarning{svg}{%
+        The command \string\transparent\space does not exist yet,\MessageBreak% 
+        so it is defined as a gobbling auxiliary macro by now\MessageBreak%
+      }%
+      \let\transparent\@gobble%
+    }%
+  }%
 }
 %    \end{macrocode}
 % \end{macro}^^A \if@svg@use@transparent
@@ -1529,7 +1537,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % In version~v1.0 the option \opt{inkscape} was used to set both the executable 
 % and options for \app{Inkscape}. This is taken into account here.
 %    \begin{macrocode}
-    \ifx\FamilyKeyState\FamilyKeyStateProcessed\else%
+    \ifx\FamilyKeyState\FamilyKeyStateProcessed\else% legacy option
 %    \end{macrocode}
 % Splitting executable from options with delimitted macros. After calling 
 % \cs{svg@tempa} with the given value, the part for the executable is stored in 
@@ -1538,39 +1546,52 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
       \svg@quotes@remove[{#1}]{\svg@tempb}%
       \def\svg@tempa##1-##2\@nil{%
-        \IfArgIsEmpty{##2}{\def\svg@tempb{}}{%
+        \IfArgIsEmpty{##2}{\let\svg@tempb\@empty}{%
           \def\svg@tempa####1-\@nil{\def\svg@tempb{-####1}}%
           \svg@tempa##2\@nil%
         }%
         \edef\svg@tempa{\trim@spaces{##1}}%
       }%
-      \edef\svg@tempb{%
-        \noexpand\svg@tempa\svg@tempb-\noexpand\@nil%
-      }%
-      \svg@tempb%
-      \if@svg@quotes@found%
-        \edef\svg@tempa{"\svg@tempa"}%
+      \expandafter\svg@tempa\svg@tempb-\@nil%
+      \ifx\svg@tempa\@empty\else%
+        \if@svg@quotes@found%
+          \edef\svg@tempa{"\svg@tempa"}%
+        \fi%
       \fi%
-      \PackageWarning{svg}{%
-        Setting the executable%
-        \ifx\svg@tempb\@empty\else%
-          \space and associated options%
-        \fi%
-        \MessageBreak%
-        for Inkscape should be done with options\MessageBreak%
-        `inkscapeexe=\svg@tempa'%
-        \ifx\svg@tempb\@empty\else%
-          \MessageBreak and `inkscapeopt=\svg@tempb'%
-        \fi.\MessageBreak% 
-        Nevertheless, this was done by now anyway%
-      }%
-      \edef\svg@tempa{%
-        \noexpand\FamilyOptions{SVG}{inkscapeexe=\svg@tempa}%
-        \ifx\svg@tempb\@empty\else%
-          \noexpand\FamilyOptions{SVG}{inkscapeopt=\svg@tempb}%
-        \fi%
-      }%
-      \svg@tempa%
+      \@svg@tempswafalse%
+      \ifx\svg@tempa\@empty\else\@svg@tempswatrue\fi%
+      \ifx\svg@tempb\@empty\else\@svg@tempswatrue\fi%
+      \if@svg@tempswa%
+        \PackageWarning{svg}{%
+          Setting%
+          \ifx\svg@tempa\@empty\else%
+            \space the executable \ifx\svg@tempb\@empty\else and\fi%
+          \fi%
+          \ifx\svg@tempb\@empty\else%
+            \space associated options%
+          \fi%
+          \MessageBreak%
+          for Inkscape should be done with%
+          \ifx\svg@tempa\@empty\else%
+            \MessageBreak%
+            `inkscapeexe=\svg@tempa'%
+          \fi%
+          \ifx\svg@tempb\@empty\else%
+            \MessageBreak%
+             \ifx\svg@tempa\@empty\else and\fi `inkscapeopt={\svg@tempb}'%
+          \fi%
+          \MessageBreak Nevertheless, this was done by now anyway%
+        }%
+        \edef\svg@tempa{%
+          \ifx\svg@tempa\@empty\else%
+            \noexpand\FamilyOptions{SVG}{inkscapeexe=\svg@tempa}%
+          \fi%
+          \ifx\svg@tempb\@empty\else%
+            \noexpand\FamilyOptions{SVG}{inkscapeopt=\svg@tempb}%
+          \fi%
+        }%
+        \svg@tempa%
+      \fi%
     \fi%
   \fi%
 }
@@ -2034,7 +2055,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 \newcommand*\svg@quotes@remove[2][]{%
   \begingroup%
-    \IfArgIsEmpty{#1}{\def\svg@tempb{#2}}{\def\svg@tempb{#1}}%
+    \IfArgIsEmpty{#1}{\edef\svg@tempb{#2}}{\edef\svg@tempb{#1}}%
     \svg@sanitize@dq\svg@tempa{\svg@tempb}%
     \expandafter\svg@quotes@check\expandafter{\svg@tempa}%
     \expandafter\svg@quotes@@remove\svg@tempa""\@nil%
@@ -2210,7 +2231,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svg@normalize@@path{}
 \def\svg@normalize@@path#1/#2/\@nil{%
   \IfArgIsEmpty{#2}{%
-    \IfArgIsEmpty{#1}{\def\svg@tempa{}}{\def\svg@tempa{#1/}}%
+    \IfArgIsEmpty{#1}{\let\svg@tempa\@empty}{\def\svg@tempa{#1/}}%
   }{%
     \svg@normalize@@path#2/\@nil%
     \edef\svg@tempa{#1/\svg@tempa}%
@@ -2301,7 +2322,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \def\noexpand\svg@file@base{\filename@area\filename@base}%
       \else%
         \noexpand\@svg@file@foundfalse%
-        \def\noexpand\svg@file@path{}%
+        \let\noexpand\svg@file@path\noexpand\@empty%
         \def\noexpand\svg@file@name{#2}%
         \def\noexpand\svg@file@base{#2}%
       \fi%
@@ -2399,7 +2420,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % to the actual searched extension if found.
 %    \begin{macrocode}
         \edef\svg@tempa{%
-          \def\noexpand\svg@tempa{}%
+          \let\noexpand\svg@tempa\noexpand\@empty%
           \let\noexpand\svg@tempb\relax%
           \noexpand\svg@extension@@parse%
             \filename@ext.\noexpand\@nil#1\noexpand\@nil%
@@ -3142,7 +3163,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     }%
   }%
   \edef\svg@tempa{%
-    \def\noexpand\svg@tempa{}%
+    \let\noexpand\svg@tempa\noexpand\@empty%
     \noexpand\svg@tempb#2.\noexpand\@nil%
   }%
   \svg@tempa%
@@ -3798,7 +3819,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Same doing like with option \opt{inkscape}.
 %    \begin{macrocode}
     \def\svg@tempa##1-##2\@nil{%
-      \IfArgIsEmpty{##2}{\def\svg@tempb{}}{%
+      \IfArgIsEmpty{##2}{\let\svg@tempb\@empty}{%
         \def\svg@tempa##1####1\@nil{\def\svg@tempb{####1}}%
         \svg@tempa#1\@nil%
       }%
@@ -4620,7 +4641,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \immediate\openin\svgx@stream@in=\svgx@preamble%
         \@svg@tempswatrue%
         \@svgx@preamble@writetrue%
-        \def\svgx@read@line{}%
+        \let\svgx@read@line\@empty%
 %    \end{macrocode}
 % The given preamble file is read line by line and written to the separate 
 % auxiliary \LaTeX~file \file{\cs{svgx@out@name}.\cs{svgx@latex@ext}} via the
@@ -4674,7 +4695,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % some stuff to the preamble, for example a maybe not existent document class.
 %    \begin{macrocode}
         \immediate\openin\svgx@stream@in=\svgx@out@name.\svgx@latex@ext%
-        \def\svg@tempa{}%
+        \let\svg@tempa\@empty%
         \loop\unless\ifeof\svgx@stream@in%
           \readline\svgx@stream@in to\svgx@read@line%
           \ifx\svgx@read@line\@empty\else%
@@ -4696,7 +4717,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
             does not exist%
           }%
         \fi%
-        \def\svg@tempa{}%
+        \let\svg@tempa\@empty%
       }%
 %    \end{macrocode}
 % After the preamble was read in and stored in \cs{svg@tempa}, the separate 
@@ -5021,7 +5042,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svgx@out@sec{unknown}
 \newcommand*\svgx@get@out@sec{%
   \begingroup%
-    \def\svg@tempa{}%
+    \let\svg@tempa\@empty%
     \@for\svg@tempb:={%
       part,chapter,section,subsection,subsubsection,paragraph,subparagraph%
     }\do{%
@@ -5099,7 +5120,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
           \ifstr{#2}{from}{%
             \IfArgIsEmpty{####2}{%
-              \def\svgx@read@line{}%
+              \let\svgx@read@line\@empty%
             }{%
               \def\svgx@read@line{####2}%
             }%
@@ -5577,6 +5598,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % then package \pkg{ifplatform} is only used in order to do not raise a warning.
 %    \begin{macrocode}
 \ifnum\pdf@shellescape=\@ne\relax\else%
+  \svg@catcodecodes@restore%
   \expandafter\endinput%
 \fi
 \RequirePackage{ifplatform}[2010/10/22]
