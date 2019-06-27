@@ -1,4 +1,4 @@
-% \CheckSum{3864}
+% \CheckSum{3869}
 % \iffalse meta-comment
 %
 %  svg and svg-extract -- Include and extract SVG pictures in LaTeX documents
@@ -115,7 +115,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<package&option&base>\ProvidesPackage{svg}[%
 %<package&option&extract>\ProvidesPackage{svg-extract}[%
 %<*driver|package&option>
-  2019/06/26 v2.02c\space%
+  2019/06/27 v2.02c\space%
 %<package&option&base>  (include SVG pictures)%
 %<package&option&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -470,10 +470,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % image from the SVG~file itself. In order to execute the command line tool 
 % from shell, the path where the executable is located has to be known to the
 % operating system. You can check this by typing \file{inkscape -V} into the 
-% shell. If this check fails and you don't want to change environment variable
-% \file{path} on your OS, you can use option \opt{inkscapeexe} to set the 
-% absolute path where the executable of \app{Inkscape} is located. The option 
-% is set to \opt{inkscapeexe}|=|\val{inkscape} by default.
+% shell. If this check fails, you should add the \app{Inkscape} directory to 
+% the environment variable \file{PATH} on your OS.
+%
+% If this is not possible or you aren't willing to do so, you can use option 
+% \opt{inkscapeexe} \emph{within the document preamble} to set the absolute 
+% path where the executable of \app{Inkscape} is located. The option is set to
+% \opt{inkscapeexe}|=|\val{inkscape} by default.
 % \ToDo{Hint for MacOS}[v2.02c]
 % 
 % \DescribeOption{inkscapeformat}
@@ -1713,6 +1716,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{option}^^A inkscapedpi
 % \begin{option}{inkscapeexe}
 % \changes{v2.00}{2017/02/17}{new}^^A
+% \changes{v2.02c}{2019/06/27}{only usable in preamble}%
 % \begin{macro}{\svg@ink@exe}
 % \begin{option}{inkscapeopt}
 % \changes{v2.00}{2017/02/17}{new}^^A
@@ -1722,7 +1726,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 \newcommand*\svg@ink@exe{inkscape}
 \DefineFamilyKey{SVG}{inkscapeexe}{%
-  \renewcommand*\svg@ink@exe{#1}%
+  \if@atdocument%
+    \PackageError{svg}{Option `inkscapeexe' too late}{%
+      Option `inkscapeexe' can only be set within the\MessageBreak%
+      preamble but you have tried to set it up later.%
+    }%
+  \else%
+    \renewcommand*\svg@ink@exe{#1}%
+  \fi%
   \FamilyKeyStateProcessed%
 }
 \newcommand*\svg@ink@opt{}
