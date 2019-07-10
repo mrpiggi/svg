@@ -5,6 +5,8 @@ temp/
 ## auxiliary files
 *.aux
 *.bak
+*.bbl
+*.blg
 *.cls
 *.dvi
 *.glg
