@@ -1,4 +1,4 @@
-% \CheckSum{3963}
+% \CheckSum{3976}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -401,7 +401,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   SVG~file is newer than that of the exported graphic~file. Thus the
 %   compilation time of the \LaTeX~document can be reduced to the necessary
 %   minimum. Unfortunately a primitive like \cs{pdffilemoddate} is missing for
-%   XeTeX, so with this engine, the behaviour will be the same as
+%   Xe\TeX, so with this engine, the behaviour will be the same as
 %   \opt{inkscape}|=|\val{forced}.
 % \item[forced/force/overwrite]
 %   The \app{Inkscape}~export will definitely be done, any already existing 
@@ -597,7 +597,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \LaTeX~file (see~\opt{inkscapelatex}). The export with \app{Inkscape} is only
 % invoked, if the SVG~file is newer than the exported graphic~file or latter 
 % doesn't exist at all.\footnote{\ignorespaces%
-%  Due to the lack of XeTeX to compare file~modification dates, using this 
+%  Due to the lack of Xe\TeX to compare file~modification dates, using this 
 %  \LaTeX~engine leads to \app{Inkscape}~exports with every run unless 
 %  \opt{inkscape}|=|\val{false} is used.%
 % }%
@@ -1435,17 +1435,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \PackageWarning{svg}{Package `transparent' was loaded anyway}%
     }%
   \fi%
-  \AtBeginDocument{%
-    \providecommand\transparent[1]{%
-      \PackageWarning{svg}{%
-        The command \string\transparent\space does not exist yet,\MessageBreak% 
-        so it is defined as a gobbling auxiliary macro by now.\MessageBreak%
-        Maybe you should load package `transparent'\MessageBreak%
-        or a similar one%
-      }%
-      \let\transparent\@gobble%
-    }%
-  }%
 }
 %    \end{macrocode}
 % \end{macro}^^A \if@svg@use@transparent
@@ -3234,6 +3223,28 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 %    \end{macrocode}
 % \end{macro}^^A \svg@wrn@scale
+% \begin{macro}{\svg@transparent}
+% \changes{v2.03}{2019/07/10}{new}^^A
+% \begin{macro}{\svg@transparent@saved}
+% \changes{v2.03}{2019/07/10}{new}^^A
+% If package \pkg{transparent} was not or could not be loaded---currently 
+% Xe\TeX isn't supported---and macro \cs{transparent} is used anyway within an 
+% associated \LaTeX~file, normally an error is raised. This workaround fixes 
+% this issue and creates a warning, for every included file only once. As the 
+% associated \LaTeX~file uses a group, the redefintions have to be global.
+%    \begin{macrocode}
+\newcommand*\svg@transparent@saved{}
+\newcommand*\svg@transparent[1]{%
+  \PackageWarning{svg}{%
+    The command \string\transparent\space does not exist yet,\MessageBreak%
+    so it is defined as a gobbling auxiliary macro by now.\MessageBreak%
+    Maybe you should load package `transparent'\MessageBreak%
+  }%
+  \global\let\transparent\@gobble%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@transparent@saved
+% \end{macro}^^A \svg@transparent
 % \begin{macro}{\svg@input}
 % \begin{macro}{\svg@@input}
 % With \cs{svg@@input} the export results of \app{Inkscape} are included. The 
@@ -3302,7 +3313,15 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \else%
       \let\svg@tempb\@firstofone%
     \fi%
+%    \end{macrocode}
+% The input is stored in a box in order to do a possible rotation afterwards. 
+% Additionally, the workaround for the maybe missing macro \cs{transparent} is 
+% applied.
+%    \begin{macrocode}
+    \global\let\svg@transparent@saved\transparent%
+    \providecommand*\transparent[1]{\svg@transparent{##1}}%
     \sbox\svg@box{\svg@tempb{\svg@tempa}}%
+    \global\let\transparent\svg@transparent@saved%
 %    \end{macrocode}
 % If a rotation angle was given, the input is done within \cs{rotatebox}.
 %    \begin{macrocode}
@@ -3313,6 +3332,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \noexpand\rotatebox[origin=\svg@param@origin]{\svg@param@angle}%
       }%
     \fi%
+%    \end{macrocode}
+% The output of the resulting image stored in \cs{svg@box}.
+%    \begin{macrocode}
     \svg@tempb{\usebox\svg@box}%
   \else%
 %    \end{macrocode}
