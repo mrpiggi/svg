@@ -1,67 +1,47 @@
 % \CheckSum{3963}
 % \iffalse meta-comment
+%<*identify>
 %
 %  svg and svg-extract -- Include and extract SVG pictures in LaTeX documents
-% ----------------------------------------------------------------------------
 %
-%  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
-%  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
-%
-% ----------------------------------------------------------------------------
-%
-%  This work may be distributed and/or modified under the conditions of the
-%  LaTeX Project Public License, version 1.3c of the license. The latest
-%  version of this license is in http://www.latex-project.org/lppl.txt and
-%  version 1.3c or later is part of all distributions of LaTeX 2005/12/01
-%  or later and of this work. This work has the LPPL maintenance status
-%  "author-maintained". The current maintainer and author of this work
-%  is Falk Hanisch.
-%
-% ----------------------------------------------------------------------------
-%
+%% ----------------------------------------------------------------------------
+%%
+%% Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
+%% Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
+%% 
+%% ----------------------------------------------------------------------------
+%% 
+%% This work may be distributed and/or modified under the conditions
+%% of the LaTeX Project Public License, version 1.3c of the license.
+%% The latest version of this license is in
+%%     http://www.latex-project.org/lppl.txt
+%% and version 1.3c or later is part of all distributions of
+%% LaTeX 2005/12/01 or later and of this work.
+%% 
+%% This work has the LPPL maintenance status "author-maintained".
+%% 
+%% The current maintainer and author of this work is Falk Hanisch.
+%%
+%% This work consists of the main source file README.md, LICENSE.md, svg.dtx 
+%% and the derived documentation svg.pdf as well as the example files
+%% svg-example.svg, svg-preamble.tex and root.C (with derived file root.svg).
+%% 
+%% ----------------------------------------------------------------------------
+%%
+%</identify>
 %<*dtx>
 \ifx\documentclass\undefined
 \input docstrip.tex
 \keepsilent
 
-\begingroup
-\catcode`\^^M=13 \catcode`\ =12 %
-\gdef\svgpreamble{%
-Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
-Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
-
-This file was generated from file svg.dtx.
-----------------------------------------------------------------------------
-
-This work may be distributed and/or modified under the conditions
-of the LaTeX Project Public License, version 1.3c of the license.
-The latest version of this license is in
-    http://www.latex-project.org/lppl.txt
-and version 1.3c or later is part of all distributions of
-LaTeX 2005/12/01 or later and of this work.
-
-This work has the LPPL maintenance status "author-maintained".
-
-The current maintainer and author of this work is Falk Hanisch.
-
-This work consists of the main source file README.md, LICENSE.md, svg.dtx 
-and the derived documentation svg.pdf as well as the example files
-svg-example.svg, svg-preamble.tex and root.C (with derived file root.svg).
-}
-\endgroup
-
 \declarepreamble\svgbasepreamble
 
 svg -- Include SVG pictures in LaTeX documents using Inkscape
-
-\svgpreamble
 
 \endpreamble
 \declarepreamble\svgextractpreamble
 
 svg-extract -- Extract independent graphic files from SVG pictures
-
-\svgpreamble
 
 \endpreamble
 \askforoverwritefalse
@@ -69,11 +49,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \generate{%
   \usepreamble\svgbasepreamble
   \file{svg.sty}{%
+    \from{svg.dtx}{package,identify,base}%
     \from{svg.dtx}{package,option,base}%
     \from{svg.dtx}{package,body,base}%
   }
   \usepreamble\svgextractpreamble
   \file{svg-extract.sty}{%
+    \from{svg.dtx}{package,identify,extract}%
     \from{svg.dtx}{package,option,extract}%
     \from{svg.dtx}{package,body,extract}%
   }
@@ -111,16 +93,15 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \ifx\ProvidesFile\undefined\def\ProvidesFile#1[#2]{}\fi
 \ProvidesFile{svg.dtx}[%
 %</dtx>
-%<package&option>\NeedsTeXFormat{LaTeX2e}
-%<package&option&base>\ProvidesPackage{svg}[%
-%<package&option&extract>\ProvidesPackage{svg-extract}[%
-%<*dtx|package&option>
+%<package&identify>\NeedsTeXFormat{LaTeX2e}
+%<package&identify&base>\ProvidesPackage{svg}[%
+%<package&identify&extract>\ProvidesPackage{svg-extract}[%
+%<*dtx|package&identify>
   2019/07/10 v2.03\space%
-%<package&option&base>  (include SVG pictures)%
-%<package&option&extract>  (extract independent graphics from SVG pictures)%
+%<package&identify&base>  (include SVG pictures)%
+%<package&identify&extract>  (extract independent graphics from SVG pictures)%
 ]
-%</dtx|package&option>
-\endinput
+%</dtx|package&identify>
 %<*dtx>
 \documentclass[english,xindy]{tudscrdoc}[2017/03/27]
 \ifpdftex{
@@ -202,7 +183,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 
 \begin{document}
   \maketitle
-  \ToDo{check ProvidesFile and <dtx>, no dvi file wanted}[v2.03]
   \begin{abstract}
     \noindent
     The \pkg{svg} package is intended for the automated integration of 
