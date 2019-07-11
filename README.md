@@ -1,11 +1,11 @@
 
- svg and svg-extract -- Include and extract SVG pictures in LaTeX documents 
+ svg and svg-extract &ndash; Handling SVG pictures in LaTeX documents 
 ----------------------------------------------------------------------------
 
  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
 
- svg 2018/11/12 v2.02b
+ svg 2019/xx/xx v2.03
 
 ----------------------------------------------------------------------------
 
@@ -18,24 +18,35 @@
 Summary
 -------
 
-The **svg** package is intended for the automated integration of SVG graphics 
-into LaTeX documents. Therefor the capabilities provided by ***Inkscape***---or 
-more precisely its command line tool---are used to export the text within a SVG 
-graphic to a separate file, which is then rendered by LaTeX. For this purpose 
-the two commands `\includesvg` and `\includeinkscape` are provided which are 
-very similar to the `\includegraphics` command of the **graphicx** package.
+The **svg** package is intended for the automated integration of 
+SVG&nbsp;graphics into LaTeX&nbsp;documents. Therefor the capabilities provided
+by ***Inkscape***&mdash;or more precisely its command line tool&mdash;are used 
+to export the text within a SVG&nbsp;graphic to a separate file, which is then 
+rendered by LaTeX. The two commands `\includesvg` and `\includeinkscape` are 
+provided as central user&#8209;interface, which are very similar to the 
+`\includegraphics` command of the **graphicx** package.
 
-In addition, the package **svg-extract** allows the extraction of these 
-graphics into independent files in different graphic formats, exactly as 
-it is rendered within the LaTeX document using either ***ImageMagick*** or 
-***Ghostscript***
+In addition, the package **svg-extract** allows the extraction and of these 
+graphics into independent files in different graphic formats, exactly as it is
+rendered within the LaTeX&nbsp;document. For the creation of these graphics in
+the well&#8209;known formats PDF, EPS and&nbsp;PS, LaTeX and possibly
+conversion tools shipped with the distribution are used. If the graphics are 
+required in other file formats, either ***ImageMagick*** or ***Ghostscript*** 
+can be invoked.
 
 
 Versions
 --------
 
+**v2.03** (2019/xx/xx)
++ support of new command line format of ***Inkscape&nbsp;1.0*** and later
++ files exported with ***Inkscape*** or extracted as well as converted with
+  ***ImageMagick*** or ***Ghostscript*** are not moved from root directory but
+	created directly in the path given with `inkscapepath` or `extractpath`
+
 **v2.02b** (2018/11/12)
-+ fix bug for package **tikzscale** which changes `includgraphics` globally
++ fix bug for package **tikzscale** which changes the definition of
+	`\includegraphics`
 
 **v2.02a** (2018/10/17)
 + fix bug for package **polyglossia** which fakes **babel** poorly
