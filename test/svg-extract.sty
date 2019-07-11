@@ -348,7 +348,9 @@
     {svgpath}{0},{svgdir}{0},%
     {svgsubpath}{1},{svgsubdir}{1},%
     {basepath}{2},{basedir}{2},{jobpath}{2},{jobdir}{2},%
-    {basesubpath}{3},{basesubdir}{3},{jobsubpath}{3},{jobsubdir}{3}%
+    {basesubpath}{3},{basesubdir}{3},{jobsubpath}{3},{jobsubdir}{3},%
+    {inkscapepath}{4},{inkscapedir}{4},%
+    {inkscapesubpath}{5},{inkscapesubdir}{5}%
   }{\svg@tempb}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \ifcase\svg@tempa\relax% svgpath
@@ -359,6 +361,10 @@
       \renewcommand*\svgx@out@path{./}%
     \or% basesubpath
       \renewcommand*\svgx@out@path{./svg-extract/}%
+    \or% inkscapepath
+      \renewcommand*\svgx@out@path{\svg@out@path}%
+    \or% inkscapesubpath
+      \renewcommand*\svgx@out@path{\svg@out@path svg-extract/}%
     \fi%
   \else%
     \edef\svgx@out@path{\svg@tempb}%

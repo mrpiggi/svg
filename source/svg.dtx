@@ -1,4 +1,4 @@
-% \CheckSum{3993}
+% \CheckSum{4001}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -219,10 +219,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   naming exported graphics after their consecutive numbering can't be ensured
 %   for all variants of subfigures, so it's neglected%
 % }^^A
-% \changes{v2.01}{2017/11/27}{%
-%   new option \opt{svgextension} to change the format of files exported by
-%   \app{Inkscape} from \file{svg} to a custom one
-% }^^A
 % \changes{v2.01}{2017/11/28}{%
 %   usage of \cs{input}\marg{tex filename} within \app{Inkscape}~graphics
 %   locates files in all declared searched folders
@@ -231,11 +227,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.02}{2018/09/07}{multiple dots within file names possible}^^A
 % \changes{v2.02}{2018/09/07}{%
 %   fixed errors with active double qoutes from \pkg{babel} in path arguments%
-% }^^A
-% \changes{v2.02}{2018/09/07}{%
-%   distortion of included and extracted graphics supported with options 
-%   \opt{distort} (or \opt{keepaspectratio}) and \opt{extractdistort}
-%   as well as rotation for extractions (\opt{extractangle})
 % }^^A
 % \changes{v2.02a}{2018/10/17}{%
 %   fix bug for package \pkg{polyglossia} which fakes \pkg{babel} poorly%
@@ -255,10 +246,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.03}{2019/06/25}{%
 %   files exported with \app{Inkscape} are not moved from root directory but 
 %   created directly in the path given with \opt{inkscapepath}%
-% }^^A
-% \changes{v2.03}{2019/07/11}{%
-%   option \opt{clean} provides value \val{nolatex} for preserving auxiliary 
-%   \LaTeX~files used for extraction to be deleted%
 % }^^A
 %
 %
@@ -517,6 +504,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \hrfn{https://inkscape.org/de/doc/inkscape-man.html}{\app{Inkscape}}.
 %
 % \DescribeOption{svgextension}
+% \changes{v2.01}{2017/11/27}{%
+%   option \opt{svgextension} added in order to change the format of files 
+%   exported by \app{Inkscape} from \file{svg} to a custom one
+% }^^A
 % The package assumes SVG~files with \file{.svg} extension as source for the 
 % \app{Inkscape} export. This option can be used to change this behaviour. 
 % For example, in order to process \file{.dia} files instead of \file{.svg} you 
@@ -530,6 +521,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \subsection{Options for the graphic inclusion}
 %
 % \DescribeOptions{width,height,distort,scale}
+% \changes{v2.02}{2018/09/07}{%
+%   option \opt{distort} (or \opt{keepaspectratio}) added for distortion of
+%   included graphics%
+% }^^A
 % The width of the included graphic~file can be specified via the \opt{width} 
 % option and the height by the \opt{height} option. If both the width and
 % height are specified, the figure will be scaled such that neither of the
@@ -727,16 +722,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \cs{includeinkscape}\oarg{parameters}\marg{filename} are extended. They can
 % be used to control the process of graphic extraction and converting.
 %
-% \begin{DescribeParameterParent}{Macro}{\includesvg}
-% \DescribeParameters{extractangle}
-% With this parameter the graphic is rotated during the extraction process. The 
-% value is not inherited from \prm{angle} if it was given by default. this can 
-% be achieved by setting:
-% \begin{svgexample}
-%   \includesvg[angle=§\meta{angle}§,extractangle=inherit]§\marg{filename}§
-% \end{svgexample}
-% \end{DescribeParameterParent}
-%
 % All option described below can be used togehter with \cs{svgsetup} and are
 % then valid in the current scope. There also exist identically named 
 % parameters for the optional arguments of 
@@ -790,6 +775,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % default setting, whereas \opt{extract}|=|\val{false} turns it off completely.
 %
 % \DescribeOption{extractpath}
+% \changes{v2.03}{2019/07/11}{%
+%   option \opt{extractpath} provides values \val{inkscapepath} and 
+%   \val{inkscapesubpath} for creating extracted/converted graphics in the same 
+%   folder as the resulting files of the \app{Inkscape}~export%
+% }^^A
 % The path where the extracted and converted files are located can be specified 
 % with option \opt{extractpath}, whereas \opt{extractpath}|=|\val{basesubdir}
 % is set by default.
@@ -806,6 +796,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \item[\textbf{basesubdir}/basesubpath/jobsubdir/jobsubpath]
 %   A subfolder named \file{svg-extract/} within the current working directory 
 %   will be used for all extracted and converted files.
+% \item[inkscapepath/inkscapedir]
+%   The extracted/converted graphic~files are stored in the same folder as the
+%   resulting files of the \app{Inkscape}~export (option \opt{inkscapepath}).
+% \item[inkscapesubpath/inkscapesubdir]
+%   An additional subfolder within the \app{Inkscape}~export directory named 
+%  \file{svg-extract/} will be used for extracted/converted files.
 % \item[/path/to/somewhere/]
 %   It is also possible to give a custom path, either relative to the current 
 %   working directory (\file{./relative/path/}) or as an absolute path.
@@ -848,6 +844,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   extractwidth,extractheight,extractdistort,extractscale,
 %   extractpretex,extractapptex,%
 % }
+% \changes{v2.02}{2018/09/07}{%
+%   option \opt{extractdistort} added for distortion of extracted graphics%
+% }^^A
 % These options can be used to overwrite the settings given for the appearance 
 % of a SVG~file within the document. For example, a SVG~file should cover the 
 % entire text width within the document but be extracted to a fixed width, this 
@@ -929,6 +928,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \opt{pdftopsopt}.
 %
 % \DescribeOption{clean}
+% \changes{v2.03}{2019/07/11}{%
+%   option \opt{clean} provides value \val{nolatex} for preserving auxiliary 
+%   \LaTeX~files used for extraction to be deleted%
+% }^^A
 % During the extraction process many files are generated for each SVG~file 
 % extraction. So it's oftentimes desirable to automatically remove these 
 % temporary files. Using the option \opt{clean}|=|\val{true} will remove any 
@@ -946,6 +949,25 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % including it. If the flag \opt{exclude} is specified, the SVG~file will not 
 % be rendered in the current \LaTeX~document, but will be extracted and/or
 % converted to the requested output format(s).
+%
+% \DescribeMacros{\includesvg,\includeinkscape}
+% As previously mentioned, for extracting independent graphic files it is
+% sufficient to load package \pkg{svg-extract} and afterwards everything 
+% necassary is done by just using \cs{includesvg} or \cs{includeinkscape}.
+%
+% \begin{DescribeParameterParent}{Macro}{\includesvg}
+% \DescribeParameters{extractangle}
+% \changes{v2.02}{2018/09/07}{%
+%   parameter \prm{extractangle} for \cs{includesvg} implemented in order to
+%   rotate graphics during extractions 
+% }^^A
+% With this additional parameter the graphic is rotated during the extraction
+% process. The value is not inherited from \prm{angle} if it was given by
+% default. this can be achieved by setting:
+% \begin{svgexample}
+%   \includesvg[angle=§\meta{angle}§,extractangle=inherit]§\marg{filename}§
+% \end{svgexample}
+% \end{DescribeParameterParent}
 %
 %
 %
@@ -4176,6 +4198,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{option}{extractpath}
 % \changes{v2.00}{2017/02/24}{new}^^A
 % \changes{v2.02}{2018/09/07}{usage of \cs{svg@sanitize@dq}}^^A
+% \changes{v2.03}{2019/07/10}{%
+%   new values \val{inkscapepath} and \val{inkscapesubpath} added%
+% }^^A
 % \begin{option}{path}
 % \changes{v2.00}{2017/02/24}{deprecated}^^A
 % \begin{option}{extractname}
@@ -4208,7 +4233,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
     {svgpath}{0},{svgdir}{0},%
     {svgsubpath}{1},{svgsubdir}{1},%
     {basepath}{2},{basedir}{2},{jobpath}{2},{jobdir}{2},%
-    {basesubpath}{3},{basesubdir}{3},{jobsubpath}{3},{jobsubdir}{3}%
+    {basesubpath}{3},{basesubdir}{3},{jobsubpath}{3},{jobsubdir}{3},%
+    {inkscapepath}{4},{inkscapedir}{4},%
+    {inkscapesubpath}{5},{inkscapesubdir}{5}%
   }{\svg@tempb}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \ifcase\svg@tempa\relax% svgpath
@@ -4219,6 +4246,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \renewcommand*\svgx@out@path{./}%
     \or% basesubpath
       \renewcommand*\svgx@out@path{./svg-extract/}%
+    \or% inkscapepath
+      \renewcommand*\svgx@out@path{\svg@out@path}%
+    \or% inkscapesubpath
+      \renewcommand*\svgx@out@path{\svg@out@path svg-extract/}%
     \fi%
   \else%
     \edef\svgx@out@path{\svg@tempb}%
