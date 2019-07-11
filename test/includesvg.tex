@@ -1,9 +1,37 @@
 \listfiles
+\documentclass{scrartcl}
+\ifpdftex{
+  \usepackage[T1]{fontenc}
+}{
+  \usepackage{fontspec}
+}
+
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{svg}
+\usepackage{svg-extract}
+
+\svgpath{{C:/texlive/2019/texmf-dist/doc/latex/svg/}}
+\svgsetup{%
+%  inkscapeexe="C:/Program Files/Inkscape1/inkscape",
+}
+
+\begin{document}
+\begin{figure}
+\centering
+\svgsetup{clean=true}
+\fbox{\includesvg[extractformat=,convertformat={png}]{svg-example}}
+\caption{text}\label{fig:example-tex}
+\end{figure}
+\end{document}
+
+\listfiles
 \documentclass[parskip=full,ngerman]{scrreprt}% Test
 \usepackage[T1]{fontenc}
 \usepackage{babel}
+\usepackage{etoolbox}
 \usepackage{svg}
-\usepackage{svg-extract}
+%\usepackage{svg-extract}
 %\svgsetup{clean=true}
 \providecommand{\transparent}[1]{}
 
