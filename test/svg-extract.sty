@@ -755,15 +755,37 @@
 }
 \let\svghidepreamblestart\relax
 \let\svghidepreambleend\relax
+\newcommand*\svgx@last@file{}
+% TODO how to handle parameters?!
+\renewcommand*\includesvgextracted[2][]{%
+  \includesvg[,exclude,extract=true]{#2}%
+  % \meaning\svgx@last@file\par
+  % TODO imported file type from \svgx@format,\svgx@cnv@format
+  \IfFileExists{\svgx@last@file.pdf}{%
+    \includegraphics[width=\textwidth]{\svgx@last@file.pdf}%
+  }{%
+    %TODO Warning with hint to run with --shell-escape
+  }%
+}
+\renewcommand*\svg@extract[1]{%
+  \if@svgx@out@sec%
+    \svgx@get@out@sec%
+  \fi%
+  \stepcounter{svgx@out@count}%
+  \def\svgx@last@file{\svgx@out@path\svgx@out@name}%
+  \svg@quotes@remove{\svgx@last@file}%
+  \global\let\svgx@last@file\svgx@last@file%
+  \svg@@extract{#1}%
+}
 \ifnum\pdf@shellescape=\@ne\relax\else%
-  \renewcommand*\svg@extract[1]{%
+  \newcommand*\svg@@extract[1]{%
     \begingroup%
       \edef\svg@tempa{#1}%
       \svg@quotes@remove{\svg@tempa}%
       \PackageWarning{svg-extract}{%
-        You didn't enable `shell escape' (or `write18')\MessageBreak%
-        so it wasn't possible to run the extraction for\MessageBreak%
-        file `\svg@tempa'\MessageBreak%
+        You didn't enable `--shell-escape' option so it\MessageBreak%
+        wasn't possible to run the extraction for file\MessageBreak%
+        `\svg@tempa'\MessageBreak%
       }%
     \endgroup%
   }%
@@ -782,11 +804,7 @@
     }%
   \svg@tempa%
 }
-\renewcommand*\svg@extract[1]{%
-  \if@svgx@out@sec%
-    \svgx@get@out@sec%
-  \fi%
-  \stepcounter{svgx@out@count}%
+\newcommand*\svg@@extract[1]{%
   \begingroup%
     \def\svg@tempa##1.##2\@nil{%
       \IfArgIsEmpty{##2}{\edef\svgx@preamble{##1.\svgx@latex@ext}}{}%

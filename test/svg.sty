@@ -1029,8 +1029,8 @@
         \else%
           \svg@quotes@remove[\svg@file@base]{\svg@tempa}%
           \PackageWarning{svg}{%
-            You didn't enable `shell escape' (or `write18') so\MessageBreak%
-            it wasn't possible to launch the Inkscape export for\MessageBreak%
+            You didn't enable `--shell-escape' option so it\MessageBreak%
+            wasn't possible to launch the Inkscape export for\MessageBreak%
             `\svg@tempa.\svg@file@ext'%
           }%
         \fi%
@@ -1277,6 +1277,14 @@
     to be used together with package `svg-extract'.\MessageBreak%
     Nevertheless, nothing will happen%
   }%
+}
+\newcommand*\includesvgextracted[2][]{%
+  \PackageWarning{svg}{%
+    The macro `\string\includesvgextracted' is only meant\MessageBreak%
+    to be used together with package `svg-extract'.\MessageBreak%
+    Macro \string\includesvg' will be used instead%
+  }%
+  \includesvg[{#1}]{#2}%
 }
 \newcommand*\svg@extract[1]{}
 \ifnum\pdf@shellescape=\@ne\relax\else%

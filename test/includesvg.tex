@@ -1,3 +1,21 @@
+\documentclass{scrartcl}
+\ifpdftex{
+  \usepackage[T1]{fontenc}
+}{
+  \usepackage{fontspec}
+}
+\usepackage{svg}
+\usepackage{svg-extract}
+
+\begin{document}
+\section*{This is a test}
+\begin{figure}
+\centering
+\includesvgextracted{svg-example}
+\end{figure}
+\end{document}
+
+
 \listfiles
 \documentclass{scrartcl}
 \ifpdftex{
@@ -11,7 +29,7 @@
 \usepackage{svg}
 \usepackage{svg-extract}
 
-\svgpath{{C:/texlive/2019/texmf-dist/doc/latex/svg/}}
+%\svgpath{{C:/texlive/2019/texmf-dist/doc/latex/svg/}}
 \svgsetup{%
 %  inkscapeexe="C:/Program Files/Inkscape1/inkscape",
 %  gsexe="C:/Program Files/gs/gs9.20/bin/gswin64",

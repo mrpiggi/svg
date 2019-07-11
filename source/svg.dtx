@@ -1,4 +1,4 @@
-% \CheckSum{4001}
+% \CheckSum{4034}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -729,42 +729,48 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   \includesvg§\oarg{parameters}\marg{svg filename}§
 %   \includeinkscape§\oarg{parameters}\marg{graphic filename}§
 % \end{svgexample}
-% These parameters have an effect only once when the specific command is 
-% executed and remain unchanged afterwards.
-% \begingroup\ignorespaces%
-% \newcommand*\parameterlist{}\ignorespaces%
-% \listadd\parameterlist{extract}\ignorespaces%
-% \listadd\parameterlist{extractpreamble}\ignorespaces%
-% \listadd\parameterlist{extractformat}\ignorespaces%
-% \listadd\parameterlist{extractruns}\ignorespaces%
-% \listadd\parameterlist{latexopt}\ignorespaces%
-% \listadd\parameterlist{extractwidth}\ignorespaces%
-% \listadd\parameterlist{extractheight}\ignorespaces%
-% \listadd\parameterlist{extractdistort}\ignorespaces%
-% \listadd\parameterlist{extractscale}\ignorespaces%
-% \listadd\parameterlist{extractangle}\ignorespaces%
-% \listadd\parameterlist{extractpretex}\ignorespaces%
-% \listadd\parameterlist{extractapptex}\ignorespaces%
-% \listadd\parameterlist{convert}\ignorespaces%
-% \listadd\parameterlist{convertformat}\ignorespaces%
-% \listadd\parameterlist{convertdpi}\ignorespaces%
-% \listadd\parameterlist{magicksetting}\ignorespaces%
-% \listadd\parameterlist{magickoperator}\ignorespaces%
-% \listadd\parameterlist{gsopt}\ignorespaces%
-% \listadd\parameterlist{gsdevice}\ignorespaces%
-% \listadd\parameterlist{clean}\ignorespaces%
-% \listadd\parameterlist{exclude}\ignorespaces%
-% \def\buffer{}\def\do#1{\buffer\prm{#1}\def\buffer{, }}\ignorespaces%
-% These parameters are: \dolistloop{\parameterlist}.
-% \renewcommand*\marginpar[2][]{}\ignorespaces%
-% \def\do#1{\DescribeParameter{#1}}\ignorespaces%
-% \begin{DescribeParameterParent}{Macro}{\includesvg}%
-% \dolistloop{\parameterlist}%
-% \end{DescribeParameterParent}%
-% \begin{DescribeParameterParent}{Macro}{\includeinkscape}%
-% \dolistloop{\parameterlist}%
-% \end{DescribeParameterParent}%
-% \endgroup%
+% They only have an effect once when the specific command is executed.
+%^^A \begingroup\ignorespaces%
+%^^A \newcommand*\parameterlist{}\ignorespaces%
+%^^A \listadd\parameterlist{extract}\ignorespaces%
+%^^A \listadd\parameterlist{extractpreamble}\ignorespaces%
+%^^A \listadd\parameterlist{extractformat}\ignorespaces%
+%^^A \listadd\parameterlist{extractwidth}\ignorespaces%
+%^^A \listadd\parameterlist{extractheight}\ignorespaces%
+%^^A \listadd\parameterlist{extractdistort}\ignorespaces%
+%^^A \listadd\parameterlist{extractscale}\ignorespaces%
+%^^A \listadd\parameterlist{extractangle}\ignorespaces%
+%^^A \listadd\parameterlist{extractpretex}\ignorespaces%
+%^^A \listadd\parameterlist{extractapptex}\ignorespaces%
+%^^A \listadd\parameterlist{extractruns}\ignorespaces%
+%^^A \listadd\parameterlist{latexexe}\ignorespaces%
+%^^A \listadd\parameterlist{latexopt}\ignorespaces%
+%^^A \listadd\parameterlist{latexext}\ignorespaces%
+%^^A \listadd\parameterlist{dvipsopt}\ignorespaces%
+%^^A \listadd\parameterlist{pstoepsopt}\ignorespaces%
+%^^A \listadd\parameterlist{pstopdfopt}\ignorespaces%
+%^^A \listadd\parameterlist{pdftoepsopt}\ignorespaces%
+%^^A \listadd\parameterlist{pdftopsopt}\ignorespaces%
+%^^A \listadd\parameterlist{convert}\ignorespaces%
+%^^A \listadd\parameterlist{convertformat}\ignorespaces%
+%^^A \listadd\parameterlist{convertdpi}\ignorespaces%
+%^^A \listadd\parameterlist{magicksetting}\ignorespaces%
+%^^A \listadd\parameterlist{magickoperator}\ignorespaces%
+%^^A \listadd\parameterlist{gsopt}\ignorespaces%
+%^^A \listadd\parameterlist{gsdevice}\ignorespaces%
+%^^A \listadd\parameterlist{clean}\ignorespaces%
+%^^A \listadd\parameterlist{exclude}\ignorespaces%
+%^^A \def\buffer{}\def\do#1{\buffer\prm{#1}\def\buffer{, }}\ignorespaces%
+%^^A These parameters are: \dolistloop{\parameterlist}.
+%^^A \renewcommand*\marginpar[2][]{}\ignorespaces%
+%^^A \def\do#1{\DescribeParameter{#1}}\ignorespaces%
+%^^A \begin{DescribeParameterParent}{Macro}{\includesvg}%
+%^^A \dolistloop{\parameterlist}%
+%^^A \end{DescribeParameterParent}%
+%^^A \begin{DescribeParameterParent}{Macro}{\includeinkscape}%
+%^^A \dolistloop{\parameterlist}%
+%^^A \end{DescribeParameterParent}%
+%^^A \endgroup%
 %
 %
 %
@@ -956,17 +962,21 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % necassary is done by just using \cs{includesvg} or \cs{includeinkscape}.
 %
 % \begin{DescribeParameterParent}{Macro}{\includesvg}
-% \DescribeParameters{extractangle}
+% \DescribeParameter{extractangle}
+% \begin{DescribeParameterParent}{Macro}{\includeinkscape}
+% \renewcommand*\marginpar[2][]{}\ignorespaces%
+% \DescribeParameter{extractangle}
 % \changes{v2.02}{2018/09/07}{%
-%   parameter \prm{extractangle} for \cs{includesvg} implemented in order to
-%   rotate graphics during extractions 
+%   parameter \prm{extractangle} for \cs{includesvg} and \cs{includeinkscape} 
+%   implemented in order to rotate graphics during extractions 
 % }^^A
 % With this additional parameter the graphic is rotated during the extraction
 % process. The value is not inherited from \prm{angle} if it was given by
-% default. this can be achieved by setting:
+% default. This can be achieved by setting:
 % \begin{svgexample}
 %   \includesvg[angle=§\meta{angle}§,extractangle=inherit]§\marg{filename}§
 % \end{svgexample}
+% \end{DescribeParameterParent}
 % \end{DescribeParameterParent}
 %
 %
@@ -3104,8 +3114,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \else%
           \svg@quotes@remove[\svg@file@base]{\svg@tempa}%
           \PackageWarning{svg}{%
-            You didn't enable `shell escape' (or `write18') so\MessageBreak%
-            it wasn't possible to launch the Inkscape export for\MessageBreak%
+            You didn't enable `--shell-escape' option so it\MessageBreak%
+            wasn't possible to launch the Inkscape export for\MessageBreak%
             `\svg@tempa.\svg@file@ext'%
           }%
         \fi%
@@ -4582,7 +4592,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{parameter}{extractpretex}
 % \begin{parameter}{extractapptex}
 % \begin{parameter}{extractruns}
-% \begin{parameter}{latexopt}
+% \begin{parameter}{latexexe}%
+% \begin{parameter}{latexopt}%
+% \begin{parameter}{latexext}%
+% \begin{parameter}{dvipsopt}%
+% \begin{parameter}{pstoepsopt}%
+% \begin{parameter}{pstopdfopt}%
+% \begin{parameter}{pdftoepsopt}%
+% \begin{parameter}{pdftopsopt}%
 % \begin{parameter}{convert}
 % \begin{parameter}{convertformat}
 % \begin{parameter}{convertdpi}
@@ -4602,10 +4619,18 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.02}{2018/09/07}{new}^^A
 % \begin{parameter}{extractscale}
 % \begin{parameter}{extractangle}
+% \changes{v2.02}{2018/09/07}{new}^^A
 % \begin{parameter}{extractpretex}
 % \begin{parameter}{extractapptex}
 % \begin{parameter}{extractruns}
-% \begin{parameter}{latexopt}
+% \begin{parameter}{latexexe}%
+% \begin{parameter}{latexopt}%
+% \begin{parameter}{latexext}%
+% \begin{parameter}{dvipsopt}%
+% \begin{parameter}{pstoepsopt}%
+% \begin{parameter}{pstopdfopt}%
+% \begin{parameter}{pdftoepsopt}%
+% \begin{parameter}{pdftopsopt}%
 % \begin{parameter}{convert}
 % \begin{parameter}{convertformat}
 % \begin{parameter}{convertdpi}
@@ -4650,7 +4675,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{parameter}^^A convertdpi
 % \end{parameter}^^A convertformat
 % \end{parameter}^^A convert
+% \end{parameter}^^A pdftopsopt
+% \end{parameter}^^A pdftoepsopt
+% \end{parameter}^^A pstopdfopt
+% \end{parameter}^^A pstoepsopt
+% \end{parameter}^^A dvipsopt
+% \end{parameter}^^A latexext
 % \end{parameter}^^A latexopt
+% \end{parameter}^^A latexexe
 % \end{parameter}^^A extractruns
 % \end{parameter}^^A extractapptex
 % \end{parameter}^^A extractpretex
@@ -4672,7 +4704,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{parameter}^^A convertdpi
 % \end{parameter}^^A convertformat
 % \end{parameter}^^A convert
+% \end{parameter}^^A pdftopsopt
+% \end{parameter}^^A pdftoepsopt
+% \end{parameter}^^A pstopdfopt
+% \end{parameter}^^A pstoepsopt
+% \end{parameter}^^A dvipsopt
+% \end{parameter}^^A latexext
 % \end{parameter}^^A latexopt
+% \end{parameter}^^A latexexe
 % \end{parameter}^^A extractruns
 % \end{parameter}^^A extractapptex
 % \end{parameter}^^A extractpretex
@@ -4718,12 +4757,85 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svghidepreambleend
 % \end{macro}^^A \svghidepreamblestart
+% \begin{macro}{\includesvgextracted}
+% \changes{v2.03}{2019/07/11}{new}^^A
+% \begin{macro}{\svgx@last@file}
+% \changes{v2.03}{2019/07/11}{new}^^A
+% \ToDo{source doc}[v2.03]
+% \ToDo{adapt for package \pkg{svg} to arguments in \pkg{svg-extract}}[v2.03]
+%    \begin{macrocode}
+%<*base>
+\newcommand*\includesvgextracted[2][]{%
+  \PackageWarning{svg}{%
+    The macro `\string\includesvgextracted' is only meant\MessageBreak%
+    to be used together with package `svg-extract'.\MessageBreak%
+    Macro \string\includesvg' will be used instead%
+  }%
+  \includesvg[{#1}]{#2}%
+}
+%</base>
+%    \end{macrocode}
+% \ToDo{user and source doc}[v2.03]
+% \ToDo{%
+%   how to handle parameters? two optional arguments for \cs{includegraphics}
+%   and \cs{includesvgextracted}!%
+% }[v2.03]
+% \ToDo{warning with hint to run with --shell-escape if file is missing}[v2.03]
+%    \begin{macrocode}
+%<*extract>
+\newcommand*\svgx@last@file{}
+\renewcommand*\includesvgextracted[2][]{%
+  \includesvg[,exclude,extract=true]{#2}%
+  \IfFileExists{\svgx@last@file.pdf}{%
+    \includegraphics[width=\textwidth]{\svgx@last@file.pdf}%
+  }{%
+  }%
+}
+%</extract>
+%    \end{macrocode}
+% \end{macro}^^A \svgx@last@file
+% \end{macro}^^A \includesvgextracted
 %
 %
 %
 % \subsection{Auxiliary macros}
 %
 % \begin{macro}{\svg@extract}
+% \changes{v2.03}{2019/07/11}{%
+%   revised, steps counter \cnt{svgx@out@count} and sets \cs{svgx@last@file}%
+%  }^^A
+% The macro \cs{svg@extract} does some preparing for extraction. The macro
+% \cs{svgx@get@out@sec} is used to get the current level section numbering
+% within the document and the counter for extracted graphics is stepped.
+% Additionally, the base name for extracted and converted files is globally 
+% stored in \cs{svgx@last@file} in order to include extracted graphics as well. 
+% Finally, \cs{svg@@extract} is called to do the actual job of both extracting
+% and converting independent graphic files
+%    \begin{macrocode}
+%<*base>
+\newcommand*\svg@extract[1]{}
+%</base>
+%<*extract>
+\renewcommand*\svg@extract[1]{%
+  \if@svgx@out@sec%
+    \svgx@get@out@sec%
+  \fi%
+  \stepcounter{svgx@out@count}%
+  \def\svgx@last@file{\svgx@out@path\svgx@out@name}%
+  \svg@quotes@remove{\svgx@last@file}%
+  \global\let\svgx@last@file\svgx@last@file%
+  \svg@@extract{#1}%
+}
+%</extract>
+%    \end{macrocode}
+% \end{macro}^^A \svg@extract
+%
+% \iffalse
+%<*extract>
+% \fi
+%
+% \begin{macro}{\svg@@extract}
+% \changes{v2.03}{2019/07/11}{new, old definition of \cs{svg@extract}}^^A
 % \begin{macro}{\svgx@stream@in}
 % \begin{macro}{\svgx@read@line}
 % \begin{macro}{\svgx@stream@out}
@@ -4732,24 +4844,19 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.03}{2019/07/10}{new}^^A
 % \begin{macro}{\svgx@eaddto@shell}
 % \changes{v2.03}{2019/07/10}{new}^^A
-% The macro \cs{svg@extract} does the actual job of both extracting and 
-% converting independent graphic files. Since it is necessary to run it with 
-% \file{-{}-shell-escape} enabled, the command raises a warning if it is not 
-% activated. Afterwards, the package is finished.
+% Since it's necessary to enable option \file{-{}-shell-escape} for extraction, 
+% the command raises a warning if it is not activated. Afterwards, the package 
+% is finished.
 %    \begin{macrocode}
-%<*base>
-\newcommand*\svg@extract[1]{}
-%</base>
-%<*extract>
 \ifnum\pdf@shellescape=\@ne\relax\else%
-  \renewcommand*\svg@extract[1]{%
+  \newcommand*\svg@@extract[1]{%
     \begingroup%
       \edef\svg@tempa{#1}%
       \svg@quotes@remove{\svg@tempa}%
       \PackageWarning{svg-extract}{%
-        You didn't enable `shell escape' (or `write18')\MessageBreak%
-        so it wasn't possible to run the extraction for\MessageBreak%
-        file `\svg@tempa'\MessageBreak%
+        You didn't enable `--shell-escape' option so it\MessageBreak%
+        wasn't possible to run the extraction for file\MessageBreak%
+        `\svg@tempa'\MessageBreak%
       }%
     \endgroup%
   }%
@@ -4774,21 +4881,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
     }%
   \svg@tempa%
 }
-\renewcommand*\svg@extract[1]{%
+\newcommand*\svg@@extract[1]{%
 %    \end{macrocode}
-% If option \opt{extract} is enabled, the macro \cs{svgx@get@out@sec} is used 
-% to get the current level numbering within the document and the counter for 
-% extracted graphics is stepped. After that, a separate auxiliary \LaTeX~file
-% is created for extracting independent graphic files. In order to get the
-% current level numbering within the document, macro \cs{svgx@get@out@sec} is 
-% used. The specified preamble is read for this task, if it exists. It is first
-% searched in the same folder as the SVG~file and if it wasn't found, in any
-% other valid folder for SVG~files.
+% A separate auxiliary \LaTeX~file is created for extracting independent
+% graphic files. The specified preamble is read for this task, if it exists. It
+% is first searched in the same folder as the SVG~file and if it wasn't found,
+% in any other valid folder for SVG~files.
 %    \begin{macrocode}
-  \if@svgx@out@sec%
-    \svgx@get@out@sec%
-  \fi%
-  \stepcounter{svgx@out@count}%
   \begingroup%
     \def\svg@tempa##1.##2\@nil{%
       \IfArgIsEmpty{##2}{\edef\svgx@preamble{##1.\svgx@latex@ext}}{}%
@@ -5214,7 +5313,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \expandafter\AfterReadingMainAux\expandafter{\the\svgx@shell}%
   }%
 }
-%</extract>
 %    \end{macrocode}
 % \end{macro}^^A \svgx@eaddto@shell
 % \end{macro}^^A \svgx@shell
@@ -5222,9 +5320,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svgx@stream@out
 % \end{macro}^^A \svgx@read@line
 % \end{macro}^^A \svgx@stream@in
-% \end{macro}^^A \svg@extract
+% \end{macro}^^A \svg@@extract
 %
 % \iffalse
+%</extract>
 %</package&body>
 %<*package&extract&body>
 % \fi
