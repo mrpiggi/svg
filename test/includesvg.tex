@@ -8,61 +8,22 @@
 
 \usepackage{graphicx}
 \usepackage{xcolor}
-%\usepackage{transparent}
 \usepackage{svg}
 \usepackage{svg-extract}
 
-\makeatletter
-
-%\svgsetup{inkscapeexe="C:/Program Files/Inkscape1/inkscape"}
+\svgpath{{C:/texlive/2019/texmf-dist/doc/latex/svg/}}
+\svgsetup{%
+%  inkscapeexe="C:/Program Files/Inkscape1/inkscape",
+}
 
 \begin{document}
-
-%\meaning\svg@ink@ver
-
-%\the\catcode`\/
-%
-%
-%\begingroup
-%  \catcode`/=\active%
-%  \gdef\foo#1{%
-%    \def/{\@backslashchar}
-%    #1
-%  }
-%\endgroup
-%
-%bbb/bbb
-%
-%\foo{vvv/bbb}
-%
-%\the\catcode`\/
-
-
-%\svgpath{{C:/texlive/2019/texmf-dist/doc/latex/svg/}}
-%\svgsetup{%
-%  inkscapeexe="C:/Program Files/Inkscape1/inkscape",
-%  inkscapepath=C:/Users/Hanisch/Documents/GitHub/svg/exporttest/
-%}
 \begin{figure}
 \centering
-\svgsetup{clean=most}
-% extractpath=basepath
-\fbox{\includesvg[extract,convertformat={png,eps}]%
-{"a test.svg"}}
+\svgsetup{clean=true}
+\fbox{\includesvg[extractformat=,convertformat={png}]{svg-example}}
 \caption{text}\label{fig:example-tex}
 \end{figure}
-%
-\makeatletter
-\meaning\svg@ink@ver
-
-%\begin{figure}
-%\centering
-%\includeinkscape{"a test_svg-tex"}
-%\end{figure}
-
 \end{document}
-
-"C:/Program Files/Inkscape1/inkscape"
 
 \listfiles
 \documentclass[parskip=full,ngerman]{scrreprt}% Test

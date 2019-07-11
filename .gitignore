@@ -21,6 +21,7 @@ temp/
 *.ps
 *.run.xml
 *.sty
+*.synctex(busy)
 *.synctex.gz*
 *.tdo
 *.toc
