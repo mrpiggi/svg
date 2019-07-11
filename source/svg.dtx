@@ -1,4 +1,4 @@
-% \CheckSum{4057}
+% \CheckSum{4060}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -742,7 +742,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %^^A \listadd\parameterlist{extractangle}\ignorespaces%
 %^^A \listadd\parameterlist{extractpretex}\ignorespaces%
 %^^A \listadd\parameterlist{extractapptex}\ignorespaces%
-%^^A \listadd\parameterlist{extractruns}\ignorespaces%
+%^^A \listadd\parameterlist{extractiterations}\ignorespaces%
 %^^A \listadd\parameterlist{latexexe}\ignorespaces%
 %^^A \listadd\parameterlist{latexopt}\ignorespaces%
 %^^A \listadd\parameterlist{latexext}\ignorespaces%
@@ -907,18 +907,18 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   §\dots§
 % \end{svgexample}
 %
-% \DescribeOption{extractruns}
+% \DescribeOption{extractiterations}
 % When extracting independent grahic~files by compiling the generated auxiliary 
-% \LaTeX~file, it's maybe necessary to do multiple \LaTeX~runs on this file. 
-% The number of runs can be controlled with option \opt{extractruns}. It's set
-% to \opt{extractruns}|=|\val{2} by default.
+% \LaTeX~file, it's maybe necessary to do multiple \LaTeX~iterations on this. 
+% The number of iterations is controlled with option \opt{extractiterations}. 
+% It's set to \opt{extractiterations}|=|\val{2} by default.
 %
 % \DescribeOptions{latexexe,latexopt,latexext}
 % For the extraction of an independent grahic~file, the \LaTeX~program is used
 % which is set by the \opt{latexexe} option. Depending on the \LaTeX~processor 
 % used for the current \LaTeX~document, it is set to either \app{pdflatex}, 
 % \app{lualatex}, \app{xelatex} or \app{latex} by default. It's also possible
-% to specify additional flags or switches for the \LaTeX~runs, which are
+% to specify additional flags or switches for the \LaTeX~iterations, which are
 % performed during the extraction process by the \opt{latexopt} option. If you
 % are used to utilize a other file~extension for \LaTeX~files than \file{.tex}, 
 % option \opt{latexext} can be used like \opt{latexext}|=|\val{ltx}.
@@ -3678,7 +3678,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \svgx@ifinlist{pdf}{\svgx@format}{}{%
         \edef\svgx@format{\svgx@format,pdf}%
       }%
-      \svg@deprecated@key{pdf}{extractformat={\svgx@format}}%
+      \svg@deprecated@key[svg-extract]{pdf}{extractformat={\svgx@format}}%
     \else%
       \FamilyKeyStateUnknownValue%
     \fi%
@@ -3691,7 +3691,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \svgx@ifinlist{eps}{\svgx@format}{}{%
         \edef\svgx@format{\svgx@format,eps}%
       }%
-      \svg@deprecated@key{eps}{extractformat={\svgx@format}}%
+      \svg@deprecated@key[svg-extract]{eps}{extractformat={\svgx@format}}%
     \else%
       \FamilyKeyStateUnknownValue%
     \fi%
@@ -3751,32 +3751,39 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svgx@preamble
 % \end{option}^^A preamble
 % \end{option}^^A extractpreamble
-% \begin{option}{extractruns}
+% \begin{option}{extractiterations}
 % \changes{v2.00}{2017/02/24}{new}^^A
-% \begin{counter}{svgx@runs}
-% With this option, the number of \LaTeX~runs for the separate auxiliary file 
-% can be set.
+% \changes{v2.00}{2017/02/24}{\opt{extractruns} renamed}^^A
+% \begin{option}{extractruns}
+% \begin{counter}{svgx@iterations}
+% With this option, the number of \LaTeX~iterations for the separate auxiliary
+% file can be set.
 %    \begin{macrocode}
 %<*base>
+\svg@dummy@key{extractiterations}
 \svg@dummy@key{extractruns}
 %</base>
 %<*extract>
-\newcounter{svgx@runs}
-\DefineFamilyKey{SVG}{extractruns}{%
-  \FamilySetCounter{SVG}{extractruns}{svgx@runs}{#1}%
+\newcounter{svgx@iterations}
+\DefineFamilyKey{SVG}{extractiterations}{%
+  \FamilySetCounter{SVG}{extractiterations}{svgx@iterations}{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \ifnum\value{svgx@runs}<\@ne\relax%
+    \ifnum\value{svgx@iterations}<\@ne\relax%
       \PackageWarning{svg-extract}{%
-        The count for runs has to be at least one%
+        The count for iterations has to be at least one%
       }%
-      \FamilySetCounter{SVG}{extractruns}{svgx@runs}{\@ne}%
+      \FamilySetCounter{SVG}{extractiterations}{svgx@iterations}{\@ne}%
     \fi%
   \fi%
 }
+\DefineFamilyKey{SVG}{extractruns}{%
+  \svg@deprecated@key[svg-extract]{extractruns=#1}{extractiterations=#1}%
+}
 %</extract>
 %    \end{macrocode}
-% \end{counter}^^A svgx@runs
+% \end{counter}^^A svgx@iterations
 % \end{option}^^A extractruns
+% \end{option}^^A extractiterations
 % \begin{option}{latexexe}
 % \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{option}{pdflatex}
@@ -4061,7 +4068,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \svgx@ifinlist{png}{\svgx@cnv@format}{}{%
         \edef\svgx@cnv@format{\svgx@cnv@format,png}%
       }%
-      \svg@deprecated@key{png}{convertformat={\svgx@cnv@format}}%
+      \svg@deprecated@key[svg-extract]{png}{convertformat={\svgx@cnv@format}}%
     \else%
       \FamilyKeyStateUnknownValue%
     \fi%
@@ -4592,7 +4599,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.02}{2018/09/07}{new}^^A
 % \begin{parameter}{extractpretex}
 % \begin{parameter}{extractapptex}
-% \begin{parameter}{extractruns}
+% \begin{parameter}{extractiterations}
 % \begin{parameter}{latexexe}%
 % \begin{parameter}{latexopt}%
 % \begin{parameter}{latexext}%
@@ -4623,7 +4630,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.02}{2018/09/07}{new}^^A
 % \begin{parameter}{extractpretex}
 % \begin{parameter}{extractapptex}
-% \begin{parameter}{extractruns}
+% \begin{parameter}{extractiterations}
 % \begin{parameter}{latexexe}%
 % \begin{parameter}{latexopt}%
 % \begin{parameter}{latexext}%
@@ -4684,7 +4691,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{parameter}^^A latexext
 % \end{parameter}^^A latexopt
 % \end{parameter}^^A latexexe
-% \end{parameter}^^A extractruns
+% \end{parameter}^^A extractiterations
 % \end{parameter}^^A extractapptex
 % \end{parameter}^^A extractpretex
 % \end{parameter}^^A extractangle
@@ -4713,7 +4720,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{parameter}^^A latexext
 % \end{parameter}^^A latexopt
 % \end{parameter}^^A latexexe
-% \end{parameter}^^A extractruns
+% \end{parameter}^^A extractiterations
 % \end{parameter}^^A extractapptex
 % \end{parameter}^^A extractpretex
 % \end{parameter}^^A extractangle
@@ -5190,7 +5197,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % First of all the separate auxiliary \LaTeX~file is compiled with the detected 
 % \LaTeX~processor (\cs{svgx@latex@exe}) as often as defined by counter option 
-% \opt{extractruns}.
+% \opt{extractiterations}.
 %    \begin{macrocode}
     \svgx@eaddto@shell{%
       \noexpand\PackageInfoNoLine{svg-extract}{%
@@ -5201,7 +5208,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \fi%
       }%
     }%
-    \loop\ifnum\value{svgx@runs}>\z@\relax%
+    \loop\ifnum\value{svgx@iterations}>\z@\relax%
       \svgx@eaddto@shell{%
         \noexpand\ShellEscape{%
           \svgx@latex@exe\space%
@@ -5209,7 +5216,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
           "\svgx@out@name.\svgx@latex@ext"%
         }%
       }%
-      \advance\c@svgx@runs\m@ne%
+      \advance\c@svgx@iterations\m@ne%
     \repeat%
 %    \end{macrocode}
 % All files requested with option \opt{extractformat} are created with internal 
@@ -5890,7 +5897,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<*extract>
 \FamilyExecuteOptions{SVG}{%
   extract=true,extractpath=basesubdir,%
-  extractruns=2,extractname=namenumbered,extractdistort=false,%
+  extractiterations=2,extractname=namenumbered,extractdistort=false,%
   convert=magick,convert=false,%
   gsdevice={png=png16m},gsdevice={jpeg=jpeg},gsdevice={jpg=jpeg},%
   gsdevice={tif=tiff48nc},gsdevice={tiff=tiff48nc},%
