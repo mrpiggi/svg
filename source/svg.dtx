@@ -1,4 +1,4 @@
-% \CheckSum{3984}
+% \CheckSum{3986}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -3171,8 +3171,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Writing \cs{svg@ink@exe} and \cs{svg@ink@ver} to the main aux-file.
 %    \begin{macrocode}
   \if@filesw%
-    \write\@mainaux{\string\gdef\string\svg@ink@lastexe{\svg@ink@exe}}%
-    \write\@mainaux{\string\gdef\string\svg@ink@ver{\svg@ink@ver}}%
+    \immediate\write\@mainaux{%
+      \string\gdef\string\svg@ink@ver{\svg@ink@ver}%
+      \string\gdef\string\svg@ink@lastexe{\svg@ink@exe}%
+    }%
   \fi%
 }
 %    \end{macrocode}
