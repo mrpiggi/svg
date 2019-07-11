@@ -1075,8 +1075,10 @@
     \fi%
   \fi%
   \if@filesw%
-    \write\@mainaux{\string\gdef\string\svg@ink@lastexe{\svg@ink@exe}}%
-    \write\@mainaux{\string\gdef\string\svg@ink@ver{\svg@ink@ver}}%
+    \immediate\write\@mainaux{%
+      \string\gdef\string\svg@ink@ver{\svg@ink@ver}%
+      \string\gdef\string\svg@ink@lastexe{\svg@ink@exe}%
+    }%
   \fi%
 }
 \newcommand*\svg@ink@cmd[2]{%

@@ -1,4 +1,4 @@
-% \CheckSum{3986}
+% \CheckSum{3993}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -4186,7 +4186,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.00}{2017/02/24}{support of \pkg{subfig} removed}^^A
 % \begin{macro}{\svgx@out@path}
 % \begin{macro}{\svgx@out@name}
-% \begin{macro}{\svgx@out@base}
 % \begin{macro}{\if@svgx@out@sec}
 % \begin{counter}{svgx@out@count}
 % The option \opt{extractpath} controls, in which folder the results both of 
@@ -4203,7 +4202,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<*extract>
 \newcommand*\svgx@out@path{}
 \newcommand*\svgx@out@name{\svg@out@name-extract}
-\newcommand*\svgx@out@base{\svgx@out@path\svgx@out@name}
 \DefineFamilyKey{SVG}{extractpath}{%
   \svg@sanitize@dq\svg@tempb{#1}%
   \FamilySetNumerical{SVG}{extractpath}{svg@tempa}{%
@@ -4267,7 +4265,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{counter}^^A svgx@out@count
 % \end{macro}^^A \if@svgx@out@sec
-% \end{macro}^^A \svgx@out@base
 % \end{macro}^^A \svgx@out@name
 % \end{macro}^^A \svgx@out@path
 % \end{option}^^A name
@@ -5106,19 +5103,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \svgx@ifinlist{ps}{\svgx@format}{\svg@tempa{pdftops}{pdf}{ps}}{}%
     \fi%
 %    \end{macrocode}
-% As extraction is done, all files intended to be extracted are moved to the 
-% desired output folder (\opt{extractpath}).
-%    \begin{macrocode}
-    \@for\svg@tempb:=\svgx@format\do{%
-      \ifx\svg@tempb\@empty\else%
-        \svgx@eaddto@shell{%
-          \noexpand\svgx@move{\svgx@out@name}{\svg@tempb}{\svgx@out@path}%
-        }%
-      \fi%
-    }%
-%    \end{macrocode}
 % Now the desired conversion tool is invoked if requested.
-% \ToDo{'extractformat=,convertformat=png' does not work}[v2.03]
 %    \begin{macrocode}
     \if@svgx@cnv@run%
 %    \end{macrocode}
@@ -5134,7 +5119,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The first given file type with option \opt{extractformat} is used as source 
 % for the conversion process.
 %    \begin{macrocode}
-      \expandafter\svgx@cnv@get@informat\expandafter{\svgx@format}%
+      \svgx@cnv@get@informat%
 %    \end{macrocode}
 % The conversion is done for each desired file type given in a list by option 
 % \opt{convertformat}.
@@ -5142,29 +5127,44 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \@for\svg@tempa:=\svgx@cnv@format\do{%
         \ifx\svg@tempa\@empty\else%
           \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{\svgx@format}{%
-            \PackageWarningNoLine{svg-extract}{%
-              Generating file `\svgx@out@name.\svg@tempa' was\MessageBreak%
-              specified with `extractformat' (\svgx@format)\MessageBreak%
-              as well as with `convertformat' (\svgx@cnv@format)\MessageBreak%
-              so the conversion won't be done%
-            }%
-          }{%
             \svgx@eaddto@shell{%
               \noexpand\PackageInfoNoLine{svg-extract}{%
-                Converting `\svgx@out@base.\svgx@cnv@informat'\MessageBreak%
-                to `\svgx@out@base.\svg@tempa'%
+                Generating file `\svgx@out@name.\svg@tempa' was\MessageBreak%
+                specified with `extractformat' (\svgx@format)\MessageBreak%
+                as well as with `convertformat' (\svgx@cnv@format)\MessageBreak%
+                so the conversion won't be done%
+              }%
+            }%
+          }{%
+            \edef\svg@tempb{\svgx@out@path\svgx@out@name}%
+            \svgx@eaddto@shell{%
+              \noexpand\PackageInfoNoLine{svg-extract}{%
+                Converting `\svgx@out@name.\svgx@cnv@informat'\MessageBreak%
+                to `\svg@tempb.\svg@tempa'%
               }%
               \noexpand\ShellEscape{%
-                \svgx@cnv@cmd{\svgx@out@base}{\svgx@cnv@informat}{\svg@tempa}%
+                \svgx@cnv@cmd{\svgx@out@name}{\svgx@cnv@informat}%
+                  {\svgx@out@path}{\svg@tempa}%
               }%
-              \noexpand\IfFileExists{"\svgx@out@base".\svg@tempa}{}{%
-                \noexpand\svgx@file@missing{\svgx@out@base.\svg@tempa}%
+              \noexpand\IfFileExists{"\svg@tempb".\svg@tempa}{}{%
+                \noexpand\svgx@file@missing{\svg@tempb.\svg@tempa}%
               }%
             }%
           }%
         \fi%
       }%
     \fi%
+%    \end{macrocode}
+% As both extraction and conversion are done, all files intended to be 
+% extracted are moved to the desired output folder (\opt{extractpath}).
+%    \begin{macrocode}
+    \@for\svg@tempa:=\svgx@format\do{%
+      \ifx\svg@tempa\@empty\else%
+        \svgx@eaddto@shell{%
+          \noexpand\svgx@move{\svgx@out@name}{\svg@tempa}{\svgx@out@path}%
+        }%
+      \fi%
+    }%
 %    \end{macrocode}
 % At the very end, all unwanted auxiliary files are deleted.
 %    \begin{macrocode}
@@ -5318,37 +5318,47 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svgx@read@preamble@till
 % \begin{macro}{\svgx@cnv@informat}
 % \begin{macro}{\svgx@cnv@get@informat}
-% The first list entry from argument (\cs{svgx@format}) is extracted by 
-% \cs{svgx@cnv@get@informat}.
+% \changes{v2.03}{2019/07/11}{sets \cs{svgx@format} implicitly if necessary}^^A
+% The macro \cs{svgx@cnv@get@informat} extracts the first list entry from 
+% \cs{svgx@format}. 
 %    \begin{macrocode}
 \newcommand*\svgx@cnv@informat{}
-\newcommand*\svgx@cnv@get@informat[1]{%
+\newcommand*\svgx@cnv@get@informat{%
   \begingroup%
     \def\svg@tempa##1,##2\@nil{%
       \def\svg@tempa{##1}%
     }%
-    \svg@tempa#1,\@nil%
+    \expandafter\svg@tempa\svgx@format,\@nil%
     \edef\svg@tempa{%
       \endgroup%
       \def\noexpand\svgx@cnv@informat{\svg@tempa}%
     }%
   \svg@tempa%
 %    \end{macrocode}
-% If the first argument (\cs{svgx@format}) was empty, \cs{svgx@cnv@informat} is 
-% set to the a file type, which is generated anyway.
+% If \cs{svgx@format} was empty, \cs{svgx@cnv@informat} is set to the a file
+% type, which is generated anyway\dots
 %    \begin{macrocode}
   \ifx\svgx@cnv@informat\@empty%
     \renewcommand*\svgx@cnv@informat{pdf}%
     \ifxetex\else\ifpdf\else%
       \renewcommand*\svgx@cnv@informat{ps}%
     \fi\fi%
+%    \end{macrocode}
+% \dots and if this file type is included in list \cs{svgx@cnv@informat} then
+% \cs{svgx@format} will be set to this file type as well in order to skip the 
+% unnecessary conversation.
+%    \begin{macrocode}
+    \expandafter\svgx@ifinlist\expandafter{\svgx@cnv@informat}%
+      {\svgx@cnv@format}{\let\svgx@format\svgx@cnv@informat}{}%
   \fi%
 }
 %    \end{macrocode}
 % \end{macro}^^A \svgx@cnv@get@informat
 % \end{macro}^^A \svgx@cnv@informat
 % \begin{macro}{\svgx@magick@cmd}
+% \changes{v2.03}{2019/07/11}{additional argument for output path}^^A
 % \begin{macro}{\svgx@gs@cmd}
+% \changes{v2.03}{2019/07/11}{additional argument for output path}^^A
 % Depending on option \opt{convert}, one of these two macros is actually used
 % by \cs{svgx@cnv@cmd}. For invoking the conversion process, the required 
 % platform-dependent executable is set, if nothing was set by a package option.
@@ -5360,13 +5370,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \renewcommand*\svgx@magick@exe{convert}
   \fi
 \fi
-\newcommand*\svgx@magick@cmd[3]{%
+\newcommand*\svgx@magick@cmd[4]{%
   \svgx@magick@exe\space%
-  \svgx@useformatkey{svgx@cnv@dpi}{#3}{-density }%
-  \svgx@useformatkey{svgx@magick@set}{#3}{}%
+  \svgx@useformatkey{svgx@cnv@dpi}{#4}{-density }%
+  \svgx@useformatkey{svgx@magick@set}{#4}{}%
   "#1.#2"\space%
-  \svgx@useformatkey{svgx@magick@opr}{#3}{}%
-  "#1.#3"%
+  \svgx@useformatkey{svgx@magick@opr}{#4}{}%
+  "#3#1.#4"%
 }
 %    \end{macrocode}
 %    \begin{macrocode}
@@ -5377,12 +5387,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \renewcommand*\svgx@gs@exe{gs}
   \fi
 \fi
-\newcommand*\svgx@gs@cmd[3]{%
+\newcommand*\svgx@gs@cmd[4]{%
   \svgx@gs@exe\space-dSAFER -dBATCH -dNOPAUSE\space%
-  \svgx@useformatkey{svgx@gs@device}{#3}{-sDEVICE=}%
-  \svgx@useformatkey{svgx@cnv@dpi}{#3}{-r}%
-  \svgx@useformatkey{svgx@gs@opt}{#3}{}%
-  -sOutputFile="#1.#3"\space"#1.#2"%
+  \svgx@useformatkey{svgx@gs@device}{#4}{-sDEVICE=}%
+  \svgx@useformatkey{svgx@cnv@dpi}{#4}{-r}%
+  \svgx@useformatkey{svgx@gs@opt}{#4}{}%
+  -sOutputFile="#3#1.#4"\space"#1.#2"%
 }
 %    \end{macrocode}
 % \end{macro}^^A \svgx@gs@cmd

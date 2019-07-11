@@ -342,7 +342,6 @@
 }
 \newcommand*\svgx@out@path{}
 \newcommand*\svgx@out@name{\svg@out@name-extract}
-\newcommand*\svgx@out@base{\svgx@out@path\svgx@out@name}
 \DefineFamilyKey{SVG}{extractpath}{%
   \svg@sanitize@dq\svg@tempb{#1}%
   \FamilySetNumerical{SVG}{extractpath}{svg@tempa}{%
@@ -1018,46 +1017,50 @@
       \svgx@ifinlist{eps}{\svgx@format}{\svg@tempa{pdftoeps}{pdf}{eps}}{}%
       \svgx@ifinlist{ps}{\svgx@format}{\svg@tempa{pdftops}{pdf}{ps}}{}%
     \fi%
-    \@for\svg@tempb:=\svgx@format\do{%
-      \ifx\svg@tempb\@empty\else%
-        \svgx@eaddto@shell{%
-          \noexpand\svgx@move{\svgx@out@name}{\svg@tempb}{\svgx@out@path}%
-        }%
-      \fi%
-    }%
     \if@svgx@cnv@run%
       \ifx\svgx@cnv@dpi\relax%
         \ifx\svgx@cnv@dpi@png\@undefined%
           \def\svgx@cnv@dpi@png{300}%
         \fi%
       \fi%
-      \expandafter\svgx@cnv@get@informat\expandafter{\svgx@format}%
+      \svgx@cnv@get@informat%
       \@for\svg@tempa:=\svgx@cnv@format\do{%
         \ifx\svg@tempa\@empty\else%
           \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{\svgx@format}{%
-            \PackageWarningNoLine{svg-extract}{%
-              Generating file `\svgx@out@name.\svg@tempa' was\MessageBreak%
-              specified with `extractformat' (\svgx@format)\MessageBreak%
-              as well as with `convertformat' (\svgx@cnv@format)\MessageBreak%
-              so the conversion won't be done%
-            }%
-          }{%
             \svgx@eaddto@shell{%
               \noexpand\PackageInfoNoLine{svg-extract}{%
-                Converting `\svgx@out@base.\svgx@cnv@informat'\MessageBreak%
-                to `\svgx@out@base.\svg@tempa'%
+                Generating file `\svgx@out@name.\svg@tempa' was\MessageBreak%
+                specified with `extractformat' (\svgx@format)\MessageBreak%
+                as well as with `convertformat' (\svgx@cnv@format)\MessageBreak%
+                so the conversion won't be done%
+              }%
+            }%
+          }{%
+            \edef\svg@tempb{\svgx@out@path\svgx@out@name}%
+            \svgx@eaddto@shell{%
+              \noexpand\PackageInfoNoLine{svg-extract}{%
+                Converting `\svgx@out@name.\svgx@cnv@informat'\MessageBreak%
+                to `\svg@tempb.\svg@tempa'%
               }%
               \noexpand\ShellEscape{%
-                \svgx@cnv@cmd{\svgx@out@base}{\svgx@cnv@informat}{\svg@tempa}%
+                \svgx@cnv@cmd{\svgx@out@name}{\svgx@cnv@informat}%
+                  {\svgx@out@path}{\svg@tempa}%
               }%
-              \noexpand\IfFileExists{"\svgx@out@base".\svg@tempa}{}{%
-                \noexpand\svgx@file@missing{\svgx@out@base.\svg@tempa}%
+              \noexpand\IfFileExists{"\svg@tempb".\svg@tempa}{}{%
+                \noexpand\svgx@file@missing{\svg@tempb.\svg@tempa}%
               }%
             }%
           }%
         \fi%
       }%
     \fi%
+    \@for\svg@tempa:=\svgx@format\do{%
+      \ifx\svg@tempa\@empty\else%
+        \svgx@eaddto@shell{%
+          \noexpand\svgx@move{\svgx@out@name}{\svg@tempa}{\svgx@out@path}%
+        }%
+      \fi%
+    }%
     \edef\svg@tempb{\svgx@format,\svgx@cnv@format}%
     \@for\svg@tempa:=\svgx@clean\do{%
       \ifx\svg@tempa\@empty\else%
@@ -1139,12 +1142,12 @@
   \expandafter\svg@tempa\svg@tempb\@nil%
 }
 \newcommand*\svgx@cnv@informat{}
-\newcommand*\svgx@cnv@get@informat[1]{%
+\newcommand*\svgx@cnv@get@informat{%
   \begingroup%
     \def\svg@tempa##1,##2\@nil{%
       \def\svg@tempa{##1}%
     }%
-    \svg@tempa#1,\@nil%
+    \expandafter\svg@tempa\svgx@format,\@nil%
     \edef\svg@tempa{%
       \endgroup%
       \def\noexpand\svgx@cnv@informat{\svg@tempa}%
@@ -1155,6 +1158,8 @@
     \ifxetex\else\ifpdf\else%
       \renewcommand*\svgx@cnv@informat{ps}%
     \fi\fi%
+    \expandafter\svgx@ifinlist\expandafter{\svgx@cnv@informat}%
+      {\svgx@cnv@format}{\let\svgx@format\svgx@cnv@informat}{}%
   \fi%
 }
 \ifx\svgx@magick@exe\@empty
@@ -1164,13 +1169,13 @@
     \renewcommand*\svgx@magick@exe{convert}
   \fi
 \fi
-\newcommand*\svgx@magick@cmd[3]{%
+\newcommand*\svgx@magick@cmd[4]{%
   \svgx@magick@exe\space%
-  \svgx@useformatkey{svgx@cnv@dpi}{#3}{-density }%
-  \svgx@useformatkey{svgx@magick@set}{#3}{}%
+  \svgx@useformatkey{svgx@cnv@dpi}{#4}{-density }%
+  \svgx@useformatkey{svgx@magick@set}{#4}{}%
   "#1.#2"\space%
-  \svgx@useformatkey{svgx@magick@opr}{#3}{}%
-  "#1.#3"%
+  \svgx@useformatkey{svgx@magick@opr}{#4}{}%
+  "#3#1.#4"%
 }
 \ifx\svgx@gs@exe\@empty
   \ifwindows
@@ -1179,12 +1184,12 @@
     \renewcommand*\svgx@gs@exe{gs}
   \fi
 \fi
-\newcommand*\svgx@gs@cmd[3]{%
+\newcommand*\svgx@gs@cmd[4]{%
   \svgx@gs@exe\space-dSAFER -dBATCH -dNOPAUSE\space%
-  \svgx@useformatkey{svgx@gs@device}{#3}{-sDEVICE=}%
-  \svgx@useformatkey{svgx@cnv@dpi}{#3}{-r}%
-  \svgx@useformatkey{svgx@gs@opt}{#3}{}%
-  -sOutputFile="#1.#3"\space"#1.#2"%
+  \svgx@useformatkey{svgx@gs@device}{#4}{-sDEVICE=}%
+  \svgx@useformatkey{svgx@cnv@dpi}{#4}{-r}%
+  \svgx@useformatkey{svgx@gs@opt}{#4}{}%
+  -sOutputFile="#3#1.#4"\space"#1.#2"%
 }
 \newcommand*\svgx@move[3]{%
   \begingroup%
