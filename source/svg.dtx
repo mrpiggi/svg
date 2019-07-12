@@ -2806,10 +2806,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Include the resulting graphic file and maybe extract independent files.
 %    \begin{macrocode}
       \if@svg@file@found%
-        \svg@input{\svg@out@base}%
-        \if@svg@extract%
-          \svg@extract{\svg@out@base}%
-        \fi%
+        \svg@process{\svg@out@base}%
       \fi%
     \else%
 %    \end{macrocode}
@@ -2970,10 +2967,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Include the resulting graphic file and maybe extract independent files.
 %    \begin{macrocode}
       \if@svg@file@found%
-        \svg@input{\svg@out@base}%
-        \if@svg@extract%
-          \svg@extract{\svg@out@base}%
-        \fi%
+        \svg@process{\svg@out@base}%
       \fi%
     \else%
 %    \end{macrocode}
@@ -3297,15 +3291,21 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svg@transparent@saved
 % \end{macro}^^A \svg@transparent
-% \begin{macro}{\svg@input}
-% \begin{macro}{\svg@@input}
-% With \cs{svg@@input} the export results of \app{Inkscape} are included. The 
-% macro \cs{svg@input} is defined in order to realize the option \opt{exclude} 
-% for package \pkg{svg-extract}. The macro \cs{svg@set@input@path} is called to 
-% support commands like \cs{input}\marg{tex filename} within SVG~files.
+% \begin{macro}{\svg@process}
+% The macro \cs{svg@process} is defined in order to realize the additional 
+% features of package \pkg{svg-extract} like extraction and conversion of 
+% independent graphic files including option \opt{exclude} as well as macro 
+% \cs{includesvgextracted}. Therefore it is redefined later.
 %    \begin{macrocode}
-\newcommand*\svg@input{\svg@@input}
-\newcommand*\svg@@input[2][]{%
+\newcommand*\svg@process[1]{\svg@do@input{#1}}
+%    \end{macrocode}
+% \end{macro}^^A \svg@process
+% \begin{macro}{\svg@do@input}
+% With \cs{svg@do@input} the export result of \app{Inkscape} is included. The 
+% macro \cs{svg@set@input@path} is called to support input commands like 
+% \cs{input}\marg{tex filename} within SVG~files.
+%    \begin{macrocode}
+\newcommand*\svg@do@input[2][]{%
   \IfArgIsEmpty{#1}{}{\svg@local@param@set{#1}}%
   \svg@set@input@path%
   \if@svg@draft%
@@ -3414,8 +3414,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \fi%
 }
 %    \end{macrocode}
-% \end{macro}^^A \svg@@input
-% \end{macro}^^A \svg@input
+% \end{macro}^^A \svg@do@input
 %
 %
 %
@@ -3597,15 +3596,15 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \begin{option}{extract}
 % \changes{v2.00}{2017/02/24}{new}^^A
-% \begin{macro}{\if@svg@extract}
+% \begin{macro}{\if@svgx@ext@run}
 % With option \opt{extract} it can be controlled, if the extraction of 
 % independent graphic files should be done.
 %    \begin{macrocode}
 %<*base>
-\newif\if@svg@extract
 \svg@dummy@key[true]{extract}
 %</base>
 %<*extract>
+\newif\if@svgx@ext@run
 \DefineFamilyKey{SVG}{extract}[true]{%
   \lowercase{\def\svg@tempa{#1}}%
   \FamilySetNumerical{SVG}{extract}{svg@tempa}{%
@@ -3616,9 +3615,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
   }{\svg@tempa}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \ifcase\svg@tempa\relax% false
-      \@svg@extractfalse%
+      \@svgx@ext@runfalse%
     \or% true
-      \@svg@extracttrue%
+      \@svgx@ext@runtrue%
     \or% pdf
       \FamilyOptions{SVG}{extractformat=pdf}%
     \or% eps
@@ -3630,7 +3629,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 %</extract>
 %    \end{macrocode}
-% \end{macro}^^A \if@svg@extract
+% \end{macro}^^A \if@svgx@ext@run
 % \end{option}^^A extract
 % \begin{option}{on}
 % \changes{v2.00}{2017/02/24}{new}^^A
@@ -4549,6 +4548,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{option}^^A clear
 % \end{option}^^A clean
 % \begin{option}{exclude}
+% \changes{v2.03}{2019/07/12}{%
+%   revised and simplified, moved functionality to \cs{svg@process}%
+% }^^A
+% \begin{macro}{\if@svgx@exclude}
+% \changes{v2.03}{2019/07/12}{new}^^A
 % If it is desired not to include but only extract graphics with package 
 % \pkg{svg-extract}, option \opt{exclude} can be used.
 %    \begin{macrocode}
@@ -4556,25 +4560,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \svg@dummy@key[true]{exclude}
 %</base>
 %<*extract>
-\DefineFamilyKey{SVG}{exclude}[true]{%
-  \FamilySetBool{SVG}{exclude}{@svg@tempswa}{#1}%
-  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \if@svg@tempswa%
-      \renewcommand*\svg@input[2][]{%
-        \if@svg@extract\else%
-          \PackageWarning{svg-extract}{%
-            The image `##2' was\MessageBreak%
-            neither extracted nor included%
-          }%
-        \fi%
-      }%
-    \else%
-      \renewcommand*\svg@input{\svg@@input}%
-    \fi%
-  \fi%
-}
+\newif\if@svgx@exclude
+\FamilyBoolKey{SVG}{exclude}{@svgx@exclude}
 %</extract>
 %    \end{macrocode}
+% \end{macro}^^A \if@svgx@exclude
 % \end{option}^^A exclude
 %
 % \iffalse
@@ -4804,27 +4794,70 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svgx@last@file
 % \end{macro}^^A \includesvgextracted
 %
+% \iffalse
+%<*extract>
+% \fi
+%
 %
 %
 % \subsection{Auxiliary macros}
 %
-% \begin{macro}{\svg@extract}
+% \begin{macro}{\svg@process}
+% \begin{macro}{\svgx@do@input}
+% \changes{v2.03}{2019/07/12}{new}^^A
+% \begin{macro}{\svgx@do@extract}
+% \changes{v2.03}{2019/07/12}{new}^^A
+% This macro is originally defined by package \pkg{svg} and used as a hook 
+% to realize the additional features of package \pkg{svg-extract}. The task is 
+% splitted in two parts: inputing the graphics exported by \app{Inkscape} 
+% (\cs{svgx@do@input}) and doing all necessary for extraction and conversion 
+% of independent graphic files (\cs{svgx@do@extract}).
+%    \begin{macrocode}
+\renewcommand*\svg@process[1]{%
+  \svgx@do@input{#1}%
+  \svgx@do@extract{#1}%
+}
+\newcommand*\svgx@do@input[1]{%
+  \if@svgx@exclude%
+    \if@svgx@ext@run\else%
+      \PackageWarning{svg-extract}{%
+        The image `#1' was\MessageBreak%
+        neither extracted nor included%
+      }%
+    \fi%
+  \else%
+    \svg@do@input{#1}%
+  \fi%
+}
+\newcommand*\svgx@do@extract[1]{%
+  \if@svgx@ext@run%
+    \svgx@ext@run{#1}%
+  \else%
+    \if@svgx@cnv@run\else%
+      \PackageWarning{svg-extract}{%
+        The image `#1'\MessageBreak%
+        could not be converted as `extract=false' was set%
+      }%
+    \fi%
+  \fi%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svgx@do@extract
+% \end{macro}^^A \svgx@do@input
+% \end{macro}^^A \svg@process
+% \begin{macro}{\svgx@ext@run}
 % \changes{v2.03}{2019/07/11}{%
 %   revised, steps counter \cnt{svgx@out@count} and sets \cs{svgx@last@file}%
 %  }^^A
-% The macro \cs{svg@extract} does some preparing for extraction. The macro
+% The macro \cs{svgx@ext@run} does some preparing for extraction. The macro
 % \cs{svgx@get@out@sec} is used to get the current level section numbering
 % within the document and the counter for extracted graphics is stepped.
 % Additionally, the base name for extracted and converted files is globally 
 % stored in \cs{svgx@last@file} in order to include extracted graphics as well. 
-% Finally, \cs{svg@@extract} is called to do the actual job of both extracting
+% Finally, \cs{svgx@ext@@run} is called to do the actual job of both extracting
 % and converting independent graphic files
 %    \begin{macrocode}
-%<*base>
-\newcommand*\svg@extract[1]{}
-%</base>
-%<*extract>
-\renewcommand*\svg@extract[1]{%
+\newcommand*\svgx@ext@run[1]{%
   \if@svgx@out@sec%
     \svgx@get@out@sec%
   \fi%
@@ -4832,18 +4865,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \def\svgx@last@file{\svgx@out@path\svgx@out@name}%
   \svg@quotes@remove{\svgx@last@file}%
   \global\let\svgx@last@file\svgx@last@file%
-  \svg@@extract{#1}%
+  \svgx@ext@@run{#1}%
 }
-%</extract>
 %    \end{macrocode}
-% \end{macro}^^A \svg@extract
-%
-% \iffalse
-%<*extract>
-% \fi
-%
-% \begin{macro}{\svg@@extract}
-% \changes{v2.03}{2019/07/11}{new, old definition of \cs{svg@extract}}^^A
+% \end{macro}^^A \svgx@ext@run
+% \begin{macro}{\svgx@ext@@run}
+% \changes{v2.03}{2019/07/11}{new, old definition of \cs{svgx@ext@run}}^^A
 % \begin{macro}{\svgx@stream@in}
 % \begin{macro}{\svgx@read@line}
 % \begin{macro}{\svgx@stream@out}
@@ -4857,7 +4884,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % is finished.
 %    \begin{macrocode}
 \ifnum\pdf@shellescape=\@ne\relax\else%
-  \newcommand*\svg@@extract[1]{%
+  \newcommand*\svgx@ext@@run[1]{%
     \begingroup%
       \edef\svg@tempa{#1}%
       \svg@quotes@remove{\svg@tempa}%
@@ -4889,7 +4916,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     }%
   \svg@tempa%
 }
-\newcommand*\svg@@extract[1]{%
+\newcommand*\svgx@ext@@run[1]{%
 %    \end{macrocode}
 % A separate auxiliary \LaTeX~file is created for extracting independent
 % graphic files. The specified preamble is read for this task, if it exists. It
@@ -5338,7 +5365,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svgx@stream@out
 % \end{macro}^^A \svgx@read@line
 % \end{macro}^^A \svgx@stream@in
-% \end{macro}^^A \svg@@extract
+% \end{macro}^^A \svgx@ext@@run
 %
 % \iffalse
 %</extract>
@@ -5796,7 +5823,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \svg@tempa{\AtBeginDocument{\svgx@setbox{#1}{#2}}}%
 }
 \newcommand*\svgx@setbox[2]{%
-  \sbox\svg@box{\svg@@input[{#1},draft=false]{#2}}%
+  \sbox\svg@box{\svg@do@input[{#1},draft=false]{#2}}%
   \svgxsetpapersize% 
 }
 %    \end{macrocode}

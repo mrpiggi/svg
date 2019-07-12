@@ -7,14 +7,21 @@
 \usepackage{svg}
 \usepackage{svg-extract}
 
+\makeatletter
+
 \begin{document}
 \section*{This is a test}
 \begin{figure}
 \centering
-\includesvgextracted{svg-example}
+\includesvgextracted[scale=0.5]{svg-example}
+%\fbox{\includesvg[extractformat={,pdf},convertformat={png,}]{svg-example}}
+%\includesvg[pretex={\catcode`\_11},width=\textwidth]{pipeline-test}
 \end{figure}
-\end{document}
 
+
+\meaning\if@svgx@exclude
+
+\end{document}
 
 \listfiles
 \documentclass{scrartcl}

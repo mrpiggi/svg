@@ -36,7 +36,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg}[%
-  2019/07/11 v2.03\space%
+  2019/07/12 v2.03\space%
   (include SVG pictures)%
 ]
 \RequirePackage{scrbase}[2016/06/14]
@@ -584,7 +584,6 @@
     you didn't load it%
   }%
 }
-\newif\if@svg@extract
 \svg@dummy@key[true]{extract}
 \svg@dummy@key{extractformat}
 \svg@dummy@key[true]{pdf}
@@ -593,6 +592,7 @@
 \svg@dummy@key{preamble}
 \svg@dummy@key{extractpreambleend}
 \svg@dummy@key{end}
+\svg@dummy@key{extractiterations}
 \svg@dummy@key{extractruns}
 \svg@dummy@key{latexexe}
 \svg@dummy@key{pdflatex}
@@ -857,10 +857,7 @@
         }%
       \fi%
       \if@svg@file@found%
-        \svg@input{\svg@out@base}%
-        \if@svg@extract%
-          \svg@extract{\svg@out@base}%
-        \fi%
+        \svg@process{\svg@out@base}%
       \fi%
     \else%
       \svg@file@missing[\svg@file@ext]{\svg@file@base}{}%
@@ -938,10 +935,7 @@
         }%
       \fi%
       \if@svg@file@found%
-        \svg@input{\svg@out@base}%
-        \if@svg@extract%
-          \svg@extract{\svg@out@base}%
-        \fi%
+        \svg@process{\svg@out@base}%
       \fi%
     \else%
       \svg@file@missing[\svg@ink@format]{\svg@file@base}{\svg@out@path}%
@@ -1121,7 +1115,7 @@
           of `#1'%
         }%
       \else%
-        \PackageInfo{svg}{Last page of `#1' is \the\@tempcnta}%
+        \PackageInfo{svg}{Last page of `#1'\MessageBreak is `\the\@tempcnta'}%
       \fi%
       \edef\svg@tempa{%
         \endgroup%
@@ -1139,8 +1133,8 @@
   }%
   \global\let\transparent\@gobble%
 }
-\newcommand*\svg@input{\svg@@input}
-\newcommand*\svg@@input[2][]{%
+\newcommand*\svg@process[1]{\svg@do@input{#1}}
+\newcommand*\svg@do@input[2][]{%
   \IfArgIsEmpty{#1}{}{\svg@local@param@set{#1}}%
   \svg@set@input@path%
   \if@svg@draft%
@@ -1286,7 +1280,6 @@
   }%
   \includesvg[{#1}]{#2}%
 }
-\newcommand*\svg@extract[1]{}
 \ifnum\pdf@shellescape=\@ne\relax\else%
   \svg@catcodecodes@restore%
   \expandafter\endinput%
