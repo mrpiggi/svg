@@ -1,4 +1,4 @@
-% \CheckSum{4060}
+% \CheckSum{4053}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -2791,7 +2791,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Running the export with \app{Inkscape} (if necessary) and checking the 
 % required files for graphic inclusion.
 %    \begin{macrocode}
-      \svg@ink@run%
+      \svg@ink@run{\svg@out@base}%
       \IfFileExists{\svg@out@base}{}{%
         \@svg@file@foundfalse%
         \svg@file@missing{\svg@out@base}{\svg@file@base.\svg@file@ext}%
@@ -3021,100 +3021,99 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The command, which performs the call of \app{Inkscape} via \cs{ShellEscape}.
 %    \begin{macrocode}
 \newif\if@svg@ink@run
-\newcommand*\svg@ink@run{%
+\newcommand*\svg@ink@run[1]{%
+  \@svg@ink@runfalse%
   \ifnum\svg@ink@mode>\z@\relax%
-    \begingroup%
 %    \end{macrocode}
 % If the mode for \opt{inkscape} was set to \val{forced}, \app{Inkscape} will 
 % be called in any case. Otherwise, some checks are performed to detect, if a
 % run of \app{Inkscape} is actually necessary.
 %    \begin{macrocode}
-      \@svg@ink@runtrue%
-      \ifnum\svg@ink@mode=\tw@\relax\else%
+    \@svg@ink@runtrue%
+    \ifnum\svg@ink@mode=\tw@\relax\else%
 %    \end{macrocode}
 % This is the case when the SVG~file is newer than the corresponding exported
 % file, or if the latter isn't present at all.
 %    \begin{macrocode}
-        \svg@iffilenewer{\svg@file@base.\svg@file@ext}{\svg@out@base}{}{%
-          \@svg@ink@runfalse%
-        }%
+      \svg@iffilenewer{\svg@file@base.\svg@file@ext}{#1}{}{%
+        \@svg@ink@runfalse%
+      }%
 %    \end{macrocode}
 % The same is true, when the associated \LaTeX~file is missing. But when this 
 % file already exists, maybe the user did some changes to this file. In this 
 % case, overwriting this file is maybe not intended.
 %    \begin{macrocode}
-        \if@svg@ink@latex%
-          \IfFileExists{\svg@out@base_tex}{%
-            \ifnum\pdf@shellescape=\@ne\relax\if@svg@ink@run%
-              \svg@iffilenewer{\svg@out@base_tex}{\svg@out@base}{%
-                \@svg@ink@runfalse%
-                \svg@quotes@remove[\svg@out@base]{\svg@tempa}%
-                \PackageWarning{svg}{%
-                  Since the encountered filedate of file\MessageBreak%
-                  `\svg@tempa_tex' is newer than \MessageBreak%
-                  `\svg@tempa' it's supposed that\MessageBreak%
-                  you customized this file. To avoid an accidental\MessageBreak%
-                  overwriting of this file, the Inkscape export\MessageBreak%
-                  won't be done. If you want to overwrite the\MessageBreak%
-                  existing file please choose the parameter\MessageBreak%
-                  `inkscape=force'%
-                }%
-              }{}%
-            \fi\fi%
-          }{\@svg@ink@runtrue}%
-        \fi%
+      \if@svg@ink@latex%
+        \IfFileExists{#1_tex}{%
+          \ifnum\pdf@shellescape=\@ne\relax\if@svg@ink@run%
+            \svg@iffilenewer{#1_tex}{#1}{%
+              \@svg@ink@runfalse%
+              \svg@quotes@remove[{#1}]{\svg@tempa}%
+              \PackageWarning{svg}{%
+                Since the encountered filedate of file\MessageBreak%
+                `\svg@tempa_tex' is newer than \MessageBreak%
+                `\svg@tempa' it's supposed that\MessageBreak%
+                you customized this file. To avoid an accidental\MessageBreak%
+                overwriting of this file, the Inkscape export\MessageBreak%
+                won't be done. If you want to overwrite the\MessageBreak%
+                existing file please choose the parameter\MessageBreak%
+                `inkscape=force'%
+              }%
+            }{}%
+          \fi\fi%
+        }{\@svg@ink@runtrue}%
       \fi%
+    \fi%
+  \fi%
 %    \end{macrocode}
 % If all checks were positive, the export with \app{Inkscape} can be done in 
 % case \file{-{}-shell-escape} is enabled.
 %    \begin{macrocode}
-      \if@svg@ink@run%
-        \ifnum\pdf@shellescape=\@ne\relax%
+  \if@svg@ink@run%
+    \ifnum\pdf@shellescape=\@ne\relax%
 %    \end{macrocode}
 % For exporting PNG~files, the used density ist set to \val{300dpi}, if no
 % value was given.
 %    \begin{macrocode}
-          \ifx\svg@ink@dpi\relax%
-            \ifstr{\svg@ink@format}{png}{%
-              \FamilyOptions{SVG}{inkscapedpi=300}%
-            }{}%
-          \fi%
-          \PackageInfo{svg}{%
-            Calling Inkscape%
-            \ifx\svg@ink@opt\@empty\else%
-              \space with added options `\svg@ink@opt'%
-            \fi%
-          }%
+      \ifx\svg@ink@dpi\relax%
+        \ifstr{\svg@ink@format}{png}{%
+          \FamilyOptions{SVG}{inkscapedpi=300}%
+        }{}%
+      \fi%
+      \PackageInfo{svg}{%
+        Calling Inkscape%
+        \ifx\svg@ink@opt\@empty\else%
+          \space with added options `\svg@ink@opt'%
+        \fi%
+      }%
 %    \end{macrocode}
 % Executing \app{Inkscape} on command line. Afterwards, the export results are 
 % moved into the given output path.
 %    \begin{macrocode}
-          \svg@quotes@remove[\svg@file@base]{\svg@tempa}%
-          \svg@quotes@remove[\svg@out@base]{\svg@tempb}%
-          \svg@shell@mkdir{\svg@out@path}%
-          \ShellEscape{\svg@ink@cmd{\svg@tempa}{\svg@tempb}}%
-          \IfFileExists{\svg@out@base}{}{%
-            \PackageWarning{svg}{%
-              The export with Inkscape failed for file\MessageBreak%
-              `\svg@tempa.\svg@file@ext'\MessageBreak%
-              Troubleshooting: Please check in the log file how\MessageBreak%
-              the invocation of Inkscape took place and try to\MessageBreak%
-              execute it yourself in the terminal%
-            }%
-          }%
+      \svg@quotes@remove[\svg@file@base]{\svg@tempa}%
+      \svg@quotes@remove[{#1}]{\svg@tempb}%
+      \svg@shell@mkdir{\svg@out@path}%
+      \ShellEscape{\svg@ink@cmd{\svg@tempa}{\svg@tempb}}%
+      \IfFileExists{#1}{}{%
+        \PackageWarning{svg}{%
+          The export with Inkscape failed for file\MessageBreak%
+          `\svg@tempa.\svg@file@ext'\MessageBreak%
+          Troubleshooting: Please check in the log file how\MessageBreak%
+          the invocation of Inkscape took place and try to\MessageBreak%
+          execute it yourself in the terminal%
+        }%
+      }%
 %    \end{macrocode}
 % If \file{-{}-shell-escape} wasn't enabled, a warning is issued.
 %    \begin{macrocode}
-        \else%
-          \svg@quotes@remove[\svg@file@base]{\svg@tempa}%
-          \PackageWarning{svg}{%
-            You didn't enable `--shell-escape' option so it\MessageBreak%
-            wasn't possible to launch the Inkscape export for\MessageBreak%
-            `\svg@tempa.\svg@file@ext'%
-          }%
-        \fi%
-      \fi%
-    \endgroup%
+    \else%
+      \svg@quotes@remove[\svg@file@base]{\svg@tempa}%
+      \PackageWarning{svg}{%
+        You didn't enable `--shell-escape' option so it\MessageBreak%
+        wasn't possible to launch the Inkscape export for\MessageBreak%
+        `\svg@tempa.\svg@file@ext'%
+      }%
+    \fi%
   \fi%
 }
 %    \end{macrocode}
@@ -3295,7 +3294,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The macro \cs{svg@process} is defined in order to realize the additional 
 % features of package \pkg{svg-extract} like extraction and conversion of 
 % independent graphic files including option \opt{exclude} as well as macro 
-% \cs{includesvgextracted}. Therefore it is redefined later.
+% \cs{includesvgx}. Therefore it is redefined later.
 %    \begin{macrocode}
 \newcommand*\svg@process[1]{\svg@do@input{#1}}
 %    \end{macrocode}
@@ -4755,7 +4754,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svghidepreambleend
 % \end{macro}^^A \svghidepreamblestart
-% \begin{macro}{\includesvgextracted}
+% \begin{macro}{\includesvgx}
 % \changes{v2.03}{2019/07/11}{new}^^A
 % \begin{macro}{\svgx@last@file}
 % \changes{v2.03}{2019/07/11}{new}^^A
@@ -4763,9 +4762,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \ToDo{adapt for package \pkg{svg} to arguments in \pkg{svg-extract}}[v2.03]
 %    \begin{macrocode}
 %<*base>
-\newcommand*\includesvgextracted[2][]{%
+\newcommand*\includesvgx[2][]{%
   \PackageWarning{svg}{%
-    The macro `\string\includesvgextracted' is only meant\MessageBreak%
+    The macro `\string\includesvgx' is only meant\MessageBreak%
     to be used together with package `svg-extract'.\MessageBreak%
     Macro \string\includesvg' will be used instead%
   }%
@@ -4776,13 +4775,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \ToDo{user and source doc}[v2.03]
 % \ToDo{%
 %   how to handle parameters? two optional arguments for \cs{includegraphics}
-%   and \cs{includesvgextracted}!%
+%   and \cs{includesvgx}!%
 % }[v2.03]
 % \ToDo{warning with hint to run with --shell-escape if file is missing}[v2.03]
 %    \begin{macrocode}
 %<*extract>
 \newcommand*\svgx@last@file{}
-\renewcommand*\includesvgextracted[2][]{%
+\renewcommand*\includesvgx[2][]{%
   \includesvg[,exclude,extract=true]{#2}%
   \IfFileExists{\svgx@last@file.pdf}{%
     \includegraphics[width=\textwidth]{\svgx@last@file.pdf}%
@@ -4792,7 +4791,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %</extract>
 %    \end{macrocode}
 % \end{macro}^^A \svgx@last@file
-% \end{macro}^^A \includesvgextracted
+% \end{macro}^^A \includesvgx
 %
 % \iffalse
 %<*extract>
