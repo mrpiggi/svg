@@ -1,4 +1,4 @@
-% \CheckSum{4054}
+% \CheckSum{4049}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -3648,6 +3648,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{option}^^A on
 % \begin{option}{extractformat}
 % \changes{v2.00}{2017/02/24}{new}^^A
+% \changes{v2.03}{2019/07/13}{uses \cs{svgx@setlist}}^^A
 % \begin{macro}{\svgx@format}
 % \begin{option}{pdf}
 % \changes{v2.00}{2017/03/02}{deprecated}^^A
@@ -3668,7 +3669,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \renewcommand*\svgx@format{eps}
 \fi\fi
 \DefineFamilyKey{SVG}{extractformat}{%
-  \lowercase{\edef\svgx@format{#1}}%
+  \lowercase{\svgx@setlist\svgx@format{#1}}%
   \FamilyKeyStateProcessed%
 }
 \DefineFamilyKey{SVG}{pdf}[true]{%
@@ -4042,6 +4043,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{option}^^A convert
 % \begin{option}{convertformat}
 % \changes{v2.00}{2017/02/24}{new}^^A
+% \changes{v2.03}{2019/07/13}{uses \cs{svgx@setlist}}^^A
 % \begin{macro}{\svgx@cnv@format}
 % \begin{option}{png}
 % \changes{v2.00}{2017/03/02}{deprecated}^^A
@@ -4055,8 +4057,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<*extract>
 \newcommand*\svgx@cnv@format{png}
 \DefineFamilyKey{SVG}{convertformat}{%
-  \lowercase{\edef\svgx@cnv@format{#1}}%
-  \ifx\svgx@cnv@format\@empty\else%
+  \lowercase{\svgx@setlist\svgx@cnv@format{#1}}%
+  \ifx\svgx@cnv@format\@empty%
+    \@svgx@cnv@runfalse%
+  \else%
     \@svgx@cnv@runtrue%
   \fi%
   \FamilyKeyStateProcessed%
@@ -4510,6 +4514,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{option}{clean}
 % \changes{v2.00}{2017/02/24}{changes, file list possible}^^A
 % \changes{v2.03}{2019/07/10}{value \val{nolatex} added}^^A
+% \changes{v2.03}{2019/07/13}{uses \cs{svgx@setlist}}^^A
 % \begin{option}{clear}
 % \begin{macro}{\svgx@clean}
 % With option \opt{clean} files generated during the extraction process can be 
@@ -4538,7 +4543,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \renewcommand*\svgx@clean{log,aux,dvi,out,ps,eps,pdf}%
     \fi%
   \else%
-    \renewcommand*\svgx@clean{#1}%
+    \lowercase{\svgx@setlist\svgx@clean{#1}}%
     \FamilyKeyStateProcessed%
   \fi%
 }
@@ -5197,15 +5202,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % conversion can be done. The process is only done, if at least one extraction 
 % or conversion format was defined.
 %    \begin{macrocode}
-  \@svg@tempswafalse%
-  \edef\svg@tempb{\svgx@format,\svgx@cnv@format}%
-  \@for\svg@tempa:=\svg@tempb\do{%
-    \edef\svg@tempa{\expandafter\trim@spaces\expandafter{\svg@tempa}}%
-    \ifx\svg@tempa\@empty\else%
-      \@svg@tempswatrue%
-    \fi%
-  }%
-  \if@svg@tempswa%
+  \ifstr{\svgx@format\svgx@cnv@format}{}{%
+    \PackageWarning{svg-extract}{%
+      Both keys `extractformat' and `convertformat' are\MessageBreak%
+      empty, so nothing to do so far%
+    }%
+  }{%
 %    \end{macrocode}
 % All generated files will be moved to the desired output folder, which is 
 % given by option \opt{extractpath}. Therefor, this folder is created.
@@ -5296,33 +5298,31 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \opt{convertformat}.
 %    \begin{macrocode}
       \@for\svg@tempa:=\svgx@cnv@format\do{%
-        \ifx\svg@tempa\@empty\else%
-          \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{\svgx@format}{%
-            \svgx@eaddto@shell{%
-              \noexpand\PackageInfoNoLine{svg-extract}{%
-                Generating file `\svgx@out@name.\svg@tempa' was\MessageBreak%
-                specified with `extractformat' (\svgx@format)\MessageBreak%
-                as well as with `convertformat' (\svgx@cnv@format)\MessageBreak%
-                so the conversion won't be done%
-              }%
-            }%
-          }{%
-            \edef\svg@tempb{\svgx@out@path\svgx@out@name}%
-            \svgx@eaddto@shell{%
-              \noexpand\PackageInfoNoLine{svg-extract}{%
-                Converting `\svgx@out@name.\svgx@cnv@input@format'\MessageBreak%
-                to `\svg@tempb.\svg@tempa'%
-              }%
-              \noexpand\ShellEscape{%
-                \svgx@cnv@cmd{\svgx@out@name}{\svgx@cnv@input@format}%
-                  {\svgx@out@path}{\svg@tempa}%
-              }%
-              \noexpand\IfFileExists{"\svg@tempb".\svg@tempa}{}{%
-                \noexpand\svgx@file@missing{\svg@tempb.\svg@tempa}%
-              }%
+        \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{\svgx@format}{%
+          \svgx@eaddto@shell{%
+            \noexpand\PackageInfoNoLine{svg-extract}{%
+              Generating file `\svgx@out@name.\svg@tempa' was\MessageBreak%
+              specified with `extractformat' (\svgx@format)\MessageBreak%
+              as well as with `convertformat' (\svgx@cnv@format)\MessageBreak%
+              so the conversion won't be done%
             }%
           }%
-        \fi%
+        }{%
+          \edef\svg@tempb{\svgx@out@path\svgx@out@name}%
+          \svgx@eaddto@shell{%
+            \noexpand\PackageInfoNoLine{svg-extract}{%
+              Converting `\svgx@out@name.\svgx@cnv@input@format'\MessageBreak%
+              to `\svg@tempb.\svg@tempa'%
+            }%
+            \noexpand\ShellEscape{%
+              \svgx@cnv@cmd{\svgx@out@name}{\svgx@cnv@input@format}%
+                {\svgx@out@path}{\svg@tempa}%
+            }%
+            \noexpand\IfFileExists{"\svg@tempb".\svg@tempa}{}{%
+              \noexpand\svgx@file@missing{\svg@tempb.\svg@tempa}%
+            }%
+          }%
+        }%
       }%
     \fi%
 %    \end{macrocode}
@@ -5330,34 +5330,25 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % extracted are moved to the desired output folder (\opt{extractpath}).
 %    \begin{macrocode}
     \@for\svg@tempa:=\svgx@format\do{%
-      \ifx\svg@tempa\@empty\else%
-        \svgx@eaddto@shell{%
-          \noexpand\svgx@move{\svgx@out@name}{\svg@tempa}{\svgx@out@path}%
-        }%
-      \fi%
+      \svgx@eaddto@shell{%
+        \noexpand\svgx@move{\svgx@out@name}{\svg@tempa}{\svgx@out@path}%
+      }%
     }%
 %    \end{macrocode}
 % At the very end, all unwanted auxiliary files are deleted.
 %    \begin{macrocode}
     \edef\svg@tempb{\svgx@format,\svgx@cnv@format}%
     \@for\svg@tempa:=\svgx@clean\do{%
-      \ifx\svg@tempa\@empty\else%
-        \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{\svg@tempb}{}{%
-          \svgx@eaddto@shell{%
-            \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
-              \noexpand\svg@shell@rm{\svgx@out@name.\svg@tempa}%
-            }{}%
-          }%
+      \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{\svg@tempb}{}{%
+        \svgx@eaddto@shell{%
+          \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
+            \noexpand\svg@shell@rm{\svgx@out@name.\svg@tempa}%
+          }{}%
         }%
-      \fi%
+      }%
     }%
     \expandafter\AfterReadingMainAux\expandafter{\the\svgx@shell}%
-  \else%
-    \PackageWarning{svg-extract}{%
-      Both keys `extractformat' and `convertformat' are\MessageBreak%
-      empty, so nothing to do so far%
-    }%
-  \fi%
+  }%
 }
 %    \end{macrocode}
 % \end{macro}^^A \svgx@eaddto@shell
@@ -5387,13 +5378,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \@for\svg@tempb:={%
       part,chapter,section,subsection,subsubsection,paragraph,subparagraph%
     }\do{%
-      \ifx\svg@tempb\@empty\else%
-        \scr@ifundefinedorrelax{the\svg@tempb}{}{%
-          \ifnum\value{\svg@tempb}>\z@\relax%
-            \edef\svg@tempa{\svg@tempb}%
-          \fi%
-        }%
-      \fi%
+      \scr@ifundefinedorrelax{the\svg@tempb}{}{%
+        \ifnum\value{\svg@tempb}>\z@\relax%
+          \edef\svg@tempa{\svg@tempb}%
+        \fi%
+      }%
     }%
     \edef\svg@tempb{%
       \endgroup%
@@ -5620,6 +5609,30 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<*package&extract&option>
 % \fi
 %
+% \begin{macro}{\svgx@setlist}
+% \changes{v2.03}{2019/07/13}{new}^^A
+% This macro is used to normalize a comma-separated list given in the second 
+% argument, wherefore empty values and unnecessary spaces are removed. At the 
+% end, the normalized list is expanded to the macro in the first argument.
+%    \begin{macrocode}
+\newcommand*\svgx@setlist[2]{%
+  \begingroup%
+    \edef#1{#2}%
+    \let\svg@tempb\@empty%
+    \@for\svg@tempa:={#1}\do{%
+      \edef\svg@tempa{\expandafter\trim@spaces\expandafter{\svg@tempa}}%
+      \ifx\svg@tempa\@empty\else%
+        \edef\svg@tempb{\svg@tempb,\svg@tempa}%
+      \fi%
+    }%
+    \edef\svg@tempa{%
+      \endgroup%
+      \etex@unexpanded{\def#1}{\expandafter\@gobble\svg@tempb}%
+    }%
+  \svg@tempa%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svgx@setlist
 % \begin{macro}{\svgx@ifinlist}
 % Check, if the first argument is included in a comma-separated list in the 
 % second argument. Keep in mind that the first argument is not expanded at all, 
