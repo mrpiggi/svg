@@ -1,4 +1,4 @@
-% \CheckSum{4053}
+% \CheckSum{4054}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -97,7 +97,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<package&identify&base>\ProvidesPackage{svg}[%
 %<package&identify&extract>\ProvidesPackage{svg-extract}[%
 %<*dtx|package&identify>
-  2019/07/12 v2.03\space%
+  2019/07/13 v2.03\space%
 %<package&identify&base>  (include SVG pictures)%
 %<package&identify&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -287,7 +287,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   for the definition and handling of options in key-value-syntax
 % \item[\pkg{ifpdf}, \pkg{ifluatex}, \pkg{ifxetex}]
 %   for flow control depending on the used \LaTeX~engine
-% \item[\pkg{pdftexcmds}, \pkg{shellesc}]
+% \item[\pkg{etexcmds}, \pkg{pdftexcmds}, \pkg{shellesc}]
 %   to allocate the same primitives independent of the used \LaTeX~engine
 % \item[\pkg{ifplatform}]
 %   to control the file~access depending on the operating system
@@ -1349,18 +1349,20 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % The package \pkg{svg} requires \pkg{scrbase} for options processing, the
 % packages \pkg{ifluatex}, \pkg{ifpdf} and \pkg{ifxetex} for detecting the 
-% used \LaTeX~engine, \pkg{pdftexcmds} for pdf\TeX{} primitives when using
-% Lua\TeX, \pkg{shellesc} and \pkg{ifplatform} for engine independent access to 
-% systems commands and files as well as \pkg{graphicx} for the inclusion of
-% PDF~files. The usage of packages \pkg{xcolor} and \pkg{transparent}
-% can be switched of with the corresponding options. Package \pkg{svg-extract} 
-% only needs package \pkg{svg} itself.
+% used \LaTeX~engine, \pkg{etexcmds} $\varepsilon$-\TeX{} primitives and 
+% \pkg{pdftexcmds} for pdf\TeX{} primitives independent of the used 
+% \LaTeX~engine, \pkg{shellesc} and \pkg{ifplatform} for engine independent
+% access to systems commands and files as well as \pkg{graphicx} for the
+% inclusion of PDF~files. The usage of the two packages \pkg{xcolor} and 
+% \pkg{transparent} can be switched of with the corresponding options. 
+% The package \pkg{svg-extract} only needs package \pkg{svg} itself.
 %    \begin{macrocode}
 %<*base>
 \RequirePackage{scrbase}[2016/06/14]
 \RequirePackage{ifpdf}[2016/05/14]
 \RequirePackage{ifluatex}[2016/05/16]
 \RequirePackage{ifxetex}[2010/09/12]
+\RequirePackage{etexcmds}[2016/05/16]
 \RequirePackage{pdftexcmds}[2016/05/21]
 \RequirePackage{shellesc}[2016/06/07]
 \RequirePackage{trimspaces}[2009/09/17]
@@ -2649,7 +2651,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svg@local@param@use{}
 \newcommand*\svg@local@param@def[1]{%
   \edef\svg@local@param@use{%
-    \unexpanded\expandafter{\svg@local@param@use}\unexpanded{#1}%
+    \etex@unexpanded\expandafter{\svg@local@param@use}\etex@unexpanded{#1}%
   }%
 }
 %    \end{macrocode}
@@ -5003,7 +5005,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
             \ifx\svgx@read@line\@empty\else%
               \immediate\write\svgx@stream@out{%
-                \unexpanded\expandafter{\svgx@read@line}%
+                \etex@unexpanded\expandafter{\svgx@read@line}%
               }%
             \fi%
           \fi%
@@ -5023,8 +5025,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \readline\svgx@stream@in to\svgx@read@line%
         \ifx\svgx@read@line\@empty\else%
           \edef\svg@tempa{%
-            \unexpanded\expandafter{\svg@tempa}%
-            \unexpanded\expandafter{\svgx@read@line}^^J%
+            \etex@unexpanded\expandafter{\svg@tempa}%
+            \etex@unexpanded\expandafter{\svgx@read@line}^^J%
           }%
         \fi%
       \repeat%
@@ -5086,7 +5088,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % And now the stored preamble.
 %    \begin{macrocode}
     \ifx\svg@tempa\@empty\else%
-      \immediate\write\svgx@stream@out{\unexpanded\expandafter{\svg@tempa}}%
+      \immediate\write\svgx@stream@out{\etex@unexpanded\expandafter{\svg@tempa}}%
     \fi%
 %    \end{macrocode}
 % After the given preamble was written, package \pkg{svg-extract} will be 
@@ -5131,14 +5133,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \let\svgx@param@pretex\svg@param@pretex%
     \fi%
     \ifx\svgx@param@pretex\relax\else%
-      \svg@tempa{pretex=\unexpanded\expandafter{\svgx@param@pretex}}%
+      \svg@tempa{pretex=\etex@unexpanded\expandafter{\svgx@param@pretex}}%
     \fi%
     \def\svg@tempb{\svg@param@apptex}%
     \ifx\svgx@param@apptex\svg@tempb\relax%
       \let\svgx@param@apptex\svg@param@apptex%
     \fi%
     \ifx\svgx@param@apptex\relax\else%
-      \svg@tempa{apptex=\unexpanded\expandafter{\svgx@param@apptex}}%
+      \svg@tempa{apptex=\etex@unexpanded\expandafter{\svgx@param@apptex}}%
     \fi%
 %    \end{macrocode}
 % Parameter \prm{lastpage} is only considered for including PDF~files with 
