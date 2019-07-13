@@ -821,11 +821,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   The name of the exported \app{Inkscape}~file is used and the suffix
 %   \file{-extract} is attached.
 % \item[\textbf{filenamenumbered}/namenumbered/numberedfilename/numberedname]
-%   Same as above, but a prefix with the count of extracted files is used
-%   instead of the suffix.
+%   Same as above, but a prefix with the current enumerated count of SVG~files
+%   is used instead of the suffix.
 % \item[numbered/section/numberedsection/sectionnumbered]
-%   The file name is composed by the number of extracted files and the current 
-%   outline numbering.
+%   The file name is composed by the current enumerated countof SVG~files and 
+%   the present outline numbering.
 % \item[\meta{filename}]
 %   You can use any file name, the file extension is derived from option 
 %   \opt{extractformat}. It's possible to use counters for specifying the 
@@ -1843,14 +1843,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{macro}{\svg@out@path}
 % \begin{macro}{\svg@out@name}
-% \begin{macro}{\svg@out@base}
+% \begin{macro}{\svg@out@file}
 % The option \opt{inkscapepath} controls, in which folder the results of the
 % \app{Inkscape} export will be located. With option \opt{inkscapename} the 
 % name of the exported file itself can be changed.
 %    \begin{macrocode}
 \newcommand*\svg@out@path{}
 \newcommand*\svg@out@name{\svg@file@name\svg@file@suffix}
-\newcommand*\svg@out@base{\svg@out@path\svg@out@name.\svg@ink@format}
+\newcommand*\svg@out@file{\svg@out@path\svg@out@name.\svg@ink@format}
 \DefineFamilyKey{SVG}{inkscapepath}{%
   \svg@sanitize@dq\svg@tempb{#1}%
   \FamilySetNumerical{SVG}{inkscapepath}{svg@tempa}{%
@@ -1880,7 +1880,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \FamilyKeyStateProcessed%
 }
 %    \end{macrocode}
-% \end{macro}^^A \svg@out@base
+% \end{macro}^^A \svg@out@file
 % \end{macro}^^A \svg@out@name
 % \end{macro}^^A \svg@out@path
 % \end{option}^^A inkscapename
@@ -2594,7 +2594,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The macro \cs{svg@iffilenewer} is used to decide, whether the export with 
 % \app{Inkscape} is necessary due to an updated SVG~file. This can only be
 % done, if \cs{pdf@filemoddate} is definied. Unfortunately this functionality
-% isn't provided by Xe\TeX.
+% isn't provided by Xe\TeX. So keep in mind, that this macro should only be 
+% used with care (for example switching of some conditional external calls).
 %    \begin{macrocode}
 \ifx\pdf@filemoddate\@undefined
   \newcommand*\svg@iffilenewer[2]{\@gobbletwo}
@@ -2793,22 +2794,22 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Running the export with \app{Inkscape} (if necessary) and checking the 
 % required files for graphic inclusion.
 %    \begin{macrocode}
-      \svg@ink@run{\svg@out@base}%
-      \IfFileExists{\svg@out@base}{}{%
+      \svg@ink@run{\svg@out@file}%
+      \IfFileExists{\svg@out@file}{}{%
         \@svg@file@foundfalse%
-        \svg@file@missing{\svg@out@base}{\svg@file@base.\svg@file@ext}%
+        \svg@file@missing{\svg@out@file}{\svg@file@base.\svg@file@ext}%
       }%
       \if@svg@ink@latex%
-        \IfFileExists{\svg@out@base_tex}{}{%
+        \IfFileExists{\svg@out@file_tex}{}{%
           \@svg@file@foundfalse%
-          \svg@file@missing{\svg@out@base_tex}{\svg@file@base.\svg@file@ext}%
+          \svg@file@missing{\svg@out@file_tex}{\svg@file@base.\svg@file@ext}%
         }%
       \fi%
 %    \end{macrocode}
 % Include the resulting graphic file and maybe extract independent files.
 %    \begin{macrocode}
       \if@svg@file@found%
-        \svg@process{\svg@out@base}%
+        \svg@process{\svg@out@file}%
       \fi%
     \else%
 %    \end{macrocode}
@@ -2958,18 +2959,18 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % Checking the required files for graphic inclusion.
 %    \begin{macrocode}
-      \edef\svg@out@base{\svg@file@path\svg@file@name.\svg@ink@format}%
+      \edef\svg@out@file{\svg@file@path\svg@file@name.\svg@ink@format}%
       \if@svg@ink@latex%
-        \IfFileExists{\svg@out@base_tex}{}{%
+        \IfFileExists{\svg@out@file_tex}{}{%
           \@svg@file@foundfalse%
-          \svg@file@missing{\svg@out@base_tex}{\svg@out@base}%
+          \svg@file@missing{\svg@out@file_tex}{\svg@out@file}%
         }%
       \fi%
 %    \end{macrocode}
 % Include the resulting graphic file and maybe extract independent files.
 %    \begin{macrocode}
       \if@svg@file@found%
-        \svg@process{\svg@out@base}%
+        \svg@process{\svg@out@file}%
       \fi%
     \else%
 %    \end{macrocode}
@@ -3496,7 +3497,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % The given optional parameters to \cs{includegraphics} are processed and the 
 % counter \cnt{svg@param@currpage} is set to the value of a given \prm{page}. 
-% The value of parameter \prm{width} given in the file \cs{svg@out@base\_tex} 
+% The value of parameter \prm{width} given in the file \cs{svg@out@file\_tex} 
 % is ignored.
 %    \begin{macrocode}
 \DefineFamily{SVGpatch}
