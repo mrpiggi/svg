@@ -6,23 +6,23 @@ MAKESOURCE = $(MAKE) -C source
 .PHONY: all $(PACKAGE) pdf mostlyclean clean dist distclean release releaseclean install uninstall
 
 all:
-	$(MAKESOURCE) all
+  $(MAKESOURCE) all
 pdf: 
-	$(MAKESOURCE) pdf
-mostlyclean:	
-	$(MAKESOURCE) mostlyclean
+  $(MAKESOURCE) pdf
+mostlyclean:
+  $(MAKESOURCE) mostlyclean
 clean:
-	$(MAKESOURCE) clean
+  $(MAKESOURCE) clean
 dist:
-	$(MAKESOURCE) dist
+  $(MAKESOURCE) dist
 distclean: 
-	$(MAKESOURCE) distclean
+  $(MAKESOURCE) distclean
 release:
-	$(MAKESOURCE) release
+  $(MAKESOURCE) release
 releaseclean:
-	$(MAKESOURCE) releaseclean
+  $(MAKESOURCE) releaseclean
 install: 
-	$(MAKESOURCE) install
+  $(MAKESOURCE) install
 uninstall:
-	$(MAKESOURCE) uninstall
+  $(MAKESOURCE) uninstall
 
