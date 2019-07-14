@@ -36,26 +36,32 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg-extract}[%
-  2019/07/12 v2.03\space%
+  2019/07/15 v2.03\space%
   (extract independent graphics from SVG pictures)%
 ]
 \RequirePackage{svg}[2017/03/27]
 \DefineFamily{SVG}
 \DefineFamilyMember{SVG}
-\newif\if@svgx@ext@run
+\newcommand*\svgx@mode{1}
 \DefineFamilyKey{SVG}{extract}[true]{%
   \lowercase{\def\svg@tempa{#1}}%
   \FamilySetNumerical{SVG}{extract}{svg@tempa}{%
     {false}{0},{off}{0},{no}{0},%
     {true}{1},{on}{1},{yes}{1},{onlynewer}{1},{newer}{1},%
-    {overwrite}{1},{force}{1},{forced}{1},%
-    {pdf}{2},{eps}{3},{ps}{4}%
+    {forced}{2},{force}{2},{overwrite}{2},%
+    {pdf}{3},{eps}{4},{ps}{5}%
   }{\svg@tempa}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \ifcase\svg@tempa\relax% false
-      \@svgx@ext@runfalse%
+      \def\svgx@mode{0}%
     \or% true
-      \@svgx@ext@runtrue%
+      \ifx\pdf@filemoddate\@undefined%
+        \def\svgx@mode{2}%
+      \else%
+        \def\svgx@mode{1}%
+      \fi%
+    \or% forced
+      \def\svgx@mode{2}%
     \or% pdf
       \FamilyOptions{SVG}{extractformat=pdf}%
     \or% eps
@@ -72,7 +78,7 @@
   \renewcommand*\svgx@format{eps}
 \fi\fi
 \DefineFamilyKey{SVG}{extractformat}{%
-  \lowercase{\edef\svgx@format{#1}}%
+  \lowercase{\svgx@setlist\svgx@format{#1}}%
   \FamilyKeyStateProcessed%
 }
 \DefineFamilyKey{SVG}{pdf}[true]{%
@@ -203,83 +209,116 @@
   }%
   \FamilyKeyStateProcessed%
 }
-\newif\if@svgx@cnv@run
-\newcommand*\svgx@cnv@cmd{}
+\newcommand*\svgx@cnv@mode{0}
+\newcommand*\svgx@cnv@cmd{\svgx@magick@cmd}
 \DefineFamilyKey{SVG}{convert}[true]{%
   \FamilySetNumerical{SVG}{convert}{svg@tempa}{%
     {false}{0},{off}{0},{no}{0},%
     {true}{1},{on}{1},{yes}{1},{onlynewer}{1},{newer}{1},%
-    {overwrite}{1},{force}{1},{forced}{1},%
-    {magick}{2},{imagemagick}{2},{convert}{2},%
-    {gs}{3},{ghostscript}{3},%
-    {gs64}{4},{ghostscript64}{4},%
-    {gs32}{5},{ghostscript32}{5}%
+    {forced}{2},{force}{2},{overwrite}{2},%
+    {magick}{3},{imagemagick}{3},{convert}{3},%
+    {gs}{4},{ghostscript}{4},%
+    {gs64}{5},{ghostscript64}{5},%
+    {gs32}{6},{ghostscript32}{6}%
   }{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \ifcase\svg@tempa\relax% false
-      \@svgx@cnv@runfalse%
+      \def\svgx@cnv@mode{0}%
     \or% true
-      \@svgx@cnv@runtrue%
+      \ifx\pdf@filemoddate\@undefined%
+        \def\svgx@cnv@mode{2}%
+      \else%
+        \def\svgx@cnv@mode{1}%
+      \fi%
+    \or% forced
+      \def\svgx@cnv@mode{2}%
     \or% magick
-      \@svgx@cnv@runtrue%
       \renewcommand*\svgx@cnv@cmd{\svgx@magick@cmd}%
+      \ifnum\svgx@cnv@mode=\z@\relax%
+        \def\svgx@cnv@mode{1}%
+      \fi%
     \or% gs
-      \@svgx@cnv@runtrue%
       \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
+      \ifnum\svgx@cnv@mode=\z@\relax%
+        \def\svgx@cnv@mode{1}%
+      \fi%
     \or% gs64
-      \@svgx@cnv@runtrue%
       \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
       \svgx@onlywindows{%
         \renewcommand*\svgx@gs@exe{gswin64c}%
       }%
+      \ifnum\svgx@cnv@mode=\z@\relax%
+        \def\svgx@cnv@mode{1}%
+      \fi%
     \or% gs32
-      \@svgx@cnv@runtrue%
       \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
       \svgx@onlywindows{%
         \renewcommand*\svgx@gs@exe{gswin32c}%
       }%
+      \ifnum\svgx@cnv@mode=\z@\relax%
+        \def\svgx@cnv@mode{1}%
+      \fi%
     \fi%
-  \else%
+  \else% legacy option
+    \svg@quotes@remove[{#1}]{\svg@tempb}%
     \def\svg@tempa##1-##2\@nil{%
       \IfArgIsEmpty{##2}{\let\svg@tempb\@empty}{%
-        \def\svg@tempa##1####1\@nil{\def\svg@tempb{####1}}%
-        \svg@tempa#1\@nil%
+        \def\svg@tempa####1-\@nil{\def\svg@tempb{-####1}}%
+        \svg@tempa##2\@nil%
       }%
-      \def\svg@tempa{##1}%
+      \edef\svg@tempa{\trim@spaces{##1}}%
     }%
-    \svg@tempa#1-\@nil%
-    \PackageWarning{svg-extract}{%
-      Setting the executable%
-      \ifx\svg@tempb\@empty\else%
-        \space and associated options%
+    \expandafter\svg@tempa\svg@tempb-\@nil%
+    \ifx\svg@tempa\@empty\else%
+      \if@svg@quotes@found%
+        \edef\svg@tempa{"\svg@tempa"}%
       \fi%
-      \MessageBreak%
-      for ImageMagick should be done with options\MessageBreak%
-      `magickexe=\svg@tempa'%
-      \ifx\svg@tempb\@empty\else%
-        \MessageBreak and `magicksetting' and/or `magickoperator'%
-      \fi.\MessageBreak%
-      Nevertheless, this was done by now%
-      \ifx\svg@tempb\@empty\else%
-        , whereby \MessageBreak `magicksetting=\svg@tempb' was used%
-      \fi%
-    }%
-    \FamilyOptions{SVG}{convert=magick}%
-    \edef\svg@tempa{%
-      \noexpand\FamilyOptions{SVG}{magickexe=\svg@tempa}%
-      \ifx\svg@tempb\@empty\else%
-        \noexpand\FamilyOptions{SVG}{magicksetting=\svg@tempb}%
-      \fi%
-    }%
-    \svg@tempa%
+    \fi%
+    \@svg@tempswafalse%
+    \ifx\svg@tempa\@empty\else\@svg@tempswatrue\fi%
+    \ifx\svg@tempb\@empty\else\@svg@tempswatrue\fi%
+    \if@svg@tempswa%
+      \PackageWarning{svg-extract}{%
+        Setting%
+        \ifx\svg@tempa\@empty\else%
+          \space the executable \ifx\svg@tempb\@empty\else and \fi%
+        \fi%
+        \ifx\svg@tempb\@empty\else%
+          \space associated options%
+        \fi%
+        \MessageBreak%
+        for ImageMagick should be done with%
+        \ifx\svg@tempa\@empty\else%
+          \MessageBreak%
+          `magickexe=\svg@tempa'%
+        \fi%
+        \ifx\svg@tempb\@empty\else%
+          \MessageBreak%
+          \ifx\svg@tempa\@empty\else and \fi
+          `magicksetting' and/or `magickoperator'%
+        \fi%
+        \MessageBreak%
+        Nevertheless, this was done by now anyway%
+        \ifx\svg@tempb\@empty\else%
+          , whereby \MessageBreak `magicksetting=\svg@tempb' was used%
+        \fi%
+      }%
+      \FamilyOptions{SVG}{convert=magick}%
+      \edef\svg@tempa{%
+        \ifx\svg@tempa\@empty\else%
+          \noexpand\FamilyOptions{SVG}{magickexe=\svg@tempa}%
+        \fi%
+        \ifx\svg@tempb\@empty\else%
+          \noexpand\FamilyOptions{SVG}{magicksetting=\svg@tempb}%
+        \fi%
+      }%
+      \svg@tempa%
+    \fi%
   \fi%
 }
 \newcommand*\svgx@cnv@format{png}
 \DefineFamilyKey{SVG}{convertformat}{%
-  \lowercase{\edef\svgx@cnv@format{#1}}%
-  \ifx\svgx@cnv@format\@empty\else%
-    \@svgx@cnv@runtrue%
-  \fi%
+  \lowercase{\svgx@setlist\svgx@cnv@format{#1}}%
   \FamilyKeyStateProcessed%
 }
 \DefineFamilyKey{SVG}{png}[true]{%
@@ -544,13 +583,29 @@
       \renewcommand*\svgx@clean{log,aux,dvi,out,ps,eps,pdf}%
     \fi%
   \else%
-    \renewcommand*\svgx@clean{#1}%
+    \lowercase{\svgx@setlist\svgx@clean{#1}}%
     \FamilyKeyStateProcessed%
   \fi%
 }
 \DefineFamilyKey{SVG}{clear}{\FamilyOptions{SVG}{clean=#1}}
 \newif\if@svgx@exclude
 \FamilyBoolKey{SVG}{exclude}{@svgx@exclude}
+\newcommand*\svgx@setlist[2]{%
+  \begingroup%
+    \edef#1{#2}%
+    \let\svg@tempb\@empty%
+    \@for\svg@tempa:={#1}\do{%
+      \edef\svg@tempa{\expandafter\trim@spaces\expandafter{\svg@tempa}}%
+      \ifx\svg@tempa\@empty\else%
+        \edef\svg@tempb{\svg@tempb,\svg@tempa}%
+      \fi%
+    }%
+    \edef\svg@tempa{%
+      \endgroup%
+      \etex@unexpanded{\def#1}{\expandafter\@gobble\svg@tempb}%
+    }%
+  \svg@tempa%
+}
 \newcommand*\svgx@ifinlist[2]{%
   \begingroup%
     \def\svg@tempa##1,#1,##2\@nil{%
@@ -744,7 +799,20 @@
 }
 \let\svghidepreamblestart\relax
 \let\svghidepreambleend\relax
-\newcommand*\svgx@last@file{}
+\newcommand*\svgx@out@base{}
+\renewcommand*\includesvgx{%
+  \kernel@ifnextchar[%]
+  {\svgx@include}{\svgx@@@include{}{}}%
+}
+\newcommand*\svgx@include{}
+\def\svgx@include[#1]{%
+  \kernel@ifnextchar[%]
+  {\svgx@@include{#1}}{\svgx@@@include{#1}{}}%
+}
+\newcommand*\svgx@@include{}
+\def\svgx@@include#1[#2]{%
+  \svgx@@@include{#1}{#2}%
+}
 % TODO how to handle parameters?! use \svg@local@param@def within group
 % MAPPING with warning (or info?)
 % width>extractwidth 
@@ -755,85 +823,100 @@
 % apptex>extractapptex
 % angle>extractangle
 % IGNORE origin
+% CHECK use exclude or not?
 % CREATE inputformat (or something like this)
-\renewcommand*\includesvgextracted{%
-  \kernel@ifnextchar[%]
-  {\include@svgextracted}{\include@@@svgextracted{}{}}%
-}
-\newcommand*\include@svgextracted{}%
-\def\include@svgextracted[#1]{%
-  \kernel@ifnextchar[%]
-  {\include@@svgextracted{#1}}{\include@@@svgextracted{#1}{}}%
-}
-\newcommand*\include@@svgextracted{}%
-\def\include@@svgextracted#1[#2]{%
-  \include@@@svgextracted{#1}{#2}%
-}
-\newcommand*\include@@@svgextracted[3]{%
+\newcommand*\svgx@@@include[3]{%
 %  \par\noindent%
 %  filename:#3\newline%
 %  includegraphics:#1\newline%
 %  includesvg:#2\par\bigskip%
+%\meaning\svg@local@param@use
   \begingroup%
+    \includesvg[{#2}]{#3}%
       % TODO inputformat from \svgx@ext@get@input@format if not set
       % (\svgx@format,\svgx@cnv@format) 
-          %\meaning\svg@local@param@use
-    \let\svg@process\svgx@do@extract%
-    \includesvg[{#2}]{#3}%
-    \IfFileExists{\svgx@last@file.pdf}{%
-      \includegraphics[{#1}]{\svgx@last@file.pdf}%
+    \IfFileExists{\svgx@out@base.pdf}{%
+      \includegraphics[{#1}]{\svgx@out@base.pdf}%
     }{%
       % TODO Warning with hint to run with --shell-escape
       % TODO use result of inkscape export in draft mode?!
     }%
   \endgroup%
 }
+\newif\if@svgx@run
 \renewcommand*\svg@process[1]{%
-  \svgx@do@input{#1}%
-  \svgx@do@extract{#1}%
-}
-\newcommand*\svgx@do@input[1]{%
-  \if@svgx@exclude%
-    \if@svgx@ext@run\else%
-      \PackageWarning{svg-extract}{%
-        The image `#1' was\MessageBreak%
-        neither extracted nor included%
-      }%
-    \fi%
-  \else%
+  \if@svgx@exclude\else%
     \svg@do@input{#1}%
   \fi%
-}
-\newcommand*\svgx@do@extract[1]{%
-  \if@svgx@ext@run%
-    \svgx@ext@run{#1}%
-  \else%
-    \if@svgx@cnv@run\else%
-      \PackageWarning{svg-extract}{%
-        The image `#1'\MessageBreak%
-        could not be converted as `extract=false' was set%
-      }%
-    \fi%
-  \fi%
-}
-\newcommand*\svgx@ext@run[1]{%
   \if@svgx@out@sec%
     \svgx@get@out@sec%
   \fi%
   \stepcounter{svgx@out@count}%
-  \def\svgx@last@file{\svgx@out@path\svgx@out@name}%
-  \svg@quotes@remove{\svgx@last@file}%
-  \global\let\svgx@last@file\svgx@last@file%
-  \svgx@ext@@run{#1}%
+  \svg@quotes@remove[\svgx@out@path\svgx@out@name]{\svgx@out@base}%
+  \global\let\svgx@out@base\svgx@out@base%
+  \ifcase\svgx@mode\relax% false
+    \@svgx@runfalse%
+  \or% true
+    \svgx@ifexpired[\svgx@format]{\svgx@out@base}{#1}%
+      {\@svgx@runtrue}{\@svgx@runfalse}%
+  \or% forced
+    \@svgx@runtrue%
+  \fi%
+  \ifcase\svgx@mode\relax\else%
+    \if@svgx@run\else%
+      \ifcase\svgx@cnv@mode\relax\or% true
+        \svgx@ifexpired[\svgx@cnv@format]{\svgx@out@base}{#1}%
+          {\@svgx@runtrue}{\@svgx@runfalse}%
+      \or% forced
+        \@svgx@runtrue%
+      \fi%
+    \fi%
+  \fi%
+  \if@svgx@run%
+    \svgx@run{#1}%
+  \else%
+    \ifnum\svgx@cnv@mode>\z@\relax%
+      \PackageWarning{svg-extract}{%
+        Image `#1'\MessageBreak%
+        could not be converted as `extract=false' was set%
+      }%
+    \fi%
+    \if@svgx@exclude%
+      \svgx@ifexpired{\svgx@out@base}{#1}%
+        {\@svg@tempswatrue}{\@svg@tempswafalse}%
+      \if@svg@tempswa%
+        \PackageWarning{svg-extract}{%
+          Image `#1'\MessageBreak%
+          was neither extracted/converted nor included%
+        }%
+      \fi%
+    \fi%
+  \fi%
+}
+\newcommand*\svgx@ifexpired[3][%
+  \svgx@format\ifnum\svgx@cnv@mode>\z@,\svgx@cnv@format\fi%
+]{%
+  \begingroup%
+    \@svg@tempswafalse%
+    \svgx@setlist\svg@tempa{#1}%
+    \@for\svg@tempb:=\svg@tempa\do{%
+      \svg@iffilenewer{#2.\svg@tempb}{#3}{}{\@svg@tempswatrue}%
+    }%
+    \if@svg@tempswa%
+      \aftergroup\@firstoftwo%
+    \else%
+      \aftergroup\@secondoftwo%
+    \fi%
+  \endgroup%
 }
 \ifnum\pdf@shellescape=\@ne\relax\else%
-  \newcommand*\svgx@ext@@run[1]{%
+  \newcommand*\svgx@run[1]{%
     \begingroup%
       \edef\svg@tempa{#1}%
       \svg@quotes@remove{\svg@tempa}%
       \PackageWarning{svg-extract}{%
         You didn't enable `--shell-escape' option so it\MessageBreak%
-        wasn't possible to run the extraction for file\MessageBreak%
+        wasn't possible to run extraction/conversion for\MessageBreak%
         `\svg@tempa'\MessageBreak%
       }%
     \endgroup%
@@ -853,7 +936,7 @@
     }%
   \svg@tempa%
 }
-\newcommand*\svgx@ext@@run[1]{%
+\newcommand*\svgx@run[1]{%
   \begingroup%
     \def\svg@tempa##1.##2\@nil{%
       \IfArgIsEmpty{##2}{\edef\svgx@preamble{##1.\svgx@latex@ext}}{}%
@@ -908,7 +991,7 @@
             \fi%
             \ifx\svgx@read@line\@empty\else%
               \immediate\write\svgx@stream@out{%
-                \unexpanded\expandafter{\svgx@read@line}%
+                \etex@unexpanded\expandafter{\svgx@read@line}%
               }%
             \fi%
           \fi%
@@ -923,8 +1006,8 @@
         \readline\svgx@stream@in to\svgx@read@line%
         \ifx\svgx@read@line\@empty\else%
           \edef\svg@tempa{%
-            \unexpanded\expandafter{\svg@tempa}%
-            \unexpanded\expandafter{\svgx@read@line}^^J%
+            \etex@unexpanded\expandafter{\svg@tempa}%
+            \etex@unexpanded\expandafter{\svgx@read@line}^^J%
           }%
         \fi%
       \repeat%
@@ -963,7 +1046,7 @@
       \immediate\write\svgx@stream@out{\string\documentclass{article}}%
     \fi%
     \ifx\svg@tempa\@empty\else%
-      \immediate\write\svgx@stream@out{\unexpanded\expandafter{\svg@tempa}}%
+      \immediate\write\svgx@stream@out{\etex@unexpanded\expandafter{\svg@tempa}}%
     \fi%
     \immediate\write\svgx@stream@out{\string\usepackage{svg-extract}}%
     \if@svg@ink@latex%
@@ -997,14 +1080,14 @@
       \let\svgx@param@pretex\svg@param@pretex%
     \fi%
     \ifx\svgx@param@pretex\relax\else%
-      \svg@tempa{pretex=\unexpanded\expandafter{\svgx@param@pretex}}%
+      \svg@tempa{pretex=\etex@unexpanded\expandafter{\svgx@param@pretex}}%
     \fi%
     \def\svg@tempb{\svg@param@apptex}%
     \ifx\svgx@param@apptex\svg@tempb\relax%
       \let\svgx@param@apptex\svg@param@apptex%
     \fi%
     \ifx\svgx@param@apptex\relax\else%
-      \svg@tempa{apptex=\unexpanded\expandafter{\svgx@param@apptex}}%
+      \svg@tempa{apptex=\etex@unexpanded\expandafter{\svgx@param@apptex}}%
     \fi%
     \let\svg@tempa\@empty%
     \if@svg@ink@latex%
@@ -1039,15 +1122,12 @@
     }%
     \immediate\closeout\svgx@stream@out%
   \endgroup%
-  \@svg@tempswafalse%
-  \edef\svg@tempb{\svgx@format,\svgx@cnv@format}%
-  \@for\svg@tempa:=\svg@tempb\do{%
-    \edef\svg@tempa{\expandafter\trim@spaces\expandafter{\svg@tempa}}%
-    \ifx\svg@tempa\@empty\else%
-      \@svg@tempswatrue%
-    \fi%
-  }%
-  \if@svg@tempswa%
+  \ifstr{\svgx@format\svgx@cnv@format}{}{%
+    \PackageWarning{svg-extract}{%
+      Both keys `extractformat' and `convertformat' are\MessageBreak%
+      empty, so nothing to do so far%
+    }%
+  }{%
     \svg@shell@mkdir{\svgx@out@path}%
     \svg@quotes@remove{\svgx@out@path}%
     \svg@quotes@remove{\svgx@out@name}%
@@ -1094,7 +1174,7 @@
       \svgx@ifinlist{eps}{\svgx@format}{\svg@tempa{pdftoeps}{pdf}{eps}}{}%
       \svgx@ifinlist{ps}{\svgx@format}{\svg@tempa{pdftops}{pdf}{ps}}{}%
     \fi%
-    \if@svgx@cnv@run%
+    \ifnum\svgx@cnv@mode>\z@\relax%
       \ifx\svgx@cnv@dpi\relax%
         \ifx\svgx@cnv@dpi@png\@undefined%
           \def\svgx@cnv@dpi@png{300}%
@@ -1102,61 +1182,50 @@
       \fi%
       \svgx@cnv@get@input@format%
       \@for\svg@tempa:=\svgx@cnv@format\do{%
-        \ifx\svg@tempa\@empty\else%
-          \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{\svgx@format}{%
-            \svgx@eaddto@shell{%
-              \noexpand\PackageInfoNoLine{svg-extract}{%
-                Generating file `\svgx@out@name.\svg@tempa' was\MessageBreak%
-                specified with `extractformat' (\svgx@format)\MessageBreak%
-                as well as with `convertformat' (\svgx@cnv@format)\MessageBreak%
-                so the conversion won't be done%
-              }%
-            }%
-          }{%
-            \edef\svg@tempb{\svgx@out@path\svgx@out@name}%
-            \svgx@eaddto@shell{%
-              \noexpand\PackageInfoNoLine{svg-extract}{%
-                Converting `\svgx@out@name.\svgx@cnv@input@format'\MessageBreak%
-                to `\svg@tempb.\svg@tempa'%
-              }%
-              \noexpand\ShellEscape{%
-                \svgx@cnv@cmd{\svgx@out@name}{\svgx@cnv@input@format}%
-                  {\svgx@out@path}{\svg@tempa}%
-              }%
-              \noexpand\IfFileExists{"\svg@tempb".\svg@tempa}{}{%
-                \noexpand\svgx@file@missing{\svg@tempb.\svg@tempa}%
-              }%
+        \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{\svgx@format}{%
+          \svgx@eaddto@shell{%
+            \noexpand\PackageInfoNoLine{svg-extract}{%
+              Generating file `\svgx@out@name.\svg@tempa' was\MessageBreak%
+              specified with `extractformat' (\svgx@format)\MessageBreak%
+              as well as with `convertformat' (\svgx@cnv@format)\MessageBreak%
+              so the conversion won't be done%
             }%
           }%
-        \fi%
+        }{%
+          \edef\svg@tempb{\svgx@out@path\svgx@out@name}%
+          \svgx@eaddto@shell{%
+            \noexpand\PackageInfoNoLine{svg-extract}{%
+              Converting `\svgx@out@name.\svgx@cnv@input@format'\MessageBreak%
+              to `\svg@tempb.\svg@tempa'%
+            }%
+            \noexpand\ShellEscape{%
+              \svgx@cnv@cmd{\svgx@out@name}{\svgx@cnv@input@format}%
+                {\svgx@out@path}{\svg@tempa}%
+            }%
+            \noexpand\IfFileExists{"\svg@tempb".\svg@tempa}{}{%
+              \noexpand\svgx@file@missing{\svg@tempb.\svg@tempa}%
+            }%
+          }%
+        }%
       }%
     \fi%
     \@for\svg@tempa:=\svgx@format\do{%
-      \ifx\svg@tempa\@empty\else%
-        \svgx@eaddto@shell{%
-          \noexpand\svgx@move{\svgx@out@name}{\svg@tempa}{\svgx@out@path}%
-        }%
-      \fi%
+      \svgx@eaddto@shell{%
+        \noexpand\svgx@move{\svgx@out@name}{\svg@tempa}{\svgx@out@path}%
+      }%
     }%
     \edef\svg@tempb{\svgx@format,\svgx@cnv@format}%
     \@for\svg@tempa:=\svgx@clean\do{%
-      \ifx\svg@tempa\@empty\else%
-        \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{\svg@tempb}{}{%
-          \svgx@eaddto@shell{%
-            \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
-              \noexpand\svg@shell@rm{\svgx@out@name.\svg@tempa}%
-            }{}%
-          }%
+      \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{\svg@tempb}{}{%
+        \svgx@eaddto@shell{%
+          \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
+            \noexpand\svg@shell@rm{\svgx@out@name.\svg@tempa}%
+          }{}%
         }%
-      \fi%
+      }%
     }%
     \expandafter\AfterReadingMainAux\expandafter{\the\svgx@shell}%
-  \else%
-    \PackageWarning{svg-extract}{%
-      Both keys `extractformat' and `convertformat' are\MessageBreak%
-      empty, so nothing to do so far%
-    }%
-  \fi%
+  }%
 }
 \newcommand*\svgx@out@sec{unknown}
 \newcommand*\svgx@get@out@sec{%
@@ -1165,13 +1234,11 @@
     \@for\svg@tempb:={%
       part,chapter,section,subsection,subsubsection,paragraph,subparagraph%
     }\do{%
-      \ifx\svg@tempb\@empty\else%
-        \scr@ifundefinedorrelax{the\svg@tempb}{}{%
-          \ifnum\value{\svg@tempb}>\z@\relax%
-            \edef\svg@tempa{\svg@tempb}%
-          \fi%
-        }%
-      \fi%
+      \scr@ifundefinedorrelax{the\svg@tempb}{}{%
+        \ifnum\value{\svg@tempb}>\z@\relax%
+          \edef\svg@tempa{\svg@tempb}%
+        \fi%
+      }%
     }%
     \edef\svg@tempb{%
       \endgroup%

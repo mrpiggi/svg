@@ -1,3 +1,4 @@
+\listfiles
 \documentclass{scrartcl}
 \ifpdftex{
   \usepackage[T1]{fontenc}
@@ -13,14 +14,11 @@
 \section*{This is a test}
 \begin{figure}
 \centering
-\includesvgextracted[scale=0.5]{svg-example}
+\includesvgx[scale=0.5]{svg-example}
+%\includesvg[scale=0.7,inkscape=true,extract=false,exclude=false,convert=false]{svg-example}
 %\fbox{\includesvg[extractformat={,pdf},convertformat={png,}]{svg-example}}
 %\includesvg[pretex={\catcode`\_11},width=\textwidth]{pipeline-test}
 \end{figure}
-
-
-\meaning\if@svgx@exclude
-
 \end{document}
 
 \listfiles

@@ -1,4 +1,4 @@
-% \CheckSum{4154}
+% \CheckSum{4222}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -97,7 +97,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<package&identify&base>\ProvidesPackage{svg}[%
 %<package&identify&extract>\ProvidesPackage{svg-extract}[%
 %<*dtx|package&identify>
-  2019/07/14 v2.03\space%
+  2019/07/15 v2.03\space%
 %<package&identify&base>  (include SVG pictures)%
 %<package&identify&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -1630,7 +1630,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \PackageWarning{svg}{%
           Setting%
           \ifx\svg@tempa\@empty\else%
-            \space the executable \ifx\svg@tempb\@empty\else and\fi%
+            \space the executable \ifx\svg@tempb\@empty\else and \fi%
           \fi%
           \ifx\svg@tempb\@empty\else%
             \space associated options%
@@ -1643,9 +1643,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
           \fi%
           \ifx\svg@tempb\@empty\else%
             \MessageBreak%
-            \ifx\svg@tempa\@empty\else and \fi `inkscapeopt={\svg@tempb}'%
+            \ifx\svg@tempa\@empty\else and \fi`inkscapeopt={\svg@tempb}'%
           \fi%
-          \MessageBreak Nevertheless, this was done by now anyway%
+          \MessageBreak%
+          Nevertheless, this was done by now anyway%
         }%
         \edef\svg@tempa{%
           \ifx\svg@tempa\@empty\else%
@@ -3985,6 +3986,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \begin{option}{convert}
 % \changes{v2.00}{2017/02/24}{changed/extended}^^A
+% \changes{v2.03}{2019/07/15}{improved handling of legacy option}^^A
 % \begin{macro}{\svgx@cnv@mode}
 % \changes{v2.03}{2019/07/14}{new}^^A
 % \begin{macro}{\svgx@cnv@cmd}
@@ -4050,43 +4052,64 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % and options for the conversion application, meant for the usage of 
 % \app{ImageMagick}. This is taken into account here.
 %    \begin{macrocode}
-  \else%
+  \else% legacy option
 %    \end{macrocode}
-% \ ToDo{revise like lagacy option inkscape}[v2.03]
-% Same doing like with option \opt{inkscape}.
+% Same doing like with legacy part of option \opt{inkscape}.
 %    \begin{macrocode}
+    \svg@quotes@remove[{#1}]{\svg@tempb}%
     \def\svg@tempa##1-##2\@nil{%
       \IfArgIsEmpty{##2}{\let\svg@tempb\@empty}{%
-        \def\svg@tempa##1####1\@nil{\def\svg@tempb{####1}}%
-        \svg@tempa#1\@nil%
+        \def\svg@tempa####1-\@nil{\def\svg@tempb{-####1}}%
+        \svg@tempa##2\@nil%
       }%
-      \def\svg@tempa{##1}%
+      \edef\svg@tempa{\trim@spaces{##1}}%
     }%
-    \svg@tempa#1-\@nil%
-    \PackageWarning{svg-extract}{%
-      Setting the executable%
-      \ifx\svg@tempb\@empty\else%
-        \space and associated options%
+    \expandafter\svg@tempa\svg@tempb-\@nil%
+    \ifx\svg@tempa\@empty\else%
+      \if@svg@quotes@found%
+        \edef\svg@tempa{"\svg@tempa"}%
       \fi%
-      \MessageBreak% 
-      for ImageMagick should be done with options\MessageBreak%
-      `magickexe=\svg@tempa'%
-      \ifx\svg@tempb\@empty\else%
-        \MessageBreak and `magicksetting' and/or `magickoperator'%
-      \fi.\MessageBreak% 
-      Nevertheless, this was done by now%
-      \ifx\svg@tempb\@empty\else%
-        , whereby \MessageBreak `magicksetting=\svg@tempb' was used%
-      \fi%
-    }%
-    \FamilyOptions{SVG}{convert=magick}%
-    \edef\svg@tempa{%
-      \noexpand\FamilyOptions{SVG}{magickexe=\svg@tempa}%
-      \ifx\svg@tempb\@empty\else%
-        \noexpand\FamilyOptions{SVG}{magicksetting=\svg@tempb}%
-      \fi%
-    }%
-    \svg@tempa%
+    \fi%
+    \@svg@tempswafalse%
+    \ifx\svg@tempa\@empty\else\@svg@tempswatrue\fi%
+    \ifx\svg@tempb\@empty\else\@svg@tempswatrue\fi%
+    \if@svg@tempswa%
+      \PackageWarning{svg-extract}{%
+        Setting%
+        \ifx\svg@tempa\@empty\else%
+          \space the executable \ifx\svg@tempb\@empty\else and \fi%
+        \fi%
+        \ifx\svg@tempb\@empty\else%
+          \space associated options%
+        \fi%
+        \MessageBreak% 
+        for ImageMagick should be done with%
+        \ifx\svg@tempa\@empty\else%
+          \MessageBreak%
+          `magickexe=\svg@tempa'%
+        \fi%
+        \ifx\svg@tempb\@empty\else%
+          \MessageBreak%
+          \ifx\svg@tempa\@empty\else and \fi
+          `magicksetting' and/or `magickoperator'%
+        \fi%
+        \MessageBreak% 
+        Nevertheless, this was done by now anyway%
+        \ifx\svg@tempb\@empty\else%
+          , whereby \MessageBreak `magicksetting=\svg@tempb' was used%
+        \fi%
+      }%
+      \FamilyOptions{SVG}{convert=magick}%
+      \edef\svg@tempa{%
+        \ifx\svg@tempa\@empty\else%
+          \noexpand\FamilyOptions{SVG}{magickexe=\svg@tempa}%
+        \fi%
+        \ifx\svg@tempb\@empty\else%
+          \noexpand\FamilyOptions{SVG}{magicksetting=\svg@tempb}%
+        \fi%
+      }%
+      \svg@tempa%
+    \fi%
   \fi%
 }
 %</extract>
@@ -4811,41 +4834,58 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svghidepreamblestart
 % \begin{macro}{\includesvgx}
 % \changes{v2.03}{2019/07/11}{new}^^A
+% \begin{macro}{\svgx@include}
+% \changes{v2.03}{2019/07/15}{new}^^A
+% \begin{macro}{\svgx@@include}
+% \changes{v2.03}{2019/07/15}{new}^^A
+% \begin{macro}{\svgx@@@include}
+% \changes{v2.03}{2019/07/15}{new}^^A
 % \begin{macro}{\svgx@out@base}
 % \changes{v2.03}{2019/07/11}{new}^^A
 % \ToDo{source doc}[v2.03]
-% \ToDo{adapt for package \pkg{svg} to arguments in \pkg{svg-extract}}[v2.03]
 %    \begin{macrocode}
 %<*base>
-\newcommand*\includesvgx[2][]{%
-  \PackageWarning{svg}{%
-    The macro `\string\includesvgx' is only meant\MessageBreak%
-    to be used together with package `svg-extract'.\MessageBreak%
-    Macro \string\includesvg' will be used instead%
+\newcommand*\includesvgx{%
+  \PackageError{svg}{Package `svg-extract' not loaded}{%
+    The macro `\string\includesvgx' can only\MessageBreak%
+    be used together with package `svg-extract'.%
   }%
-  \includesvg[{#1}]{#2}%
 }
 %</base>
 %    \end{macrocode}
-% \ToDo{user and source doc}[v2.03]
-% \ToDo{%
-%   how to handle parameters? two optional arguments for \cs{includegraphics}
-%   and \cs{includesvgx}!%
-% }[v2.03]
+% \ToDo{how to handle/map parameters?}[v2.03]
 % \ToDo{warning with hint to run with --shell-escape if file is missing}[v2.03]
 %    \begin{macrocode}
 %<*extract>
 \newcommand*\svgx@out@base{}
-\renewcommand*\includesvgx[2][]{%
-  \includesvg[,exclude,extract=true]{#2}%
-  \IfFileExists{\svgx@out@base.pdf}{%
-    \includegraphics[width=\textwidth]{\svgx@out@base.pdf}%
-  }{%
-  }%
+\renewcommand*\includesvgx{%
+  \kernel@ifnextchar[%]
+  {\svgx@include}{\svgx@@@include{}{}}%
+}
+\newcommand*\svgx@include{}
+\def\svgx@include[#1]{%
+  \kernel@ifnextchar[%]
+  {\svgx@@include{#1}}{\svgx@@@include{#1}{}}%
+}
+\newcommand*\svgx@@include{}
+\def\svgx@@include#1[#2]{%
+  \svgx@@@include{#1}{#2}%
+}
+\newcommand*\svgx@@@include[3]{%
+  \begingroup%
+    \includesvg[{#2},exclude]{#3}%
+    \IfFileExists{\svgx@out@base.pdf}{%
+      \includegraphics[{#1}]{\svgx@out@base.pdf}%
+    }{%
+    }%
+  \endgroup%
 }
 %</extract>
 %    \end{macrocode}
 % \end{macro}^^A \svgx@out@base
+% \end{macro}^^A \svgx@@@include
+% \end{macro}^^A \svgx@@include
+% \end{macro}^^A \svgx@include
 % \end{macro}^^A \includesvgx
 %
 % \iffalse
@@ -4882,8 +4922,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \svgx@get@out@sec%
   \fi%
   \stepcounter{svgx@out@count}%
-  \def\svgx@out@base{\svgx@out@path\svgx@out@name}%
-  \svg@quotes@remove{\svgx@out@base}%
+  \svg@quotes@remove[\svgx@out@path\svgx@out@name]{\svgx@out@base}%
   \global\let\svgx@out@base\svgx@out@base%
 %    \end{macrocode}
 % This is the part, where the conditional invocation of extraction/conversion 

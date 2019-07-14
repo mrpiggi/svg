@@ -36,13 +36,14 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg}[%
-  2019/07/12 v2.03\space%
+  2019/07/15 v2.03\space%
   (include SVG pictures)%
 ]
 \RequirePackage{scrbase}[2016/06/14]
 \RequirePackage{ifpdf}[2016/05/14]
 \RequirePackage{ifluatex}[2016/05/16]
 \RequirePackage{ifxetex}[2010/09/12]
+\RequirePackage{etexcmds}[2016/05/16]
 \RequirePackage{pdftexcmds}[2016/05/21]
 \RequirePackage{shellesc}[2016/06/07]
 \RequirePackage{trimspaces}[2009/09/17]
@@ -96,7 +97,7 @@
   \FamilySetNumerical{SVG}{inkscape}{svg@tempa}{%
     {false}{0},{off}{0},{no}{0},%
     {true}{1},{on}{1},{yes}{1},{onlynewer}{1},{newer}{1},%
-    {force}{2},{forced}{2},{overwrite}{2},%
+    {forced}{2},{force}{2},{overwrite}{2},%
     {pdf}{3},{eps}{4},{ps}{5},{png}{6},%
     {drawing}{7},{crop}{7},%
     {page}{8},{nocrop}{8},%
@@ -105,26 +106,32 @@
     {latexnoexport}{10},{raw}{10},{plain}{10},{simple}{10}%
   }{\svg@tempb}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \ifnum\svg@tempa<\thr@@\relax%
-      \let\svg@ink@mode\svg@tempa%
-    \else%
-      \ifcase\svg@tempa\relax\or\or\or% pdf
-        \FamilyOptions{SVG}{inkscapeformat=pdf}%
-      \or% eps
-        \FamilyOptions{SVG}{inkscapeformat=eps}%
-      \or% ps
-        \FamilyOptions{SVG}{inkscapeformat=ps}%
-      \or% png
-        \FamilyOptions{SVG}{inkscapeformat=png}%
-      \or% drawing
-        \FamilyOptions{SVG}{inkscapearea=drawing}%
-      \or% page
-        \FamilyOptions{SVG}{inkscapearea=page}%
-      \or% tex
-        \FamilyOptions{SVG}{inkscapelatex=true}%
-      \or% nolatex
-        \FamilyOptions{SVG}{inkscapelatex=false}%
+    \ifcase\svg@tempa\relax% false
+      \def\svg@ink@mode{0}%
+    \or% true
+      \ifx\pdf@filemoddate\@undefined%
+        \def\svg@ink@mode{2}%
+      \else%
+        \def\svg@ink@mode{1}%
       \fi%
+    \or% forced
+      \def\svg@ink@mode{2}%
+    \or% pdf
+      \FamilyOptions{SVG}{inkscapeformat=pdf}%
+    \or% eps
+      \FamilyOptions{SVG}{inkscapeformat=eps}%
+    \or% ps
+      \FamilyOptions{SVG}{inkscapeformat=ps}%
+    \or% png
+      \FamilyOptions{SVG}{inkscapeformat=png}%
+    \or% drawing
+      \FamilyOptions{SVG}{inkscapearea=drawing}%
+    \or% page
+      \FamilyOptions{SVG}{inkscapearea=page}%
+    \or% tex
+      \FamilyOptions{SVG}{inkscapelatex=true}%
+    \or% nolatex
+      \FamilyOptions{SVG}{inkscapelatex=false}%
     \fi%
   \else% dpi
     \def\svg@tempa##1dpi##2\@nil{%
@@ -153,7 +160,7 @@
         \PackageWarning{svg}{%
           Setting%
           \ifx\svg@tempa\@empty\else%
-            \space the executable \ifx\svg@tempb\@empty\else and\fi%
+            \space the executable \ifx\svg@tempb\@empty\else and \fi%
           \fi%
           \ifx\svg@tempb\@empty\else%
             \space associated options%
@@ -166,9 +173,10 @@
           \fi%
           \ifx\svg@tempb\@empty\else%
             \MessageBreak%
-            \ifx\svg@tempa\@empty\else and \fi `inkscapeopt={\svg@tempb}'%
+            \ifx\svg@tempa\@empty\else and \fi`inkscapeopt={\svg@tempb}'%
           \fi%
-          \MessageBreak Nevertheless, this was done by now anyway%
+          \MessageBreak%
+          Nevertheless, this was done by now anyway%
         }%
         \edef\svg@tempa{%
           \ifx\svg@tempa\@empty\else%
@@ -279,7 +287,7 @@
 \DefineFamilyKey{SVG}{ext}{\FamilyOptions{SVG}{svgextension=#1}}
 \newcommand*\svg@out@path{}
 \newcommand*\svg@out@name{\svg@file@name\svg@file@suffix}
-\newcommand*\svg@out@base{\svg@out@path\svg@out@name.\svg@ink@format}
+\newcommand*\svg@out@file{\svg@out@path\svg@out@name.\svg@ink@format}
 \DefineFamilyKey{SVG}{inkscapepath}{%
   \svg@sanitize@dq\svg@tempb{#1}%
   \FamilySetNumerical{SVG}{inkscapepath}{svg@tempa}{%
@@ -815,7 +823,7 @@
 \newcommand*\svg@local@param@use{}
 \newcommand*\svg@local@param@def[1]{%
   \edef\svg@local@param@use{%
-    \unexpanded\expandafter{\svg@local@param@use}\unexpanded{#1}%
+    \etex@unexpanded\expandafter{\svg@local@param@use}\etex@unexpanded{#1}%
   }%
 }
 \DefineFamilyMember[.param]{SVG}
@@ -845,19 +853,19 @@
     \@onelevel@sanitize\svg@file@suffix%
     \svg@get@path{#2}{}%
     \if@svg@file@found%
-      \svg@ink@run%
-      \IfFileExists{\svg@out@base}{}{%
+      \svg@ink@run{\svg@out@file}%
+      \IfFileExists{\svg@out@file}{}{%
         \@svg@file@foundfalse%
-        \svg@file@missing{\svg@out@base}{\svg@file@base.\svg@file@ext}%
+        \svg@file@missing{\svg@out@file}{\svg@file@base.\svg@file@ext}%
       }%
       \if@svg@ink@latex%
-        \IfFileExists{\svg@out@base_tex}{}{%
+        \IfFileExists{\svg@out@file_tex}{}{%
           \@svg@file@foundfalse%
-          \svg@file@missing{\svg@out@base_tex}{\svg@file@base.\svg@file@ext}%
+          \svg@file@missing{\svg@out@file_tex}{\svg@file@base.\svg@file@ext}%
         }%
       \fi%
       \if@svg@file@found%
-        \svg@process{\svg@out@base}%
+        \svg@process{\svg@out@file}%
       \fi%
     \else%
       \svg@file@missing[\svg@file@ext]{\svg@file@base}{}%
@@ -927,15 +935,15 @@
     \svg@local@param@set{#1}%
     \svg@get@path[\svg@ink@format]{\filename@area\filename@base}{\svg@out@path}%
     \if@svg@file@found%
-      \edef\svg@out@base{\svg@file@path\svg@file@name.\svg@ink@format}%
+      \edef\svg@out@file{\svg@file@path\svg@file@name.\svg@ink@format}%
       \if@svg@ink@latex%
-        \IfFileExists{\svg@out@base_tex}{}{%
+        \IfFileExists{\svg@out@file_tex}{}{%
           \@svg@file@foundfalse%
-          \svg@file@missing{\svg@out@base_tex}{\svg@out@base}%
+          \svg@file@missing{\svg@out@file_tex}{\svg@out@file}%
         }%
       \fi%
       \if@svg@file@found%
-        \svg@process{\svg@out@base}%
+        \svg@process{\svg@out@file}%
       \fi%
     \else%
       \svg@file@missing[\svg@ink@format]{\svg@file@base}{\svg@out@path}%
@@ -965,71 +973,69 @@
   \fi%
 }
 \newif\if@svg@ink@run
-\newcommand*\svg@ink@run{%
-  \ifnum\svg@ink@mode>\z@\relax%
-    \begingroup%
-      \@svg@ink@runtrue%
-      \ifnum\svg@ink@mode=\tw@\relax\else%
-        \svg@iffilenewer{\svg@file@base.\svg@file@ext}{\svg@out@base}{}{%
-          \@svg@ink@runfalse%
-        }%
-        \if@svg@ink@latex%
-          \IfFileExists{\svg@out@base_tex}{%
-            \ifnum\pdf@shellescape=\@ne\relax\if@svg@ink@run%
-              \svg@iffilenewer{\svg@out@base_tex}{\svg@out@base}{%
-                \@svg@ink@runfalse%
-                \svg@quotes@remove[\svg@out@base]{\svg@tempa}%
-                \PackageWarning{svg}{%
-                  Since the encountered filedate of file\MessageBreak%
-                  `\svg@tempa_tex' is newer than \MessageBreak%
-                  `\svg@tempa' it's supposed that\MessageBreak%
-                  you customized this file. To avoid an accidental\MessageBreak%
-                  overwriting of this file, the Inkscape export\MessageBreak%
-                  won't be done. If you want to overwrite the\MessageBreak%
-                  existing file please choose the parameter\MessageBreak%
-                  `inkscape=force'%
-                }%
-              }{}%
-            \fi\fi%
-          }{\@svg@ink@runtrue}%
-        \fi%
-      \fi%
-      \if@svg@ink@run%
-        \ifnum\pdf@shellescape=\@ne\relax%
-          \ifx\svg@ink@dpi\relax%
-            \ifstr{\svg@ink@format}{png}{%
-              \FamilyOptions{SVG}{inkscapedpi=300}%
-            }{}%
-          \fi%
-          \PackageInfo{svg}{%
-            Calling Inkscape%
-            \ifx\svg@ink@opt\@empty\else%
-              \space with added options `\svg@ink@opt'%
-            \fi%
-          }%
-          \svg@quotes@remove[\svg@file@base]{\svg@tempa}%
-          \svg@quotes@remove[\svg@out@base]{\svg@tempb}%
-          \svg@shell@mkdir{\svg@out@path}%
-          \ShellEscape{\svg@ink@cmd{\svg@tempa}{\svg@tempb}}%
-          \IfFileExists{\svg@out@base}{}{%
+\newcommand*\svg@ink@run[1]{%
+  \ifcase\svg@ink@mode\relax% false
+    \@svg@ink@runfalse%
+  \or% true
+    \svg@iffilenewer{\svg@file@base.\svg@file@ext}{#1}%
+      {\@svg@ink@runtrue}{\@svg@ink@runfalse}%
+    \if@svg@ink@latex%
+      \IfFileExists{#1_tex}{%
+        \ifnum\pdf@shellescape=\@ne\relax\if@svg@ink@run%
+          \svg@iffilenewer{#1_tex}{#1}{%
+            \@svg@ink@runfalse%
+            \svg@quotes@remove[{#1}]{\svg@tempa}%
             \PackageWarning{svg}{%
-              The export with Inkscape failed for file\MessageBreak%
-              `\svg@tempa.\svg@file@ext'\MessageBreak%
-              Troubleshooting: Please check in the log file how\MessageBreak%
-              the invocation of Inkscape took place and try to\MessageBreak%
-              execute it yourself in the terminal%
+              Since the encountered filedate of file\MessageBreak%
+              `\svg@tempa_tex' is newer than \MessageBreak%
+              `\svg@tempa' it's supposed that\MessageBreak%
+              you customized this file. To avoid an accidental\MessageBreak%
+              overwriting of this file, the Inkscape export\MessageBreak%
+              won't be done. If you want to overwrite the\MessageBreak%
+              existing file please choose the parameter\MessageBreak%
+              `inkscape=force'%
             }%
-          }%
-        \else%
-          \svg@quotes@remove[\svg@file@base]{\svg@tempa}%
-          \PackageWarning{svg}{%
-            You didn't enable `--shell-escape' option so it\MessageBreak%
-            wasn't possible to launch the Inkscape export for\MessageBreak%
-            `\svg@tempa.\svg@file@ext'%
-          }%
-        \fi%
+          }{}%
+        \fi\fi%
+      }{\@svg@ink@runtrue}%
+    \fi%
+  \or% forced
+    \@svg@ink@runtrue%
+  \fi%
+  \if@svg@ink@run%
+    \ifnum\pdf@shellescape=\@ne\relax%
+      \ifx\svg@ink@dpi\relax%
+        \ifstr{\svg@ink@format}{png}{%
+          \FamilyOptions{SVG}{inkscapedpi=300}%
+        }{}%
       \fi%
-    \endgroup%
+      \PackageInfo{svg}{%
+        Calling Inkscape%
+        \ifx\svg@ink@opt\@empty\else%
+          \space with added options `\svg@ink@opt'%
+        \fi%
+      }%
+      \svg@quotes@remove[\svg@file@base]{\svg@tempa}%
+      \svg@quotes@remove[{#1}]{\svg@tempb}%
+      \svg@shell@mkdir{\svg@out@path}%
+      \ShellEscape{\svg@ink@cmd{\svg@tempa}{\svg@tempb}}%
+      \IfFileExists{#1}{}{%
+        \PackageWarning{svg}{%
+          The export with Inkscape failed for file\MessageBreak%
+          `\svg@tempa.\svg@file@ext'\MessageBreak%
+          Troubleshooting: Please check in the log file how\MessageBreak%
+          the invocation of Inkscape took place and try to\MessageBreak%
+          execute it yourself in the terminal%
+        }%
+      }%
+    \else%
+      \svg@quotes@remove[\svg@file@base]{\svg@tempa}%
+      \PackageWarning{svg}{%
+        You didn't enable `--shell-escape' option so it\MessageBreak%
+        wasn't possible to launch the Inkscape export for\MessageBreak%
+        `\svg@tempa.\svg@file@ext'%
+      }%
+    \fi%
   \fi%
 }
 \newcommand*\svg@ink@ver{\m@ne}
@@ -1272,13 +1278,11 @@
     Nevertheless, nothing will happen%
   }%
 }
-\newcommand*\includesvgextracted[2][]{%
-  \PackageWarning{svg}{%
-    The macro `\string\includesvgextracted' is only meant\MessageBreak%
-    to be used together with package `svg-extract'.\MessageBreak%
-    Macro \string\includesvg' will be used instead%
+\newcommand*\includesvgx{%
+  \PackageError{svg}{Package `svg-extract' not loaded}{%
+    The macro `\string\includesvgx' can only\MessageBreak%
+    be used together with package `svg-extract'.%
   }%
-  \includesvg[{#1}]{#2}%
 }
 \ifnum\pdf@shellescape=\@ne\relax\else%
   \svg@catcodecodes@restore%
