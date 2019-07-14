@@ -39,14 +39,22 @@ Versions
 --------
 
 **v2.03** (2019/xx/xx)
-+ support of new command line format of ***Inkscape&nbsp;1.0*** and later
++ command line format of ***Inkscape&nbsp;1.0*** and later is supported
++ extraction of independent graphic&nbsp;files is only done if necessary; 
+  options `extract=forced` and `convert=forced` to invoke process with every 
+  single LaTeX&nbsp;run
 + files exported with ***Inkscape*** or extracted as well as converted with
   ***ImageMagick*** or ***Ghostscript*** are not moved from root directory but
-	created directly in the path given with `inkscapepath` or `extractpath`
+  created directly in the path given with `inkscapepath` or `extractpath`
++ option `extractpath=inkscapepath` and `extractpath=inkscapesubpath` to create 
+  extracted/converted files in the same directory as the exported files of 
+  ***Inkscape***
++ option `clean=nolatex` to preserve auxiliary LaTeX&nbsp;files used during the 
+  extraction process
 
 **v2.02b** (2018/11/12)
 + fix bug for package **tikzscale** which changes the definition of
-	`\includegraphics`
+  `\includegraphics`
 
 **v2.02a** (2018/10/17)
 + fix bug for package **polyglossia** which fakes **babel** poorly

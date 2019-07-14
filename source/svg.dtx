@@ -1,4 +1,4 @@
-% \CheckSum{4049}
+% \CheckSum{4154}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -97,7 +97,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<package&identify&base>\ProvidesPackage{svg}[%
 %<package&identify&extract>\ProvidesPackage{svg-extract}[%
 %<*dtx|package&identify>
-  2019/07/13 v2.03\space%
+  2019/07/14 v2.03\space%
 %<package&identify&base>  (include SVG pictures)%
 %<package&identify&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -236,7 +236,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   globally%
 % }^^A
 % \changes{v2.03}{2019/06/28}{%
-%   support of new command line format of \app{Inkscape~1.0} and later%
+%   command line format of \app{Inkscape~1.0} and later is supported%
 % }^^A
 % \changes{v2.03}{2019/07/11}{%
 %   files converted with \app{ImageMagick} or \app{Ghostscript} are not moved 
@@ -708,12 +708,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \DescribeOptions{on,off}
 % This options have to be given while loading the \pkg{svg-extract} package and 
 % are intended to toggle the functionality of this package. As both extracting 
-% and converting independent graphic~files is invoked with every \LaTeX~run 
-% when \file{-{}-shell-escape} is activated, the option \opt{off} can be given  
-% to save compilation time, once the creation of all desired images has been 
-% done and they no longer need to be re-generated. The option \opt{on} can be 
-% used to reactivate functionality of this package. This can also be done by 
-% using \opt{extract}|=|\val{true}/\val{false}.
+% and converting independent graphic~files needs some time due to several calls 
+% of external programs, the option \opt{off} can be given to save compilation
+% time, once the creation of all desired images has been done and they don't
+% have to be re-generated. To reactivate functionality of this package, the 
+% option \opt{on} can be used. The same behaviour can also be achieved by using 
+% option \opt{extract}|=|\val{true}/\val{false}.
 %
 % \DescribeMacros{\svgsetup,\includesvg,\includeinkscape}
 % With package \pkg{svg-extract} the applicable options for 
@@ -776,9 +776,24 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \subsection{Extract independent grahic files}\label{sec:extract}
 % \DescribeOption{extract}
-% This option can be used with boolean values. Using \opt{extract}|=|\val{true}
-% activates the functionality for both extracting and converting which is the 
-% default setting, whereas \opt{extract}|=|\val{false} turns it off completely.
+% \changes{v2.03}{2019/07/14}{option \opt{extract} has new value \val{forced}}%
+% This option controls the functionality for both extracting and---if option 
+% \opt{convert} is active---converting and is \val{true} by default.
+% \begin{DescribeValues}
+% \item[false/off/no]
+%   Both extracting and converting is deactivated in any case.
+% \item[\textbf{true}/on/yes/newer/onlynewer]
+%   The extraction/conversion will be done, if the independent graphic~file
+%   either does not exist or the file modification date of the graphic~file of
+%   the \app{Inkscape}~export is newer than that of the extracted/converted
+%   independent graphic~file. Thus the compilation time of the \LaTeX~document
+%   can be reduced to the necessary minimum. Unfortunately a primitive like
+%   \cs{pdffilemoddate} is missing for Xe\TeX, so with this engine, the
+%   behaviour will be the same as \opt{extract}|=|\val{forced}.
+% \item[forced/force/overwrite]
+%   All independent graphic files are created, any already existing file will 
+%   overwritten regardlessly.
+% \end{DescribeValues}
 %
 % \DescribeOption{extractpath}
 % \changes{v2.03}{2019/07/11}{%
@@ -989,15 +1004,22 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % set by default---or \app{Ghostscript}.
 %
 % \DescribeOption{convert}
+% \changes{v2.03}{2019/07/14}{option \opt{convert} has new value \val{forced}}%
 % This option can be used to control the invocation of the conversion process. 
 % By default, \opt{convert}|=|\val{false} is set. For Windows, there exist two 
 % different versions of \app{Ghostscript}, either 64\,bit or 32\,bit. If 
 % it is selected as converting tool the 64\,bit~executable is set by default.
+% Please not, that option \opt{extract} has to be activated.
 % \begin{DescribeValues}
 % \item[\textbf{false}/off/no]
 %   No conversion is done.
-% \item[true/on/yes]
-%   The conversion will be done with the current chosen converting tool. 
+% \item[true/on/yes/newer/onlynewer]
+%   The conversion will be done with the current chosen converting tool, in the 
+%   same manner as described for \opt{extract}|=|\val{true}.
+% \item[forced/force/overwrite]
+%   The conversion will be done in any case with the current chosen converting
+%   tool. Any already existing file will overwritten.
+%   regardlessly.
 % \item[magick/imagemagick/convert]
 %   The conversion is activated and \app{ImageMagick} is selected.
 % \item[gs/ghostscript]
@@ -3605,7 +3627,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \begin{option}{extract}
 % \changes{v2.00}{2017/02/24}{new}^^A
-% \begin{macro}{\if@svgx@ext@run}
+% \begin{macro}{\svgx@mode}
+% \changes{v2.03}{2019/07/14}{new}^^A
 % With option \opt{extract} it can be controlled, if the extraction of 
 % independent graphic files should be done.
 %    \begin{macrocode}
@@ -3613,20 +3636,26 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \svg@dummy@key[true]{extract}
 %</base>
 %<*extract>
-\newif\if@svgx@ext@run
+\newcommand*\svgx@mode{1}
 \DefineFamilyKey{SVG}{extract}[true]{%
   \lowercase{\def\svg@tempa{#1}}%
   \FamilySetNumerical{SVG}{extract}{svg@tempa}{%
     {false}{0},{off}{0},{no}{0},%
     {true}{1},{on}{1},{yes}{1},{onlynewer}{1},{newer}{1},%
-    {overwrite}{1},{force}{1},{forced}{1},%
-    {pdf}{2},{eps}{3},{ps}{4}%
+    {forced}{2},{force}{2},{overwrite}{2},%
+    {pdf}{3},{eps}{4},{ps}{5}%
   }{\svg@tempa}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \ifcase\svg@tempa\relax% false
-      \@svgx@ext@runfalse%
+      \def\svgx@mode{0}%
     \or% true
-      \@svgx@ext@runtrue%
+      \ifx\pdf@filemoddate\@undefined%
+        \def\svgx@mode{2}%
+      \else%
+        \def\svgx@mode{1}%
+      \fi%
+    \or% forced
+      \def\svgx@mode{2}%
     \or% pdf
       \FamilyOptions{SVG}{extractformat=pdf}%
     \or% eps
@@ -3638,7 +3667,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 %</extract>
 %    \end{macrocode}
-% \end{macro}^^A \if@svgx@ext@run
+% \end{macro}^^A \svgx@mode
 % \end{option}^^A extract
 % \begin{option}{on}
 % \changes{v2.00}{2017/02/24}{new}^^A
@@ -3956,7 +3985,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \begin{option}{convert}
 % \changes{v2.00}{2017/02/24}{changed/extended}^^A
-% \begin{macro}{\if@svgx@cnv@run}
+% \begin{macro}{\svgx@cnv@mode}
+% \changes{v2.03}{2019/07/14}{new}^^A
 % \begin{macro}{\svgx@cnv@cmd}
 % The option \opt{convert} can be used to define, which of both applications 
 % should be use. \app{ImageMagick} is set by default.
@@ -3965,41 +3995,55 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \svg@dummy@key[true]{convert}
 %</base>
 %<*extract>
-\newif\if@svgx@cnv@run
-\newcommand*\svgx@cnv@cmd{}
+\newcommand*\svgx@cnv@mode{0}
+\newcommand*\svgx@cnv@cmd{\svgx@magick@cmd}
 \DefineFamilyKey{SVG}{convert}[true]{%
   \FamilySetNumerical{SVG}{convert}{svg@tempa}{%
     {false}{0},{off}{0},{no}{0},%
     {true}{1},{on}{1},{yes}{1},{onlynewer}{1},{newer}{1},%
-    {overwrite}{1},{force}{1},{forced}{1},%
-    {magick}{2},{imagemagick}{2},{convert}{2},%
-    {gs}{3},{ghostscript}{3},%
-    {gs64}{4},{ghostscript64}{4},%
-    {gs32}{5},{ghostscript32}{5}%
+    {forced}{2},{force}{2},{overwrite}{2},%
+    {magick}{3},{imagemagick}{3},{convert}{3},%
+    {gs}{4},{ghostscript}{4},%
+    {gs64}{5},{ghostscript64}{5},%
+    {gs32}{6},{ghostscript32}{6}%
   }{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \ifcase\svg@tempa\relax% false
-      \@svgx@cnv@runfalse%
+      \def\svgx@cnv@mode{0}%
     \or% true
-      \@svgx@cnv@runtrue%
+      \ifx\pdf@filemoddate\@undefined%
+        \def\svgx@cnv@mode{2}%
+      \else%
+        \def\svgx@cnv@mode{1}%
+      \fi%
+    \or% forced
+      \def\svgx@cnv@mode{2}%
     \or% magick
-      \@svgx@cnv@runtrue%
       \renewcommand*\svgx@cnv@cmd{\svgx@magick@cmd}%
+      \ifnum\svgx@cnv@mode=\z@\relax%
+        \def\svgx@cnv@mode{1}%
+      \fi%
     \or% gs
-      \@svgx@cnv@runtrue%
       \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
+      \ifnum\svgx@cnv@mode=\z@\relax%
+        \def\svgx@cnv@mode{1}%
+      \fi%
     \or% gs64
-      \@svgx@cnv@runtrue%
       \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
       \svgx@onlywindows{%
         \renewcommand*\svgx@gs@exe{gswin64c}%
       }%
+      \ifnum\svgx@cnv@mode=\z@\relax%
+        \def\svgx@cnv@mode{1}%
+      \fi%
     \or% gs32
-      \@svgx@cnv@runtrue%
       \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
       \svgx@onlywindows{%
         \renewcommand*\svgx@gs@exe{gswin32c}%
       }%
+      \ifnum\svgx@cnv@mode=\z@\relax%
+        \def\svgx@cnv@mode{1}%
+      \fi%
     \fi%
 %    \end{macrocode}
 % In version~v1.0 the option \opt{convert} was used to set both the executable 
@@ -4008,6 +4052,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
   \else%
 %    \end{macrocode}
+% \ ToDo{revise like lagacy option inkscape}[v2.03]
 % Same doing like with option \opt{inkscape}.
 %    \begin{macrocode}
     \def\svg@tempa##1-##2\@nil{%
@@ -4047,7 +4092,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %</extract>
 %    \end{macrocode}
 % \end{macro}^^A \svgx@cnv@cmd
-% \end{macro}^^A \if@svgx@cnv@run
+% \end{macro}^^A \svgx@cnv@mode
 % \end{option}^^A convert
 % \begin{option}{convertformat}
 % \changes{v2.00}{2017/02/24}{new}^^A
@@ -4066,11 +4111,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svgx@cnv@format{png}
 \DefineFamilyKey{SVG}{convertformat}{%
   \lowercase{\svgx@setlist\svgx@cnv@format{#1}}%
-  \ifx\svgx@cnv@format\@empty%
-    \@svgx@cnv@runfalse%
-  \else%
-    \@svgx@cnv@runtrue%
-  \fi%
   \FamilyKeyStateProcessed%
 }
 \DefineFamilyKey{SVG}{png}[true]{%
@@ -4771,7 +4811,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svghidepreamblestart
 % \begin{macro}{\includesvgx}
 % \changes{v2.03}{2019/07/11}{new}^^A
-% \begin{macro}{\svgx@last@file}
+% \begin{macro}{\svgx@out@base}
 % \changes{v2.03}{2019/07/11}{new}^^A
 % \ToDo{source doc}[v2.03]
 % \ToDo{adapt for package \pkg{svg} to arguments in \pkg{svg-extract}}[v2.03]
@@ -4795,17 +4835,17 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \ToDo{warning with hint to run with --shell-escape if file is missing}[v2.03]
 %    \begin{macrocode}
 %<*extract>
-\newcommand*\svgx@last@file{}
+\newcommand*\svgx@out@base{}
 \renewcommand*\includesvgx[2][]{%
   \includesvg[,exclude,extract=true]{#2}%
-  \IfFileExists{\svgx@last@file.pdf}{%
-    \includegraphics[width=\textwidth]{\svgx@last@file.pdf}%
+  \IfFileExists{\svgx@out@base.pdf}{%
+    \includegraphics[width=\textwidth]{\svgx@out@base.pdf}%
   }{%
   }%
 }
 %</extract>
 %    \end{macrocode}
-% \end{macro}^^A \svgx@last@file
+% \end{macro}^^A \svgx@out@base
 % \end{macro}^^A \includesvgx
 %
 % \iffalse
@@ -4817,74 +4857,119 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \subsection{Auxiliary macros}
 %
 % \begin{macro}{\svg@process}
-% \begin{macro}{\svgx@do@input}
 % \changes{v2.03}{2019/07/12}{new}^^A
-% \begin{macro}{\svgx@do@extract}
+% \begin{macro}{\if@svgx@run}
 % \changes{v2.03}{2019/07/12}{new}^^A
 % This macro is originally defined by package \pkg{svg} and used as a hook 
 % to realize the additional features of package \pkg{svg-extract}. The task is 
 % splitted in two parts: inputing the graphics exported by \app{Inkscape} 
-% (\cs{svgx@do@input}) and doing all necessary for extraction and conversion 
-% of independent graphic files (\cs{svgx@do@extract}).
+% (\cs{svg@do@input}) and doing all necessary for extraction and conversion 
+% of independent graphic files afterwards.
 %    \begin{macrocode}
+\newif\if@svgx@run
 \renewcommand*\svg@process[1]{%
-  \svgx@do@input{#1}%
-  \svgx@do@extract{#1}%
-}
-\newcommand*\svgx@do@input[1]{%
-  \if@svgx@exclude%
-    \if@svgx@ext@run\else%
-      \PackageWarning{svg-extract}{%
-        The image `#1' was\MessageBreak%
-        neither extracted nor included%
-      }%
-    \fi%
-  \else%
+  \if@svgx@exclude\else%
     \svg@do@input{#1}%
   \fi%
-}
-\newcommand*\svgx@do@extract[1]{%
-  \if@svgx@ext@run%
-    \svgx@ext@run{#1}%
-  \else%
-    \if@svgx@cnv@run\else%
-      \PackageWarning{svg-extract}{%
-        The image `#1'\MessageBreak%
-        could not be converted as `extract=false' was set%
-      }%
-    \fi%
-  \fi%
-}
 %    \end{macrocode}
-% \end{macro}^^A \svgx@do@extract
-% \end{macro}^^A \svgx@do@input
-% \end{macro}^^A \svg@process
-% \begin{macro}{\svgx@ext@run}
-% \changes{v2.03}{2019/07/11}{%
-%   revised, steps counter \cnt{svgx@out@count} and sets \cs{svgx@last@file}%
-%  }^^A
-% The macro \cs{svgx@ext@run} does some preparing for extraction. The macro
+% Now the part for extraction/conversion. First some preparing. The macro
 % \cs{svgx@get@out@sec} is used to get the current level section numbering
 % within the document and the counter for extracted graphics is stepped.
 % Additionally, the base name for extracted and converted files is globally 
-% stored in \cs{svgx@last@file} in order to include extracted graphics as well. 
-% Finally, \cs{svgx@ext@@run} is called to do the actual job of both extracting
-% and converting independent graphic files
+% stored in \cs{svgx@out@base} in order to include extracted graphics as well. 
 %    \begin{macrocode}
-\newcommand*\svgx@ext@run[1]{%
   \if@svgx@out@sec%
     \svgx@get@out@sec%
   \fi%
   \stepcounter{svgx@out@count}%
-  \def\svgx@last@file{\svgx@out@path\svgx@out@name}%
-  \svg@quotes@remove{\svgx@last@file}%
-  \global\let\svgx@last@file\svgx@last@file%
-  \svgx@ext@@run{#1}%
+  \def\svgx@out@base{\svgx@out@path\svgx@out@name}%
+  \svg@quotes@remove{\svgx@out@base}%
+  \global\let\svgx@out@base\svgx@out@base%
+%    \end{macrocode}
+% This is the part, where the conditional invocation of extraction/conversion 
+% is examined. Therefore, \cs{svgx@ifexpired} is called in order to check, if 
+% all desired files exist. 
+%    \begin{macrocode}
+  \ifcase\svgx@mode\relax% false
+    \@svgx@runfalse%
+  \or% true
+    \svgx@ifexpired[\svgx@format]{\svgx@out@base}{#1}%
+      {\@svgx@runtrue}{\@svgx@runfalse}%
+  \or% forced
+    \@svgx@runtrue%
+  \fi%
+  \ifcase\svgx@mode\relax\else%
+    \if@svgx@run\else%
+      \ifcase\svgx@cnv@mode\relax\or% true
+        \svgx@ifexpired[\svgx@cnv@format]{\svgx@out@base}{#1}%
+          {\@svgx@runtrue}{\@svgx@runfalse}%
+      \or% forced
+        \@svgx@runtrue%
+      \fi%
+    \fi%
+  \fi%
+%    \end{macrocode}
+% Finally, \cs{svgx@run} is called to do the actual job of both extracting
+% and converting independent graphic files.
+%    \begin{macrocode}
+  \if@svgx@run%
+    \svgx@run{#1}%
+  \else%
+%    \end{macrocode}
+% Warning, if option \opt{convert} is active and option \opt{extract} is not.
+%    \begin{macrocode}
+    \ifnum\svgx@cnv@mode>\z@\relax%
+      \PackageWarning{svg-extract}{%
+        Image `#1'\MessageBreak%
+        could not be converted as `extract=false' was set%
+      }%
+    \fi%
+%    \end{macrocode}
+% Warning, if option \opt{exclude} is active and no files were extracted.
+%    \begin{macrocode}
+    \if@svgx@exclude%
+      \svgx@ifexpired{\svgx@out@base}{#1}%
+        {\@svg@tempswatrue}{\@svg@tempswafalse}%
+      \if@svg@tempswa%
+        \PackageWarning{svg-extract}{%
+          Image `#1'\MessageBreak%
+          was neither extracted/converted nor included%
+        }%
+      \fi%
+    \fi%
+  \fi%
 }
 %    \end{macrocode}
-% \end{macro}^^A \svgx@ext@run
-% \begin{macro}{\svgx@ext@@run}
-% \changes{v2.03}{2019/07/11}{new, old definition of \cs{svgx@ext@run}}^^A
+% \end{macro}^^A \if@svgx@run
+% \end{macro}^^A \svg@process
+% \begin{macro}{\svgx@ifexpired}
+% \changes{v2.03}{2019/07/14}{new}^^A
+% The macro compares a file given in the second mandatory argument with a list 
+% of files, which is constructed with the base file name of the first mandatory 
+% argument and a list of file extensions in the optional argument. If at least 
+% one of the files within the list does not exist or is older than that one in 
+% the second mandatory argument, the third argument is executed, otherwise the 
+% fourth.
+%    \begin{macrocode}
+\newcommand*\svgx@ifexpired[3][%
+  \svgx@format\ifnum\svgx@cnv@mode>\z@,\svgx@cnv@format\fi%
+]{%
+  \begingroup%
+    \@svg@tempswafalse%
+    \svgx@setlist\svg@tempa{#1}%
+    \@for\svg@tempb:=\svg@tempa\do{%
+      \svg@iffilenewer{#2.\svg@tempb}{#3}{}{\@svg@tempswatrue}%
+    }%
+    \if@svg@tempswa%
+      \aftergroup\@firstoftwo%
+    \else%
+      \aftergroup\@secondoftwo%
+    \fi%
+  \endgroup%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svgx@ifexpired
+% \begin{macro}{\svgx@run}
 % \begin{macro}{\svgx@stream@in}
 % \begin{macro}{\svgx@read@line}
 % \begin{macro}{\svgx@stream@out}
@@ -4898,13 +4983,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % is finished.
 %    \begin{macrocode}
 \ifnum\pdf@shellescape=\@ne\relax\else%
-  \newcommand*\svgx@ext@@run[1]{%
+  \newcommand*\svgx@run[1]{%
     \begingroup%
       \edef\svg@tempa{#1}%
       \svg@quotes@remove{\svg@tempa}%
       \PackageWarning{svg-extract}{%
         You didn't enable `--shell-escape' option so it\MessageBreak%
-        wasn't possible to run the extraction for file\MessageBreak%
+        wasn't possible to run extraction/conversion for\MessageBreak%
         `\svg@tempa'\MessageBreak%
       }%
     \endgroup%
@@ -4930,7 +5015,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     }%
   \svg@tempa%
 }
-\newcommand*\svgx@ext@@run[1]{%
+\newcommand*\svgx@run[1]{%
 %    \end{macrocode}
 % A separate auxiliary \LaTeX~file is created for extracting independent
 % graphic files. The specified preamble is read for this task, if it exists. It
@@ -5286,7 +5371,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % Now the desired conversion tool is invoked if requested.
 %    \begin{macrocode}
-    \if@svgx@cnv@run%
+    \ifnum\svgx@cnv@mode>\z@\relax%
 %    \end{macrocode}
 % If no density was given at all, the density for PNG~files is set to 
 % \val{300dpi} by default.
@@ -5365,7 +5450,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svgx@stream@out
 % \end{macro}^^A \svgx@read@line
 % \end{macro}^^A \svgx@stream@in
-% \end{macro}^^A \svgx@ext@@run
+% \end{macro}^^A \svgx@run
 %
 % \iffalse
 %</extract>
