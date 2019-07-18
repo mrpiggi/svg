@@ -55,7 +55,7 @@
     \ifcase\svg@tempa\relax% false
       \def\svgx@mode{0}%
     \or% true
-      \ifx\pdf@filemoddate\@undefined%
+      \ifx\svg@iffilenewer\@undefined%
         \def\svgx@mode{2}%
       \else%
         \def\svgx@mode{1}%
@@ -127,20 +127,18 @@
   \svg@deprecated@key[svg-extract]{end=#1}{extractpreambleend=#1}%
 }
 \newcounter{svgx@iterations}
-\DefineFamilyKey{SVG}{extractiterations}{%
-  \FamilySetCounter{SVG}{extractiterations}{svgx@iterations}{#1}%
+\DefineFamilyKey{SVG}{extractruns}{%
+  \FamilySetCounter{SVG}{extractruns}{svgx@iterations}{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \ifnum\value{svgx@iterations}<\@ne\relax%
       \PackageWarning{svg-extract}{%
         The count for iterations has to be at least one%
       }%
-      \FamilySetCounter{SVG}{extractiterations}{svgx@iterations}{\@ne}%
+      \FamilySetCounter{SVG}{extractruns}{svgx@iterations}{\@ne}%
     \fi%
   \fi%
 }
-\DefineFamilyKey{SVG}{extractruns}{%
-  \svg@deprecated@key[svg-extract]{extractruns=#1}{extractiterations=#1}%
-}
+\DefineFamilyKey{SVG}{extractiterations}{\FamilyOptions{SVG}{extractruns=#1}}
 \ifxetex
   \newcommand*\svgx@latex@exe{xelatex}
 \else
@@ -225,7 +223,7 @@
     \ifcase\svg@tempa\relax% false
       \def\svgx@cnv@mode{0}%
     \or% true
-      \ifx\pdf@filemoddate\@undefined%
+      \ifx\svg@iffilenewer\@undefined%
         \def\svgx@cnv@mode{2}%
       \else%
         \def\svgx@cnv@mode{1}%
@@ -769,7 +767,7 @@
 }
 \FamilyExecuteOptions{SVG}{%
   extract=true,extractpath=basesubdir,%
-  extractiterations=2,extractname=namenumbered,extractdistort=false,%
+  extractruns=2,extractname=namenumbered,extractdistort=false,%
   convert=magick,convert=false,%
   gsdevice={png=png16m},gsdevice={jpeg=jpeg},gsdevice={jpg=jpeg},%
   gsdevice={tif=tiff48nc},gsdevice={tiff=tiff48nc},%
@@ -1046,7 +1044,9 @@
       \immediate\write\svgx@stream@out{\string\documentclass{article}}%
     \fi%
     \ifx\svg@tempa\@empty\else%
-      \immediate\write\svgx@stream@out{\etex@unexpanded\expandafter{\svg@tempa}}%
+      \immediate\write\svgx@stream@out{%
+        \etex@unexpanded\expandafter{\svg@tempa}%
+      }%
     \fi%
     \immediate\write\svgx@stream@out{\string\usepackage{svg-extract}}%
     \if@svg@ink@latex%

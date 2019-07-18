@@ -109,7 +109,7 @@
     \ifcase\svg@tempa\relax% false
       \def\svg@ink@mode{0}%
     \or% true
-      \ifx\pdf@filemoddate\@undefined%
+      \ifx\svg@iffilenewer\@undefined%
         \def\svg@ink@mode{2}%
       \else%
         \def\svg@ink@mode{1}%
@@ -568,6 +568,37 @@
     \fi%
   \endgroup%
 }
+\ifx\pdf@filemoddate\@undefined
+  \ifx\filemoddate\@undefined\else
+    \ifx\strcmp\@undefined\else
+      \newcommand*\svg@iffilenewer[2]{%
+        \begingroup%
+          \edef\svg@tempa{\filemoddate{#1}}%
+          \edef\svg@tempb{\filemoddate{#2}}%
+          \ifnum\strcmp{\svg@tempa}{\svg@tempb}>\z@\relax%
+            \aftergroup\@firstoftwo%
+          \else%
+            \aftergroup\@secondoftwo%
+          \fi%
+        \endgroup%
+      }
+    \fi
+  \fi
+\else
+  \ifx\pdf@strcmp\@undefined\else
+    \newcommand*\svg@iffilenewer[2]{%
+      \begingroup%
+        \edef\svg@tempa{\pdf@filemoddate{#1}}%
+        \edef\svg@tempb{\pdf@filemoddate{#2}}%
+        \ifnum\pdf@strcmp{\svg@tempa}{\svg@tempb}>\z@\relax%
+          \aftergroup\@firstoftwo%
+        \else%
+          \aftergroup\@secondoftwo%
+        \fi%
+      \endgroup%
+    }
+  \fi
+\fi
 \DefineFamilyMember[.dummy]{SVG}
 \newcommand*\svg@dummy@key[2][]{%
   \@ifpackageloaded{svg-extract}{}{%
@@ -600,8 +631,8 @@
 \svg@dummy@key{preamble}
 \svg@dummy@key{extractpreambleend}
 \svg@dummy@key{end}
-\svg@dummy@key{extractiterations}
 \svg@dummy@key{extractruns}
+\svg@dummy@key{extractiterations}
 \svg@dummy@key{latexexe}
 \svg@dummy@key{pdflatex}
 \svg@dummy@key{latexext}
@@ -793,21 +824,6 @@
     }{\svg@tempa}%
   \endgroup%
 }
-\ifx\pdf@filemoddate\@undefined
-  \newcommand*\svg@iffilenewer[2]{\@gobbletwo}
-\else
-  \newcommand*\svg@iffilenewer[2]{%
-    \begingroup%
-      \edef\svg@tempa{\pdf@filemoddate{#1}}%
-      \edef\svg@tempb{\pdf@filemoddate{#2}}%
-      \ifnum\pdf@strcmp{\svg@tempa}{\svg@tempb}>\z@\relax%
-        \aftergroup\@firstoftwo%
-      \else%
-        \aftergroup\@secondoftwo%
-      \fi%
-    \endgroup%
-  }
-\fi
 \newcommand*\svg@local@param@set[1]{%
   \svg@local@param@use%
   \FamilyOptions{SVG}{#1}%

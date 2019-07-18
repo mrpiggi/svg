@@ -1,4 +1,4 @@
-% \CheckSum{4222}
+% \CheckSum{4256}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -97,7 +97,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<package&identify&base>\ProvidesPackage{svg}[%
 %<package&identify&extract>\ProvidesPackage{svg-extract}[%
 %<*dtx|package&identify>
-  2019/07/15 v2.03\space%
+  2019/07/18 v2.03\space%
 %<package&identify&base>  (include SVG pictures)%
 %<package&identify&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -188,7 +188,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     SVG~graphics into \LaTeX~documents. Therefor the capabilities provided 
     by \app{Inkscape}---or more precisely its command line tool---are used 
     to export the text within a SVG~graphic to a separate file, which is 
-    then rendered by \LaTeX. The two commands \cs{includesvg} and 
+    then rendered by \LaTeX{}. The two commands \cs{includesvg} and 
     \cs{includeinkscape} are provided as central user\hbox{-}interface, 
     which are very similar to the \cs{includegraphics} command of the 
     \pkg{graphicx} package.
@@ -237,14 +237,18 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.03}{2019/06/28}{%
 %   command line format of \app{Inkscape~1.0} and later is supported%
 % }^^A
+% \changes{v2.03}{2019/06/25}{%
+%   files exported with \app{Inkscape} are not moved from root directory but 
+%   created directly in the path given with \opt{inkscapepath}%
+% }^^A
 % \changes{v2.03}{2019/07/11}{%
 %   files converted with \app{ImageMagick} or \app{Ghostscript} are not moved 
 %   from root directory but created directly in the path given with
 %   \opt{extractpath}%
 % }^^A
-% \changes{v2.03}{2019/06/25}{%
-%   files exported with \app{Inkscape} are not moved from root directory but 
-%   created directly in the path given with \opt{inkscapepath}%
+% \changes{v2.03}{2019/07/18}{%
+%   conditional invocation of export/extraction/conversion based on file 
+%   modification date implemented for Xe\TeX{}%
 % }^^A
 %
 %
@@ -256,12 +260,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % the simple and easy creation of images and diagrams using a graphical user
 % interface. The work by Johan\,B.\,C.~Engelen has further enhanced the ability
 % of \app{Inkscape} to split a SVG~file into a text component that can be
-% compiled with \LaTeX, and an image component that can be imported as a 
+% compiled with \LaTeX{}, and an image component that can be imported as a 
 % PDF~file. For further information see the documentation of 
 % \hrfn{http://www.ctan.org/pkg/svg-inkscape}{\pkg{svg-inkscape} on CTAN}.
 % The procedure described therein is taken up and consistently expanded. Thus, 
 % it is now possible to include a SVG~file into a \LaTeX~document where the
-% text within the SVG~graphic will be rendered natively by \LaTeX.
+% text within the SVG~graphic will be rendered natively by \LaTeX{}.
 % 
 % Both packages \pkg{svg} and \pkg{svg-extract} rely heavily upon executing 
 % commands from the shell using the \cs{ShellEscape} command---or respectively 
@@ -395,9 +399,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   graphic~file either does not exist or the file~modification date of the
 %   SVG~file is newer than that of the exported graphic~file. Thus the
 %   compilation time of the \LaTeX~document can be reduced to the necessary
-%   minimum. Unfortunately a primitive like \cs{pdffilemoddate} is missing for
-%   Xe\TeX, so with this engine, the behaviour will be the same as
-%   \opt{inkscape}|=|\val{forced}.
+%   minimum.
 % \item[forced/force/overwrite]
 %   The \app{Inkscape}~export will definitely be done, any already existing 
 %   exported file will overwritten regardlessly.
@@ -476,7 +478,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % a seperate PDF/EPS/PS~file (see option \opt{inkscapeformat}) and a 
 % corresponding \LaTeX~file. This is the default setting. Setting 
 % \opt{inkscapelatex}|=|\val{false} will result in a single PDF/EPS/PS~file,
-% where any contained text won't be rendered by \LaTeX. 
+% where any contained text won't be rendered by \LaTeX{}. 
 %
 % \DescribeOption{inkscapearea}^^A
 % This option controls which area of the SVG~file should be exported, 
@@ -599,13 +601,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % PDF/EPS/PS/PNG~file (see~\opt{inkscapeformat}) and perhaps a correlating
 % \LaTeX~file (see~\opt{inkscapelatex}). The export with \app{Inkscape} is only
 % invoked, if the SVG~file is newer than the exported graphic~file or latter 
-% doesn't exist at all.\footnote{\ignorespaces%
-%  Due to the lack of Xe\TeX to compare file~modification dates, using this 
-%  \LaTeX~engine leads to \app{Inkscape}~exports with every run unless 
-%  \opt{inkscape}|=|\val{false} is used.%
-% }%
-% Once the export has been done, the graphic~file and maybe the \LaTeX~file are
-% included.
+% doesn't exist at all. Once the export has been done, the graphic~file and
+% maybe the \LaTeX~file are included.
 % 
 % All previously described options can also be used as optional parameters to 
 % \cs{includesvg} and do have the same effect as described before. However, the 
@@ -788,9 +785,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   either does not exist or the file modification date of the graphic~file of
 %   the \app{Inkscape}~export is newer than that of the extracted/converted
 %   independent graphic~file. Thus the compilation time of the \LaTeX~document
-%   can be reduced to the necessary minimum. Unfortunately a primitive like
-%   \cs{pdffilemoddate} is missing for Xe\TeX, so with this engine, the
-%   behaviour will be the same as \opt{extract}|=|\val{forced}.
+%   can be reduced to the necessary minimum.
 % \item[forced/force/overwrite]
 %   All independent graphic files are created, any already existing file will 
 %   overwritten regardlessly.
@@ -1352,7 +1347,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % which includes the graphic as well as the \LaTeX~file exported by 
 % \app{Inkscape}, produces the extracted PDF~image~(\file{root.pdf}) and 
 % converts this to a PNG~image~(\file{root.png}) by using \app{ImageMagick}.
-% Enjoy plots from \app{ROOT} with natively rendered \LaTeX!
+% Enjoy plots from \app{ROOT} with natively rendered \LaTeX{}!
 %
 % \StopEventually{%
 %   \cleardoublepage\PrintIndex%
@@ -1560,12 +1555,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
 %    \end{macrocode}
 % Setting the mode for invoking \app{Inkscape}, whereas the conditional 
-% execution is only possible, when \cs{pdf@filemoddate} is defined\dots
+% invocation is only possible, when \cs{pdf@filemoddate} or \cs{filemoddate}
+% is defined\dots
 %    \begin{macrocode}
     \ifcase\svg@tempa\relax% false
       \def\svg@ink@mode{0}%
     \or% true
-      \ifx\pdf@filemoddate\@undefined%
+      \ifx\svg@iffilenewer\@undefined%
         \def\svg@ink@mode{2}%
       \else%
         \def\svg@ink@mode{1}%
@@ -2117,7 +2113,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % Both packages \pkg{svg} and \pkg{svg-extract} should be able to handle 
 % user-defined input and output paths. As there is the possibility for users to 
-% provide paths with or without quotes to \LaTeX, this is taken into account.
+% provide paths with or without quotes to \LaTeX{}, this is taken into account.
 %
 % \begin{macro}{\svg@deactivate@dq}
 % \changes{v2.02}{2018/09/07}{new}^^A
@@ -2359,6 +2355,46 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 %    \end{macrocode}
 % \end{macro}^^A \svg@ifvalueisrelax
+% \begin{macro}{\svg@iffilenewer}
+% \changes{v2.03}{2019/07/18}{Xe\TeX{} provides \cs{filemoddate}}^^A
+% The macro \cs{svg@iffilenewer} is used to decide, whether the export with 
+% \app{Inkscape} is necessary due to an updated SVG~file. This is checked with 
+% either \cs{pdf@filemoddate} (pdf\TeX{} and Lua\TeX{}) or \cs{filemoddate} 
+% (Xe\TeX{}).
+%    \begin{macrocode}
+\ifx\pdf@filemoddate\@undefined
+  \ifx\filemoddate\@undefined\else
+    \ifx\strcmp\@undefined\else
+      \newcommand*\svg@iffilenewer[2]{%
+        \begingroup%
+          \edef\svg@tempa{\filemoddate{#1}}%
+          \edef\svg@tempb{\filemoddate{#2}}%
+          \ifnum\strcmp{\svg@tempa}{\svg@tempb}>\z@\relax%
+            \aftergroup\@firstoftwo%
+          \else%
+            \aftergroup\@secondoftwo%
+          \fi%
+        \endgroup%
+      }
+    \fi
+  \fi
+\else
+  \ifx\pdf@strcmp\@undefined\else
+    \newcommand*\svg@iffilenewer[2]{%
+      \begingroup%
+        \edef\svg@tempa{\pdf@filemoddate{#1}}%
+        \edef\svg@tempb{\pdf@filemoddate{#2}}%
+        \ifnum\pdf@strcmp{\svg@tempa}{\svg@tempb}>\z@\relax%
+          \aftergroup\@firstoftwo%
+        \else%
+          \aftergroup\@secondoftwo%
+        \fi%
+      \endgroup%
+    }
+  \fi
+\fi
+%    \end{macrocode}
+% \end{macro}^^A \svg@iffilenewer
 %
 % \iffalse
 %</option>
@@ -2623,30 +2659,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 %    \end{macrocode}
 % \end{macro}^^A \svg@file@missing
-% \begin{macro}{\svg@iffilenewer}
-% The macro \cs{svg@iffilenewer} is used to decide, whether the export with 
-% \app{Inkscape} is necessary due to an updated SVG~file. This can only be
-% done, if \cs{pdf@filemoddate} is definied. Unfortunately this functionality
-% isn't provided by Xe\TeX. So keep in mind, that this macro should only be 
-% used with care (for example switching of some conditional external calls).
-%    \begin{macrocode}
-\ifx\pdf@filemoddate\@undefined
-  \newcommand*\svg@iffilenewer[2]{\@gobbletwo}
-\else
-  \newcommand*\svg@iffilenewer[2]{%
-    \begingroup%
-      \edef\svg@tempa{\pdf@filemoddate{#1}}%
-      \edef\svg@tempb{\pdf@filemoddate{#2}}%
-      \ifnum\pdf@strcmp{\svg@tempa}{\svg@tempb}>\z@\relax%
-        \aftergroup\@firstoftwo%
-      \else%
-        \aftergroup\@secondoftwo%
-      \fi%
-    \endgroup%
-  }
-\fi
-%    \end{macrocode}
-% \end{macro}^^A \svg@iffilenewer
 %
 % \subsection{Optional Parameters for user commands}
 %
@@ -3309,8 +3321,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svg@transparent@saved}
 % \changes{v2.03}{2019/07/10}{new}^^A
 % If package \pkg{transparent} was not or could not be loaded---currently 
-% Xe\TeX isn't supported---and macro \cs{transparent} is used anyway within an 
-% associated \LaTeX~file, normally an error is raised. This workaround fixes 
+% Xe\TeX{} isn't supported---and macro \cs{transparent} is used anyway within 
+% an associated \LaTeX~file, normally an error is raised. This workaround fixes 
 % this issue and creates a warning, for every included file only once. As the 
 % associated \LaTeX~file uses a group, the redefintions have to be global.
 %    \begin{macrocode}
@@ -3653,7 +3665,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \ifcase\svg@tempa\relax% false
       \def\svgx@mode{0}%
     \or% true
-      \ifx\pdf@filemoddate\@undefined%
+      \ifx\svg@iffilenewer\@undefined%
         \def\svgx@mode{2}%
       \else%
         \def\svgx@mode{1}%
@@ -3981,7 +3993,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \subsubsection{Invoking external application for graphic conversion}
 %
-% Besides the use of a conversion tool supplied by \LaTeXe, the applications 
+% Besides the use of a conversion tool supplied by \LaTeXe{}, the applications 
 % \app{ImageMagick} and \app{Ghostscript} can be used for converting graphics.
 %
 % \begin{option}{convert}
@@ -4013,7 +4025,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \ifcase\svg@tempa\relax% false
       \def\svgx@cnv@mode{0}%
     \or% true
-      \ifx\pdf@filemoddate\@undefined%
+      \ifx\svg@iffilenewer\@undefined%
         \def\svgx@cnv@mode{2}%
       \else%
         \def\svgx@cnv@mode{1}%
@@ -4292,7 +4304,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.00}{2017/02/24}{new}^^A
 % \changes{v2.02}{2018/09/07}{usage of \cs{svg@sanitize@dq}}^^A
 % \changes{v2.03}{2019/07/10}{%
-%   new values \val{inkscapepath} and \val{inkscapesubpath} added%
+%   \val{inkscapepath} and \val{inkscapesubpath} added%
 % }^^A
 % \begin{option}{path}
 % \changes{v2.00}{2017/02/24}{deprecated}^^A
