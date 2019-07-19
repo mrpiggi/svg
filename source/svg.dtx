@@ -1,4 +1,4 @@
-% \CheckSum{4256}
+% \CheckSum{4255}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -97,7 +97,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<package&identify&base>\ProvidesPackage{svg}[%
 %<package&identify&extract>\ProvidesPackage{svg-extract}[%
 %<*dtx|package&identify>
-  2019/07/18 v2.03\space%
+  2019/07/19 v2.03\space%
 %<package&identify&base>  (include SVG pictures)%
 %<package&identify&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -2130,7 +2130,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@deactivate@dq
 % \begin{macro}{\svg@sanitize@dq}
 % \changes{v2.02}{2018/09/07}{new}^^A
-% Save expansion of the second argument in the macro from teh first argument 
+% Save expansion of the second argument in the macro from the first argument 
 % with deactivated double quotes.
 %    \begin{macrocode}
 \newcommand*\svg@sanitize@dq[2]{%
@@ -2686,11 +2686,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Using \opt{distort=true} is only reasonable, if \opt{height} and \opt{width} 
 % are given.
 %    \begin{macrocode}
-  \@svg@tempswafalse%
+  \@svg@tempswatrue%
   \ifdim\svg@param@width>\z@\relax\ifdim\svg@param@height>\z@\relax%
-    \@svg@tempswatrue%
+    \@svg@tempswafalse%
   \fi\fi%
-  \if@svg@tempswa\else%
+  \if@svg@tempswa%
     \FamilyOptions{SVG}{distort=false}%
   \fi%
 }
@@ -3191,6 +3191,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The version check can only be done with extended shell access. Therefore, the
 % call stored in \cs{svg@ink@exe} is done with \cs{@@input\textbar"'\dots'" -V}
 % in order to read the result from \val{stdout}.
+% \ToDo{%
+%   \val{-enable-pipes} in MikTeX?! check \cs{pdftexbanner}%
+%   \url{https://tex.stackexchange.com/questions/9792}%
+%   scan log for xelatex?!
+% }[v2.03]
+% \ToDo{set \cs{svg@ink@ver} manually}[v2.03]
 %    \begin{macrocode}
     \begingroup%
       \endlinechar=\m@ne%

@@ -78,14 +78,15 @@
   \renewcommand*\svgx@format{eps}
 \fi\fi
 \DefineFamilyKey{SVG}{extractformat}{%
-  \lowercase{\svgx@setlist\svgx@format{#1}}%
+  \lowercase{\edef\svgx@format{#1}}%
+  \svgx@setlist\svgx@format{\svgx@format}%
   \FamilyKeyStateProcessed%
 }
 \DefineFamilyKey{SVG}{pdf}[true]{%
   \FamilySetBool{SVG}{pdf}{@svg@tempswa}{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \if@svg@tempswa%
-      \svgx@ifinlist{pdf}{\svgx@format}{}{%
+      \svgx@@ifinlist{pdf}{\svgx@format}{}{%
         \edef\svgx@format{\svgx@format,pdf}%
       }%
       \svg@deprecated@key[svg-extract]{pdf}{extractformat={\svgx@format}}%
@@ -98,7 +99,7 @@
   \FamilySetBool{SVG}{eps}{@svg@tempswa}{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \if@svg@tempswa%
-      \svgx@ifinlist{eps}{\svgx@format}{}{%
+      \svgx@@ifinlist{eps}{\svgx@format}{}{%
         \edef\svgx@format{\svgx@format,eps}%
       }%
       \svg@deprecated@key[svg-extract]{eps}{extractformat={\svgx@format}}%
@@ -316,14 +317,15 @@
 }
 \newcommand*\svgx@cnv@format{png}
 \DefineFamilyKey{SVG}{convertformat}{%
-  \lowercase{\svgx@setlist\svgx@cnv@format{#1}}%
+  \lowercase{\edef\svgx@cnv@format{#1}}%
+  \svgx@setlist\svgx@cnv@format{\svgx@cnv@format}%
   \FamilyKeyStateProcessed%
 }
 \DefineFamilyKey{SVG}{png}[true]{%
   \FamilySetBool{SVG}{png}{@svg@tempswa}{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \if@svg@tempswa%
-      \svgx@ifinlist{png}{\svgx@cnv@format}{}{%
+      \svgx@@ifinlist{png}{\svgx@cnv@format}{}{%
         \edef\svgx@cnv@format{\svgx@cnv@format,png}%
       }%
       \svg@deprecated@key[svg-extract]{png}{convertformat={\svgx@cnv@format}}%
@@ -581,7 +583,8 @@
       \renewcommand*\svgx@clean{log,aux,dvi,out,ps,eps,pdf}%
     \fi%
   \else%
-    \lowercase{\svgx@setlist\svgx@clean{#1}}%
+    \lowercase{\edef\svgx@clean{#1}}%
+    \svgx@setlist\svgx@clean{\svgx@clean}%
     \FamilyKeyStateProcessed%
   \fi%
 }
@@ -590,31 +593,55 @@
 \FamilyBoolKey{SVG}{exclude}{@svgx@exclude}
 \newcommand*\svgx@setlist[2]{%
   \begingroup%
-    \edef#1{#2}%
     \let\svg@tempb\@empty%
-    \@for\svg@tempa:={#1}\do{%
-      \edef\svg@tempa{\expandafter\trim@spaces\expandafter{\svg@tempa}}%
+    \@for\svg@tempa:={#2}\do{%
+      \edef\svg@tempa{\expandafter\trim@spaces@noexp\expandafter{\svg@tempa}}%
       \ifx\svg@tempa\@empty\else%
-        \edef\svg@tempb{\svg@tempb,\svg@tempa}%
+        \edef\svg@tempb{\expandonce\svg@tempb,\expandonce\svg@tempa}%
       \fi%
     }%
-    \edef\svg@tempa{%
-      \endgroup%
-      \etex@unexpanded{\def#1}{\expandafter\@gobble\svg@tempb}%
-    }%
+    \ifx\svg@tempb\@empty%
+      \def\svg@tempa{%
+        \endgroup%
+        \let#1\@empty%
+      }%
+    \else%
+      \def\svg@tempa,##1\@nil{%
+        \def\svg@tempa{%
+          \endgroup%
+          \def#1{##1}%
+        }%
+      }%
+      \expandafter\svg@tempa\svg@tempb\@nil%
+    \fi%
   \svg@tempa%
 }
 \newcommand*\svgx@ifinlist[2]{%
   \begingroup%
-    \def\svg@tempa##1,#1,##2\@nil{%
-      \IfArgIsEmpty{##2}{%
-        \aftergroup\@secondoftwo%
-      }{%
-        \aftergroup\@firstoftwo%
+    \edef\svg@tempa{%
+      \def\noexpand\svg@tempa####1,\detokenize{#1},####2\noexpand\@nil{%
+        \def\noexpand\svg@tempb{####2}%
+      }%
+      \def\noexpand\svg@tempb{%
+        ,\detokenize{#2},\detokenize{#1},%
       }%
     }%
-    \expandafter\svg@tempa\expandafter,#2,#1,\@nil%
+    \svg@tempa%
+    \expandafter\svg@tempa\svg@tempb\@nil%
+    \ifx\svg@tempb\@empty%
+      \aftergroup\@secondoftwo%
+    \else%
+      \aftergroup\@firstoftwo%
+    \fi%
   \endgroup%
+}
+\newcommand*\svgx@@ifinlist[2]{%
+  \begingroup%
+    \edef\svg@tempa{%
+      \endgroup%
+      \noexpand\svgx@ifinlist{#1}{#2}%
+    }
+  \svg@tempa%
 }
 \newcommand*\svgx@onlywindows[1]{}
 \AfterPackage*{ifplatform}{\renewcommand*\svgx@onlywindows[1]{\ifwindows#1\fi}}
@@ -802,10 +829,36 @@
   \kernel@ifnextchar[%]
   {\svgx@include}{\svgx@@@include{}{}}%
 }
+\newcommand*\svgx@params@pass{}
+\newcommand*\svgx@params@graphics{}
+\newcommand*\svgx@params@temp{}
 \newcommand*\svgx@include{}
 \def\svgx@include[#1]{%
   \kernel@ifnextchar[%]
-  {\svgx@@include{#1}}{\svgx@@@include{#1}{}}%
+  {\svgx@@include{#1}}{%
+    \begingroup%
+      \svg@local@param@use%
+      \svgx@setlist\svgx@params@graphics{#1}%
+      % TODO Liste der mapping-Parameter für \RelaxFamilyKey
+      \@tfor\svg@tempb:={.svg.sty}{.svg-extract.sty}{.param}\do{%
+        \let\svgx@params@temp\svgx@params@graphics%
+        \let\svgx@params@graphics\@empty%
+        \DefineFamilyKey[\svg@tempb]{SVG}{@else@}{%
+          \edef\svg@tempa{%
+            \etex@unexpanded{\svgx@ifinlist{####1}}{\expandonce\svgx@params@temp}%
+          }%
+          \svg@tempa{\l@addto@macro\svgx@params@graphics{####1,}}{}%
+          \FamilyKeyStateProcessed%
+        }%
+        \FamilyExecuteOptions[\svg@tempb]{SVG}{#1}%
+      }%
+      \svgx@setlist\svgx@params@graphics{\svgx@params@graphics}%
+      \typeout{+++++++++++ \meaning\svgx@params@graphics}%
+      \typeout{+++++++++++ \detokenize{#1}}%
+    \endgroup%
+    % TODO sortierte Optionen durchreichen
+    \svgx@@@include{}{}%
+  }%
 }
 \newcommand*\svgx@@include{}
 \def\svgx@@include#1[#2]{%
@@ -813,31 +866,59 @@
 }
 % TODO how to handle parameters?! use \svg@local@param@def within group
 % MAPPING with warning (or info?)
-% width>extractwidth 
-% height>extractheight
-% distort>extractdistort
-% scale>extractscale
-% pretex>extractpretex
-% apptex>extractapptex
-% angle>extractangle
-% IGNORE origin
+% width>graphicx                    \svg@param@width        x
+% height>graphicx                   \svg@param@height       x
+% distort/keepaspectratio>graphicx  \if@svg@param@distort   x
+% scale>graphicx                    \svg@param@scale        x
+% angle>graphicx                    \svg@param@angle        x
+% origin>graphicx                   \svg@param@origin       x
+% draft>graphicx                    \if@svg@draft           x
+% pretex>extractpretex              \svg@param@pretex       
+% apptex>extractapptex              \svg@param@apptex       
 % CHECK use exclude or not?
-% CREATE inputformat (or something like this)
+% CREATE inputformat/inputtype/includeformat/includetype (something like this)
+% TODO Warnung für mapping options
 \newcommand*\svgx@@@include[3]{%
 %  \par\noindent%
 %  filename:#3\newline%
 %  includegraphics:#1\newline%
 %  includesvg:#2\par\bigskip%
-%\meaning\svg@local@param@use
   \begingroup%
-    \includesvg[{#2}]{#3}%
-      % TODO inputformat from \svgx@ext@get@input@format if not set
-      % (\svgx@format,\svgx@cnv@format) 
+    % TODO funktioniert das so mit dem Durchreichen von \svgwidth?!
+    \svg@deprecated@param%
+    \svg@local@param@set{#2}%
+    \svg@param@scale@wrn% TODO Fallunterscheidung \if@svg@ink@latex?
+    \edef\svg@tempb{%
+      draft\if@svg@draft\else=false\fi,%
+      scale=\svg@param@scale,%
+      keepaspectratio\if@svg@param@distort=false\fi%
+    }%
+    \ifdim\svg@param@width>\z@\relax%
+      \edef\svg@tempb{\svg@tempb,width=\svg@param@width}%
+    \fi%
+    \ifdim\svg@param@height>\z@\relax%
+      \edef\svg@tempb{\svg@tempb,height=\svg@param@height}%
+    \fi%
+    \ifdim\dimexpr\svg@param@angle\p@\relax=\z@\relax\else%
+      \edef\svg@tempb{%
+        \svg@tempb,origin=\svg@param@origin,angle=\svg@param@angle%
+      }%
+    \fi%
+    % TODO inputformat from \svgx@ext@get@input@format if not set
+    % (\svgx@format,\svgx@cnv@format) 
+    % TODO set extract=true, if \svgx@out@base does not exist
+    \includesvg[{#2,extract,exclude}]{#3}%
+    \IfArgIsEmpty{#1}{}{%
+      \edef\svg@tempb{\svg@tempb,#1}%
+    }%
+        \edef\svg@tempa{#2}%
+        \par includinkscape:  \meaning\svg@tempa
+        \par includegraphics: \meaning\svg@tempb
     \IfFileExists{\svgx@out@base.pdf}{%
-      \includegraphics[{#1}]{\svgx@out@base.pdf}%
+%      \expandafter\includegraphics\expandafter[\svg@tempb]{\svgx@out@base.pdf}%
     }{%
-      % TODO Warning with hint to run with --shell-escape
-      % TODO use result of inkscape export in draft mode?!
+%      % TODO Warning with hint to run with --shell-escape
+%      % TODO use result of inkscape export in draft mode?!
     }%
   \endgroup%
 }
@@ -896,7 +977,10 @@
 ]{%
   \begingroup%
     \@svg@tempswafalse%
-    \svgx@setlist\svg@tempa{#1}%
+    \edef\svg@tempa{%
+      \noexpand\svgx@setlist\noexpand\svg@tempa{#1}%
+    }%
+    \svg@tempa%
     \@for\svg@tempb:=\svg@tempa\do{%
       \svg@iffilenewer{#2.\svg@tempb}{#3}{}{\@svg@tempswatrue}%
     }%
@@ -1168,11 +1252,11 @@
     \fi\fi%
     \if@svg@tempswa%
       \svg@tempa{dvips}{dvi}{ps}%
-      \svgx@ifinlist{eps}{\svgx@format}{\svg@tempa{pstoeps}{ps}{eps}}{}%
-      \svgx@ifinlist{pdf}{\svgx@format}{\svg@tempa{pstopdf}{ps}{pdf}}{}%
+      \svgx@@ifinlist{eps}{\svgx@format}{\svg@tempa{pstoeps}{ps}{eps}}{}%
+      \svgx@@ifinlist{pdf}{\svgx@format}{\svg@tempa{pstopdf}{ps}{pdf}}{}%
     \else%
-      \svgx@ifinlist{eps}{\svgx@format}{\svg@tempa{pdftoeps}{pdf}{eps}}{}%
-      \svgx@ifinlist{ps}{\svgx@format}{\svg@tempa{pdftops}{pdf}{ps}}{}%
+      \svgx@@ifinlist{eps}{\svgx@format}{\svg@tempa{pdftoeps}{pdf}{eps}}{}%
+      \svgx@@ifinlist{ps}{\svgx@format}{\svg@tempa{pdftops}{pdf}{ps}}{}%
     \fi%
     \ifnum\svgx@cnv@mode>\z@\relax%
       \ifx\svgx@cnv@dpi\relax%
@@ -1182,7 +1266,7 @@
       \fi%
       \svgx@cnv@get@input@format%
       \@for\svg@tempa:=\svgx@cnv@format\do{%
-        \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{\svgx@format}{%
+        \svgx@@ifinlist{\svg@tempa}{\svgx@format}{%
           \svgx@eaddto@shell{%
             \noexpand\PackageInfoNoLine{svg-extract}{%
               Generating file `\svgx@out@name.\svg@tempa' was\MessageBreak%
@@ -1216,7 +1300,7 @@
     }%
     \edef\svg@tempb{\svgx@format,\svgx@cnv@format}%
     \@for\svg@tempa:=\svgx@clean\do{%
-      \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{\svg@tempb}{}{%
+      \svgx@@ifinlist{\svg@tempa}{\svg@tempb}{}{%
         \svgx@eaddto@shell{%
           \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
             \noexpand\svg@shell@rm{\svgx@out@name.\svg@tempa}%
@@ -1307,8 +1391,9 @@
     \ifxetex\else\ifpdf\else%
       \renewcommand*\svgx@cnv@input@format{ps}%
     \fi\fi%
-    \expandafter\svgx@ifinlist\expandafter{\svgx@cnv@input@format}%
-      {\svgx@cnv@format}{\let\svgx@format\svgx@cnv@input@format}{}%
+    \svgx@@ifinlist{\svgx@cnv@input@format}{\svgx@cnv@format}{%
+      \let\svgx@format\svgx@cnv@input@format%
+    }{}%
   \fi%
 }
 \ifx\svgx@magick@exe\@empty
@@ -1346,7 +1431,7 @@
       \svg@shell@move{#1.#2}{#3#1.#2}%
     }{%
       \edef\svg@tempa{#2}%
-      \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{pdf,ps,eps}{%
+      \svgx@@ifinlist{\svg@tempa}{pdf,ps,eps}{%
         \svgx@file@missing[extraction]{#1.#2}%
       }{%
         \PackageWarningNoLine{svg-extract}{%

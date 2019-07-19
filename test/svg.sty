@@ -283,8 +283,6 @@
   \lowercase{\svg@quotes@remove[{#1}]{\svg@file@ext}}%
   \svg@remove@leadingchar.\svg@file@ext%
 }
-\DefineFamilyKey{SVG}{extension}{\FamilyOptions{SVG}{svgextension=#1}}
-\DefineFamilyKey{SVG}{ext}{\FamilyOptions{SVG}{svgextension=#1}}
 \newcommand*\svg@out@path{}
 \newcommand*\svg@out@name{\svg@file@name\svg@file@suffix}
 \newcommand*\svg@out@file{\svg@out@path\svg@out@name.\svg@ink@format}
@@ -909,7 +907,6 @@
 }
 \newcommand*\includeinkscape[2][]{%
   \begingroup%
-    \svg@deprecated@param%
     \svg@filename@parse{#2}%
     \ifx\filename@ext\relax\else%
       \svg@quotes@remove{\filename@ext}%
@@ -948,6 +945,7 @@
         \svg@extension@parse{\svg@ink@format}%
       \fi%
     \fi%
+    \svg@deprecated@param%
     \svg@local@param@set{#1}%
     \svg@get@path[\svg@ink@format]{\filename@area\filename@base}{\svg@out@path}%
     \if@svg@file@found%
@@ -1216,11 +1214,11 @@
       scale=\svg@param@scale,%
       keepaspectratio\if@svg@param@distort=false\fi%
     }%
-    \ifdim\svg@param@height>\z@\relax%
-      \edef\svg@tempb{\svg@tempb,height=\svg@param@height}%
-    \fi%
     \ifdim\svg@param@width>\z@\relax%
       \edef\svg@tempb{\svg@tempb,width=\svg@param@width}%
+    \fi%
+    \ifdim\svg@param@height>\z@\relax%
+      \edef\svg@tempb{\svg@tempb,height=\svg@param@height}%
     \fi%
     \ifdim\dimexpr\svg@param@angle\p@\relax=\z@\relax\else%
       \edef\svg@tempb{%
