@@ -282,6 +282,7 @@
 \DefineFamilyKey{SVG}{svgextension}{%
   \lowercase{\svg@quotes@remove[{#1}]{\svg@file@ext}}%
   \svg@remove@leadingchar.\svg@file@ext%
+  \FamilyKeyStateProcessed%
 }
 \newcommand*\svg@out@path{}
 \newcommand*\svg@out@name{\svg@file@name\svg@file@suffix}
@@ -412,7 +413,7 @@
   \svg@deprecated@key{postex=#1}{apptex=#1}%
 }
 \newcounter{svg@param@lastpage}
-\DefineFamilyKey{SVG}{lastpage}{%
+\DefineFamilyKey{SVG}{lastpage}[true]{%
   \FamilySetNumerical{SVG}{lastpage}{svg@tempa}{%
     {false}{0},{off}{0},{no}{0},{ignore}{0},%
     {true}{1},{on}{1},{yes}{1},{auto}{1}%
@@ -599,6 +600,7 @@
 \fi
 \DefineFamilyMember[.dummy]{SVG}
 \newcommand*\svg@dummy@key[2][]{%
+  % TODO ist das Paket jemals vorher geladen?
   \@ifpackageloaded{svg-extract}{}{%
     \IfArgIsEmpty{#1}{%
       \DefineFamilyKey[.dummy]{SVG}{#2}{%
@@ -611,6 +613,8 @@
         \FamilyKeyStateProcessed%
       }%
     }%
+    % TODO Markus fragen bzgl. RelaxFamilyMember
+    % TODO Markus fragen bzgl. GetFamilyMemberList
     \AfterPackage{svg-extract}{\RelaxFamilyKey[.dummy]{SVG}{#2}}%
   }%
 }
@@ -887,11 +891,29 @@
   \endgroup%
 }
 \svg@local@param@def{%
-  \FamilyCounterKey[.param]{SVG}{lastpage}{svg@param@lastpage}%
+  \DefineFamilyKey[.param]{SVG}{lastpage}[true]{%
+    \FamilySetNumerical{SVG}{lastpage}{svg@tempa}{%
+      {false}{0},{off}{0},{no}{0},{ignore}{0},%
+      {true}{1},{on}{1},{yes}{1},{auto}{1}%
+    }{#1}%
+    \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+      \ifcase\svg@tempa\relax% false
+        \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{\m@ne}%
+      \or% true
+        \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{\z@}%
+      \fi%
+    \else
+      \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{#1}%
+      \ifnum\value{svg@param@lastpage}<\@ne\relax%
+        \FamilyKeyStateUnknownValue%
+      \fi%
+    \fi%
+  }%
 }
 \newcommand*\svg@param@angle{0}
 \svg@local@param@def{%
   \DefineFamilyKey[.param]{SVG}{angle}{%
+    \FamilyKeyStateUnknownValue%
     \ifisdimension{#1\p@}{%
       \renewcommand*\svg@param@angle{#1}%
       \FamilyKeyStateProcessed%

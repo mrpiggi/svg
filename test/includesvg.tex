@@ -14,22 +14,19 @@
 %\svgsetup{extract=false}
 
 \begin{document}
-%\def\foo{fff}
-%\svgsetup{clean={aaa,Bnb, ,  , ssd,  ssss   ,ssaadf   , \foo ,,}}
-%\meaning\svgx@clean
-
-
 %\section*{This is a test}
 \begin{figure}
 \centering
 \includesvgx[%
-inkscapearea=crop,
-pretex={\footnote{aaa}},%
+  inkscapearea=crop,
+  pretex={\footnote{aaa}},%
   width=12cm,
   bar=foo,
   extractheight=2cm,
   scale=0.5,
   angle=5,
+  distort=false,
+  lastpage=5
 ]{svg-example}
 %\includesvgx[foo=blubb,angle=15]{svg-example}
 %\includesvg[scale=0.7,inkscape=true,extract=false,exclude=false,convert=false]{svg-example}
