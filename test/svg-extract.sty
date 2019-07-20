@@ -829,15 +829,14 @@
   \kernel@ifnextchar[%]
   {\svgx@include}{\svgx@@@include{}{}}%
 }
-\newcommand*\svgx@pass@keys{%
+\newcommand*\svgx@graphicx@keys{%
   width,height,keepaspectratio,distort,%
   scale,angle,origin,draft%
 }
 \newcommand*\svgx@params@exec{}
 \newcommand*\svgx@params@pass{}
 \newcommand*\svgx@params@temp{}
-% TODO in doc \ToDo{revise with KOMA-Script v3.27}
-%\DefineFamilyMember[.graphicx]{SVG}
+% DOC \ToDo{revise with KOMA-Script v3.27, use \FamilyOptions}
 \newcommand*\svgx@include{}
 \def\svgx@include[#1]{%
   \kernel@ifnextchar[%]
@@ -861,18 +860,15 @@
       }%
       % DOC enthält jetzt alle völlig unbekannten Optionen
       \svgx@setlist\svgx@params@temp{\svgx@params@pass}%
-      \typeout{***** \meaning\svgx@params@exec}%
-      \typeout{***** \meaning\svgx@params@pass}%
-      \typeout{***** \meaning\svgx@params@temp}%
-      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       \DefineFamilyMember[.graphicx]{SVG}
+      \let\svgx@params@exec\@empty%
       \let\svgx@params@pass\@empty%
-      \@for\svg@tempa:=\svgx@pass@keys\do{%
+      \@for\svg@tempa:=\svgx@graphicx@keys\do{%
         \edef\svg@tempb{%
           \etex@unexpanded{\DefineFamilyKey[.graphicx]{SVG}}{\svg@tempa}[]{%
             \noexpand\IfArgIsEmpty{########1}{%
               \etex@unexpanded{\l@addto@macro\svgx@params@pass}%
-                {\expandonce\svg@tempa}%
+                {\expandonce\svg@tempa,}%
             }{%
               \etex@unexpanded{\l@addto@macro\svgx@params@pass}%
                 {\expandonce\svg@tempa=\etex@unexpanded{####1,}}%
@@ -903,75 +899,114 @@
         \FamilyKeyStateProcessed
       }%
       \FamilyExecuteOptions[.graphicx]{SVG}{#1}%
-      %%%%%%%%%%%%%%%%%%%%%%%%%%%
       \svgx@setlist\svgx@params@exec{\svgx@params@exec}%
       \svgx@setlist\svgx@params@pass{\svgx@params@pass}%
-      \typeout{+++++ \#1: \detokenize{#1}}%
-      \typeout{+++++ exec: \meaning\svgx@params@exec}%
-      \typeout{+++++ pass: \meaning\svgx@params@pass}%
-      \typeout{+++++ temp: \meaning\svgx@params@temp}%
-    \endgroup%
-    % TODO sortierte Optionen durchreichen
-    \svgx@@@include{}{}%
+      \edef\svg@tempa{%
+        \endgroup%
+        \noexpand\svgx@@@include%
+          {\expandonce\svgx@params@exec}{\expandonce\svgx@params@pass}%
+      }%
+    \svg@tempa%
   }%
 }
 \newcommand*\svgx@@include{}
 \def\svgx@@include#1[#2]{%
   \svgx@@@include{#1}{#2}%
 }
-% TODO how to handle parameters?! use \svg@local@param@def within group
-% MAPPING with warning (or info?)
-% pretex>extractpretex              \svg@param@pretex       
-% apptex>extractapptex              \svg@param@apptex       
-% CHECK use exclude or not?
-% CREATE inputformat/inputtype/includeformat/includetype (something like this)
-% TODO Warnung für mapping options
 \newcommand*\svgx@@@include[3]{%
-%  \par\noindent%
-%  filename:#3\newline%
-%  includegraphics:#1\newline%
-%  includesvg:#2\par\bigskip%
+  \par\bigskip\noindent%
+  includesvg:\detokenize{#1}\newline%
+  includegraphics:\detokenize{#2}\newline%
+  filename:\detokenize{#3}\newline%
   \begingroup%
-    % TODO Durchreichen von \svgwidth?!
-    % TODO Warnung für alle keys, die eigentlich zu graphicx gehören
-    % TODO pretex/apptex
-    % TODO pass default settings to graphicx width/height/etc.
-%    \svg@deprecated@param%
-%    \svg@local@param@set{#2}%
-%    \svg@param@scale@wrn% TODO Fallunterscheidung \if@svg@ink@latex?
-%    \edef\svg@tempb{%
-%      draft\if@svg@draft\else=false\fi,%
-%      scale=\svg@param@scale,%
-%      keepaspectratio\if@svg@param@distort=false\fi%
-%    }%
-%    \ifdim\svg@param@width>\z@\relax%
-%      \edef\svg@tempb{\svg@tempb,width=\svg@param@width}%
-%    \fi%
-%    \ifdim\svg@param@height>\z@\relax%
-%      \edef\svg@tempb{\svg@tempb,height=\svg@param@height}%
-%    \fi%
-%    \ifdim\dimexpr\svg@param@angle\p@\relax=\z@\relax\else%
-%      \edef\svg@tempb{%
-%        \svg@tempb,origin=\svg@param@origin,angle=\svg@param@angle%
-%      }%
-%    \fi%
-    % TODO inputformat from \svgx@ext@get@input@format if not set
-    % (\svgx@format,\svgx@cnv@format) 
-    % TODO set extract=true, if \svgx@out@base does not exist
-    \includesvg[{#2,extract,exclude}]{#3}%
-    \IfArgIsEmpty{#1}{}{%
-      \edef\svg@tempb{\svg@tempb,#1}%
+    \@for\svg@tempa:=\svgx@graphicx@keys\do{%
+      \edef\svg@tempb{%
+        \etex@unexpanded{\DefineFamilyKey[.param]{SVG}}{\svg@tempa}[]{%
+          \etex@unexpanded{\def\svg@tempa{##1}}%
+          \etex@unexpanded{%
+            \ifx\svg@tempa\@empty\else%
+              \edef\svg@tempa{=\expandonce\svg@tempa}%
+            \fi%
+          }%
+          \noexpand\PackageWarning{svg-extract}{%
+            The given parameter
+            `\svg@tempa\noexpand\svg@tempa'\MessageBreak%
+            should be used in second optional argument, as\MessageBreak%
+            it's actually meant for `\string\includegraphics'. \MessageBreak%
+            Nevertheless, it is transfered%
+          }%
+          \noexpand\FamilyKeyStateProcessed%
+        }%
+      }%
+      \svg@tempb%
     }%
-        \edef\svg@tempa{#2}%
-        \par includinkscape:  \meaning\svg@tempa
-        \par includegraphics: \meaning\svg@tempb
-    \IfFileExists{\svgx@out@base.pdf}{%
-%      \expandafter\includegraphics\expandafter[\svg@tempb]{\svgx@out@base.pdf}%
-    }{%
+    \DefineFamilyKey[.param]{SVG}{distort}[true]{%
+      \FamilySetBool{SVG}{distort}{@svg@tempswa}{##1}%
+      \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+        \PackageWarning{svg-extract}{%
+          The given parameter `distort=##1' should\MessageBreak%
+          be used as `keepaspectratio\if@svg@tempswa=false\fi'
+          in the\MessageBreak%
+          second optional argument, as it's actually meant\MessageBreak%
+          for `\string\includegraphics'.\MessageBreak% 
+          Nevertheless, it is transfered%
+        }%
+      \fi
+    }%
+    \DefineFamilyKey[.param]{SVG}{pretex}{%
+      \PackageWarning{svg-extract}{%
+        The given parameter `pretex=\detokenize{##1}'\MessageBreak%
+        has no effect on extracted/converted grahics.\MessageBreak%
+        Instead, you should use `extractpretex=\detokenize{##1}'%
+      }%
+      \FamilyKeyStateProcessed%
+    }%
+    \DefineFamilyKey[.param]{SVG}{apptex}{%
+      \PackageWarning{svg-extract}{%
+        The given parameter `apptex=\detokenize{##1}'\MessageBreak%
+        has no effect on extracted/converted grahics.\MessageBreak%
+        Instead, you should use `extractapptex=\detokenize{##1}'%
+      }%
+      \FamilyKeyStateProcessed%
+    }%
+    \svg@deprecated@param%
+    \svg@local@param@set{#1}%
+    \def\svg@tempb{%
+      draft\if@svg@draft\else=false\fi,%
+    }%
+    \ifdim\svg@param@width>\z@\relax%
+      \l@addto@macro\svg@tempb{width=\svg@param@width,}%
+    \fi%
+    \ifdim\svg@param@height>\z@\relax%
+      \l@addto@macro\svg@tempb{height=\svg@param@height,}%
+    \fi%
+    \l@addto@macro\svg@tempb{keepaspectratio\if@svg@param@distort=false\fi,}%
+    \ifdim\dimexpr\svg@param@scale\p@\relax=\p@\relax\else%
+      \l@addto@macro\svg@tempb{scale=\svg@param@scale,}%
+    \fi%
+    \ifdim\dimexpr\svg@param@angle\p@\relax=\z@\relax\else%
+      \l@addto@macro\svg@tempb{%
+        origin=\svg@param@origin,%
+        angle=\svg@param@angle%
+      }%
+    \fi%
+    \edef\svg@tempa{%
+      \endgroup%
+      \def\noexpand\svg@tempb{\svg@tempb}%
+    }%
+  \svg@tempa%
+% TODO inputformat from \svgx@ext@get@input@format if not set
+% CREATE inputformat/inputtype/includeformat/includetype (something like this)
+    % (\svgx@format,\svgx@cnv@format) 
+  % TODO set extract=true, if \svgx@out@base does not exist?
+  \includesvg[{#1,exclude,extract=force}]{#3}%
+  \IfFileExists{\svgx@out@base.pdf}{%
+    \l@addto@macro\svg@tempb{#2}%
+    \expandafter\includegraphics\expandafter[\svg@tempb]{\svgx@out@base.pdf}%
+  }{%
 %      % TODO Warning with hint to run with --shell-escape
 %      % TODO use result of inkscape export in draft mode?!
-    }%
-  \endgroup%
+  }%
 }
 \newif\if@svgx@run
 \renewcommand*\svg@process[1]{%
@@ -1204,11 +1239,11 @@
     \ifdim\svgx@param@height>\z@\relax%
       \svg@tempa{height=\svgx@param@height}%
     \fi%
-    \if@svgx@param@distort%
-      \svg@tempa{distort=true}%
-    \fi%
     \ifdim\dimexpr\svgx@param@scale\p@\relax=\p@\relax\else%
       \svg@tempa{scale=\svgx@param@scale}%
+    \fi%
+    \if@svgx@param@distort%
+      \svg@tempa{distort=true}%
     \fi%
     \def\svg@tempb{\svg@param@pretex}%
     \ifx\svgx@param@pretex\svg@tempb\relax%

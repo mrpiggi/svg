@@ -424,6 +424,8 @@
     \or% true
       \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{\z@}%
     \fi%
+  \else%
+    \FamilyExecuteOptions[.param]{SVG}{lastpage=#1}%
   \fi%
 }
 \newif\if@svg@draft
@@ -600,23 +602,18 @@
 \fi
 \DefineFamilyMember[.dummy]{SVG}
 \newcommand*\svg@dummy@key[2][]{%
-  % TODO ist das Paket jemals vorher geladen?
-  \@ifpackageloaded{svg-extract}{}{%
-    \IfArgIsEmpty{#1}{%
-      \DefineFamilyKey[.dummy]{SVG}{#2}{%
-        \svg@dummy@key@wrn{#2}%
-        \FamilyKeyStateProcessed%
-      }%
-    }{%
-      \DefineFamilyKey[.dummy]{SVG}{#2}[{#1}]{%
-        \svg@dummy@key@wrn{#2}%
-        \FamilyKeyStateProcessed%
-      }%
+  \IfArgIsEmpty{#1}{%
+    \DefineFamilyKey[.dummy]{SVG}{#2}{%
+      \svg@dummy@key@wrn{#2}%
+      \FamilyKeyStateProcessed%
     }%
-    % TODO Markus fragen bzgl. RelaxFamilyMember
-    % TODO Markus fragen bzgl. GetFamilyMemberList
-    \AfterPackage{svg-extract}{\RelaxFamilyKey[.dummy]{SVG}{#2}}%
+  }{%
+    \DefineFamilyKey[.dummy]{SVG}{#2}[{#1}]{%
+      \svg@dummy@key@wrn{#2}%
+      \FamilyKeyStateProcessed%
+    }%
   }%
+  \AfterPackage{svg-extract}{\RelaxFamilyKey[.dummy]{SVG}{#2}}%
 }
 \newcommand*\svg@dummy@key@wrn[1]{%
   \PackageWarning{svg}{%
@@ -835,7 +832,7 @@
     \@svg@tempswatrue%
   \fi\fi%
   \if@svg@tempswa\else%
-    \FamilyOptions{SVG}{distort=false}%
+    \@svg@param@distortfalse%
   \fi%
 }
 \newcommand*\svg@local@param@use{}
@@ -892,21 +889,13 @@
 }
 \svg@local@param@def{%
   \DefineFamilyKey[.param]{SVG}{lastpage}[true]{%
-    \FamilySetNumerical{SVG}{lastpage}{svg@tempa}{%
-      {false}{0},{off}{0},{no}{0},{ignore}{0},%
-      {true}{1},{on}{1},{yes}{1},{auto}{1}%
-    }{#1}%
+    \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{#1}%
     \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-      \ifcase\svg@tempa\relax% false
-        \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{\m@ne}%
-      \or% true
-        \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{\z@}%
-      \fi%
-    \else
-      \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{#1}%
       \ifnum\value{svg@param@lastpage}<\@ne\relax%
         \FamilyKeyStateUnknownValue%
       \fi%
+    \else%
+      \FamilyExecuteOptions[.svg.sty]{SVG}{lastpage=#1}%
     \fi%
   }%
 }
@@ -987,26 +976,32 @@
   \endgroup%
 }
 \newcommand*\svg@deprecated@param{%
-  \@svg@tempswafalse%
-  \ifx\svgwidth\@undefined\else%
-    \edef\svg@tempa{\noexpand\FamilyOptions{SVG}{width=\svgwidth}}%
-    \svg@tempa%
-    \@svg@tempswatrue%
-  \fi%
-  \ifx\svgscale\@undefined\else%
-    \edef\svg@tempa{\noexpand\FamilyOptions{SVG}{scale=\svgscale}}%
-    \svg@tempa%
-    \@svg@tempswatrue%
-  \fi%
-  \if@svg@tempswa%
-    \PackageWarning{svg}{%
-      You should specify the image size with parameters\MessageBreak%
-      `width' and `height' or `scale' instead of using\MessageBreak%
-      `\string\svgscale' or `\string\svgwidth'%
-    }%
-    \let\svgwidth\@undefined%
-    \let\svgscale\@undefined%
-  \fi%
+  \begingroup%
+    \let\svg@tempa\@empty%
+    \ifx\svgwidth\@undefined\else%
+      \edef\svg@tempa{\svg@tempa,width=\svgwidth}%
+    \fi%
+    \ifx\svgscale\@undefined\else%
+      \edef\svg@tempa{\svg@tempa,scale=\svgscale}%
+    \fi%
+    \ifx\svg@tempa\@empty%
+      \def\svg@tempa{\endgroup}%
+    \else%
+      \svg@remove@leadingchar,\svg@tempa%
+      \PackageWarning{svg}{%
+        You should specify the image size with parameters\MessageBreak%
+        `width' and `height' or `scale' instead of using\MessageBreak%
+        `\string\svgwidth' or `\string\svgscale'. Nevertheless,\MessageBreak%
+        parameter(s) `\svg@tempa' will be set%
+      }%
+      \global\let\svgwidth\@undefined%
+      \global\let\svgscale\@undefined%
+      \edef\svg@tempa{%
+        \endgroup
+        \noexpand\FamilyOptions{SVG}{\svg@tempa}%
+      }%
+    \fi%
+  \svg@tempa%
 }
 \newif\if@svg@ink@run
 \newcommand*\svg@ink@run[1]{%
@@ -1230,23 +1225,26 @@
     \fi%
     \svg@tempb{\usebox\svg@box}%
   \else%
-    \svg@param@scale@wrn%
-    \edef\svg@tempb{%
+    \def\svg@tempb{%
       draft\if@svg@draft\else=false\fi,%
-      scale=\svg@param@scale,%
-      keepaspectratio\if@svg@param@distort=false\fi%
     }%
     \ifdim\svg@param@width>\z@\relax%
-      \edef\svg@tempb{\svg@tempb,width=\svg@param@width}%
+      \l@addto@macro\svg@tempb{width=\svg@param@width,}%
     \fi%
     \ifdim\svg@param@height>\z@\relax%
-      \edef\svg@tempb{\svg@tempb,height=\svg@param@height}%
+      \l@addto@macro\svg@tempb{height=\svg@param@height,}%
+    \fi%
+    \l@addto@macro\svg@tempb{keepaspectratio\if@svg@param@distort=false\fi,}%
+    \ifdim\dimexpr\svg@param@scale\p@\relax=\p@\relax\else%
+      \l@addto@macro\svg@tempb{scale=\svg@param@scale,}%
     \fi%
     \ifdim\dimexpr\svg@param@angle\p@\relax=\z@\relax\else%
-      \edef\svg@tempb{%
-        \svg@tempb,origin=\svg@param@origin,angle=\svg@param@angle%
+      \l@addto@macro\svg@tempb{%
+        origin=\svg@param@origin,%
+        angle=\svg@param@angle%
       }%
     \fi%
+    \edef\svg@tempb{\svg@tempb}%
     \expandafter\includegraphics\expandafter[\svg@tempb]{\svg@tempa}%
   \fi%
 }
@@ -1263,7 +1261,7 @@
 \newcommand*\svg@pictur@patched{}
 \long\def\svg@picture@patched#1{\svg@pictur@patched@#1}
 \def\svg@pictur@patched@(#1,#2){%
-  \svg@param@scale@wrn%
+%  \svg@param@scale@wrn%
   \ifdim\svg@param@height>\z@\relax%
     \Gscale@div\svg@tempa{#1\p@}{#2\p@}%
     \setlength\unitlength{\svg@param@height}%
