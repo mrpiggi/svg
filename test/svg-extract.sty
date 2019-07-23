@@ -461,7 +461,7 @@
       \renewcommand*\svgx@param@width{\svg@param@width}%
       \FamilyKeyStateProcessed%
     }{%
-      \FamilySetLengthMacro{SVG}{extractwidth}{\svgx@param@width}{#1}%
+      \FamilySetUseLengthMacro{SVG}{extractwidth}{\svgx@param@width}{#1}%
       \ifx\FamilyKeyState\FamilyKeyStateProcessed%
         \ifdim\svgx@param@width<\z@\relax%
           \FamilyKeyStateUnknownValue%
@@ -481,7 +481,7 @@
       \renewcommand*\svgx@param@height{\svg@param@height}%
       \FamilyKeyStateProcessed%
     }{%
-      \FamilySetLengthMacro{SVG}{extractheight}{\svgx@param@height}{#1}%
+      \FamilySetUseLengthMacro{SVG}{extractheight}{\svgx@param@height}{#1}%
       \ifx\FamilyKeyState\FamilyKeyStateProcessed%
         \ifdim\svgx@param@height<\z@\relax%
           \FamilyKeyStateUnknownValue%
@@ -845,6 +845,8 @@
       \svg@local@param@use%
       \svgx@setlist\svgx@params@pass{#1}%
       % TODO mit \SVG@key@familylist arbeiten?
+      % TODO valueisrelax
+      % TODO \svg@param@scale@wrn%
       \@tfor\svg@tempb:={.svg.sty}{.svg-extract.sty}{.param}\do{%
         \let\svgx@params@temp\svgx@params@pass%
         \let\svgx@params@pass\@empty%
@@ -919,6 +921,7 @@
   includegraphics:\detokenize{#2}\newline%
   filename:\detokenize{#3}\newline%
   \begingroup%
+    \svg@deprecated@param%
     \@for\svg@tempa:=\svgx@graphicx@keys\do{%
       \edef\svg@tempb{%
         \etex@unexpanded{\DefineFamilyKey[.param]{SVG}}{\svg@tempa}[]{%
@@ -969,7 +972,6 @@
       }%
       \FamilyKeyStateProcessed%
     }%
-    \svg@deprecated@param%
     \svg@local@param@set{#1}%
     \def\svg@tempb{%
       draft\if@svg@draft\else=false\fi,%

@@ -36,7 +36,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg}[%
-  2019/07/15 v2.03\space%
+  2019/07/19 v2.03\space%
   (include SVG pictures)%
 ]
 \RequirePackage{scrbase}[2016/06/14]
@@ -284,6 +284,7 @@
   \svg@remove@leadingchar.\svg@file@ext%
   \FamilyKeyStateProcessed%
 }
+\DefineFamilyKey{SVG}{svgformat}{\FamilyOptions{SVG}{svgextension=#1}}
 \newcommand*\svg@out@path{}
 \newcommand*\svg@out@name{\svg@file@name\svg@file@suffix}
 \newcommand*\svg@out@file{\svg@out@path\svg@out@name.\svg@ink@format}
@@ -322,7 +323,7 @@
     \renewcommand*\svg@param@width{\z@}%
     \FamilyKeyStateProcessed%
   }{%
-    \FamilySetLengthMacro{SVG}{width}{\svg@param@width}{#1}%
+    \FamilySetUseLengthMacro{SVG}{width}{\svg@param@width}{#1}%
     \ifx\FamilyKeyState\FamilyKeyStateProcessed%
       \ifdim\svg@param@width<\z@\relax%
         \FamilyKeyStateUnknownValue%
@@ -337,7 +338,7 @@
     \renewcommand*\svg@param@height{\z@}%
     \FamilyKeyStateProcessed%
   }{%
-    \FamilySetLengthMacro{SVG}{height}{\svg@param@height}{#1}%
+    \FamilySetUseLengthMacro{SVG}{height}{\svg@param@height}{#1}%
     \ifx\FamilyKeyState\FamilyKeyStateProcessed%
       \ifdim\svg@param@height<\z@\relax%
         \FamilyKeyStateUnknownValue%
@@ -351,6 +352,7 @@
   \FamilySetBool{SVG}{keepaspectratio}{@svg@tempswa}{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \if@svg@tempswa%
+      % TODO Familyexecuteoptions
       \FamilyOptions{SVG}{distort=false}%
     \else
       \FamilyOptions{SVG}{distort=true}%
@@ -373,21 +375,25 @@
   }%
 }
 \newcommand*\svg@param@scale@wrn{%
-  \ifdim\dimexpr\svg@param@scale\p@\relax=\p@\relax\else%
-    \@svg@tempswafalse%
-    \ifdim\svg@param@width>\z@\relax%
-      \@svg@tempswatrue%
+  \begingroup%
+    \ifdim\dimexpr\svg@param@scale\p@\relax=\p@\relax\else%
+      \let\svg@tempa\@empty%
+      \ifdim\svg@param@width>\z@\relax%
+        \l@addto@macro\svg@tempa{,width=\svg@param@width}%
+      \fi%
+      \ifdim\svg@param@height>\z@\relax%
+        \l@addto@macro\svg@tempa{,height=\svg@param@height}%
+      \fi%
+      \ifx\svg@tempa\@empty\else%
+        \svg@remove@leadingchar,\svg@tempa%
+        \PackageWarning{svg}{%
+          The parameter `scale=\svg@param@scale' is considered\MessageBreak%
+          only if neither `width' nor `height' are specified,\MessageBreak%
+          but `\svg@tempa' is set%
+        }%
+      \fi%
     \fi%
-    \ifdim\svg@param@height>\z@\relax%
-      \@svg@tempswatrue%
-    \fi%
-    \if@svg@tempswa%
-      \PackageWarning{svg}{%
-        The parameter `scale' is only considered if neither\MessageBreak%
-        `width' nor `height' are specified%
-      }%
-    \fi%
-  \fi%
+  \endgroup%
 }
 \newcommand*\svg@param@pretex{}
 \let\svg@param@pretex\relax
@@ -424,8 +430,6 @@
     \or% true
       \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{\z@}%
     \fi%
-  \else%
-    \FamilyExecuteOptions[.param]{SVG}{lastpage=#1}%
   \fi%
 }
 \newif\if@svg@draft
@@ -827,16 +831,17 @@
   \svg@local@param@use%
   \FamilyOptions{SVG}{#1}%
   \ifstr{\svg@ink@format}{png}{\FamilyOptions{SVG}{inkscapelatex=false}}{}%
-  \@svg@tempswafalse%
+  \@svg@tempswatrue%
   \ifdim\svg@param@width>\z@\relax\ifdim\svg@param@height>\z@\relax%
-    \@svg@tempswatrue%
+    \@svg@tempswafalse%
   \fi\fi%
-  \if@svg@tempswa\else%
+  \if@svg@tempswa%
     \@svg@param@distortfalse%
   \fi%
 }
 \newcommand*\svg@local@param@use{}
 \newcommand*\svg@local@param@def[1]{%
+  % TODO l@addto \svg@local@param@use
   \edef\svg@local@param@use{%
     \etex@unexpanded\expandafter{\svg@local@param@use}\etex@unexpanded{#1}%
   }%
@@ -860,6 +865,7 @@
   \begingroup%
     \svg@deprecated@param%
     \svg@local@param@set{#1}%
+    \svg@param@scale@wrn%
     \if@svg@ink@latex%
       \edef\svg@file@suffix{_\svg@file@ext-tex}%
     \else%
@@ -889,13 +895,11 @@
 }
 \svg@local@param@def{%
   \DefineFamilyKey[.param]{SVG}{lastpage}[true]{%
-    \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{#1}%
     \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+      \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{#1}%
       \ifnum\value{svg@param@lastpage}<\@ne\relax%
         \FamilyKeyStateUnknownValue%
       \fi%
-    \else%
-      \FamilyExecuteOptions[.svg.sty]{SVG}{lastpage=#1}%
     \fi%
   }%
 }
@@ -958,6 +962,7 @@
     \fi%
     \svg@deprecated@param%
     \svg@local@param@set{#1}%
+    \svg@param@scale@wrn%
     \svg@get@path[\svg@ink@format]{\filename@area\filename@base}{\svg@out@path}%
     \if@svg@file@found%
       \edef\svg@out@file{\svg@file@path\svg@file@name.\svg@ink@format}%
@@ -979,10 +984,10 @@
   \begingroup%
     \let\svg@tempa\@empty%
     \ifx\svgwidth\@undefined\else%
-      \edef\svg@tempa{\svg@tempa,width=\svgwidth}%
+      \l@addto@macro\svg@tempa{,width=\svgwidth}%
     \fi%
     \ifx\svgscale\@undefined\else%
-      \edef\svg@tempa{\svg@tempa,scale=\svgscale}%
+      \l@addto@macro\svg@tempa{,scale=\svgscale}%
     \fi%
     \ifx\svg@tempa\@empty%
       \def\svg@tempa{\endgroup}%
@@ -997,7 +1002,7 @@
       \global\let\svgwidth\@undefined%
       \global\let\svgscale\@undefined%
       \edef\svg@tempa{%
-        \endgroup
+        \endgroup%
         \noexpand\FamilyOptions{SVG}{\svg@tempa}%
       }%
     \fi%
@@ -1105,6 +1110,7 @@
       \fi%
     \fi%
   \fi%
+  % TODO ans Ende verschieben?!
   \if@filesw%
     \immediate\write\@mainaux{%
       \string\gdef\string\svg@ink@ver{\svg@ink@ver}%
@@ -1156,6 +1162,7 @@
       \fi%
       \edef\svg@tempa{%
         \endgroup%
+        % TODO Familyexecuteoptions? was passiert bei -1?
         \noexpand\FamilyOptions{SVG}{lastpage=\the\@tempcnta}%
       }%
     \svg@tempa%
@@ -1172,7 +1179,10 @@
 }
 \newcommand*\svg@process[1]{\svg@do@input{#1}}
 \newcommand*\svg@do@input[2][]{%
-  \IfArgIsEmpty{#1}{}{\svg@local@param@set{#1}}%
+  \IfArgIsEmpty{#1}{}{%
+    \svg@local@param@set{#1}
+    \svg@param@scale@wrn%
+  }%
   \svg@set@input@path%
   \if@svg@draft%
     \@svg@ink@latexfalse%
@@ -1261,7 +1271,6 @@
 \newcommand*\svg@pictur@patched{}
 \long\def\svg@picture@patched#1{\svg@pictur@patched@#1}
 \def\svg@pictur@patched@(#1,#2){%
-%  \svg@param@scale@wrn%
   \ifdim\svg@param@height>\z@\relax%
     \Gscale@div\svg@tempa{#1\p@}{#2\p@}%
     \setlength\unitlength{\svg@param@height}%

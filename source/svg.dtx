@@ -1,4 +1,4 @@
-% \CheckSum{4255}
+% \CheckSum{4284}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -97,7 +97,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<package&identify&base>\ProvidesPackage{svg}[%
 %<package&identify&extract>\ProvidesPackage{svg-extract}[%
 %<*dtx|package&identify>
-  2019/07/19 v2.03\space%
+  2019/07/24 v2.03\space%
 %<package&identify&base>  (include SVG pictures)%
 %<package&identify&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -1837,8 +1837,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.01}{2017/11/27}{new due to user request}^^A
 % \changes{v2.02}{2018/09/07}{usage of \cs{svg@quotes@remove}}^^A
 % \changes{v2.02}{2018/09/07}{usage of \cs{svg@remove@leadingchar}}^^A
-% \begin{option}{extension}
-% \begin{option}{ext}
+% \begin{option}{svgformat}
 % \begin{macro}{\svg@file@ext}
 % This option modifies the expected extension for the input file which is 
 % exported with \app{Inkscape}. It is set to \file{svg} by default.
@@ -1853,13 +1852,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Remove leading dots from the extension.
 %    \begin{macrocode}
   \svg@remove@leadingchar.\svg@file@ext%
+  \FamilyKeyStateProcessed%
 }
-\DefineFamilyKey{SVG}{extension}{\FamilyOptions{SVG}{svgextension=#1}}
-\DefineFamilyKey{SVG}{ext}{\FamilyOptions{SVG}{svgextension=#1}}
+\DefineFamilyKey{SVG}{svgformat}{\FamilyOptions{SVG}{svgextension=#1}}
 %    \end{macrocode}
 % \end{macro}^^A \svg@file@ext
-% \end{option}^^A ext
-% \end{option}^^A extension
+% \end{option}^^A svgformat
 % \end{option}^^A svgextension
 %
 %
@@ -1937,6 +1935,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{macro}{\svg@param@scale}
 % \begin{macro}{\svg@param@scale@wrn}
+% \changes{v2.03}{2019/07/23}{more specifig warning message}^^A
 % These options determine the size of the included graphics. The usage of
 % \val{\cs{relax}} as value resets the respective option to the default 
 % behavior.
@@ -2003,21 +2002,25 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % considered if the size was not specified.
 %    \begin{macrocode}
 \newcommand*\svg@param@scale@wrn{%
-  \ifdim\dimexpr\svg@param@scale\p@\relax=\p@\relax\else%
-    \@svg@tempswafalse%
-    \ifdim\svg@param@width>\z@\relax%
-      \@svg@tempswatrue%
+  \begingroup%
+    \ifdim\dimexpr\svg@param@scale\p@\relax=\p@\relax\else%
+      \let\svg@tempa\@empty%
+      \ifdim\svg@param@width>\z@\relax%
+        \l@addto@macro\svg@tempa{,width=\svg@param@width}%
+      \fi%
+      \ifdim\svg@param@height>\z@\relax%
+        \l@addto@macro\svg@tempa{,height=\svg@param@height}%
+      \fi%
+      \ifx\svg@tempa\@empty\else%
+        \svg@remove@leadingchar,\svg@tempa%
+        \PackageWarning{svg}{%
+          The parameter `scale=\svg@param@scale' is considered\MessageBreak%
+          only if neither `width' nor `height' are specified,\MessageBreak%
+          but `\svg@tempa' is set%
+        }%
+      \fi%
     \fi%
-    \ifdim\svg@param@height>\z@\relax%
-      \@svg@tempswatrue%
-    \fi%
-    \if@svg@tempswa%
-      \PackageWarning{svg}{%
-        The parameter `scale' is only considered if neither\MessageBreak%
-        `width' nor `height' are specified%
-      }%
-    \fi%
-  \fi%
+  \endgroup%
 }
 %    \end{macrocode}
 % \end{macro}^^A \svg@param@scale@wrn
@@ -2887,6 +2890,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svg@param@angle{0}
 \svg@local@param@def{%
   \DefineFamilyKey[.param]{SVG}{angle}{%
+    \FamilyKeyStateUnknownValue%
     \ifisdimension{#1\p@}{%
       \renewcommand*\svg@param@angle{#1}%
       \FamilyKeyStateProcessed%
@@ -2912,10 +2916,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 \newcommand*\includeinkscape[2][]{%
   \begingroup%
-%    \end{macrocode}
-% Checking for deprecated commands \cs{svgwidth} and \cs{svgscale}.
-%    \begin{macrocode}
-    \svg@deprecated@param%
 %    \end{macrocode}
 % The given file extension is examined, where a known extension overwrites the 
 % current setting for \opt{inkscapeformat}. If there's a suffix \file{\_tex}, 
@@ -2966,6 +2966,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \svg@extension@parse{\svg@ink@format}%
       \fi%
     \fi%
+%    \end{macrocode}
+% Checking for deprecated commands \cs{svgwidth} and \cs{svgscale}.
+%    \begin{macrocode}
+    \svg@deprecated@param%
 %    \end{macrocode}
 % \begin{parameter}{inkscapeformat}
 % \begin{parameter}{inkscapelatex}
@@ -3034,31 +3038,38 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \subsection{Auxiliary macros}
 %
 % \begin{macro}{\svg@deprecated@param}
+% \changes{v2.03}{2019/07/23}{more specifig warning message}^^A
 % This macro checks, if \cs{svgwidth} or \cs{svgscale} are defined. In this 
 % case, the given values are passed to the correlating parameters and a warning 
 % is raised.
 %    \begin{macrocode}
 \newcommand*\svg@deprecated@param{%
-  \@svg@tempswafalse%
-  \ifx\svgwidth\@undefined\else%
-    \edef\svg@tempa{\noexpand\FamilyOptions{SVG}{width=\svgwidth}}%
-    \svg@tempa%
-    \@svg@tempswatrue%
-  \fi%
-  \ifx\svgscale\@undefined\else%
-    \edef\svg@tempa{\noexpand\FamilyOptions{SVG}{scale=\svgscale}}%
-    \svg@tempa%
-    \@svg@tempswatrue%
-  \fi%
-  \if@svg@tempswa%
-    \PackageWarning{svg}{%
-      You should specify the image size with parameters\MessageBreak%
-      `width' and `height' or `scale' instead of using\MessageBreak%
-      `\string\svgscale' or `\string\svgwidth'%
-    }%
-    \let\svgwidth\@undefined%
-    \let\svgscale\@undefined%
-  \fi%
+  \begingroup%
+    \let\svg@tempa\@empty%
+    \ifx\svgwidth\@undefined\else%
+      \l@addto@macro\svg@tempa{,width=\svgwidth}%
+    \fi%
+    \ifx\svgscale\@undefined\else%
+      \l@addto@macro\svg@tempa{,scale=\svgscale}%
+    \fi%
+    \ifx\svg@tempa\@empty%
+      \def\svg@tempa{\endgroup}%
+    \else%
+      \svg@remove@leadingchar,\svg@tempa%
+      \PackageWarning{svg}{%
+        You should specify the image size with parameters\MessageBreak%
+        `width' and `height' or `scale' instead of using\MessageBreak%
+        `\string\svgwidth' or `\string\svgscale'. Nevertheless,\MessageBreak%
+        parameter(s) `\svg@tempa' will be set%
+      }%
+      \global\let\svgwidth\@undefined%
+      \global\let\svgscale\@undefined%
+      \edef\svg@tempa{%
+        \endgroup%
+        \noexpand\FamilyOptions{SVG}{\svg@tempa}%
+      }%
+    \fi%
+  \svg@tempa%
 }
 %    \end{macrocode}
 % \end{macro}^^A \svg@deprecated@param
@@ -3193,8 +3204,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % call stored in \cs{svg@ink@exe} is done with \cs{@@input\textbar"'\dots'" -V}
 % in order to read the result from \val{stdout}.
 % \ToDo{%
-%   \val{-enable-pipes} in MikTeX?! check \cs{pdftexbanner}%
 %   \url{https://tex.stackexchange.com/questions/9792}%
+%   \val{-enable-pipes} in MikTeX?! check \cs{pdftexbanner};%
 %   scan log for xelatex?!
 % }[v2.03]
 % \ToDo{set \cs{svg@ink@ver} manually}[v2.03]
@@ -3613,24 +3624,22 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<*base>
 \DefineFamilyMember[.dummy]{SVG}
 \newcommand*\svg@dummy@key[2][]{%
-  \@ifpackageloaded{svg-extract}{}{%
-    \IfArgIsEmpty{#1}{%
-      \DefineFamilyKey[.dummy]{SVG}{#2}{%
-        \svg@dummy@key@wrn{#2}%
-        \FamilyKeyStateProcessed%
-      }%
-    }{%
-      \DefineFamilyKey[.dummy]{SVG}{#2}[{#1}]{%
-        \svg@dummy@key@wrn{#2}%
-        \FamilyKeyStateProcessed%
-      }%
+  \IfArgIsEmpty{#1}{%
+    \DefineFamilyKey[.dummy]{SVG}{#2}{%
+      \svg@dummy@key@wrn{#2}%
+      \FamilyKeyStateProcessed%
     }%
+  }{%
+    \DefineFamilyKey[.dummy]{SVG}{#2}[{#1}]{%
+      \svg@dummy@key@wrn{#2}%
+      \FamilyKeyStateProcessed%
+    }%
+  }%
 %    \end{macrocode}
 % Before package \pkg{svg-extract} the given key |#2| of family member |.dummy| 
 % is relaxed.
 %    \begin{macrocode}
-    \AfterPackage{svg-extract}{\RelaxFamilyKey[.dummy]{SVG}{#2}}%
-  }%
+  \AfterPackage{svg-extract}{\RelaxFamilyKey[.dummy]{SVG}{#2}}%
 }
 \newcommand*\svg@dummy@key@wrn[1]{%
   \PackageWarning{svg}{%
