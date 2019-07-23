@@ -1,4 +1,4 @@
-% \CheckSum{4284}
+% \CheckSum{4297}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -1947,7 +1947,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \renewcommand*\svg@param@width{\z@}%
     \FamilyKeyStateProcessed%
   }{%
-    \FamilySetLengthMacro{SVG}{width}{\svg@param@width}{#1}%
+    \FamilySetUseLengthMacro{SVG}{width}{\svg@param@width}{#1}%
     \ifx\FamilyKeyState\FamilyKeyStateProcessed%
       \ifdim\svg@param@width<\z@\relax%
         \FamilyKeyStateUnknownValue%
@@ -1962,7 +1962,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \renewcommand*\svg@param@height{\z@}%
     \FamilyKeyStateProcessed%
   }{%
-    \FamilySetLengthMacro{SVG}{height}{\svg@param@height}{#1}%
+    \FamilySetUseLengthMacro{SVG}{height}{\svg@param@height}{#1}%
     \ifx\FamilyKeyState\FamilyKeyStateProcessed%
       \ifdim\svg@param@height<\z@\relax%
         \FamilyKeyStateUnknownValue%
@@ -3459,22 +3459,25 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % resulting graphic file will be included with \cs{includegraphics}.
 %    \begin{macrocode}
     \svg@param@scale@wrn%
-    \edef\svg@tempb{%
-      draft\if@svg@draft\else=false\fi,%
-      scale=\svg@param@scale,%
-      keepaspectratio\if@svg@param@distort=false\fi%
+    \def\svg@tempb{%
+      draft\if@svg@draft\else=false\fi%
     }%
-    \ifdim\svg@param@height>\z@\relax%
-      \edef\svg@tempb{\svg@tempb,height=\svg@param@height}%
-    \fi%
     \ifdim\svg@param@width>\z@\relax%
-      \edef\svg@tempb{\svg@tempb,width=\svg@param@width}%
+      \l@addto@macro\svg@tempb{,width=\svg@param@width}%
+    \fi%
+    \ifdim\svg@param@height>\z@\relax%
+      \l@addto@macro\svg@tempb{,height=\svg@param@height}%
+    \fi%
+    \l@addto@macro\svg@tempb{,keepaspectratio\if@svg@param@distort=false\fi}%
+    \ifdim\dimexpr\svg@param@scale\p@\relax=\p@\relax\else%
+      \l@addto@macro\svg@tempb{,scale=\svg@param@scale}%
     \fi%
     \ifdim\dimexpr\svg@param@angle\p@\relax=\z@\relax\else%
-      \edef\svg@tempb{%
-        \svg@tempb,origin=\svg@param@origin,angle=\svg@param@angle%
+      \l@addto@macro\svg@tempb{%
+        ,origin=\svg@param@origin,angle=\svg@param@angle%
       }%
     \fi%
+    \edef\svg@tempb{\svg@tempb}%
     \expandafter\includegraphics\expandafter[\svg@tempb]{\svg@tempa}%
   \fi%
 }
@@ -4466,7 +4469,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \renewcommand*\svgx@param@width{\svg@param@width}%
       \FamilyKeyStateProcessed%
     }{%
-      \FamilySetLengthMacro{SVG}{extractwidth}{\svgx@param@width}{#1}%
+      \FamilySetUseLengthMacro{SVG}{extractwidth}{\svgx@param@width}{#1}%
       \ifx\FamilyKeyState\FamilyKeyStateProcessed%
         \ifdim\svgx@param@width<\z@\relax%
           \FamilyKeyStateUnknownValue%
@@ -4486,7 +4489,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \renewcommand*\svgx@param@height{\svg@param@height}%
       \FamilyKeyStateProcessed%
     }{%
-      \FamilySetLengthMacro{SVG}{extractheight}{\svgx@param@height}{#1}%
+      \FamilySetUseLengthMacro{SVG}{extractheight}{\svgx@param@height}{#1}%
       \ifx\FamilyKeyState\FamilyKeyStateProcessed%
         \ifdim\svgx@param@height<\z@\relax%
           \FamilyKeyStateUnknownValue%

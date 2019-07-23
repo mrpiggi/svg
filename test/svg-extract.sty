@@ -36,7 +36,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg-extract}[%
-  2019/07/15 v2.03\space%
+  2019/07/24 v2.03\space%
   (extract independent graphics from SVG pictures)%
 ]
 \RequirePackage{svg}[2017/03/27]
@@ -1241,11 +1241,11 @@
     \ifdim\svgx@param@height>\z@\relax%
       \svg@tempa{height=\svgx@param@height}%
     \fi%
-    \ifdim\dimexpr\svgx@param@scale\p@\relax=\p@\relax\else%
-      \svg@tempa{scale=\svgx@param@scale}%
-    \fi%
     \if@svgx@param@distort%
       \svg@tempa{distort=true}%
+    \fi%
+    \ifdim\dimexpr\svgx@param@scale\p@\relax=\p@\relax\else%
+      \svg@tempa{scale=\svgx@param@scale}%
     \fi%
     \def\svg@tempb{\svg@param@pretex}%
     \ifx\svgx@param@pretex\svg@tempb\relax%
