@@ -568,12 +568,11 @@
 }
 \newcommand*\svgx@clean{}
 \DefineFamilyKey{SVG}{clean}[true]{%
-  \lowercase{\def\svg@tempa{#1}}%
   \FamilySetNumerical{SVG}{clean}{svg@tempa}{%
     {false}{0},{off}{0},{no}{0},%
     {true}{1},{on}{1},{yes}{1},{full}{1},{complete}{1},{entire}{1},%
     {nolatex}{2},{notex}{2},{most}{2},{almost}{2},{nearly}{2}%
-  }{\svg@tempa}%
+  }{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \ifcase\svg@tempa\relax% false
       \renewcommand*\svgx@clean{}%
@@ -592,12 +591,16 @@
 \newif\if@svgx@exclude
 \FamilyBoolKey{SVG}{exclude}{@svgx@exclude}
 \newcommand*\svgx@setlist[2]{%
+  \expandafter\svgx@@setlist\expandafter#1\expandafter{#2}%
+}
+\newcommand*\svgx@@setlist[2]{%
   \begingroup%
     \let\svg@tempb\@empty%
-    \@for\svg@tempa:={#2}\do{%
+    \@for\svg@tempa:={,#2}\do{%
       \edef\svg@tempa{\expandafter\trim@spaces@noexp\expandafter{\svg@tempa}}%
       \ifx\svg@tempa\@empty\else%
-        \edef\svg@tempb{\expandonce\svg@tempb,\expandonce\svg@tempa}%
+        \expandafter\l@addto@macro\expandafter\svg@tempb\expandafter%
+          {\expandafter,\svg@tempa}%
       \fi%
     }%
     \ifx\svg@tempb\@empty%
@@ -621,7 +624,7 @@
     \edef\svg@tempa{%
       \endgroup%
       \noexpand\svgx@@ifinlist{#1}{#2}%
-    }
+    }%
   \svg@tempa%
 }
 \newcommand*\svgx@@ifinlist[2]{%
@@ -843,7 +846,7 @@
   {\svgx@@include{#1}}{%
     \begingroup%
       \svg@local@param@use%
-      \svgx@setlist\svgx@params@pass{#1}%
+      \svgx@@setlist\svgx@params@pass{#1}%
       % TODO mit \SVG@key@familylist arbeiten?
       % TODO valueisrelax
       % TODO \svg@param@scale@wrn%
@@ -1066,7 +1069,7 @@
   \begingroup%
     \@svg@tempswafalse%
     \edef\svg@tempa{%
-      \noexpand\svgx@setlist\noexpand\svg@tempa{#1}%
+      \noexpand\svgx@@setlist\noexpand\svg@tempa{#1}%
     }%
     \svg@tempa%
     \@for\svg@tempb:=\svg@tempa\do{%

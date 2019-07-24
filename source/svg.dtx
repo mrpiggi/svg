@@ -1,4 +1,4 @@
-% \CheckSum{4297}
+% \CheckSum{4346}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -3741,7 +3741,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \renewcommand*\svgx@format{eps}
 \fi\fi
 \DefineFamilyKey{SVG}{extractformat}{%
-  \lowercase{\svgx@setlist\svgx@format{#1}}%
+  \lowercase{\edef\svgx@format{#1}}%
+  \svgx@setlist\svgx@format{\svgx@format}%
   \FamilyKeyStateProcessed%
 }
 \DefineFamilyKey{SVG}{pdf}[true]{%
@@ -4164,7 +4165,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<*extract>
 \newcommand*\svgx@cnv@format{png}
 \DefineFamilyKey{SVG}{convertformat}{%
-  \lowercase{\svgx@setlist\svgx@cnv@format{#1}}%
+  \lowercase{\edef\svgx@cnv@format{#1}}%
+  \svgx@setlist\svgx@cnv@format{\svgx@cnv@format}%
   \FamilyKeyStateProcessed%
 }
 \DefineFamilyKey{SVG}{png}[true]{%
@@ -4630,12 +4632,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<*extract>
 \newcommand*\svgx@clean{}
 \DefineFamilyKey{SVG}{clean}[true]{%
-  \lowercase{\def\svg@tempa{#1}}%
   \FamilySetNumerical{SVG}{clean}{svg@tempa}{%
     {false}{0},{off}{0},{no}{0},%
     {true}{1},{on}{1},{yes}{1},{full}{1},{complete}{1},{entire}{1},%
     {nolatex}{2},{notex}{2},{most}{2},{almost}{2},{nearly}{2}%
-  }{\svg@tempa}%
+  }{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \ifcase\svg@tempa\relax% false
       \renewcommand*\svgx@clean{}%
@@ -4645,11 +4646,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \renewcommand*\svgx@clean{log,aux,dvi,out,ps,eps,pdf}%
     \fi%
   \else%
-    \lowercase{\svgx@setlist\svgx@clean{#1}}%
+    \lowercase{\edef\svgx@clean{#1}}%
+    \svgx@setlist\svgx@clean{\svgx@clean}%
     \FamilyKeyStateProcessed%
   \fi%
 }
-\DefineFamilyKey{SVG}{clear}{\FamilyOptions{SVG}{clean=#1}}
+\DefineFamilyKey{SVG}{clear}[true]{\FamilyOptions{SVG}{clean=#1}}
 %</extract>
 %    \end{macrocode}
 % \end{macro}^^A \svgx@clean
@@ -4896,20 +4898,21 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svgx@include{}
 \def\svgx@include[#1]{%
   \kernel@ifnextchar[%]
-  {\svgx@@include{#1}}{\svgx@@@include{#1}{}}%
+  {\svgx@@include{#1}}{%
+  }%
 }
 \newcommand*\svgx@@include{}
 \def\svgx@@include#1[#2]{%
   \svgx@@@include{#1}{#2}%
 }
 \newcommand*\svgx@@@include[3]{%
-  \begingroup%
-    \includesvg[{#2},exclude]{#3}%
-    \IfFileExists{\svgx@out@base.pdf}{%
-      \includegraphics[{#1}]{\svgx@out@base.pdf}%
-    }{%
-    }%
-  \endgroup%
+%^^A  \begingroup%
+%^^A    \includesvg[{#2},exclude]{#3}%
+%^^A    \IfFileExists{\svgx@out@base.pdf}{%
+%^^A      \includegraphics[{#1}]{\svgx@out@base.pdf}%
+%^^A    }{%
+%^^A    }%
+%^^A  \endgroup%
 }
 %</extract>
 %    \end{macrocode}
@@ -5026,7 +5029,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 ]{%
   \begingroup%
     \@svg@tempswafalse%
-    \svgx@setlist\svg@tempa{#1}%
+    \edef\svg@tempa{%
+      \noexpand\svgx@@setlist\noexpand\svg@tempa{#1}%
+    }%
+    \svg@tempa%
     \@for\svg@tempb:=\svg@tempa\do{%
       \svg@iffilenewer{#2.\svg@tempb}{#3}{}{\@svg@tempswatrue}%
     }%
@@ -5463,7 +5469,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \opt{convertformat}.
 %    \begin{macrocode}
       \@for\svg@tempa:=\svgx@cnv@format\do{%
-        \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{\svgx@format}{%
+        \svgx@ifinlist{\svg@tempa}{\svgx@format}{%
           \svgx@eaddto@shell{%
             \noexpand\PackageInfoNoLine{svg-extract}{%
               Generating file `\svgx@out@name.\svg@tempa' was\MessageBreak%
@@ -5504,7 +5510,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
     \edef\svg@tempb{\svgx@format,\svgx@cnv@format}%
     \@for\svg@tempa:=\svgx@clean\do{%
-      \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{\svg@tempb}{}{%
+      \svgx@ifinlist{\svg@tempa}{\svg@tempb}{}{%
         \svgx@eaddto@shell{%
           \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
             \noexpand\svg@shell@rm{\svgx@out@name.\svg@tempa}%
@@ -5679,8 +5685,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \cs{svgx@format} will be set to this file type as well in order to skip the 
 % unnecessary conversation.
 %    \begin{macrocode}
-    \expandafter\svgx@ifinlist\expandafter{\svgx@cnv@input@format}%
-      {\svgx@cnv@format}{\let\svgx@format\svgx@cnv@input@format}{}%
+    \svgx@ifinlist{\svgx@cnv@input@format}{\svgx@cnv@format}{%
+      \let\svgx@format\svgx@cnv@input@format%
+    }{}%
   \fi%
 }
 %    \end{macrocode}
@@ -5739,7 +5746,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \svg@shell@move{#1.#2}{#3#1.#2}%
     }{%
       \edef\svg@tempa{#2}%
-      \expandafter\svgx@ifinlist\expandafter{\svg@tempa}{pdf,ps,eps}{%
+      \svgx@ifinlist{\svg@tempa}{pdf,ps,eps}{%
         \svgx@file@missing[extraction]{#1.#2}%
       }{%
         \PackageWarningNoLine{svg-extract}{%
@@ -5776,46 +5783,85 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \begin{macro}{\svgx@setlist}
 % \changes{v2.03}{2019/07/13}{new}^^A
+% \begin{macro}{\svgx@@setlist}
+% \changes{v2.03}{2019/07/13}{new}^^A
 % This macro is used to normalize a comma-separated list given in the second 
 % argument, wherefore empty values and unnecessary spaces are removed. At the 
 % end, the normalized list is expanded to the macro in the first argument.
+% \cs{svgx@setlist} takes a macro in the second argument and \cs{svgx@@setlist}
+% needs a list itself.
 %    \begin{macrocode}
 \newcommand*\svgx@setlist[2]{%
+  \expandafter\svgx@@setlist\expandafter#1\expandafter{#2}%
+}
+\newcommand*\svgx@@setlist[2]{%
   \begingroup%
-    \edef#1{#2}%
     \let\svg@tempb\@empty%
-    \@for\svg@tempa:={#1}\do{%
-      \edef\svg@tempa{\expandafter\trim@spaces\expandafter{\svg@tempa}}%
+    \@for\svg@tempa:={,#2}\do{%
+      \edef\svg@tempa{\expandafter\trim@spaces@noexp\expandafter{\svg@tempa}}%
       \ifx\svg@tempa\@empty\else%
-        \edef\svg@tempb{\svg@tempb,\svg@tempa}%
+        \expandafter\l@addto@macro\expandafter\svg@tempb\expandafter%
+          {\expandafter,\svg@tempa}%
       \fi%
     }%
-    \edef\svg@tempa{%
-      \endgroup%
-      \etex@unexpanded{\def#1}{\expandafter\@gobble\svg@tempb}%
-    }%
+    \ifx\svg@tempb\@empty%
+      \def\svg@tempa{%
+        \endgroup%
+        \let#1\@empty%
+      }%
+%    \end{macrocode}
+% Remove leading comma.
+%    \begin{macrocode}
+    \else%
+      \def\svg@tempa,##1\@nil{%
+        \def\svg@tempa{%
+          \endgroup%
+          \def#1{##1}%
+        }%
+      }%
+      \expandafter\svg@tempa\svg@tempb\@nil%
+    \fi%
   \svg@tempa%
 }
 %    \end{macrocode}
+% \end{macro}^^A \svgx@@setlist
 % \end{macro}^^A \svgx@setlist
 % \begin{macro}{\svgx@ifinlist}
+% \begin{macro}{\svgx@@ifinlist}
+% \changes{v2.03}{2019/07/24}{new}^^A
 % Check, if the first argument is included in a comma-separated list in the 
-% second argument. Keep in mind that the first argument is not expanded at all, 
-% the second one exactly once. 
+% second argument, whereas \cs{svgx@ifinlist} expands it's arguments and 
+% \cs{svgx@@ifinlist} does not.
 %    \begin{macrocode}
 \newcommand*\svgx@ifinlist[2]{%
   \begingroup%
-    \def\svg@tempa##1,#1,##2\@nil{%
-      \IfArgIsEmpty{##2}{%
-        \aftergroup\@secondoftwo%
-      }{%
-        \aftergroup\@firstoftwo%
+    \edef\svg@tempa{%
+      \endgroup%
+      \noexpand\svgx@@ifinlist{#1}{#2}%
+    }%
+  \svg@tempa%
+}
+\newcommand*\svgx@@ifinlist[2]{%
+  \begingroup%
+    \edef\svg@tempa{%
+      \def\noexpand\svg@tempa####1,\detokenize{#1},####2\noexpand\@nil{%
+        \def\noexpand\svg@tempb{####2}%
+      }%
+      \def\noexpand\svg@tempb{%
+        ,\detokenize{#2},\detokenize{#1},%
       }%
     }%
-    \expandafter\svg@tempa\expandafter,#2,#1,\@nil%
+    \svg@tempa%
+    \expandafter\svg@tempa\svg@tempb\@nil%
+    \ifx\svg@tempb\@empty%
+      \aftergroup\@secondoftwo%
+    \else%
+      \aftergroup\@firstoftwo%
+    \fi%
   \endgroup%
 }
 %    \end{macrocode}
+% \end{macro}^^A \svgx@@ifinlist
 % \end{macro}^^A \svgx@ifinlist
 % \begin{macro}{\svgx@onlywindows}
 % Do only some stuff, if Windows was detected.

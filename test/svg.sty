@@ -1162,7 +1162,8 @@
       \fi%
       \edef\svg@tempa{%
         \endgroup%
-        % TODO Familyexecuteoptions? was passiert bei -1?
+        % TODO Familyexecuteoptions? was passiert bei -1 oder 0?
+        \the\@tempcnta
         \noexpand\FamilyOptions{SVG}{lastpage=\the\@tempcnta}%
       }%
     \svg@tempa%
@@ -1205,9 +1206,11 @@
   \edef\svg@tempb{#2}%
   \if@svg@ink@latex%
     \svg@patches{\svg@tempa}%
+    \the\value{svg@param@lastpage}%
     \ifnum\value{svg@param@lastpage}=\z@\relax%
       \expandafter\svg@get@lastpage\expandafter{\svg@tempb}%
     \fi%
+    \the\value{svg@param@lastpage}%
     \edef\svg@tempa{%
       \ifx\svg@param@pretex\relax\else%
         \noexpand\svg@param@pretex%
