@@ -387,9 +387,8 @@
       \ifx\svg@tempa\@empty\else%
         \svg@remove@leadingchar,\svg@tempa%
         \PackageWarning{svg}{%
-          The parameter `scale=\svg@param@scale' is considered\MessageBreak%
-          only if neither `width' nor `height' are specified,\MessageBreak%
-          but `\svg@tempa' is set%
+          The parameter `scale=\svg@param@scale' is not applied\MessageBreak%
+          because `\svg@tempa' is set%
         }%
       \fi%
     \fi%
@@ -840,12 +839,7 @@
   \fi%
 }
 \newcommand*\svg@local@param@use{}
-\newcommand*\svg@local@param@def[1]{%
-  % TODO l@addto \svg@local@param@use
-  \edef\svg@local@param@use{%
-    \etex@unexpanded\expandafter{\svg@local@param@use}\etex@unexpanded{#1}%
-  }%
-}
+\newcommand*\svg@local@param@def[1]{\l@addto@macro\svg@local@param@use{#1}}
 \DefineFamilyMember[.param]{SVG}
 \newcommand*\svgsetup{\FamilyOptions{SVG}}
 \newcommand*\setsvg{\FamilyOptions{SVG}}
@@ -865,7 +859,6 @@
   \begingroup%
     \svg@deprecated@param%
     \svg@local@param@set{#1}%
-    \svg@param@scale@wrn%
     \if@svg@ink@latex%
       \edef\svg@file@suffix{_\svg@file@ext-tex}%
     \else%
@@ -962,7 +955,6 @@
     \fi%
     \svg@deprecated@param%
     \svg@local@param@set{#1}%
-    \svg@param@scale@wrn%
     \svg@get@path[\svg@ink@format]{\filename@area\filename@base}{\svg@out@path}%
     \if@svg@file@found%
       \edef\svg@out@file{\svg@file@path\svg@file@name.\svg@ink@format}%
@@ -1180,10 +1172,8 @@
 }
 \newcommand*\svg@process[1]{\svg@do@input{#1}}
 \newcommand*\svg@do@input[2][]{%
-  \IfArgIsEmpty{#1}{}{%
-    \svg@local@param@set{#1}%
-    \svg@param@scale@wrn%
-  }%
+  \IfArgIsEmpty{#1}{}{\svg@local@param@set{#1}}%
+  \svg@param@scale@wrn%
   \svg@set@input@path%
   \if@svg@draft%
     \@svg@ink@latexfalse%

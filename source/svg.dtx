@@ -1,4 +1,4 @@
-% \CheckSum{4346}
+% \CheckSum{4340}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -2014,9 +2014,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \ifx\svg@tempa\@empty\else%
         \svg@remove@leadingchar,\svg@tempa%
         \PackageWarning{svg}{%
-          The parameter `scale=\svg@param@scale' is considered\MessageBreak%
-          only if neither `width' nor `height' are specified,\MessageBreak%
-          but `\svg@tempa' is set%
+          The parameter `scale=\svg@param@scale' is not applied\MessageBreak%
+          because `\svg@tempa' is set%
         }%
       \fi%
     \fi%
@@ -2699,11 +2698,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \fi%
 }
 \newcommand*\svg@local@param@use{}
-\newcommand*\svg@local@param@def[1]{%
-  \edef\svg@local@param@use{%
-    \etex@unexpanded\expandafter{\svg@local@param@use}\etex@unexpanded{#1}%
-  }%
-}
+\newcommand*\svg@local@param@def[1]{\l@addto@macro\svg@local@param@use{#1}}
 %    \end{macrocode}
 % \end{macro}^^A \svg@local@param@def
 % \end{macro}^^A \svg@local@param@use
@@ -3372,6 +3367,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 \newcommand*\svg@do@input[2][]{%
   \IfArgIsEmpty{#1}{}{\svg@local@param@set{#1}}%
+  \svg@param@scale@wrn%
   \svg@set@input@path%
   \if@svg@draft%
     \@svg@ink@latexfalse%
@@ -3458,7 +3454,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % If the export with \app{Inkscape} was done without \LaTeX~support, the 
 % resulting graphic file will be included with \cs{includegraphics}.
 %    \begin{macrocode}
-    \svg@param@scale@wrn%
     \def\svg@tempb{%
       draft\if@svg@draft\else=false\fi%
     }%
@@ -3521,7 +3516,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svg@pictur@patched{}
 \long\def\svg@picture@patched#1{\svg@pictur@patched@#1}
 \def\svg@pictur@patched@(#1,#2){%
-  \svg@param@scale@wrn%
 %    \end{macrocode}
 % If a desired height is present, the resulting \cs{unitlength} is calculated 
 % with the ratio of the coordinates of the \env{picture}~environment given as 
