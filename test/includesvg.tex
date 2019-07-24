@@ -6,7 +6,7 @@
   \usepackage{fontspec}
 }
 \usepackage{etoolbox}
-%\usepackage{svg}
+\usepackage{svg}
 \usepackage{svg-extract}
 
 \makeatletter
@@ -17,21 +17,30 @@
 %\section*{This is a test}
 \begin{figure}
 \centering
+\def\svgwidth{12cm}
+
 %\def\svgwidth{12cm}
+%\fbox{%
 \includesvgx[%
 %  inkscapearea=crop,
 %  pretex={\footnote{aaa}},%
-%  width=12cm,scale=2,
+%][
+%  width=5cm,%\relax,
+  scale=.5,%inkscapelatex=false,
+%  distort,
+%  keepaspectratio,
 %  draft,
 %  bar=foo,
 %  extractheight=2cm,
 %  extractscale=0.5,
 %  angle=5,
-%  lastpage=3,
-][
+  lastpage=true,
 %  distort,
-  draft
-]{svg-example}
+%][
+%  draft
+]{svg-example}%
+%}
+%\fbox{}%
 %\includesvgx[foo=blubb,angle=15]{svg-example}
 %\includesvg[scale=0.7,inkscape=true,extract=false,exclude=false,convert=false]{svg-example}
 %\fbox{\includesvg[extractformat={,pdf},convertformat={png,}]{svg-example}}

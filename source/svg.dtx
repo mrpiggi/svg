@@ -1,4 +1,4 @@
-% \CheckSum{4340}
+% \CheckSum{4362}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -97,7 +97,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<package&identify&base>\ProvidesPackage{svg}[%
 %<package&identify&extract>\ProvidesPackage{svg-extract}[%
 %<*dtx|package&identify>
-  2019/07/24 v2.03\space%
+  2019/07/25 v2.03\space%
 %<package&identify&base>  (include SVG pictures)%
 %<package&identify&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -1976,9 +1976,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \FamilySetBool{SVG}{keepaspectratio}{@svg@tempswa}{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \if@svg@tempswa%
-      \FamilyOptions{SVG}{distort=false}%
+      \FamilyExecuteOptions[.svg.sty]{SVG}{distort=false}%
     \else
-      \FamilyOptions{SVG}{distort=true}%
+      \FamilyExecuteOptions[.svg.sty]{SVG}{distort=true}%
     \fi%
   \fi%
 }
@@ -2081,7 +2081,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % from the PDF~file. 
 %    \begin{macrocode}
 \newcounter{svg@param@lastpage}
-\DefineFamilyKey{SVG}{lastpage}{%
+\DefineFamilyKey{SVG}{lastpage}[true]{%
   \FamilySetNumerical{SVG}{lastpage}{svg@tempa}{%
     {false}{0},{off}{0},{no}{0},{ignore}{0},%
     {true}{1},{on}{1},{yes}{1},{auto}{1}%
@@ -2694,7 +2694,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \@svg@tempswafalse%
   \fi\fi%
   \if@svg@tempswa%
-    \FamilyOptions{SVG}{distort=false}%
+    \FamilyExecuteOptions[.svg.sty]{SVG}{distort=false}%
   \fi%
 }
 \newcommand*\svg@local@param@use{}
@@ -2866,11 +2866,30 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \begin{parameter}{lastpage}
 % \changes{v2.00}{2017/02/17}{new}^^A
+% \changes{v2.03}{2019/07/25}{revised}^^A
 % In addition to the automatic finding of the last page, which is included, it 
 % can also be given directly as parameter.
+% \ToDo{remove duplicated part of member [.svg.sty]}[KOMA v3.27]
 %    \begin{macrocode}
 \svg@local@param@def{%
-  \FamilyCounterKey[.param]{SVG}{lastpage}{svg@param@lastpage}%
+  \DefineFamilyKey[.param]{SVG}{lastpage}[true]{%
+    \FamilySetNumerical{SVG}{lastpage}{svg@tempa}{%
+      {false}{0},{off}{0},{no}{0},{ignore}{0},%
+      {true}{1},{on}{1},{yes}{1},{auto}{1}%
+    }{#1}%
+    \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+      \ifcase\svg@tempa\relax% false
+        \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{\m@ne}%
+      \or% true
+        \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{\z@}%
+      \fi%
+    \else%
+      \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{#1}%
+      \ifnum\value{svg@param@lastpage}<\@ne\relax%
+        \FamilyKeyStateUnknownValue%
+      \fi%
+    \fi%
+  }%
 }
 %    \end{macrocode}
 % \end{parameter}^^A lastpage
@@ -3322,7 +3341,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \fi%
       \edef\svg@tempa{%
         \endgroup%
-        \noexpand\FamilyOptions{SVG}{lastpage=\the\@tempcnta}%
+        \noexpand\FamilyExecuteOptions[.param]{SVG}{lastpage=\the\@tempcnta}%
       }%
     \svg@tempa%
   }{}%

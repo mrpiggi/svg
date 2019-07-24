@@ -352,10 +352,9 @@
   \FamilySetBool{SVG}{keepaspectratio}{@svg@tempswa}{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \if@svg@tempswa%
-      % TODO Familyexecuteoptions
-      \FamilyOptions{SVG}{distort=false}%
+      \FamilyExecuteOptions[.svg.sty]{SVG}{distort=false}%
     \else
-      \FamilyOptions{SVG}{distort=true}%
+      \FamilyExecuteOptions[.svg.sty]{SVG}{distort=true}%
     \fi%
   \fi%
 }
@@ -835,7 +834,7 @@
     \@svg@tempswafalse%
   \fi\fi%
   \if@svg@tempswa%
-    \@svg@param@distortfalse%
+    \FamilyExecuteOptions[.svg.sty]{SVG}{distort=false}%
   \fi%
 }
 \newcommand*\svg@local@param@use{}
@@ -888,7 +887,17 @@
 }
 \svg@local@param@def{%
   \DefineFamilyKey[.param]{SVG}{lastpage}[true]{%
+    \FamilySetNumerical{SVG}{lastpage}{svg@tempa}{%
+      {false}{0},{off}{0},{no}{0},{ignore}{0},%
+      {true}{1},{on}{1},{yes}{1},{auto}{1}%
+    }{#1}%
     \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+      \ifcase\svg@tempa\relax% false
+        \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{\m@ne}%
+      \or% true
+        \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{\z@}%
+      \fi%
+    \else%
       \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{#1}%
       \ifnum\value{svg@param@lastpage}<\@ne\relax%
         \FamilyKeyStateUnknownValue%
@@ -1086,6 +1095,7 @@
     \endgroup%
   \fi%
 }
+% TODO enable \svg@ink@exe to be set manually per option (MikTeX)
 \newcommand*\svg@ink@lastexe{}
 \AtBeginDocument{%
   \ifx\svg@ink@lastexe\svg@ink@exe\else%
@@ -1102,7 +1112,6 @@
       \fi%
     \fi%
   \fi%
-  % TODO ans Ende verschieben?!
   \if@filesw%
     \immediate\write\@mainaux{%
       \string\gdef\string\svg@ink@ver{\svg@ink@ver}%
@@ -1154,9 +1163,7 @@
       \fi%
       \edef\svg@tempa{%
         \endgroup%
-        % TODO Familyexecuteoptions? was passiert bei -1 oder 0?
-        \the\@tempcnta
-        \noexpand\FamilyOptions{SVG}{lastpage=\the\@tempcnta}%
+        \noexpand\FamilyExecuteOptions[.param]{SVG}{lastpage=\the\@tempcnta}%
       }%
     \svg@tempa%
   }{}%
@@ -1196,11 +1203,9 @@
   \edef\svg@tempb{#2}%
   \if@svg@ink@latex%
     \svg@patches{\svg@tempa}%
-    \the\value{svg@param@lastpage}%
     \ifnum\value{svg@param@lastpage}=\z@\relax%
       \expandafter\svg@get@lastpage\expandafter{\svg@tempb}%
     \fi%
-    \the\value{svg@param@lastpage}%
     \edef\svg@tempa{%
       \ifx\svg@param@pretex\relax\else%
         \noexpand\svg@param@pretex%
