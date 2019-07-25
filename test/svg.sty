@@ -93,7 +93,8 @@
 }
 \newcommand*\svg@ink@mode{}
 \DefineFamilyKey{SVG}{inkscape}[true]{%
-  \lowercase{\svg@sanitize@dq\svg@tempb{#1}}%
+  \svg@sanitize@dq\svg@tempb{#1}%
+  \svg@lowercase{\svg@tempb}%
   \FamilySetNumerical{SVG}{inkscape}{svg@tempa}{%
     {false}{0},{off}{0},{no}{0},%
     {true}{1},{on}{1},{yes}{1},{onlynewer}{1},{newer}{1},%
@@ -137,7 +138,7 @@
     \def\svg@tempa##1dpi##2\@nil{%
       \ifstr{##2}{dpi}{\FamilyOptions{SVG}{inkscapedpi=##1}}{}%
     }%
-    \lowercase{\expandafter\svg@tempa\svg@tempb dpi\@nil}%
+    \expandafter\svg@tempa\svg@tempb dpi\@nil%
     \ifx\FamilyKeyState\FamilyKeyStateProcessed\else% legacy option
       \svg@quotes@remove[{#1}]{\svg@tempb}%
       \def\svg@tempa##1-##2\@nil{%
@@ -191,14 +192,15 @@
     \fi%
   \fi%
 }
-\DeclareOption{on}{\FamilyOptions{SVG}{inkscape=true}}
+\DeclareOption{on}{\FamilyOptions{SVG}{inkscape=forced}}
+\DeclareOption{auto}{\FamilyOptions{SVG}{inkscape=true}}
 \DeclareOption{off}{\FamilyOptions{SVG}{inkscape=false}}
 \newcommand*\svg@ink@format{pdf}
 \ifxetex\else\ifpdf\else
   \renewcommand*\svg@ink@format{eps}
 \fi\fi
 \DefineFamilyKey{SVG}{inkscapeformat}{%
-  \lowercase{\def\svg@tempa{#1}}%
+  \svg@lowercase[{#1}]{\svg@tempa}%
   \FamilySetNumerical{SVG}{inkscapeformat}{svg@tempa}{%
     {pdf}{0},{eps}{1},{ps}{2},{png}{3}%
   }{\svg@tempa}%
@@ -240,8 +242,9 @@
     \let\svg@ink@dpi\relax%
     \FamilyKeyStateProcessed%
   }{%
+    \svg@lowercase[{#1}]{\svg@tempb}%
     \def\svg@tempa##1dpi##2\@nil{\def\svg@tempa{##1}}%
-    \lowercase{\svg@tempa#1dpi\@nil}%
+    \expandafter\svg@tempa\svg@tempb dpi\@nil%
     \ifnumber{\svg@tempa}{%
       \edef\svg@ink@dpi{\svg@tempa}%
       \FamilyKeyStateProcessed%
@@ -280,14 +283,13 @@
 }
 \newcommand*\svg@file@ext{svg}
 \DefineFamilyKey{SVG}{svgextension}{%
-  \lowercase{\svg@quotes@remove[{#1}]{\svg@file@ext}}%
+  \svg@quotes@remove[{#1}]{\svg@file@ext}%
   \svg@remove@leadingchar.\svg@file@ext%
+  \svg@lowercase{\svg@file@ext}%
   \FamilyKeyStateProcessed%
 }
 \DefineFamilyKey{SVG}{svgformat}{\FamilyOptions{SVG}{svgextension=#1}}
 \newcommand*\svg@out@path{}
-\newcommand*\svg@out@name{\svg@file@name\svg@file@suffix}
-\newcommand*\svg@out@file{\svg@out@path\svg@out@name.\svg@ink@format}
 \DefineFamilyKey{SVG}{inkscapepath}{%
   \svg@sanitize@dq\svg@tempb{#1}%
   \FamilySetNumerical{SVG}{inkscapepath}{svg@tempa}{%
@@ -312,8 +314,13 @@
     \FamilyKeyStateProcessed%
   \fi%
 }
+\newcommand*\svg@out@name{\svg@file@name\svg@file@suffix}
 \DefineFamilyKey{SVG}{inkscapename}{%
-  \renewcommand*\svg@out@name{#1\svg@file@suffix}%
+  \svg@ifvalueisrelax{#1}{%
+    \renewcommand*\svg@out@name{\svg@file@name\svg@file@suffix}%
+  }{%
+    \renewcommand*\svg@out@name{#1\svg@file@suffix}%
+  }%
   \FamilyKeyStateProcessed%
 }
 \newcommand*\svg@param@width{\z@}
@@ -447,10 +454,21 @@
     \edef\svg@tempa{\endgroup\def\noexpand#1{#2}}%
   \svg@tempa%
 }
+\newcommand*\svg@lowercase[2][]{%
+  \begingroup%
+    \edef\svg@tempa{%
+      \endgroup%
+      \lowercase{\noexpand\def\noexpand#2{\IfArgIsEmpty{#1}{#2}{#1}}}%
+    }%
+  \svg@tempa%
+}
 \newcommand*\svg@quotes@remove[2][]{%
   \begingroup%
-    \IfArgIsEmpty{#1}{\edef\svg@tempb{#2}}{\edef\svg@tempb{#1}}%
-    \svg@sanitize@dq\svg@tempa{\svg@tempb}%
+    \IfArgIsEmpty{#1}{%
+      \svg@sanitize@dq\svg@tempa{#2}%
+    }{%
+      \svg@sanitize@dq\svg@tempa{#1}%
+    }%
     \expandafter\svg@quotes@check\expandafter{\svg@tempa}%
     \expandafter\svg@quotes@@remove\svg@tempa""\@nil%
     \edef\svg@tempb{%
@@ -857,16 +875,35 @@
   }%
   \futurelet\svg@tempb\svg@tempa#1\@nil%
 }
+\newcommand*\svg@out@file{\svg@out@path\svg@out@name.\svg@ink@format}
 \newcommand*\includesvg[2][]{%
+% TODO das evtl als vorgelagertes Makro?! gleiches gilt für extractname...
+% >>> \svg@out@file als parameter an \@includesvg
+%    \begingroup%
+%      \svg@quotes@remove{\svg@out@name}%
+%      \meaning\svg@out@name
+%      \ifx\svg@out@name\svg@file@suffix%
+%        \PackageError{svg}{Invalid file name}{%
+%          The file name given with option `inkscapename' is empty.%
+%        }%
+%        \let\svg@out@file\@empty%
+%      \else%
+%        \edef\svg@out@file{\svg@out@path\svg@out@name.\svg@ink@format}%
+%      \fi%
+%      \edef\svg@tempa{%
+%        \endgroup%
+%        \def\noexpand\svg@out@file{\svg@out@file}%
+%%        \noexpand\@svg@file@foundfalse%
+%      }%
+%    \endgroup%
   \begingroup%
     \svg@deprecated@param%
     \svg@local@param@set{#1}%
     \if@svg@ink@latex%
-      \edef\svg@file@suffix{_\svg@file@ext-tex}%
+      \edef\svg@file@suffix{\string_\svg@file@ext-tex}%
     \else%
-      \edef\svg@file@suffix{_\svg@file@ext-raw}%
+      \edef\svg@file@suffix{\string_\svg@file@ext-raw}%
     \fi%
-    \@onelevel@sanitize\svg@file@suffix%
     \svg@get@path{#2}{}%
     \if@svg@file@found%
       \svg@ink@run{\svg@out@file}%

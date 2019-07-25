@@ -36,7 +36,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg-extract}[%
-  2019/07/24 v2.03\space%
+  2019/07/25 v2.03\space%
   (extract independent graphics from SVG pictures)%
 ]
 \RequirePackage{svg}[2017/03/27]
@@ -44,7 +44,7 @@
 \DefineFamilyMember{SVG}
 \newcommand*\svgx@mode{1}
 \DefineFamilyKey{SVG}{extract}[true]{%
-  \lowercase{\def\svg@tempa{#1}}%
+  \svg@lowercase[{#1}]{\svg@tempa}%
   \FamilySetNumerical{SVG}{extract}{svg@tempa}{%
     {false}{0},{off}{0},{no}{0},%
     {true}{1},{on}{1},{yes}{1},{onlynewer}{1},{newer}{1},%
@@ -71,14 +71,15 @@
     \fi%
   \fi%
 }
-\DeclareOption{on}{\FamilyOptions{SVG}{extract=true}}
+\DeclareOption{on}{\FamilyOptions{SVG}{extract=forced}}
+\DeclareOption{auto}{\FamilyOptions{SVG}{extract=true}}
 \DeclareOption{off}{\FamilyOptions{SVG}{extract=false}}
 \newcommand*\svgx@format{pdf}
 \ifxetex\else\ifpdf\else
   \renewcommand*\svgx@format{eps}
 \fi\fi
 \DefineFamilyKey{SVG}{extractformat}{%
-  \lowercase{\edef\svgx@format{#1}}%
+  \svg@lowercase[{#1}]{\svgx@format}%
   \svgx@setlist\svgx@format{\svgx@format}%
   \FamilyKeyStateProcessed%
 }
@@ -317,7 +318,7 @@
 }
 \newcommand*\svgx@cnv@format{png}
 \DefineFamilyKey{SVG}{convertformat}{%
-  \lowercase{\edef\svgx@cnv@format{#1}}%
+  \svg@lowercase[{#1}]{\svgx@cnv@format}%
   \svgx@setlist\svgx@cnv@format{\svgx@cnv@format}%
   \FamilyKeyStateProcessed%
 }
@@ -384,7 +385,6 @@
   \FamilyKeyStateProcessed%
 }
 \newcommand*\svgx@out@path{}
-\newcommand*\svgx@out@name{\svg@out@name-extract}
 \DefineFamilyKey{SVG}{extractpath}{%
   \svg@sanitize@dq\svg@tempb{#1}%
   \FamilySetNumerical{SVG}{extractpath}{svg@tempa}{%
@@ -418,34 +418,35 @@
 \DefineFamilyKey{SVG}{path}{%
   \svg@deprecated@key[svg-extract]{path=#1}{extractpath=#1}%
 }
+\newcommand*\svgx@out@name{\the\value{svgx@out@count}-\svg@out@name}%
 \newcounter{svgx@out@count}
 \newif\if@svgx@out@sec
 \DefineFamilyKey{SVG}{extractname}{%
-  \svg@quotes@remove[{#1}]{\svg@tempb}%
-  \FamilySetNumerical{SVG}{extractname}{svg@tempa}{%
-    {filename}{0},{name}{0},%
-    {filenamenumbered}{1},{namenumbered}{1},%
-    {numberedfilename}{1},{numberedname}{1},%
-    {numbered}{2},{section}{2},{numberedsection}{2},{sectionnumbered}{2}%
-  }{\svg@tempb}%
-  \@svgx@out@secfalse%
-  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \ifcase\svg@tempa\relax% filename
-      \renewcommand*\svgx@out@name{\svg@out@name-extract}%
-    \or% filenamenumbered
-      \renewcommand*\svgx@out@name{\the\value{svgx@out@count}-\svg@out@name}%
-    \or% numbered
-      \renewcommand*\svgx@out@name{\the\value{svgx@out@count}-\svgx@out@sec}%
-      \@svgx@out@sectrue%
-    \fi%
-  \else%
-    \if@svg@quotes@found%
-      \edef\svgx@out@name{"\svg@tempb"}%
-    \else%
-      \edef\svgx@out@name{\svg@tempb}%
-    \fi%
+  \svg@ifvalueisrelax{#1}{%
+    \renewcommand*\svgx@out@name{\the\value{svgx@out@count}-\svg@out@name}%
     \FamilyKeyStateProcessed%
-  \fi%
+  }{%
+    \FamilySetNumerical{SVG}{extractname}{svg@tempa}{%
+      {filename}{0},{name}{0},%
+      {filenamenumbered}{1},{namenumbered}{1},%
+      {numberedfilename}{1},{numberedname}{1},%
+      {numbered}{2},{section}{2},{numberedsection}{2},{sectionnumbered}{2}%
+    }{#1}%
+    \@svgx@out@secfalse%
+    \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+      \ifcase\svg@tempa\relax% filename
+        \renewcommand*\svgx@out@name{\svg@out@name-extract}%
+      \or% filenamenumbered
+        \renewcommand*\svgx@out@name{\the\value{svgx@out@count}-\svg@out@name}%
+      \or% numbered
+        \renewcommand*\svgx@out@name{\the\value{svgx@out@count}-\svgx@out@sec}%
+        \@svgx@out@sectrue%
+      \fi%
+    \else%
+      \renewcommand*\svgx@out@name{#1}%
+      \FamilyKeyStateProcessed%
+    \fi%
+  }%
 }
 \DefineFamilyKey{SVG}{name}{%
   \svg@deprecated@key[svg-extract]{name=#1}{extractname=#1}%
@@ -582,7 +583,7 @@
       \renewcommand*\svgx@clean{log,aux,dvi,out,ps,eps,pdf}%
     \fi%
   \else%
-    \lowercase{\edef\svgx@clean{#1}}%
+    \svg@lowercase[{#1}]{\svgx@clean}%
     \svgx@setlist\svgx@clean{\svgx@clean}%
     \FamilyKeyStateProcessed%
   \fi%
@@ -1091,8 +1092,7 @@
 \ifnum\pdf@shellescape=\@ne\relax\else%
   \newcommand*\svgx@run[1]{%
     \begingroup%
-      \edef\svg@tempa{#1}%
-      \svg@quotes@remove{\svg@tempa}%
+      \svg@quotes@remove[{#1}]{\svg@tempa}%
       \PackageWarning{svg-extract}{%
         You didn't enable `--shell-escape' option so it\MessageBreak%
         wasn't possible to run extraction/conversion for\MessageBreak%

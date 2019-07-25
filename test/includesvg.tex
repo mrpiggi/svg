@@ -1,11 +1,11 @@
 \listfiles
-\documentclass{scrartcl}
+\documentclass[ngerman]{scrartcl}
 \ifpdftex{
   \usepackage[T1]{fontenc}
 }{
   \usepackage{fontspec}
 }
-%\usepackage{etoolbox}
+\usepackage{babel}
 \usepackage{svg}
 \usepackage{svg-extract}
 
@@ -23,7 +23,9 @@
 
 %\def\svgwidth{12cm}
 %\fbox{%
-\includesvgx[%
+\includesvg[%
+%  inkscapename="",
+%  extractname="\the\value{svgx@out@count}-aaa",
 %  inkscapearea=crop,
 %  pretex={\footnote{aaa}},%
 %  width=\relax,
@@ -32,7 +34,7 @@
 %  distort,
 %  keepaspectratio,
 %  draft,
-  bar=foo,
+%  bar=foo,
 %  extractheight=2cm,
   extractscale=0.5,
   angle=5,
