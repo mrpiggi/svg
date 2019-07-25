@@ -36,7 +36,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg}[%
-  2019/07/24 v2.03\space%
+  2019/07/25 v2.03\space%
   (include SVG pictures)%
 ]
 \RequirePackage{scrbase}[2016/06/14]
@@ -385,13 +385,16 @@
       \fi%
       \ifx\svg@tempa\@empty\else%
         \svg@remove@leadingchar,\svg@tempa%
-        \PackageWarning{svg}{%
-          The parameter `scale=\svg@param@scale' is not applied\MessageBreak%
-          because `\svg@tempa' is set%
-        }%
+        \svg@param@scale@@wrn{scale=\svg@param@scale}{\svg@tempa}%
       \fi%
     \fi%
   \endgroup%
+}
+\newcommand*\svg@param@scale@@wrn[2]{%
+  \PackageWarning{svg}{%
+    The parameter `#1' is not applied\MessageBreak%
+    because `#2' is set%
+  }%
 }
 \newcommand*\svg@param@pretex{}
 \let\svg@param@pretex\relax

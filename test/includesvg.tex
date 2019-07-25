@@ -5,7 +5,7 @@
 }{
   \usepackage{fontspec}
 }
-\usepackage{etoolbox}
+%\usepackage{etoolbox}
 \usepackage{svg}
 \usepackage{svg-extract}
 
@@ -17,25 +17,27 @@
 %\section*{This is a test}
 \begin{figure}
 \centering
-\def\svgwidth{12cm}
+%\def\svgwidth{12cm}
+
+\svgsetup{width=9cm}
 
 %\def\svgwidth{12cm}
 %\fbox{%
 \includesvgx[%
 %  inkscapearea=crop,
 %  pretex={\footnote{aaa}},%
+%  width=\relax,
+  scale=1.5,%inkscapelatex=false,
 %][
-%  width=5cm,%\relax,
-  scale=.5,%inkscapelatex=false,
 %  distort,
 %  keepaspectratio,
 %  draft,
-%  bar=foo,
+  bar=foo,
 %  extractheight=2cm,
-%  extractscale=0.5,
-%  angle=5,
+  extractscale=0.5,
+  angle=5,
   lastpage=true,
-%  distort,
+  distort,
 %][
 %  draft
 ]{svg-example}%
