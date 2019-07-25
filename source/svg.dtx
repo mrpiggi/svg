@@ -3418,15 +3418,15 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % independent graphic files including option \opt{exclude} as well as macro 
 % \cs{includesvgx}. Therefore it is redefined later.
 %    \begin{macrocode}
-\newcommand*\svg@process[1]{\svg@do@input{#1}}
+\newcommand*\svg@process[1]{\svg@ink@include{#1}}
 %    \end{macrocode}
 % \end{macro}^^A \svg@process
-% \begin{macro}{\svg@do@input}
-% With macro \cs{svg@do@input} the export result of \app{Inkscape} is included. 
-% The macro \cs{svg@set@input@path} is called to support input commands like 
-% \cs{input}\marg{tex filename} within SVG~files.
+% \begin{macro}{\svg@ink@include}
+% With macro \cs{svg@ink@include} the export result of \app{Inkscape} is 
+% included. The macro \cs{svg@set@input@path} is called to support input
+% commands like \cs{input}\marg{tex filename} within SVG~files.
 %    \begin{macrocode}
-\newcommand*\svg@do@input[2][]{%
+\newcommand*\svg@ink@include[2][]{%
   \IfArgIsEmpty{#1}{}{\svg@local@param@set{#1}}%
   \svg@param@scale@wrn%
   \svg@set@input@path%
@@ -3538,7 +3538,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \fi%
 }
 %    \end{macrocode}
-% \end{macro}^^A \svg@do@input
+% \end{macro}^^A \svg@ink@include
 %
 %
 %
@@ -5004,13 +5004,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % This macro is originally defined by package \pkg{svg} and used as a hook 
 % to realize the additional features of package \pkg{svg-extract}. The task is 
 % splitted in two parts: inputing the graphics exported by \app{Inkscape} 
-% (\cs{svg@do@input}) and doing all necessary for extraction and conversion 
+% (\cs{svg@ink@include}) and doing all necessary for extraction and conversion 
 % of independent graphic files afterwards.
 %    \begin{macrocode}
 \newif\if@svgx@run
 \renewcommand*\svg@process[1]{%
   \if@svgx@exclude\else%
-    \svg@do@input{#1}%
+    \svg@ink@include{#1}%
   \fi%
 %    \end{macrocode}
 % First some preparing for extraction/conversion. Macro\cs{svgx@get@out@sec} is 
@@ -6114,7 +6114,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \svg@tempa{\AtBeginDocument{\svgx@setbox{#1}{#2}}}%
 }
 \newcommand*\svgx@setbox[2]{%
-  \sbox\svg@box{\svg@do@input[{#1},draft=false]{#2}}%
+  \sbox\svg@box{\svg@ink@include[{#1},draft=false]{#2}}%
   \svgxsetpapersize% 
 }
 %    \end{macrocode}

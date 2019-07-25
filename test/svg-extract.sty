@@ -744,7 +744,7 @@
   \svg@tempa{\AtBeginDocument{\svgx@setbox{#1}{#2}}}%
 }
 \newcommand*\svgx@setbox[2]{%
-  \sbox\svg@box{\svg@do@input[{#1},draft=false]{#2}}%
+  \sbox\svg@box{\svg@ink@include[{#1},draft=false]{#2}}%
   \svgxsetpapersize%
 }
 \newcommand*\svgxsetpapersize{%
@@ -1023,7 +1023,7 @@
 \newif\if@svgx@run
 \renewcommand*\svg@process[1]{%
   \if@svgx@exclude\else%
-    \svg@do@input{#1}%
+    \svg@ink@include{#1}%
   \fi%
   \if@svgx@out@sec%
     \svgx@get@out@sec%

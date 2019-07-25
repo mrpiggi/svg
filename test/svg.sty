@@ -314,12 +314,12 @@
     \FamilyKeyStateProcessed%
   \fi%
 }
-\newcommand*\svg@out@name{\svg@file@name\svg@file@suffix}
+\newcommand*\svg@out@name{\svg@file@name}
 \DefineFamilyKey{SVG}{inkscapename}{%
   \svg@ifvalueisrelax{#1}{%
-    \renewcommand*\svg@out@name{\svg@file@name\svg@file@suffix}%
+    \renewcommand*\svg@out@name{\svg@file@name}%
   }{%
-    \renewcommand*\svg@out@name{#1\svg@file@suffix}%
+    \renewcommand*\svg@out@name{#1}%
   }%
   \FamilyKeyStateProcessed%
 }
@@ -701,7 +701,6 @@
 \newcommand*\svg@file@path{}
 \newcommand*\svg@file@name{}
 \newcommand*\svg@file@base{}
-\newcommand*\svg@file@suffix{}
 \newcommand*\svg@get@path[3][\svg@file@ext]{%
   \begingroup%
     \svg@filename@parse[{#1}]{#2}%
@@ -875,7 +874,8 @@
   }%
   \futurelet\svg@tempb\svg@tempa#1\@nil%
 }
-\newcommand*\svg@out@file{\svg@out@path\svg@out@name.\svg@ink@format}
+\newcommand*\svg@out@file{}
+\newcommand*\svg@file@suffix{}
 \newcommand*\includesvg[2][]{%
 % TODO das evtl als vorgelagertes Makro?! gleiches gilt für extractname...
 % >>> \svg@out@file als parameter an \@includesvg
@@ -906,6 +906,7 @@
     \fi%
     \svg@get@path{#2}{}%
     \if@svg@file@found%
+      \edef\svg@out@file{\svg@out@path\svg@out@name\svg@file@suffix.\svg@ink@format}%
       \svg@ink@run{\svg@out@file}%
       \IfFileExists{\svg@out@file}{}{%
         \@svg@file@foundfalse%
@@ -1217,8 +1218,8 @@
   }%
   \global\let\transparent\@gobble%
 }
-\newcommand*\svg@process[1]{\svg@do@input{#1}}
-\newcommand*\svg@do@input[2][]{%
+\newcommand*\svg@process[1]{\svg@ink@include{#1}}
+\newcommand*\svg@ink@include[2][]{%
   \IfArgIsEmpty{#1}{}{\svg@local@param@set{#1}}%
   \svg@param@scale@wrn%
   \svg@set@input@path%
