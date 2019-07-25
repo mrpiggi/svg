@@ -875,51 +875,53 @@
   \futurelet\svg@tempb\svg@tempa#1\@nil%
 }
 \newcommand*\svg@out@file{}
-\newcommand*\svg@file@suffix{}
 \newcommand*\includesvg[2][]{%
 % TODO das evtl als vorgelagertes Makro?! gleiches gilt für extractname...
-% >>> \svg@out@file als parameter an \@includesvg
-%    \begingroup%
-%      \svg@quotes@remove{\svg@out@name}%
-%      \meaning\svg@out@name
-%      \ifx\svg@out@name\svg@file@suffix%
-%        \PackageError{svg}{Invalid file name}{%
-%          The file name given with option `inkscapename' is empty.%
-%        }%
-%        \let\svg@out@file\@empty%
-%      \else%
-%        \edef\svg@out@file{\svg@out@path\svg@out@name.\svg@ink@format}%
-%      \fi%
-%      \edef\svg@tempa{%
-%        \endgroup%
-%        \def\noexpand\svg@out@file{\svg@out@file}%
-%%        \noexpand\@svg@file@foundfalse%
-%      }%
-%    \endgroup%
   \begingroup%
     \svg@deprecated@param%
     \svg@local@param@set{#1}%
-    \if@svg@ink@latex%
-      \edef\svg@file@suffix{\string_\svg@file@ext-tex}%
-    \else%
-      \edef\svg@file@suffix{\string_\svg@file@ext-raw}%
-    \fi%
     \svg@get@path{#2}{}%
     \if@svg@file@found%
-      \edef\svg@out@file{\svg@out@path\svg@out@name\svg@file@suffix.\svg@ink@format}%
-      \svg@ink@run{\svg@out@file}%
-      \IfFileExists{\svg@out@file}{}{%
-        \@svg@file@foundfalse%
-        \svg@file@missing{\svg@out@file}{\svg@file@base.\svg@file@ext}%
-      }%
-      \if@svg@ink@latex%
-        \IfFileExists{\svg@out@file_tex}{}{%
-          \@svg@file@foundfalse%
-          \svg@file@missing{\svg@out@file_tex}{\svg@file@base.\svg@file@ext}%
+      \begingroup%
+        \svg@quotes@remove{\svg@out@name}%
+        \ifx\svg@out@name\@empty%
+          \let\svg@out@file\@empty%
+        \else%
+          \edef\svg@out@file{%
+            \svg@out@path\svg@out@name%
+            \string_\svg@file@ext%
+            \if@svg@ink@latex%
+              -tex%
+            \else%
+              -raw%
+            \fi%
+            .\svg@ink@format%
+          }%
+        \fi%
+        \edef\svg@tempa{%
+          \endgroup%
+          \def\noexpand\svg@out@file{\svg@out@file}%
         }%
-      \fi%
-      \if@svg@file@found%
-        \svg@process{\svg@out@file}%
+      \svg@tempa%
+      \ifx\svg@out@file\@empty%
+        \PackageError{svg}{Empty export file name}{%
+          The file name given with option `inkscapename' is empty.%
+        }%
+      \else%
+        \svg@ink@run{\svg@out@file}%
+        \IfFileExists{\svg@out@file}{}{%
+          \@svg@file@foundfalse%
+          \svg@file@missing{\svg@out@file}{\svg@file@base.\svg@file@ext}%
+        }%
+        \if@svg@ink@latex%
+          \IfFileExists{\svg@out@file_tex}{}{%
+            \@svg@file@foundfalse%
+            \svg@file@missing{\svg@out@file_tex}{\svg@file@base.\svg@file@ext}%
+          }%
+        \fi%
+        \if@svg@file@found%
+          \svg@process{\svg@out@file}%
+        \fi%
       \fi%
     \else%
       \svg@file@missing[\svg@file@ext]{\svg@file@base}{}%
