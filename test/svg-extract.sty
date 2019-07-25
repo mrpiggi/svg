@@ -36,7 +36,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg-extract}[%
-  2019/07/25 v2.03\space%
+  2019/07/26 v2.03\space%
   (extract independent graphics from SVG pictures)%
 ]
 \RequirePackage{svg}[2017/03/27]
@@ -201,8 +201,8 @@
   \FamilyKeyStateProcessed%
 }
 \DefineFamilyKey{SVG}{pdftops}{%
-  \PackageWarning{#1}{%
-    The option key `pdftops' is deprecated.\MessageBreak%
+  \PackageWarning{svg-extract}{%
+    The option key `pdftops' is deprecated. \MessageBreak%
     You should use either `pdftoepsopt' or\MessageBreak%
     `pdftopsopt' instead. See the manual for\MessageBreak%
     more. Nothing was done%

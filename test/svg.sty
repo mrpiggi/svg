@@ -36,7 +36,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg}[%
-  2019/07/25 v2.03\space%
+  2019/07/26 v2.03\space%
   (include SVG pictures)%
 ]
 \RequirePackage{scrbase}[2016/06/14]
@@ -61,7 +61,7 @@
 \DefineFamilyMember{SVG}
 \newcommand*\svg@deprecated@key[3][svg]{%
   \PackageWarning{#1}{%
-    The option key `#2' is deprecated.\MessageBreak%
+    The option key `#2' is deprecated. \MessageBreak%
     It's recommended to use `#3'\MessageBreak%
     instead%
   }%
@@ -1215,7 +1215,7 @@
 \newcommand*\svg@transparent[1]{%
   \PackageWarning{svg}{%
     The command \string\transparent\space does not exist yet,\MessageBreak%
-    so it is defined as a gobbling auxiliary macro by now.\MessageBreak%
+    so it is defined as a gobbling auxiliary macro by now. \MessageBreak%
     Maybe you should load package `transparent'\MessageBreak%
   }%
   \global\let\transparent\@gobble%
@@ -1350,14 +1350,14 @@
 \newcommand*\svghidepreamblestart{%
   \PackageWarning{svg}{%
     The macro `\string\svghidepreamblestart' is only meant\MessageBreak%
-    to be used together with package `svg-extract'.\MessageBreak%
+    to be used together with package `svg-extract'. \MessageBreak%
     Nevertheless, nothing will happen%
   }%
 }
 \newcommand*\svghidepreambleend{%
   \PackageWarning{svg}{%
     The macro `\string\svghidepreambleend' is only meant\MessageBreak%
-    to be used together with package `svg-extract'.\MessageBreak%
+    to be used together with package `svg-extract'. \MessageBreak%
     Nevertheless, nothing will happen%
   }%
 }

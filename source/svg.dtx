@@ -204,7 +204,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \app{Ghostscript} can be invoked.
   \end{abstract}
   \tableofcontents
-  \ToDo{add space after dots right before \cs{MessageBreak}}[v2.03]
   \ToDo{Hint for cropped text}[v2.03]
   \DocInput{\filename}
 \end{document}
@@ -1468,7 +1467,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 \newcommand*\svg@deprecated@key[3][svg]{%
   \PackageWarning{#1}{%
-    The option key `#2' is deprecated.\MessageBreak%
+    The option key `#2' is deprecated. \MessageBreak%
     It's recommended to use `#3'\MessageBreak%
     instead%
   }%
@@ -3431,7 +3430,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svg@transparent[1]{%
   \PackageWarning{svg}{%
     The command \string\transparent\space does not exist yet,\MessageBreak%
-    so it is defined as a gobbling auxiliary macro by now.\MessageBreak%
+    so it is defined as a gobbling auxiliary macro by now. \MessageBreak%
     Maybe you should load package `transparent'\MessageBreak%
   }%
   \global\let\transparent\@gobble%
@@ -4068,8 +4067,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \FamilyKeyStateProcessed%
 }
 \DefineFamilyKey{SVG}{pdftops}{%
-  \PackageWarning{#1}{%
-    The option key `pdftops' is deprecated.\MessageBreak%
+  \PackageWarning{svg-extract}{%
+    The option key `pdftops' is deprecated. \MessageBreak%
     You should use either `pdftoepsopt' or\MessageBreak%
     `pdftopsopt' instead. See the manual for\MessageBreak%
     more. Nothing was done%
@@ -4936,14 +4935,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svghidepreamblestart{%
   \PackageWarning{svg}{%
     The macro `\string\svghidepreamblestart' is only meant\MessageBreak%
-    to be used together with package `svg-extract'.\MessageBreak%
+    to be used together with package `svg-extract'. \MessageBreak%
     Nevertheless, nothing will happen%
   }%
 }
 \newcommand*\svghidepreambleend{%
   \PackageWarning{svg}{%
     The macro `\string\svghidepreambleend' is only meant\MessageBreak%
-    to be used together with package `svg-extract'.\MessageBreak%
+    to be used together with package `svg-extract'. \MessageBreak%
     Nevertheless, nothing will happen%
   }%
 }
