@@ -418,7 +418,7 @@
 \DefineFamilyKey{SVG}{path}{%
   \svg@deprecated@key[svg-extract]{path=#1}{extractpath=#1}%
 }
-\newcommand*\svgx@out@name{\the\value{svgx@out@count}-\svg@out@name}%
+\newcommand*\svgx@out@name{\the\value{svgx@out@count}-\svg@out@name}
 \newcounter{svgx@out@count}
 \newif\if@svgx@out@sec
 \DefineFamilyKey{SVG}{extractname}{%
@@ -797,7 +797,7 @@
   \endgroup%
 }
 \FamilyExecuteOptions{SVG}{%
-  extract=true,extractpath=basesubdir,%
+  extract=forced,extractpath=basesubdir,%
   extractruns=2,extractname=namenumbered,extractdistort=false,%
   convert=magick,convert=false,%
   gsdevice={png=png16m},gsdevice={jpeg=jpeg},gsdevice={jpg=jpeg},%

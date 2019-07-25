@@ -1,4 +1,4 @@
-% \CheckSum{4377}
+% \CheckSum{4376}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -1918,6 +1918,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{option}^^A inkscapepath
 % \begin{option}{inkscapename}
 % \changes{v2.00}{2017/02/17}{new}^^A
+% \changes{v2.03}{2019/07/25}{\opt{inkscapename} permits value \cs{relax}}^^A
 % \begin{macro}{\svg@out@name}
 % \begin{macro}{\svg@out@file}
 % With option \opt{inkscapename} the name of the exported file can be changed.
@@ -4387,30 +4388,17 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % }^^A
 % \begin{option}{path}
 % \changes{v2.00}{2017/02/24}{deprecated}^^A
-% \begin{option}{extractname}
-% \changes{v2.00}{2017/02/24}{new}^^A
-% \changes{v2.02}{2018/09/07}{usage of \cs{svg@quotes@remove}}^^A
-% \begin{option}{name}
-% \changes{v2.00}{2017/02/24}{deprecated}^^A
-% \changes{v2.00}{2017/02/24}{support of \pkg{subfig} removed}^^A
 % \begin{macro}{\svgx@out@path}
-% \begin{macro}{\svgx@out@name}
-% \begin{macro}{\if@svgx@out@sec}
-% \begin{counter}{svgx@out@count}
 % The option \opt{extractpath} controls, in which folder the results both of 
 % the extraction as well as the conversion of \app{ImageMagick} or 
-% \app{Ghostscript} will be located. With option \opt{extractname} the 
-% name of the extracted and maybe converted file itself can be changed.
+% \app{Ghostscript} will be located.
 %    \begin{macrocode}
 %<*base>
 \svg@dummy@key{extractpath}
 \svg@dummy@key{path}
-\svg@dummy@key{extractname}
-\svg@dummy@key{name}
 %</base>
 %<*extract>
 \newcommand*\svgx@out@path{}
-\newcommand*\svgx@out@name{\svg@out@name-extract}
 \DefineFamilyKey{SVG}{extractpath}{%
   \svg@sanitize@dq\svg@tempb{#1}%
   \FamilySetNumerical{SVG}{extractpath}{svg@tempa}{%
@@ -4444,34 +4432,58 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \DefineFamilyKey{SVG}{path}{%
   \svg@deprecated@key[svg-extract]{path=#1}{extractpath=#1}%
 }
+%</extract>
+%    \end{macrocode}
+% \end{macro}^^A \svgx@out@path
+% \end{option}^^A path
+% \end{option}^^A extractpath
+% \begin{option}{extractname}
+% \changes{v2.00}{2017/02/24}{new}^^A
+% \changes{v2.02}{2018/09/07}{usage of \cs{svg@quotes@remove}}^^A
+% \changes{v2.03}{2019/07/25}{\opt{extractname} permits value \cs{relax}}^^A
+% \begin{option}{name}
+% \changes{v2.00}{2017/02/24}{deprecated}^^A
+% \changes{v2.00}{2017/02/24}{support of \pkg{subfig} removed}^^A
+% \begin{macro}{\svgx@out@name}
+% \begin{macro}{\if@svgx@out@sec}
+% \begin{counter}{svgx@out@count}
+% With option \opt{extractname} the name of the extracted and maybe converted
+% file itself can be changed.
+%    \begin{macrocode}
+%<*base>
+\svg@dummy@key{extractname}
+\svg@dummy@key{name}
+%</base>
+%<*extract>
+\newcommand*\svgx@out@name{\the\value{svgx@out@count}-\svg@out@name}
 \newcounter{svgx@out@count}
 \newif\if@svgx@out@sec
 \DefineFamilyKey{SVG}{extractname}{%
-  \svg@quotes@remove[{#1}]{\svg@tempb}%
-  \FamilySetNumerical{SVG}{extractname}{svg@tempa}{%
-    {filename}{0},{name}{0},%
-    {filenamenumbered}{1},{namenumbered}{1},%
-    {numberedfilename}{1},{numberedname}{1},%
-    {numbered}{2},{section}{2},{numberedsection}{2},{sectionnumbered}{2}%
-  }{\svg@tempb}%
-  \@svgx@out@secfalse%
-  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \ifcase\svg@tempa\relax% filename
-      \renewcommand*\svgx@out@name{\svg@out@name-extract}%
-    \or% filenamenumbered
-      \renewcommand*\svgx@out@name{\the\value{svgx@out@count}-\svg@out@name}%
-    \or% numbered
-      \renewcommand*\svgx@out@name{\the\value{svgx@out@count}-\svgx@out@sec}%
-      \@svgx@out@sectrue%
-    \fi%
-  \else%
-    \if@svg@quotes@found%
-      \edef\svgx@out@name{"\svg@tempb"}%
-    \else%
-      \edef\svgx@out@name{\svg@tempb}%
-    \fi%
+  \svg@ifvalueisrelax{#1}{%
+    \renewcommand*\svgx@out@name{\the\value{svgx@out@count}-\svg@out@name}%
     \FamilyKeyStateProcessed%
-  \fi%
+  }{%
+    \FamilySetNumerical{SVG}{extractname}{svg@tempa}{%
+      {filename}{0},{name}{0},%
+      {filenamenumbered}{1},{namenumbered}{1},%
+      {numberedfilename}{1},{numberedname}{1},%
+      {numbered}{2},{section}{2},{numberedsection}{2},{sectionnumbered}{2}%
+    }{#1}%
+    \@svgx@out@secfalse%
+    \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+      \ifcase\svg@tempa\relax% filename
+        \renewcommand*\svgx@out@name{\svg@out@name-extract}%
+      \or% filenamenumbered
+        \renewcommand*\svgx@out@name{\the\value{svgx@out@count}-\svg@out@name}%
+      \or% numbered
+        \renewcommand*\svgx@out@name{\the\value{svgx@out@count}-\svgx@out@sec}%
+        \@svgx@out@sectrue%
+      \fi%
+    \else%
+      \renewcommand*\svgx@out@name{#1}%
+      \FamilyKeyStateProcessed%
+    \fi%
+  }%
 }
 \DefineFamilyKey{SVG}{name}{%
   \svg@deprecated@key[svg-extract]{name=#1}{extractname=#1}%
@@ -4481,11 +4493,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{counter}^^A svgx@out@count
 % \end{macro}^^A \if@svgx@out@sec
 % \end{macro}^^A \svgx@out@name
-% \end{macro}^^A \svgx@out@path
 % \end{option}^^A name
 % \end{option}^^A extractname
-% \end{option}^^A path
-% \end{option}^^A extractpath
 %
 %
 %
