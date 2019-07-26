@@ -397,6 +397,7 @@
     \fi%
   \endgroup%
 }
+% TODO anpassen für extract... und includegraphics
 \newcommand*\svg@param@scale@@wrn[2]{%
   \PackageWarning{svg}{%
     The parameter `#1' is not applied\MessageBreak%
@@ -876,18 +877,15 @@
 }
 \newcommand*\svg@out@file{}
 \newcommand*\includesvg[2][]{%
-% TODO das evtl als vorgelagertes Makro?! gleiches gilt für extractname...
   \begingroup%
     \svg@deprecated@param%
     \svg@local@param@set{#1}%
     \svg@get@path{#2}{}%
     \if@svg@file@found%
       \begingroup%
-        \svg@quotes@remove{\svg@out@name}%
-        \ifx\svg@out@name\@empty%
-          \let\svg@out@file\@empty%
-        \else%
-          \edef\svg@out@file{%
+        \svg@quotes@remove[\svg@out@name]{\svg@tempa}%
+        \ifx\svg@tempa\@empty\else%
+          \def\svg@tempa{%
             \svg@out@path\svg@out@name%
             \string_\svg@file@ext%
             \if@svg@ink@latex%
@@ -895,12 +893,16 @@
             \else%
               -raw%
             \fi%
-            .\svg@ink@format%
           }%
+          \svg@quotes@remove{\svg@tempa}%
+          \if@svg@quotes@found%
+            \edef\svg@tempa{"\svg@tempa"}%
+          \fi%
+          \edef\svg@tempa{\svg@tempa.\svg@ink@format}%
         \fi%
         \edef\svg@tempa{%
           \endgroup%
-          \def\noexpand\svg@out@file{\svg@out@file}%
+          \def\noexpand\svg@out@file{\svg@tempa}%
         }%
       \svg@tempa%
       \ifx\svg@out@file\@empty%

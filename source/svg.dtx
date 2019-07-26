@@ -1,4 +1,4 @@
-% \CheckSum{4392}
+% \CheckSum{4424}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -449,7 +449,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \DescribeOption{inkscapename}^^A
 % The file names of the \app{Inkscape}~export are derived from the name of the 
 % base SVG~file by default but can be modified with 
-% \opt{inkscapename}|=|\meta{filename}. It's possible to use counters for
+% \opt{inkscapename}|=|\file{\meta{filename}}. It's possible to use counters for
 % specifying the name of the exported file. Repeatedly specifying the same file 
 % name will overwrite previously created files. 
 %
@@ -849,7 +849,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \item[numbered/section/numberedsection/sectionnumbered]
 %   The file name is composed by the current enumerated countof SVG~files and 
 %   the present outline numbering.
-% \item[\meta{filename}]
+% \item[\file{\meta{filename}}]
 %   You can use any file name, the file extension is derived from option 
 %   \opt{extractformat}. It's possible to use counters for specifying the 
 %   name of the extracted file. Repeatedly specifying the same file name will
@@ -2873,11 +2873,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % is not empty.
 %    \begin{macrocode}
       \begingroup%
-        \svg@quotes@remove{\svg@out@name}%
-        \ifx\svg@out@name\@empty%
-          \let\svg@out@file\@empty%
-        \else%
-          \edef\svg@out@file{%
+        \svg@quotes@remove[\svg@out@name]{\svg@tempa}%
+        \ifx\svg@tempa\@empty\else%
+          \def\svg@tempa{%
             \svg@out@path\svg@out@name%
             \string_\svg@file@ext%
             \if@svg@ink@latex%
@@ -2885,12 +2883,16 @@ svg-extract -- Extract independent graphic files from SVG pictures
             \else%
               -raw%
             \fi%
-            .\svg@ink@format%
           }%
+          \svg@quotes@remove{\svg@tempa}%
+          \if@svg@quotes@found%
+            \edef\svg@tempa{"\svg@tempa"}%
+          \fi%
+          \edef\svg@tempa{\svg@tempa.\svg@ink@format}%
         \fi%
         \edef\svg@tempa{%
           \endgroup%
-          \def\noexpand\svg@out@file{\svg@out@file}%
+          \def\noexpand\svg@out@file{\svg@tempa}%
         }%
       \svg@tempa%
 %    \end{macrocode}
@@ -4489,12 +4491,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \renewcommand*\svgx@out@name{\the\value{svgx@out@count}-\svg@out@name}%
     \FamilyKeyStateProcessed%
   }{%
+    \svg@sanitize@dq\svg@tempb{#1}%
     \FamilySetNumerical{SVG}{extractname}{svg@tempa}{%
       {filename}{0},{name}{0},%
       {filenamenumbered}{1},{namenumbered}{1},%
       {numberedfilename}{1},{numberedname}{1},%
       {numbered}{2},{section}{2},{numberedsection}{2},{sectionnumbered}{2}%
-    }{#1}%
+    }{\svg@tempb}%
     \@svgx@out@secfalse%
     \ifx\FamilyKeyState\FamilyKeyStateProcessed%
       \ifcase\svg@tempa\relax% filename
@@ -4966,8 +4969,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.03}{2019/07/15}{new}^^A
 % \begin{macro}{\svgx@@@include}
 % \changes{v2.03}{2019/07/15}{new}^^A
-% \begin{macro}{\svgx@out@base}
-% \changes{v2.03}{2019/07/11}{new}^^A
 % \ToDo{source doc}[v2.03]
 %    \begin{macrocode}
 %<*base>
@@ -4983,7 +4984,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \ToDo{warning with hint to run with --shell-escape if file is missing}[v2.03]
 %    \begin{macrocode}
 %<*extract>
-\newcommand*\svgx@out@base{}
 \renewcommand*\includesvgx{%
   \kernel@ifnextchar[%]
   {\svgx@include}{\svgx@@@include{}{}}%
@@ -5009,7 +5009,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 %</extract>
 %    \end{macrocode}
-% \end{macro}^^A \svgx@out@base
 % \end{macro}^^A \svgx@@@include
 % \end{macro}^^A \svgx@@include
 % \end{macro}^^A \svgx@include
@@ -5025,7 +5024,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \begin{macro}{\svg@process}
 % \changes{v2.03}{2019/07/12}{new}^^A
+% \changes{v2.03}{2019/07/26}{check for empty extract file name}^^A
 % \begin{macro}{\if@svgx@run}
+% \changes{v2.03}{2019/07/12}{new}^^A
+% \begin{macro}{\svgx@out@base}
 % \changes{v2.03}{2019/07/12}{new}^^A
 % This macro is originally defined by package \pkg{svg} and used as a hook 
 % to realize the additional features of package \pkg{svg-extract}. The task is 
@@ -5034,6 +5036,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % of independent graphic files afterwards.
 %    \begin{macrocode}
 \newif\if@svgx@run
+\newcommand*\svgx@out@base{}
 \renewcommand*\svg@process[1]{%
   \if@svgx@exclude\else%
     \svg@ink@include{#1}%
@@ -5049,63 +5052,81 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \svgx@get@out@sec%
   \fi%
   \stepcounter{svgx@out@count}%
-  \svg@quotes@remove[\svgx@out@path\svgx@out@name]{\svgx@out@base}%
-  \global\let\svgx@out@base\svgx@out@base%
+%    \end{macrocode}
+% Now it is checked, if \cs{svgx@out@name} expands to an empty string or not. 
+%    \begin{macrocode}
+  \begingroup%
+    \svg@quotes@remove[\svgx@out@name]{\svgx@out@base}%
+    \ifx\svgx@out@base\@empty\else%
+      \svg@quotes@remove[\svgx@out@path\svgx@out@name]{\svgx@out@base}%
+      \if@svg@quotes@found%
+        \edef\svgx@out@base{"\svgx@out@base"}%
+      \fi%
+    \fi%
+    \global\let\svgx@out@base\svgx@out@base%
+  \endgroup%
+  \ifx\svgx@out@base\@empty%
+    \PackageError{svg-extract}{Empty extract file name}{%
+      The file name given with option `extractname' is empty.%
+    }%
+  \else%
 %    \end{macrocode}
 % This is the part, where the conditional invocation of extraction/conversion 
 % is examined. Therefore, \cs{svgx@ifexpired} is called in order to check, if 
 % all desired files exist. 
 %    \begin{macrocode}
-  \ifcase\svgx@mode\relax% false
-    \@svgx@runfalse%
-  \or% true
-    \svgx@ifexpired[\svgx@format]{\svgx@out@base}{#1}%
-      {\@svgx@runtrue}{\@svgx@runfalse}%
-  \or% forced
-    \@svgx@runtrue%
-  \fi%
-  \ifcase\svgx@mode\relax\else%
-    \if@svgx@run\else%
-      \ifcase\svgx@cnv@mode\relax\or% true
-        \svgx@ifexpired[\svgx@cnv@format]{\svgx@out@base}{#1}%
-          {\@svgx@runtrue}{\@svgx@runfalse}%
-      \or% forced
-        \@svgx@runtrue%
+    \ifcase\svgx@mode\relax% false
+      \@svgx@runfalse%
+    \or% true
+      \svgx@ifexpired[\svgx@format]{\svgx@out@base}{#1}%
+        {\@svgx@runtrue}{\@svgx@runfalse}%
+    \or% forced
+      \@svgx@runtrue%
+    \fi%
+    \ifcase\svgx@mode\relax\else%
+      \if@svgx@run\else%
+        \ifcase\svgx@cnv@mode\relax\or% true
+          \svgx@ifexpired[\svgx@cnv@format]{\svgx@out@base}{#1}%
+            {\@svgx@runtrue}{\@svgx@runfalse}%
+        \or% forced
+          \@svgx@runtrue%
+        \fi%
       \fi%
     \fi%
-  \fi%
 %    \end{macrocode}
 % Finally, \cs{svgx@run} is called to do the actual job of both extracting
 % and converting independent graphic files.
 %    \begin{macrocode}
-  \if@svgx@run%
-    \svgx@run{#1}%
-  \else%
+    \if@svgx@run%
+      \svgx@run{#1}%
+    \else%
 %    \end{macrocode}
 % Warning, if option \opt{convert} is active and option \opt{extract} is not.
 %    \begin{macrocode}
-    \ifnum\svgx@cnv@mode>\z@\relax%
-      \PackageWarning{svg-extract}{%
-        Image `#1'\MessageBreak%
-        could not be converted as `extract=false' was set%
-      }%
-    \fi%
+      \ifnum\svgx@cnv@mode>\z@\relax%
+        \PackageWarning{svg-extract}{%
+          Image `#1'\MessageBreak%
+          could not be converted as `extract=false' was set%
+        }%
+      \fi%
 %    \end{macrocode}
 % Warning, if option \opt{exclude} is active and no files were extracted.
 %    \begin{macrocode}
-    \if@svgx@exclude%
-      \svgx@ifexpired{\svgx@out@base}{#1}%
-        {\@svg@tempswatrue}{\@svg@tempswafalse}%
-      \if@svg@tempswa%
-        \PackageWarning{svg-extract}{%
-          Image `#1'\MessageBreak%
-          was neither extracted/converted nor included%
-        }%
+      \if@svgx@exclude%
+        \svgx@ifexpired{\svgx@out@base}{#1}%
+          {\@svg@tempswatrue}{\@svg@tempswafalse}%
+        \if@svg@tempswa%
+          \PackageWarning{svg-extract}{%
+            Image `#1'\MessageBreak%
+            was neither extracted/converted nor included%
+          }%
+        \fi%
       \fi%
     \fi%
   \fi%
 }
 %    \end{macrocode}
+% \end{macro}^^A \svgx@out@base
 % \end{macro}^^A \if@svgx@run
 % \end{macro}^^A \svg@process
 % \begin{macro}{\svgx@ifexpired}
@@ -5215,6 +5236,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \fi%
     }%
   \svg@tempa%
+  \svg@quotes@remove{\svgx@out@path}%
+  \svg@quotes@remove{\svgx@out@name}%
   \begingroup%
     \endlinechar=\m@ne%
     \IfFileExists{\svgx@preamble}{%
@@ -5228,7 +5251,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % reading the line.
 %    \begin{macrocode}
       \catcode`\#=12\relax%
-      \immediate\openout\svgx@stream@out=\svgx@out@name.\svgx@latex@ext%
+      \immediate\openout\svgx@stream@out="\svgx@out@name".\svgx@latex@ext%
       \immediate\openin\svgx@stream@in=\svgx@preamble%
       \@svg@tempswatrue%
       \@svgx@preamble@writetrue%
@@ -5285,7 +5308,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % its content is stored in \cs{svg@tempa}, since it is necessary to prepend
 % some stuff to the preamble, for example a maybe not existent document class.
 %    \begin{macrocode}
-      \immediate\openin\svgx@stream@in=\svgx@out@name.\svgx@latex@ext%
+      \immediate\openin\svgx@stream@in="\svgx@out@name".\svgx@latex@ext%
       \let\svg@tempa\@empty%
       \loop\unless\ifeof\svgx@stream@in%
         \readline\svgx@stream@in to\svgx@read@line%
@@ -5315,7 +5338,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % auxiliary \LaTeX~file is written again. Some information are written right at
 % the beginning of the file.
 %    \begin{macrocode}
-    \immediate\openout\svgx@stream@out=\svgx@out@name.\svgx@latex@ext%
+    \immediate\openout\svgx@stream@out="\svgx@out@name".\svgx@latex@ext%
     \immediate\write\svgx@stream@out{%
       \@percentchar\@percentchar\space This file was generated by package 
       `svg-extract'^^J%
@@ -5484,8 +5507,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % purpose, infos as well as all shell commands are stored within the token
 % register \cs{svgx@shell}.
 %    \begin{macrocode}
-    \svg@quotes@remove{\svgx@out@path}%
-    \svg@quotes@remove{\svgx@out@name}%
     \svgx@shell{}%
 %    \end{macrocode}
 % First of all the separate auxiliary \LaTeX~file is compiled with the detected 

@@ -426,12 +426,13 @@
     \renewcommand*\svgx@out@name{\the\value{svgx@out@count}-\svg@out@name}%
     \FamilyKeyStateProcessed%
   }{%
+    \svg@sanitize@dq\svg@tempb{#1}%
     \FamilySetNumerical{SVG}{extractname}{svg@tempa}{%
       {filename}{0},{name}{0},%
       {filenamenumbered}{1},{namenumbered}{1},%
       {numberedfilename}{1},{numberedname}{1},%
       {numbered}{2},{section}{2},{numberedsection}{2},{sectionnumbered}{2}%
-    }{#1}%
+    }{\svg@tempb}%
     \@svgx@out@secfalse%
     \ifx\FamilyKeyState\FamilyKeyStateProcessed%
       \ifcase\svg@tempa\relax% filename
@@ -828,7 +829,6 @@
 }
 \let\svghidepreamblestart\relax
 \let\svghidepreambleend\relax
-\newcommand*\svgx@out@base{}
 \renewcommand*\includesvgx{%
   \kernel@ifnextchar[%]
   {\svgx@include}{\svgx@@@include{}{}}%
@@ -1008,19 +1008,23 @@
 % CREATE inputformat/inputtype/includeformat/includetype (something like this)
     % (\svgx@format,\svgx@cnv@format) 
   % TODO set extract=true, if \svgx@out@base does not exist?
+  % TODO same for includeinkscape?!
   \includesvg[{#1,exclude,extract=force}]{#3}%
-  \IfFileExists{\svgx@out@base.pdf}{%
-    \l@addto@macro\svg@tempb{#2}%
-    \par\meaning\svg@tempb\par
-    % TODO \svg@param@scale@@wrn%
-%    \expandafter\includegraphics\expandafter[\svg@tempb]{\svgx@out@base.pdf}%
-%    \svgx@ifinlist{scale=}{\svg@tempb}{}{}
-  }{%
-%      % TODO Warning with hint to run with --shell-escape
-%      % TODO use result of inkscape export in draft mode?!
-  }%
+  \ifx\svgx@out@base\@empty\else%
+    \IfFileExists{\svgx@out@base.pdf}{%
+      \l@addto@macro\svg@tempb{#2}%
+      \par\meaning\svg@tempb\par
+      % TODO \svg@param@scale@@wrn%
+  %    \expandafter\includegraphics\expandafter[\svg@tempb]{\svgx@out@base.pdf}%
+  %    \svgx@ifinlist{scale=}{\svg@tempb}{}{}
+    }{%
+      % TODO Warning with hint to run with --shell-escape
+      % TODO use result of inkscape export in draft mode?!
+    }%
+  \fi%
 }
 \newif\if@svgx@run
+\newcommand*\svgx@out@base{}
 \renewcommand*\svg@process[1]{%
   \if@svgx@exclude\else%
     \svg@ink@include{#1}%
@@ -1029,43 +1033,57 @@
     \svgx@get@out@sec%
   \fi%
   \stepcounter{svgx@out@count}%
-  \svg@quotes@remove[\svgx@out@path\svgx@out@name]{\svgx@out@base}%
-  \global\let\svgx@out@base\svgx@out@base%
-  \ifcase\svgx@mode\relax% false
-    \@svgx@runfalse%
-  \or% true
-    \svgx@ifexpired[\svgx@format]{\svgx@out@base}{#1}%
-      {\@svgx@runtrue}{\@svgx@runfalse}%
-  \or% forced
-    \@svgx@runtrue%
-  \fi%
-  \ifcase\svgx@mode\relax\else%
-    \if@svgx@run\else%
-      \ifcase\svgx@cnv@mode\relax\or% true
-        \svgx@ifexpired[\svgx@cnv@format]{\svgx@out@base}{#1}%
-          {\@svgx@runtrue}{\@svgx@runfalse}%
-      \or% forced
-        \@svgx@runtrue%
+  \begingroup%
+    \svg@quotes@remove[\svgx@out@name]{\svgx@out@base}%
+    \ifx\svgx@out@base\@empty\else%
+      \svg@quotes@remove[\svgx@out@path\svgx@out@name]{\svgx@out@base}%
+      \if@svg@quotes@found%
+        \edef\svgx@out@base{"\svgx@out@base"}%
       \fi%
     \fi%
-  \fi%
-  \if@svgx@run%
-    \svgx@run{#1}%
+    \global\let\svgx@out@base\svgx@out@base%
+  \endgroup%
+  \ifx\svgx@out@base\@empty%
+    \PackageError{svg-extract}{Empty extract file name}{%
+      The file name given with option `extractname' is empty.%
+    }%
   \else%
-    \ifnum\svgx@cnv@mode>\z@\relax%
-      \PackageWarning{svg-extract}{%
-        Image `#1'\MessageBreak%
-        could not be converted as `extract=false' was set%
-      }%
+    \ifcase\svgx@mode\relax% false
+      \@svgx@runfalse%
+    \or% true
+      \svgx@ifexpired[\svgx@format]{\svgx@out@base}{#1}%
+        {\@svgx@runtrue}{\@svgx@runfalse}%
+    \or% forced
+      \@svgx@runtrue%
     \fi%
-    \if@svgx@exclude%
-      \svgx@ifexpired{\svgx@out@base}{#1}%
-        {\@svg@tempswatrue}{\@svg@tempswafalse}%
-      \if@svg@tempswa%
+    \ifcase\svgx@mode\relax\else%
+      \if@svgx@run\else%
+        \ifcase\svgx@cnv@mode\relax\or% true
+          \svgx@ifexpired[\svgx@cnv@format]{\svgx@out@base}{#1}%
+            {\@svgx@runtrue}{\@svgx@runfalse}%
+        \or% forced
+          \@svgx@runtrue%
+        \fi%
+      \fi%
+    \fi%
+    \if@svgx@run%
+      \svgx@run{#1}%
+    \else%
+      \ifnum\svgx@cnv@mode>\z@\relax%
         \PackageWarning{svg-extract}{%
           Image `#1'\MessageBreak%
-          was neither extracted/converted nor included%
+          could not be converted as `extract=false' was set%
         }%
+      \fi%
+      \if@svgx@exclude%
+        \svgx@ifexpired{\svgx@out@base}{#1}%
+          {\@svg@tempswatrue}{\@svg@tempswafalse}%
+        \if@svg@tempswa%
+          \PackageWarning{svg-extract}{%
+            Image `#1'\MessageBreak%
+            was neither extracted/converted nor included%
+          }%
+        \fi%
       \fi%
     \fi%
   \fi%
@@ -1141,6 +1159,8 @@
       \fi%
     }%
   \svg@tempa%
+  \svg@quotes@remove{\svgx@out@path}%
+  \svg@quotes@remove{\svgx@out@name}%
   \begingroup%
     \endlinechar=\m@ne%
     \IfFileExists{\svgx@preamble}{%
@@ -1150,7 +1170,7 @@
         `\svgx@out@name.\svgx@latex@ext'%
       }%
       \catcode`\#=12\relax%
-      \immediate\openout\svgx@stream@out=\svgx@out@name.\svgx@latex@ext%
+      \immediate\openout\svgx@stream@out="\svgx@out@name".\svgx@latex@ext%
       \immediate\openin\svgx@stream@in=\svgx@preamble%
       \@svg@tempswatrue%
       \@svgx@preamble@writetrue%
@@ -1179,7 +1199,7 @@
       \immediate\closein\svgx@stream@in%
       \immediate\closeout\svgx@stream@out%
       \catcode`\#=6\relax%
-      \immediate\openin\svgx@stream@in=\svgx@out@name.\svgx@latex@ext%
+      \immediate\openin\svgx@stream@in="\svgx@out@name".\svgx@latex@ext%
       \let\svg@tempa\@empty%
       \loop\unless\ifeof\svgx@stream@in%
         \readline\svgx@stream@in to\svgx@read@line%
@@ -1201,7 +1221,7 @@
       \fi%
       \let\svg@tempa\@empty%
     }%
-    \immediate\openout\svgx@stream@out=\svgx@out@name.\svgx@latex@ext%
+    \immediate\openout\svgx@stream@out="\svgx@out@name".\svgx@latex@ext%
     \immediate\write\svgx@stream@out{%
       \@percentchar\@percentchar\space This file was generated by package
       `svg-extract'^^J%
@@ -1310,8 +1330,6 @@
     }%
   }{%
     \svg@shell@mkdir{\svgx@out@path}%
-    \svg@quotes@remove{\svgx@out@path}%
-    \svg@quotes@remove{\svgx@out@name}%
     \svgx@shell{}%
     \svgx@eaddto@shell{%
       \noexpand\PackageInfoNoLine{svg-extract}{%
