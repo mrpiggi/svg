@@ -665,6 +665,10 @@
 }
 \newcommand*\svgx@onlywindows[1]{}
 \AfterPackage*{ifplatform}{\renewcommand*\svgx@onlywindows[1]{\ifwindows#1\fi}}
+\newcommand*\svgx@ifkeyandval[3]{%
+  \def\svg@tempa##1=##2=##3\@nil{\ifstr{##3}{=}{#2}{#3}}%
+  \svg@tempa#1==\@nil%
+}
 \newcommand*\svgx@cnv@get@dpi[1]{%
   \begingroup%
     \def\svg@tempa##1dpi##2x##3dpi##4\@nil{%
@@ -710,10 +714,6 @@
       \fi%
     }%
   \svg@tempb%
-}
-\newcommand*\svgx@ifkeyandval[3]{%
-  \def\svg@tempa##1=##2=##3\@nil{\ifstr{##3}{=}{#2}{#3}}%
-  \svg@tempa#1==\@nil%
 }
 \newcommand*\svgx@setformatkey[2]{%
   \svgx@ifkeyandval{#1}{%
@@ -897,6 +897,7 @@
           }{%
             \svg@ifvalueisrelax{########1}{%
               % TODO direkt hier ausführen?! vorherige Gruppe beenden + öffnen?
+              % TODO besser noch verschachtelte Gruppe (\svg@deprecated@param)
               \l@addto@macro\svgx@params@exec%
             }{%
               \l@addto@macro\svgx@params@pass%

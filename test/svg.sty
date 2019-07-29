@@ -846,7 +846,6 @@
   \endgroup%
 }
 \newcommand*\svg@local@param@set[1]{%
-  \svg@deprecated@param%
   \svg@local@param@use%
   \FamilyOptions{SVG}{#1}%
   \ifstr{\svg@ink@format}{png}{\FamilyOptions{SVG}{inkscapelatex=false}}{}%
@@ -858,7 +857,35 @@
     \FamilyExecuteOptions[.svg.sty]{SVG}{distort=false}%
   \fi%
 }
-\newcommand*\svg@local@param@use{}
+\newcommand*\svg@deprecated@param{%
+  \begingroup%
+    \let\svg@tempa\@empty%
+    \ifx\svgwidth\@undefined\else%
+      \l@addto@macro\svg@tempa{,width=\svgwidth}%
+    \fi%
+    \ifx\svgscale\@undefined\else%
+      \l@addto@macro\svg@tempa{,scale=\svgscale}%
+    \fi%
+    \ifx\svg@tempa\@empty%
+      \def\svg@tempa{\endgroup}%
+    \else%
+      \svg@remove@leadingchar,\svg@tempa%
+      \PackageWarning{svg}{%
+        You should specify the image size with parameters\MessageBreak%
+        `width' and `height' or `scale' instead of using\MessageBreak%
+        `\string\svgwidth' or `\string\svgscale'. Nevertheless,\MessageBreak%
+        parameter(s) `\svg@tempa' will be set%
+      }%
+      \global\let\svgwidth\@undefined%
+      \global\let\svgscale\@undefined%
+      \edef\svg@tempa{%
+        \endgroup%
+        \noexpand\FamilyOptions{SVG}{\svg@tempa}%
+      }%
+    \fi%
+  \svg@tempa%
+}
+\newcommand*\svg@local@param@use{\svg@deprecated@param}
 \newcommand*\svg@local@param@def[1]{\l@addto@macro\svg@local@param@use{#1}}
 \DefineFamilyMember[.param]{SVG}
 \newcommand*\svgsetup{\FamilyOptions{SVG}}
@@ -1023,34 +1050,6 @@
       \svg@file@missing[\svg@ink@format]{\svg@file@base}{\svg@out@path}%
     \fi%
   \endgroup%
-}
-\newcommand*\svg@deprecated@param{%
-  \begingroup%
-    \let\svg@tempa\@empty%
-    \ifx\svgwidth\@undefined\else%
-      \l@addto@macro\svg@tempa{,width=\svgwidth}%
-    \fi%
-    \ifx\svgscale\@undefined\else%
-      \l@addto@macro\svg@tempa{,scale=\svgscale}%
-    \fi%
-    \ifx\svg@tempa\@empty%
-      \def\svg@tempa{\endgroup}%
-    \else%
-      \svg@remove@leadingchar,\svg@tempa%
-      \PackageWarning{svg}{%
-        You should specify the image size with parameters\MessageBreak%
-        `width' and `height' or `scale' instead of using\MessageBreak%
-        `\string\svgwidth' or `\string\svgscale'. Nevertheless,\MessageBreak%
-        parameter(s) `\svg@tempa' will be set%
-      }%
-      \global\let\svgwidth\@undefined%
-      \global\let\svgscale\@undefined%
-      \edef\svg@tempa{%
-        \endgroup%
-        \noexpand\FamilyOptions{SVG}{\svg@tempa}%
-      }%
-    \fi%
-  \svg@tempa%
 }
 \newif\if@svg@ink@run
 \newcommand*\svg@ink@run[1]{%
