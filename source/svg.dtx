@@ -4600,17 +4600,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 \newif\if@svgx@param@distort
 \DefineFamilyKey{SVG}{extractdistort}[true]{%
-  \FamilyKeyStateUnknownValue%
-  \svg@ifvalueisrelax{#1}{%
-    \@svgx@param@distortfalse%
+  \svgx@ifvalueisinherit{#1}{%
+    \renewcommand*\if@svgx@param@distort{\if@svg@param@distort}%
     \FamilyKeyStateProcessed%
   }{%
-    \svgx@ifvalueisinherit{#1}{%
-      \renewcommand*\if@svgx@param@distort{\if@svg@param@distort}%
-      \FamilyKeyStateProcessed%
-    }{%
-      \FamilySetBool{SVG}{extractdistort}{@svgx@param@distort}{#1}%
-    }%
+    \FamilySetBool{SVG}{extractdistort}{@svgx@param@distort}{#1}%
   }%
 }
 \DefineFamilyKey{SVG}{extractkeepaspectratio}[true]{%
@@ -6291,7 +6285,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<*extract>
 \FamilyExecuteOptions{SVG}{%
   extract=forced,extractpath=basesubdir,%
-  extractruns=2,extractname=namenumbered,extractdistort=false,%
+  extractruns=2,extractname=namenumbered,extractdistort=inherit,%
   convert=magick,convert=false,%
   gsdevice={png=png16m},gsdevice={jpeg=jpeg},gsdevice={jpg=jpeg},%
   gsdevice={tif=tiff48nc},gsdevice={tiff=tiff48nc},%
