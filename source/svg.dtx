@@ -1,4 +1,4 @@
-% \CheckSum{4424}
+% \CheckSum{4432}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -887,8 +887,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % default---leads to the usage of the corresponding option of package \pkg{svg} 
 % (\opt{width}/\opt{height}/\opt{scale}/\opt{pretex}/\opt{apptex}), whereas
 % \opt{extract\dots}|=|\val{\cs{relax}} can be used to ignore a parent option
-% utterly. Only option \opt{extractdistort} is initialized to \val{false} and
-% does not inherit from \opt{distort} by default.
+% utterly.
 %
 % \DescribeOptions{extractpreamble,extractpreambleend}^^A
 % Within the included and extracted SVG~files any \LaTeX~macro can be used 
@@ -1685,9 +1684,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Package options which can be used to switch functionality on or off during 
 % the loading of package \pkg{svg}.
 %    \begin{macrocode}
-\DeclareOption{on}{\FamilyOptions{SVG}{inkscape=forced}}
-\DeclareOption{auto}{\FamilyOptions{SVG}{inkscape=true}}
-\DeclareOption{off}{\FamilyOptions{SVG}{inkscape=false}}
+\DeclareOption{on}{\AtEndOfPackage{\FamilyOptions{SVG}{inkscape=forced}}}
+\DeclareOption{forced}{\AtEndOfPackage{\FamilyOptions{SVG}{inkscape=forced}}}
+\DeclareOption{auto}{\AtEndOfPackage{\FamilyOptions{SVG}{inkscape=true}}}
+\DeclareOption{off}{\AtEndOfPackage{\FamilyOptions{SVG}{inkscape=false}}}
 %    \end{macrocode}
 % \end{option}^^A off
 % \end{option}^^A auto
@@ -1962,7 +1962,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 \newcommand*\svg@param@width{\z@}
 \DefineFamilyKey{SVG}{width}{%
-  \FamilyKeyStateUnknownValue%
   \svg@ifvalueisrelax{#1}{%
     \renewcommand*\svg@param@width{\z@}%
     \FamilyKeyStateProcessed%
@@ -1977,7 +1976,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 \newcommand*\svg@param@height{\z@}
 \DefineFamilyKey{SVG}{height}{%
-  \FamilyKeyStateUnknownValue%
   \svg@ifvalueisrelax{#1}{%
     \renewcommand*\svg@param@height{\z@}%
     \FamilyKeyStateProcessed%
@@ -3797,9 +3795,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % the loading of package \pkg{svg-extract}.
 %    \begin{macrocode}
 %<*extract>
-\DeclareOption{on}{\FamilyOptions{SVG}{extract=forced}}
-\DeclareOption{auto}{\FamilyOptions{SVG}{extract=true}}
-\DeclareOption{off}{\FamilyOptions{SVG}{extract=false}}
+\DeclareOption{on}{\AtEndOfPackage{\FamilyOptions{SVG}{extract=forced}}}
+\DeclareOption{forced}{\AtEndOfPackage{\FamilyOptions{SVG}{extract=forced}}}
+\DeclareOption{auto}{\AtEndOfPackage{\FamilyOptions{SVG}{extract=true}}}
+\DeclareOption{off}{\AtEndOfPackage{\FamilyOptions{SVG}{extract=false}}}
 %</extract>
 %    \end{macrocode}
 % \end{option}^^A off
@@ -4558,7 +4557,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<*extract>
 \newcommand*\svgx@param@width{\svg@param@width}
 \DefineFamilyKey{SVG}{extractwidth}{%
-  \FamilyKeyStateUnknownValue%
   \svg@ifvalueisrelax{#1}{%
     \renewcommand*\svgx@param@width{\z@}%
     \FamilyKeyStateProcessed%
@@ -4578,7 +4576,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 \newcommand*\svgx@param@height{\svg@param@height}
 \DefineFamilyKey{SVG}{extractheight}{%
-  \FamilyKeyStateUnknownValue%
   \svg@ifvalueisrelax{#1}{%
     \renewcommand*\svgx@param@height{\z@}%
     \FamilyKeyStateProcessed%

@@ -855,6 +855,7 @@
   \kernel@ifnextchar[%]
   {\svgx@include}{\svgx@@@include{}{}}%
 }
+\DefineFamilyMember[.graphicx]{SVG}
 \newcommand*\svgx@graphicx@keys{%
   width,height,keepaspectratio,distort,%
   scale,angle,origin,draft%
@@ -887,7 +888,6 @@
       }%
       % DOC enthält jetzt alle völlig unbekannten Optionen
       \svgx@setlist[\svgx@params@pass]{\svgx@params@temp}%
-      \DefineFamilyMember[.graphicx]{SVG}
       \let\svgx@params@exec\@empty%
       \let\svgx@params@pass\@empty%
       \def\svg@tempb####1{%
@@ -896,6 +896,7 @@
             \l@addto@macro\svgx@params@pass{####1,}%
           }{%
             \svg@ifvalueisrelax{########1}{%
+              % TODO direkt hier ausführen?! vorherige Gruppe beenden + öffnen?
               \l@addto@macro\svgx@params@exec%
             }{%
               \l@addto@macro\svgx@params@pass%
@@ -939,6 +940,7 @@
           {\etex@unexpanded\expandafter{\svgx@params@pass}}%
       }%
     \svg@tempa%
+      % TODO geht das eventuell eleganter in Zeile 900?
       \expandafter\svg@local@param@set\expandafter{\svgx@params@exec}%
       \def\svg@tempb{%
         draft\if@svg@draft\else=false\fi,%
@@ -962,7 +964,6 @@
       \edef\svgx@params@pass{%
         \svg@tempb\etex@unexpanded\expandafter{\svgx@params@pass}%
       }%
-      \DefineFamilyMember[.graphicx]{SVG}%
       \def\svg@tempb####1{%
         \DefineFamilyKey[.graphicx]{SVG}{####1}[]{\FamilyKeyStateProcessed}%
       }%
@@ -997,7 +998,7 @@
   %
   \begingroup%
     \def\svg@tempb##1{%
-      \DefineFamilyKey[.param]{SVG}{##1}[]{%
+      \DefineFamilyKey[.graphicx]{SVG}{##1}[]{%
         \def\svg@tempa{####1}%
         \ifx\svg@tempa\@empty\else%
           \def\svg@tempa{=####1}%
@@ -1027,7 +1028,7 @@
     \@for\svg@tempa:=\svgx@graphicx@keys\do{%
       \expandafter\svg@tempb\expandafter{\svg@tempa}%
     }%
-    \DefineFamilyKey[.param]{SVG}{distort}[true]{%
+    \DefineFamilyKey[.graphicx]{SVG}{distort}[true]{%
       \FamilySetBool{SVG}{distort}{@svg@tempswa}{##1}%
       \ifx\FamilyKeyState\FamilyKeyStateProcessed%
         \PackageWarning{svg-extract}{%
@@ -1039,38 +1040,41 @@
         }%
       \fi
     }%
-    \DefineFamilyKey[.param]{SVG}{pretex}{%
+    \DefineFamilyKey[.graphicx]{SVG}{pretex}{%
       \PackageWarning{svg-extract}{%
         The given parameter `pretex=\detokenize{##1}'\MessageBreak%
         has no effect on extracted/converted grahics.\MessageBreak%
-        Instead, you should use `extractpretex=\detokenize{##1}'%
+        Instead, you should use\MessageBreak
+        `extractpretex=\detokenize{##1}'\MessageBreak%
       }%
       \FamilyKeyStateProcessed%
     }%
-    \DefineFamilyKey[.param]{SVG}{apptex}{%
+    \DefineFamilyKey[.graphicx]{SVG}{apptex}{%
       \PackageWarning{svg-extract}{%
         The given parameter `apptex=\detokenize{##1}'\MessageBreak%
         has no effect on extracted/converted grahics.\MessageBreak%
-        Instead, you should use `extractapptex=\detokenize{##1}'%
+        Instead, you should use\MessageBreak
+        `extractapptex=\detokenize{##1}'\MessageBreak%
       }%
       \FamilyKeyStateProcessed%
     }%
-    \svg@local@param@set{#1}%
-  \endgroup%
+%    \svg@local@param@set{#1}%
+%  \endgroup%
 % TODO inputformat from \svgx@ext@get@input@format if not set
 % CREATE inputformat/inputtype/includeformat/includetype (something like this)
     % (\svgx@format,\svgx@cnv@format) 
   % TODO set extract=true, if \svgx@out@base does not exist?
-  \svgx@include@cmd[{#1,exclude,extract=force}]{#3}%
-  \ifx\svgx@out@base\@empty\else%
-    \IfFileExists{\svgx@out@base.pdf}{%
-      % TODO \svg@param@scale@@wrn%
-      \includegraphics[{#2}]{\svgx@out@base.pdf}%
-    }{%
-      % TODO Warning with hint to run with --shell-escape
-      % TODO use result of inkscape export in draft mode?!
-    }%
-  \fi%
+    \svgx@include@cmd[{#1,exclude,extract=force}]{#3}%
+    \ifx\svgx@out@base\@empty\else%
+      \IfFileExists{\svgx@out@base.pdf}{%
+        % TODO \svg@param@scale@@wrn%
+        \includegraphics[{#2}]{\svgx@out@base.pdf}%
+      }{%
+        % TODO Warning with hint to run with --shell-escape
+        % TODO use result of inkscape export in draft mode?!
+      }%
+    \fi%
+  \endgroup
 }
 \newif\if@svgx@run
 \newcommand*\svgx@out@base{}
