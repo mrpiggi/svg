@@ -3456,9 +3456,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \IfArgIsEmpty{#1}{}{\svg@local@param@set{#1}}%
   \svg@param@scale@wrn%
   \svg@set@input@path%
-  \if@svg@draft%
-    \@svg@ink@latexfalse%
-  \fi%
 %    \end{macrocode}
 % In order to support file names with multiple dots, the second argument is 
 % parsed and only the part after the last dot is stroed in \cs{svg@tempb} as 
@@ -3491,7 +3488,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % patches to environment \env{picture} as well as command \cs{includegraphics} 
 % are made beforehand with \cs{svg@patches}.
 %    \begin{macrocode}
-  \if@svg@ink@latex%
+  \@svg@tempswatrue%
+  \if@svg@draft%
+    \@svg@tempswafalse%
+  \fi%
+  \if@svg@ink@latex\else%
+    \@svg@tempswafalse%
+  \fi%
+  \if@svg@tempswa%
     \svg@patches{\svg@tempa}%
     \ifnum\value{svg@param@lastpage}=\z@\relax%
       \expandafter\svg@get@lastpage\expandafter{\svg@tempb}%
@@ -3538,8 +3542,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \svg@tempb{\usebox\svg@box}%
   \else%
 %    \end{macrocode}
-% If the export with \app{Inkscape} was done without \LaTeX~support, the 
-% resulting graphic file will be included with \cs{includegraphics}.
+% If the export with \app{Inkscape} was done without \LaTeX~support or 
+% parameter \prm{draft was given}, the resulting graphic file will be included
+% with \cs{includegraphics}.
 %    \begin{macrocode}
     \def\svg@tempb{%
       draft\if@svg@draft\else=false\fi%

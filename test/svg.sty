@@ -1221,7 +1221,7 @@
 }
 \newcommand*\svg@process[1]{\svg@ink@include{#1}}
 \newcommand*\svg@ink@include[2][]{%
-  \svg@local@param@set{#1}%
+  \IfArgIsEmpty{#1}{}{\svg@local@param@set{#1}}%
   \svg@param@scale@wrn%
   \svg@set@input@path%
   \def\svg@tempb##1.##2\@nil{%
