@@ -71,16 +71,17 @@
     \fi%
   \fi%
 }
-\DeclareOption{on}{\FamilyOptions{SVG}{extract=forced}}
-\DeclareOption{auto}{\FamilyOptions{SVG}{extract=true}}
-\DeclareOption{off}{\FamilyOptions{SVG}{extract=false}}
+\DeclareOption{on}{\AtEndOfPackage{\FamilyOptions{SVG}{extract=forced}}}
+\DeclareOption{forced}{\AtEndOfPackage{\FamilyOptions{SVG}{extract=forced}}}
+\DeclareOption{auto}{\AtEndOfPackage{\FamilyOptions{SVG}{extract=true}}}
+\DeclareOption{off}{\AtEndOfPackage{\FamilyOptions{SVG}{extract=false}}}
 \newcommand*\svgx@format{pdf}
 \ifxetex\else\ifpdf\else
   \renewcommand*\svgx@format{eps}
 \fi\fi
 \DefineFamilyKey{SVG}{extractformat}{%
   \svg@lowercase[{#1}]{\svgx@format}%
-  \svgx@setlist\svgx@format{\svgx@format}%
+  \svgx@setlist{\svgx@format}%
   \FamilyKeyStateProcessed%
 }
 \DefineFamilyKey{SVG}{pdf}[true]{%
@@ -319,7 +320,7 @@
 \newcommand*\svgx@cnv@format{png}
 \DefineFamilyKey{SVG}{convertformat}{%
   \svg@lowercase[{#1}]{\svgx@cnv@format}%
-  \svgx@setlist\svgx@cnv@format{\svgx@cnv@format}%
+  \svgx@setlist{\svgx@cnv@format}%
   \FamilyKeyStateProcessed%
 }
 \DefineFamilyKey{SVG}{png}[true]{%
@@ -454,12 +455,11 @@
 }
 \newcommand*\svgx@param@width{\svg@param@width}
 \DefineFamilyKey{SVG}{extractwidth}{%
-  \FamilyKeyStateUnknownValue%
   \svg@ifvalueisrelax{#1}{%
     \renewcommand*\svgx@param@width{\z@}%
     \FamilyKeyStateProcessed%
   }{%
-    \ifstr{#1}{inherit}{%
+    \svgx@ifvalueisinherit{#1}{%
       \renewcommand*\svgx@param@width{\svg@param@width}%
       \FamilyKeyStateProcessed%
     }{%
@@ -474,12 +474,11 @@
 }
 \newcommand*\svgx@param@height{\svg@param@height}
 \DefineFamilyKey{SVG}{extractheight}{%
-  \FamilyKeyStateUnknownValue%
   \svg@ifvalueisrelax{#1}{%
     \renewcommand*\svgx@param@height{\z@}%
     \FamilyKeyStateProcessed%
   }{%
-    \ifstr{#1}{inherit}{%
+    \svgx@ifvalueisinherit{#1}{%
       \renewcommand*\svgx@param@height{\svg@param@height}%
       \FamilyKeyStateProcessed%
     }{%
@@ -494,17 +493,11 @@
 }
 \newif\if@svgx@param@distort
 \DefineFamilyKey{SVG}{extractdistort}[true]{%
-  \FamilyKeyStateUnknownValue%
-  \svg@ifvalueisrelax{#1}{%
-    \@svgx@param@distortfalse%
+  \svgx@ifvalueisinherit{#1}{%
+    \renewcommand*\if@svgx@param@distort{\if@svg@param@distort}%
     \FamilyKeyStateProcessed%
   }{%
-    \ifstr{#1}{inherit}{%
-      \renewcommand*\if@svgx@param@distort{\if@svg@param@distort}%
-      \FamilyKeyStateProcessed%
-    }{%
-      \FamilySetBool{SVG}{extractdistort}{@svgx@param@distort}{#1}%
-    }%
+    \FamilySetBool{SVG}{extractdistort}{@svgx@param@distort}{#1}%
   }%
 }
 \DefineFamilyKey{SVG}{extractkeepaspectratio}[true]{%
@@ -526,7 +519,7 @@
     \renewcommand*\svgx@param@scale{1}%
     \FamilyKeyStateProcessed%
   }{%
-    \ifstr{#1}{inherit}{%
+    \svgx@ifvalueisinherit{#1}{%
       \renewcommand*\svgx@param@scale{\svg@param@scale}%
       \FamilyKeyStateProcessed%
     }{%
@@ -544,7 +537,7 @@
   \svg@ifvalueisrelax{#1}{%
     \let\svgx@param@pretex\relax%
   }{%
-    \ifstr{#1}{inherit}{%
+    \svgx@ifvalueisinherit{#1}{%
       \renewcommand*\svgx@param@pretex{\svg@param@pretex}%
     }{%
       \renewcommand*\svgx@param@pretex{#1}%
@@ -557,7 +550,7 @@
   \svg@ifvalueisrelax{#1}{%
     \let\svgx@param@apptex\relax%
   }{%
-    \ifstr{#1}{inherit}{%
+    \svgx@ifvalueisinherit{#1}{%
       \renewcommand*\svgx@param@apptex{\svg@param@apptex}%
     }{%
       \renewcommand*\svgx@param@apptex{#1}%
@@ -585,15 +578,26 @@
     \fi%
   \else%
     \svg@lowercase[{#1}]{\svgx@clean}%
-    \svgx@setlist\svgx@clean{\svgx@clean}%
+    \svgx@setlist{\svgx@clean}%
     \FamilyKeyStateProcessed%
   \fi%
 }
 \DefineFamilyKey{SVG}{clear}[true]{\FamilyOptions{SVG}{clean=#1}}
 \newif\if@svgx@exclude
 \FamilyBoolKey{SVG}{exclude}{@svgx@exclude}
-\newcommand*\svgx@setlist[2]{%
-  \expandafter\svgx@@setlist\expandafter#1\expandafter{#2}%
+\newcommand*\svgx@setlist[2][]{%
+  \begingroup%
+    \edef\svg@tempa{%
+      \endgroup%
+      \etex@unexpanded{\svgx@@setlist#2}{%
+        \IfArgIsEmpty{#1}{%
+          \etex@unexpanded\expandafter{#2}%
+        }{%
+          \etex@unexpanded\expandafter{#1}%
+        }%
+      }%
+    }%
+  \svg@tempa%
 }
 \newcommand*\svgx@@setlist[2]{%
   \begingroup%
@@ -648,12 +652,19 @@
     \fi%
   \endgroup%
 }
+\newcommand*\svgx@ifvalueisinherit[1]{%
+  \begingroup%
+    \def\svg@tempa{#1}%
+    \def\svg@tempb{inherit}%
+    \ifx\svg@tempa\svg@tempb\relax%
+      \aftergroup\@firstoftwo%
+    \else%
+      \aftergroup\@secondoftwo%
+    \fi%
+  \endgroup%
+}
 \newcommand*\svgx@onlywindows[1]{}
 \AfterPackage*{ifplatform}{\renewcommand*\svgx@onlywindows[1]{\ifwindows#1\fi}}
-\newcommand*\svgx@ifkeyandval[3]{%
-  \def\svg@tempa##1=##2=##3\@nil{\ifstr{##3}{=}{#2}{#3}}%
-  \svg@tempa#1==\@nil%
-}
 \newcommand*\svgx@cnv@get@dpi[1]{%
   \begingroup%
     \def\svg@tempa##1dpi##2x##3dpi##4\@nil{%
@@ -699,6 +710,10 @@
       \fi%
     }%
   \svg@tempb%
+}
+\newcommand*\svgx@ifkeyandval[3]{%
+  \def\svg@tempa##1=##2=##3\@nil{\ifstr{##3}{=}{#2}{#3}}%
+  \svg@tempa#1==\@nil%
 }
 \newcommand*\svgx@setformatkey[2]{%
   \svgx@ifkeyandval{#1}{%
@@ -799,7 +814,7 @@
 }
 \FamilyExecuteOptions{SVG}{%
   extract=forced,extractpath=basesubdir,%
-  extractruns=2,extractname=namenumbered,extractdistort=false,%
+  extractruns=2,extractname=namenumbered,extractdistort=inherit,%
   convert=magick,convert=false,%
   gsdevice={png=png16m},gsdevice={jpeg=jpeg},gsdevice={jpg=jpeg},%
   gsdevice={tif=tiff48nc},gsdevice={tiff=tiff48nc},%
@@ -815,7 +830,7 @@
       \renewcommand*\svgx@param@angle{0}%
       \FamilyKeyStateProcessed%
     }{%
-      \ifstr{#1}{inherit}{%
+      \svgx@ifvalueisinherit{#1}{%
         \renewcommand*\svgx@param@angle{\svg@param@angle}%
         \FamilyKeyStateProcessed%
       }{%
@@ -829,7 +844,14 @@
 }
 \let\svghidepreamblestart\relax
 \let\svghidepreambleend\relax
+\newcommand*\svgx@include@cmd{}
 \renewcommand*\includesvgx{%
+  \def\svgx@include@cmd{\includesvg}%
+  \kernel@ifnextchar[%]
+  {\svgx@include}{\svgx@@@include{}{}}%
+}
+\renewcommand*\includeinkscapex{%
+  \def\svgx@include@cmd{\includeinkscape}%
   \kernel@ifnextchar[%]
   {\svgx@include}{\svgx@@@include{}{}}%
 }
@@ -861,10 +883,10 @@
           \expandafter\svg@tempa\expandafter{\svgx@params@temp}%
           \FamilyKeyStateProcessed%
         }%
-        \FamilyExecuteOptions[\svg@tempb]{SVG}{#1}%
+        \expandafter\FamilyExecuteOptions\expandafter[\svg@tempb]{SVG}{#1}%
       }%
       % DOC enthält jetzt alle völlig unbekannten Optionen
-      \svgx@setlist\svgx@params@temp{\svgx@params@pass}%
+      \svgx@setlist[\svgx@params@pass]{\svgx@params@temp}%
       \DefineFamilyMember[.graphicx]{SVG}
       \let\svgx@params@exec\@empty%
       \let\svgx@params@pass\@empty%
@@ -906,8 +928,54 @@
         \FamilyKeyStateProcessed
       }%
       \FamilyExecuteOptions[.graphicx]{SVG}{#1}%
-      \svgx@setlist\svgx@params@exec{\svgx@params@exec}%
-      \svgx@setlist\svgx@params@pass{\svgx@params@pass}%
+      \svgx@setlist{\svgx@params@exec}%
+      \svgx@setlist{\svgx@params@pass}%
+      \edef\svg@tempa{%
+        \endgroup%
+        \begingroup%
+        \def\noexpand\svgx@params@exec%
+          {\etex@unexpanded\expandafter{\svgx@params@exec}}%
+        \def\noexpand\svgx@params@pass%
+          {\etex@unexpanded\expandafter{\svgx@params@pass}}%
+      }%
+    \svg@tempa%
+      \expandafter\svg@local@param@set\expandafter{\svgx@params@exec}%
+      \def\svg@tempb{%
+        draft\if@svg@draft\else=false\fi,%
+      }%
+      \ifdim\svg@param@width>\z@\relax%
+        \l@addto@macro\svg@tempb{width=\svg@param@width,}%
+      \fi%
+      \ifdim\svg@param@height>\z@\relax%
+        \l@addto@macro\svg@tempb{height=\svg@param@height,}%
+      \fi%
+      \l@addto@macro\svg@tempb{keepaspectratio\if@svg@param@distort=false\fi,}%
+      \ifdim\dimexpr\svg@param@scale\p@\relax=\p@\relax\else%
+        \l@addto@macro\svg@tempb{scale=\svg@param@scale,}%
+      \fi%
+      \ifdim\dimexpr\svg@param@angle\p@\relax=\z@\relax\else%
+        \l@addto@macro\svg@tempb{%
+          origin=\svg@param@origin,%
+          angle=\svg@param@angle%
+        }%
+      \fi%
+      \edef\svgx@params@pass{%
+        \svg@tempb\etex@unexpanded\expandafter{\svgx@params@pass}%
+      }%
+      \DefineFamilyMember[.graphicx]{SVG}%
+      \def\svg@tempb####1{%
+        \DefineFamilyKey[.graphicx]{SVG}{####1}[]{\FamilyKeyStateProcessed}%
+      }%
+      \@for\svg@tempa:=\svgx@graphicx@keys\do{%
+        \expandafter\svg@tempb\expandafter{\svg@tempa}%
+      }%
+      \let\svgx@params@temp\@empty%
+      \DefineFamilyKey[.graphicx]{SVG}{@else@}{%
+        \l@addto@macro\svgx@params@temp{####1,}%
+        \FamilyKeyStateProcessed
+      }%
+      \FamilyExecuteOptions[.graphicx]{SVG}{\svgx@params@exec}%
+      \svgx@setlist[\svgx@params@temp]{\svgx@params@exec}%
       \edef\svg@tempa{%
         \endgroup%
         \noexpand\svgx@@@include%
@@ -928,23 +996,32 @@
   filename:\detokenize{#3}\newline%
   %
   \begingroup%
-    \svg@deprecated@param%
     \def\svg@tempb##1{%
       \DefineFamilyKey[.param]{SVG}{##1}[]{%
-        \svg@ifvalueisrelax{####1}{}{%
-          \def\svg@tempa{####1}%
-          \ifx\svg@tempa\@empty\else%
-            \def\svg@tempa{=####1}%
-          \fi%
-          \PackageWarning{svg-extract}{%
-            The given parameter
-            `##1\svg@tempa'\MessageBreak%
-            should be used in second optional argument, as\MessageBreak%
-            it's actually meant for `\string\includegraphics'. \MessageBreak%
-            Nevertheless, it is transfered%
+        \def\svg@tempa{####1}%
+        \ifx\svg@tempa\@empty\else%
+          \def\svg@tempa{=####1}%
+        \fi%
+        \svg@ifvalueisrelax{####1}{%
+          \def\svg@tempb{%
+            has no effect as predefined parameters are not\MessageBreak%
+            evaluated when command `\expandafter\string\svgx@include@cmd x' is%
+            \MessageBreak%
+            used with two optional arguments%
           }%
-          \FamilyKeyStateProcessed%
+        }{%
+          \def\svg@tempb{%
+            is ignored and should be used in the second\MessageBreak%
+            optional argument in order to pass it\MessageBreak% 
+            to `\string\includegraphics[...]'%
+          }%
         }%
+        \PackageWarning{svg-extract}{%
+          The given parameter
+          `##1\svg@tempa'\MessageBreak%
+          \svg@tempb%
+        }%
+        \FamilyKeyStateProcessed%
       }%
     }%
     \@for\svg@tempa:=\svgx@graphicx@keys\do{%
@@ -954,12 +1031,11 @@
       \FamilySetBool{SVG}{distort}{@svg@tempswa}{##1}%
       \ifx\FamilyKeyState\FamilyKeyStateProcessed%
         \PackageWarning{svg-extract}{%
-          The given parameter `distort=##1' should\MessageBreak%
-          be used as `keepaspectratio\if@svg@tempswa=false\fi'
-          in the\MessageBreak%
-          second optional argument, as it's actually meant\MessageBreak%
-          for `\string\includegraphics'.\MessageBreak% 
-          Nevertheless, it is transfered%
+          The given parameter `distort=##1' is ignored \MessageBreak%
+          and should be used as 
+          `keepaspectratio\if@svg@tempswa=false\fi' in\MessageBreak%
+          the second optional argument in order to pass it\MessageBreak%
+          to `\string\includegraphics[...]'%
         }%
       \fi
     }%
@@ -980,43 +1056,16 @@
       \FamilyKeyStateProcessed%
     }%
     \svg@local@param@set{#1}%
-    \def\svg@tempb{%
-      draft\if@svg@draft\else=false\fi,%
-    }%
-    \ifdim\svg@param@width>\z@\relax%
-      \l@addto@macro\svg@tempb{width=\svg@param@width,}%
-    \fi%
-    \ifdim\svg@param@height>\z@\relax%
-      \l@addto@macro\svg@tempb{height=\svg@param@height,}%
-    \fi%
-    \l@addto@macro\svg@tempb{keepaspectratio\if@svg@param@distort=false\fi,}%
-    \ifdim\dimexpr\svg@param@scale\p@\relax=\p@\relax\else%
-      \l@addto@macro\svg@tempb{scale=\svg@param@scale,}%
-    \fi%
-    \ifdim\dimexpr\svg@param@angle\p@\relax=\z@\relax\else%
-      \l@addto@macro\svg@tempb{%
-        origin=\svg@param@origin,%
-        angle=\svg@param@angle%
-      }%
-    \fi%
-    \edef\svg@tempa{%
-      \endgroup%
-      \def\noexpand\svg@tempb{\svg@tempb}%
-    }%
-  \svg@tempa%
+  \endgroup%
 % TODO inputformat from \svgx@ext@get@input@format if not set
 % CREATE inputformat/inputtype/includeformat/includetype (something like this)
     % (\svgx@format,\svgx@cnv@format) 
   % TODO set extract=true, if \svgx@out@base does not exist?
-  % TODO same for includeinkscape?!
-  \includesvg[{#1,exclude,extract=force}]{#3}%
+  \svgx@include@cmd[{#1,exclude,extract=force}]{#3}%
   \ifx\svgx@out@base\@empty\else%
     \IfFileExists{\svgx@out@base.pdf}{%
-      \l@addto@macro\svg@tempb{#2}%
-      \par\meaning\svg@tempb\par
       % TODO \svg@param@scale@@wrn%
-  %    \expandafter\includegraphics\expandafter[\svg@tempb]{\svgx@out@base.pdf}%
-  %    \svgx@ifinlist{scale=}{\svg@tempb}{}{}
+      \includegraphics[{#2}]{\svgx@out@base.pdf}%
     }{%
       % TODO Warning with hint to run with --shell-escape
       % TODO use result of inkscape export in draft mode?!

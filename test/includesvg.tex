@@ -7,7 +7,7 @@
 }
 \usepackage{babel}
 \usepackage{svg}
-\usepackage{svg-extract}
+\usepackage[on]{svg-extract}
 
 \makeatletter
 
@@ -19,31 +19,35 @@
 \centering
 %\def\svgwidth{12cm}
 
-\svgsetup{width=9cm}
+%\svgsetup{width=9cm}
 
 %\def\svgwidth{12cm}
 %\fbox{%
-\includesvg[%
+\includeinkscapex[%
+%  clean=true,
 %  inkscapepath="aaa bbb",
 %  extractpath="hi hh",
-  extractname=,convert,
+%  extractname=,
+%  convert,
 %  inkscapearea=crop,
-%  pretex={\footnote{aaa}},%
+  extractpretex={\footnote{aaa}},%
 %  width=\relax,
-  scale=1.5,%inkscapelatex=false,
+  width=12cm,
+%  extractheight=-3cm,
+%  scale=1.5,%inkscapelatex=false,
 %][
-%  distort,
+%  distort, 
 %  keepaspectratio,
 %  draft,
-%  bar=foo,
-%  extractheight=2cm,
-  extractscale=0.5,
-  angle=5,
-  lastpage=true,
-  distort,
+%  extractheight=aaa,
+%  extractscale=0.5,
+%  angle=5,
+%  lastpage=true,
+%  distort,%extractdistort,
 %][
+%  width=5cm,
 %  draft
-]{svg-example}%
+]{svg-example_svg-tex}%
 %}
 %\fbox{}%
 %\includesvgx[foo=blubb,angle=15]{svg-example}

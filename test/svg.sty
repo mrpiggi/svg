@@ -192,9 +192,10 @@
     \fi%
   \fi%
 }
-\DeclareOption{on}{\FamilyOptions{SVG}{inkscape=forced}}
-\DeclareOption{auto}{\FamilyOptions{SVG}{inkscape=true}}
-\DeclareOption{off}{\FamilyOptions{SVG}{inkscape=false}}
+\DeclareOption{on}{\AtEndOfPackage{\FamilyOptions{SVG}{inkscape=forced}}}
+\DeclareOption{forced}{\AtEndOfPackage{\FamilyOptions{SVG}{inkscape=forced}}}
+\DeclareOption{auto}{\AtEndOfPackage{\FamilyOptions{SVG}{inkscape=true}}}
+\DeclareOption{off}{\AtEndOfPackage{\FamilyOptions{SVG}{inkscape=false}}}
 \newcommand*\svg@ink@format{pdf}
 \ifxetex\else\ifpdf\else
   \renewcommand*\svg@ink@format{eps}
@@ -325,7 +326,6 @@
 }
 \newcommand*\svg@param@width{\z@}
 \DefineFamilyKey{SVG}{width}{%
-  \FamilyKeyStateUnknownValue%
   \svg@ifvalueisrelax{#1}{%
     \renewcommand*\svg@param@width{\z@}%
     \FamilyKeyStateProcessed%
@@ -340,7 +340,6 @@
 }
 \newcommand*\svg@param@height{\z@}
 \DefineFamilyKey{SVG}{height}{%
-  \FamilyKeyStateUnknownValue%
   \svg@ifvalueisrelax{#1}{%
     \renewcommand*\svg@param@height{\z@}%
     \FamilyKeyStateProcessed%
@@ -847,6 +846,7 @@
   \endgroup%
 }
 \newcommand*\svg@local@param@set[1]{%
+  \svg@deprecated@param%
   \svg@local@param@use%
   \FamilyOptions{SVG}{#1}%
   \ifstr{\svg@ink@format}{png}{\FamilyOptions{SVG}{inkscapelatex=false}}{}%
@@ -878,7 +878,6 @@
 \newcommand*\svg@out@file{}
 \newcommand*\includesvg[2][]{%
   \begingroup%
-    \svg@deprecated@param%
     \svg@local@param@set{#1}%
     \svg@get@path{#2}{}%
     \if@svg@file@found%
@@ -1007,7 +1006,6 @@
         \svg@extension@parse{\svg@ink@format}%
       \fi%
     \fi%
-    \svg@deprecated@param%
     \svg@local@param@set{#1}%
     \svg@get@path[\svg@ink@format]{\filename@area\filename@base}{\svg@out@path}%
     \if@svg@file@found%
@@ -1224,12 +1222,9 @@
 }
 \newcommand*\svg@process[1]{\svg@ink@include{#1}}
 \newcommand*\svg@ink@include[2][]{%
-  \IfArgIsEmpty{#1}{}{\svg@local@param@set{#1}}%
+  \svg@local@param@set{#1}%
   \svg@param@scale@wrn%
   \svg@set@input@path%
-  \if@svg@draft%
-    \@svg@ink@latexfalse%
-  \fi%
   \def\svg@tempb##1.##2\@nil{%
     \IfArgIsEmpty{##2}{%
       \def\svg@tempb{##1}%
@@ -1246,7 +1241,14 @@
   \svg@remove@leadingchar.\svg@tempa%
   \edef\svg@tempa{{\svg@tempa}.\svg@tempb}%
   \edef\svg@tempb{#2}%
-  \if@svg@ink@latex%
+  \@svg@tempswatrue%
+  \if@svg@draft%
+    \@svg@tempswafalse%
+  \fi%
+  \if@svg@ink@latex\else%
+    \@svg@tempswafalse%
+  \fi%
+  \if@svg@tempswa%
     \svg@patches{\svg@tempa}%
     \ifnum\value{svg@param@lastpage}=\z@\relax%
       \expandafter\svg@get@lastpage\expandafter{\svg@tempb}%
@@ -1366,6 +1368,12 @@
 \newcommand*\includesvgx{%
   \PackageError{svg}{Package `svg-extract' not loaded}{%
     The macro `\string\includesvgx' can only\MessageBreak%
+    be used together with package `svg-extract'.%
+  }%
+}
+\newcommand*\includeinkscapex{%
+  \PackageError{svg}{Package `svg-extract' not loaded}{%
+    The macro `\string\includeinkscapex' can only\MessageBreak%
     be used together with package `svg-extract'.%
   }%
 }
