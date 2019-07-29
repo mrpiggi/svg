@@ -2737,6 +2737,42 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@local@param@def
 % \end{macro}^^A \svg@local@param@use
 % \end{macro}^^A \svg@local@param@set
+% \begin{macro}{\svg@local@param@deprecated}
+% \changes{v2.03}{2019/07/23}{more specifig warning message}^^A
+% This macro checks, if \cs{svgwidth} or \cs{svgscale} are defined. In this 
+% case, the given values are passed to the correlating parameters and a warning 
+% is raised.
+%    \begin{macrocode}
+\newcommand*\svg@local@param@deprecated{%
+  \begingroup%
+    \let\svg@tempa\@empty%
+    \ifx\svgwidth\@undefined\else%
+      \l@addto@macro\svg@tempa{,width=\svgwidth}%
+    \fi%
+    \ifx\svgscale\@undefined\else%
+      \l@addto@macro\svg@tempa{,scale=\svgscale}%
+    \fi%
+    \ifx\svg@tempa\@empty%
+      \def\svg@tempa{\endgroup}%
+    \else%
+      \svg@remove@leadingchar,\svg@tempa%
+      \PackageWarning{svg}{%
+        You should specify the image size with parameters\MessageBreak%
+        `width' and `height' or `scale' instead of using\MessageBreak%
+        `\string\svgwidth' or `\string\svgscale'. Nevertheless,\MessageBreak%
+        parameter(s) `\svg@tempa' will be set%
+      }%
+      \global\let\svgwidth\@undefined%
+      \global\let\svgscale\@undefined%
+      \edef\svg@tempa{%
+        \endgroup%
+        \noexpand\FamilyOptions{SVG}{\svg@tempa}%
+      }%
+    \fi%
+  \svg@tempa%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@local@param@deprecated
 %
 % \iffalse
 %</body>
@@ -2813,7 +2849,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % Checking for deprecated commands \cs{svgwidth} and \cs{svgscale}.
 %    \begin{macrocode}
-    \svg@deprecated@param%
+    \svg@local@param@deprecated%
 %    \end{macrocode}
 % \begin{parameter}{inkscape}
 % \changes{v2.00}{2017/02/17}{new}^^A
@@ -3051,7 +3087,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % Checking for deprecated commands \cs{svgwidth} and \cs{svgscale}.
 %    \begin{macrocode}
-    \svg@deprecated@param%
+    \svg@local@param@deprecated%
 %    \end{macrocode}
 % \begin{parameter}{inkscapeformat}
 % \begin{parameter}{inkscapelatex}
@@ -3119,42 +3155,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \subsection{Auxiliary macros}
 %
-% \begin{macro}{\svg@deprecated@param}
-% \changes{v2.03}{2019/07/23}{more specifig warning message}^^A
-% This macro checks, if \cs{svgwidth} or \cs{svgscale} are defined. In this 
-% case, the given values are passed to the correlating parameters and a warning 
-% is raised.
-%    \begin{macrocode}
-\newcommand*\svg@deprecated@param{%
-  \begingroup%
-    \let\svg@tempa\@empty%
-    \ifx\svgwidth\@undefined\else%
-      \l@addto@macro\svg@tempa{,width=\svgwidth}%
-    \fi%
-    \ifx\svgscale\@undefined\else%
-      \l@addto@macro\svg@tempa{,scale=\svgscale}%
-    \fi%
-    \ifx\svg@tempa\@empty%
-      \def\svg@tempa{\endgroup}%
-    \else%
-      \svg@remove@leadingchar,\svg@tempa%
-      \PackageWarning{svg}{%
-        You should specify the image size with parameters\MessageBreak%
-        `width' and `height' or `scale' instead of using\MessageBreak%
-        `\string\svgwidth' or `\string\svgscale'. Nevertheless,\MessageBreak%
-        parameter(s) `\svg@tempa' will be set%
-      }%
-      \global\let\svgwidth\@undefined%
-      \global\let\svgscale\@undefined%
-      \edef\svg@tempa{%
-        \endgroup%
-        \noexpand\FamilyOptions{SVG}{\svg@tempa}%
-      }%
-    \fi%
-  \svg@tempa%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svg@deprecated@param
 % \begin{macro}{\svg@ink@run}
 % \changes{v2.03}{2019/06/25}{%
 %   exported files are not moved but created directly in \cs{svg@out@path}
