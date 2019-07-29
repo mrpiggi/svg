@@ -1,4 +1,4 @@
-% \CheckSum{4455}
+% \CheckSum{4475}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -4959,6 +4959,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svghidepreamblestart
 % \begin{macro}{\includesvgx}
 % \changes{v2.03}{2019/07/11}{new}^^A
+% \begin{macro}{\includeinkscapex}
+% \changes{v2.03}{2019/07/29}{new}^^A
+% \begin{macro}{\svgx@include@cmd}
+% \changes{v2.03}{2019/07/29}{new}^^A
 % \begin{macro}{\svgx@include}
 % \changes{v2.03}{2019/07/15}{new}^^A
 % \begin{macro}{\svgx@@include}
@@ -4974,13 +4978,26 @@ svg-extract -- Extract independent graphic files from SVG pictures
     be used together with package `svg-extract'.%
   }%
 }
+\newcommand*\includeinkscapex{%
+  \PackageError{svg}{Package `svg-extract' not loaded}{%
+    The macro `\string\includeinkscapex' can only\MessageBreak%
+    be used together with package `svg-extract'.%
+  }%
+}
 %</base>
 %    \end{macrocode}
 % \ToDo{how to handle/map parameters?}[v2.03]
 % \ToDo{warning with hint to run with --shell-escape if file is missing}[v2.03]
 %    \begin{macrocode}
 %<*extract>
+\newcommand*\svgx@include@cmd{}
 \renewcommand*\includesvgx{%
+  \def\svgx@include@cmd{\includesvg}%
+  \kernel@ifnextchar[%]
+  {\svgx@include}{\svgx@@@include{}{}}%
+}
+\renewcommand*\includeinkscapex{%
+  \def\svgx@include@cmd{\includeinkscape}%
   \kernel@ifnextchar[%]
   {\svgx@include}{\svgx@@@include{}{}}%
 }
@@ -5008,6 +5025,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svgx@@@include
 % \end{macro}^^A \svgx@@include
 % \end{macro}^^A \svgx@include
+% \end{macro}^^A \svgx@include@cmd
+% \end{macro}^^A \includeinkscapex
 % \end{macro}^^A \includesvgx
 %
 % \iffalse
