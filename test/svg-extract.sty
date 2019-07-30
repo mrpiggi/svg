@@ -760,7 +760,10 @@
   \svg@tempa{\AtBeginDocument{\svgx@setbox{#1}{#2}}}%
 }
 \newcommand*\svgx@setbox[2]{%
-  \sbox\svg@box{\svg@ink@include[{#1},draft=false]{#2}}%
+  \sbox\svg@box{%
+    \svg@local@param@set{#1,draft=false}%
+    \svg@ink@include{#2}%
+  }%
   \svgxsetpapersize%
 }
 \newcommand*\svgxsetpapersize{%

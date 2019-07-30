@@ -1,4 +1,4 @@
-% \CheckSum{4475}
+% \CheckSum{4472}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -97,7 +97,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<package&identify&base>\ProvidesPackage{svg}[%
 %<package&identify&extract>\ProvidesPackage{svg-extract}[%
 %<*dtx|package&identify>
-  2019/07/29 v2.03\space%
+  2019/07/31 v2.03\space%
 %<package&identify&base>  (include SVG pictures)%
 %<package&identify&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -2731,7 +2731,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \FamilyExecuteOptions[.svg.sty]{SVG}{distort=false}%
   \fi%
 }
-\newcommand*\svg@local@param@use{}
+\newcommand*\svg@local@param@use{\svg@local@param@deprecated}
 \newcommand*\svg@local@param@def[1]{\l@addto@macro\svg@local@param@use{#1}}
 %    \end{macrocode}
 % \end{macro}^^A \svg@local@param@def
@@ -2846,10 +2846,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 \newcommand*\includesvg[2][]{%
   \begingroup%
-%    \end{macrocode}
-% Checking for deprecated commands \cs{svgwidth} and \cs{svgscale}.
-%    \begin{macrocode}
-    \svg@local@param@deprecated%
 %    \end{macrocode}
 % \begin{parameter}{inkscape}
 % \changes{v2.00}{2017/02/17}{new}^^A
@@ -3084,10 +3080,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \svg@extension@parse{\svg@ink@format}%
       \fi%
     \fi%
-%    \end{macrocode}
-% Checking for deprecated commands \cs{svgwidth} and \cs{svgscale}.
-%    \begin{macrocode}
-    \svg@local@param@deprecated%
 %    \end{macrocode}
 % \begin{parameter}{inkscapeformat}
 % \begin{parameter}{inkscapelatex}
@@ -3452,14 +3444,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % included. The macro \cs{svg@set@input@path} is called to support input
 % commands like \cs{input}\marg{tex filename} within SVG~files.
 %    \begin{macrocode}
-\newcommand*\svg@ink@include[2][]{%
-  \IfArgIsEmpty{#1}{}{\svg@local@param@set{#1}}%
+\newcommand*\svg@ink@include[1]{%
   \svg@param@scale@wrn%
   \svg@set@input@path%
 %    \end{macrocode}
-% In order to support file names with multiple dots, the second argument is 
-% parsed and only the part after the last dot is stroed in \cs{svg@tempb} as 
-% extension. Everything before is stored in \cs{svg@tempa}.
+% In order to support file names with multiple dots, the argument is parsed
+% recursively and only the part after the last dot is stored in \cs{svg@tempb}
+% as extension. Everything before is stored in \cs{svg@tempa}.
 %    \begin{macrocode}
   \def\svg@tempb##1.##2\@nil{%
     \IfArgIsEmpty{##2}{%
@@ -3470,8 +3461,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
     }%
   }%
   \edef\svg@tempa{%
-    \let\noexpand\svg@tempa\noexpand\@empty%
-    \noexpand\svg@tempb#2.\noexpand\@nil%
+    \etex@unexpanded{\let\svg@tempa\@empty}%
+    \noexpand\svg@tempb#1.\noexpand\@nil%
   }%
   \svg@tempa%
 %    \end{macrocode}
@@ -3481,7 +3472,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
   \svg@remove@leadingchar.\svg@tempa%
   \edef\svg@tempa{{\svg@tempa}.\svg@tempb}%
-  \edef\svg@tempb{#2}%
+  \edef\svg@tempb{#1}%
 %    \end{macrocode}
 % If the export with \app{Inkscape} was done with \LaTeX~support enabled, the 
 % corresponding file will be used together with \cs{input}. The necessary 
@@ -6203,7 +6194,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \svg@tempa{\AtBeginDocument{\svgx@setbox{#1}{#2}}}%
 }
 \newcommand*\svgx@setbox[2]{%
-  \sbox\svg@box{\svg@ink@include[{#1},draft=false]{#2}}%
+  \sbox\svg@box{%
+    \svg@local@param@set{#1,draft=false}%
+    \svg@ink@include{#2}%
+  }%
   \svgxsetpapersize% 
 }
 %    \end{macrocode}

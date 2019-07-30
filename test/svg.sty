@@ -1220,8 +1220,7 @@
   \global\let\transparent\@gobble%
 }
 \newcommand*\svg@process[1]{\svg@ink@include{#1}}
-\newcommand*\svg@ink@include[2][]{%
-  \IfArgIsEmpty{#1}{}{\svg@local@param@set{#1}}%
+\newcommand*\svg@ink@include[1]{%
   \svg@param@scale@wrn%
   \svg@set@input@path%
   \def\svg@tempb##1.##2\@nil{%
@@ -1233,13 +1232,13 @@
     }%
   }%
   \edef\svg@tempa{%
-    \let\noexpand\svg@tempa\noexpand\@empty%
-    \noexpand\svg@tempb#2.\noexpand\@nil%
+    \etex@unexpanded{\let\svg@tempa\@empty}%
+    \noexpand\svg@tempb#1.\noexpand\@nil%
   }%
   \svg@tempa%
   \svg@remove@leadingchar.\svg@tempa%
   \edef\svg@tempa{{\svg@tempa}.\svg@tempb}%
-  \edef\svg@tempb{#2}%
+  \edef\svg@tempb{#1}%
   \@svg@tempswatrue%
   \if@svg@draft%
     \@svg@tempswafalse%
