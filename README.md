@@ -40,9 +40,9 @@ Versions
 
 **v2.03** (2019/xx/xx)
 + command line format of ***Inkscape&nbsp;1.0*** and later is supported
-+ extraction/conversion of independent graphic&nbsp;files is only done if 
-  necessary (based on file modification date); options `extract=forced` 
-  and `convert=forced` to invoke process with every single LaTeX&nbsp;run
++ extraction/conversion of independent graphic&nbsp;files can be invoked only 
+  if necessary (based on file modification date) with `extract/convert=true`;
+  options `extract/convert=forced` to invoke process with every LaTeX&nbsp;run
 + files exported with ***Inkscape*** or extracted as well as converted with
   ***ImageMagick*** or ***Ghostscript*** are not moved from root directory but
   created directly in the path given with `inkscapepath` or `extractpath`
