@@ -1,4 +1,4 @@
-% \CheckSum{4528}
+% \CheckSum{4536}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -4352,13 +4352,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 \newcommand*\svgx@magick@set{}
 \DefineFamilyKey{SVG}{magicksetting}{%
+  \FamilyKeyStateUnknownValue%
   \svgx@setformatkey{#1}{svgx@magick@set}%
-  \FamilyKeyStateProcessed%
 }
 \newcommand*\svgx@magick@opr{}
 \DefineFamilyKey{SVG}{magickoperator}{%
+  \FamilyKeyStateUnknownValue%
   \svgx@setformatkey{#1}{svgx@magick@opr}%
-  \FamilyKeyStateProcessed%
 }
 %</extract>
 %    \end{macrocode}
@@ -4396,13 +4396,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 \newcommand*\svgx@gs@opt{}
 \DefineFamilyKey{SVG}{gsopt}{%
+  \FamilyKeyStateUnknownValue%
   \svgx@setformatkey{#1}{svgx@gs@opt}%
-  \FamilyKeyStateProcessed%
 }
 \newcommand*\svgx@gs@device{}
 \DefineFamilyKey{SVG}{gsdevice}{%
+  \FamilyKeyStateUnknownValue%
   \svgx@setformatkey{#1}{svgx@gs@device}%
-  \FamilyKeyStateProcessed%
 }
 %</extract>
 %    \end{macrocode}
@@ -6060,7 +6060,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % like \val{\meta{key}=\{\meta{format}=\meta{value}\}}.
 %    \begin{macrocode}
 \newcommand*\svgx@ifkeyandval[3]{%
-  \def\svg@tempa##1=##2=##3\@nil{\ifstr{##3}{=}{#2}{#3}}%
+  \def\svg@tempa##1=##2=##3\@nil{\IfArgIsEmpty{##3}{#3}{#2}}%
   \svg@tempa#1==\@nil%
 }
 %    \end{macrocode}
@@ -6135,6 +6135,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svgx@cnv@get@dpi
 % \begin{macro}{\svgx@setformatkey}
+% \changes{v2.03}{2019/07/29}{check for empty keys, sets \cs{FamilyKeyState}}^^A
 % \begin{macro}{\svgx@useformatkey}
 % With \cs{svgx@setformatkey} the---maybe output format depend---keys for the 
 % conversion tools are set. First argument contains the value given to a key, 
@@ -6148,10 +6149,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % within the arguments of \cs{svgx@ifkeyandval}.
 %    \begin{macrocode}
   \svgx@ifkeyandval{#1}{%
-    \svg@ifvalueisrelax{##2}{%
-      \expandafter\let\csname #2@##1\endcsname\relax%
-    }{%
-      \@namedef{#2@##1}{##2}%
+    \IfArgIsEmpty{##1}{}{%
+      \edef\svg@tempa{\trim@spaces{##1}}%
+      \svg@ifvalueisrelax{##2}{%
+        \expandafter\let\csname #2@\svg@tempa\endcsname\relax%
+      }{%
+        \@namedef{#2@\svg@tempa}{##2}%
+      }%
+      \FamilyKeyStateProcessed%
     }%
 %    \end{macrocode}
 % A key of the form \val{\meta{key}=\{\meta{format}=\meta{value}\}} is given.
@@ -6163,6 +6168,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     }{%
       \@namedef{#2}{##1}%
     }%
+    \FamilyKeyStateProcessed%
   }%
 }
 %    \end{macrocode}
