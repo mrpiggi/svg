@@ -1,4 +1,4 @@
-% \CheckSum{4495}
+% \CheckSum{4528}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -6007,6 +6007,31 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svgx@@ifin@list
 % \end{macro}^^A \svgx@ifin@list
+% \begin{macro}{\svgx@removekey@list}
+% \changes{v2.03}{2019/08/01}{new}^^A
+% This macro removes a entry or key (and it's value if existing) from a list.
+%    \begin{macrocode}
+\newcommand*\svgx@removekey@list[2]{%
+  \begingroup%
+    \def\svg@tempa##1,#2##2,##3\@nil{%
+      \IfArgIsEmpty{##3}{\let\svg@tempb#1}{%
+        \def\svg@tempa####1,#2,\@nil{%
+          \l@addto@macro\svg@tempb{,####1}%
+        }%
+        \def\svg@tempb{##1}%
+        \svg@tempa,##3\@nil%
+      }%
+    }%
+    \expandafter\svg@tempa\expandafter,#1,#2,\@nil%
+    \svgx@normalize@list{\svg@tempb}%
+    \edef\svg@tempa{%
+      \endgroup%
+      \def\noexpand#1{\etex@unexpanded\expandafter{\svg@tempb}}%
+    }%
+  \svg@tempa%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svgx@removekey@list
 % \begin{macro}{\svgx@ifvalueisinherit}
 % \changes{v2.03}{2019/07/29}{new}^^A
 %    \begin{macrocode}
