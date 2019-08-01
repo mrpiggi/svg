@@ -36,7 +36,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg-extract}[%
-  2019/07/29 v2.03\space%
+  2019/08/01 v2.03\space%
   (extract independent graphics from SVG pictures)%
 ]
 \RequirePackage{svg}[2017/03/27]
@@ -81,14 +81,14 @@
 \fi\fi
 \DefineFamilyKey{SVG}{extractformat}{%
   \svg@lowercase[{#1}]{\svgx@format}%
-  \svgx@setlist{\svgx@format}%
+  \svgx@normalize@list{\svgx@format}%
   \FamilyKeyStateProcessed%
 }
 \DefineFamilyKey{SVG}{pdf}[true]{%
   \FamilySetBool{SVG}{pdf}{@svg@tempswa}{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \if@svg@tempswa%
-      \svgx@ifinlist{pdf}{\svgx@format}{}{%
+      \svgx@ifin@list{\svgx@format}{pdf}{}{%
         \edef\svgx@format{\svgx@format,pdf}%
       }%
       \svg@deprecated@key[svg-extract]{pdf}{extractformat={\svgx@format}}%
@@ -101,7 +101,7 @@
   \FamilySetBool{SVG}{eps}{@svg@tempswa}{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \if@svg@tempswa%
-      \svgx@ifinlist{eps}{\svgx@format}{}{%
+      \svgx@ifin@list{\svgx@format}{eps}{}{%
         \edef\svgx@format{\svgx@format,eps}%
       }%
       \svg@deprecated@key[svg-extract]{eps}{extractformat={\svgx@format}}%
@@ -320,14 +320,14 @@
 \newcommand*\svgx@cnv@format{png}
 \DefineFamilyKey{SVG}{convertformat}{%
   \svg@lowercase[{#1}]{\svgx@cnv@format}%
-  \svgx@setlist{\svgx@cnv@format}%
+  \svgx@normalize@list{\svgx@cnv@format}%
   \FamilyKeyStateProcessed%
 }
 \DefineFamilyKey{SVG}{png}[true]{%
   \FamilySetBool{SVG}{png}{@svg@tempswa}{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \if@svg@tempswa%
-      \svgx@ifinlist{png}{\svgx@cnv@format}{}{%
+      \svgx@ifin@list{\svgx@cnv@format}{png}{}{%
         \edef\svgx@cnv@format{\svgx@cnv@format,png}%
       }%
       \svg@deprecated@key[svg-extract]{png}{convertformat={\svgx@cnv@format}}%
@@ -362,13 +362,13 @@
 }
 \newcommand*\svgx@magick@set{}
 \DefineFamilyKey{SVG}{magicksetting}{%
+  \FamilyKeyStateUnknownValue%
   \svgx@setformatkey{#1}{svgx@magick@set}%
-  \FamilyKeyStateProcessed%
 }
 \newcommand*\svgx@magick@opr{}
 \DefineFamilyKey{SVG}{magickoperator}{%
+  \FamilyKeyStateUnknownValue%
   \svgx@setformatkey{#1}{svgx@magick@opr}%
-  \FamilyKeyStateProcessed%
 }
 \newcommand*\svgx@gs@exe{}
 \DefineFamilyKey{SVG}{gsexe}{%
@@ -377,13 +377,13 @@
 }
 \newcommand*\svgx@gs@opt{}
 \DefineFamilyKey{SVG}{gsopt}{%
+  \FamilyKeyStateUnknownValue%
   \svgx@setformatkey{#1}{svgx@gs@opt}%
-  \FamilyKeyStateProcessed%
 }
 \newcommand*\svgx@gs@device{}
 \DefineFamilyKey{SVG}{gsdevice}{%
+  \FamilyKeyStateUnknownValue%
   \svgx@setformatkey{#1}{svgx@gs@device}%
-  \FamilyKeyStateProcessed%
 }
 \newcommand*\svgx@out@path{}
 \DefineFamilyKey{SVG}{extractpath}{%
@@ -578,18 +578,18 @@
     \fi%
   \else%
     \svg@lowercase[{#1}]{\svgx@clean}%
-    \svgx@setlist{\svgx@clean}%
+    \svgx@normalize@list{\svgx@clean}%
     \FamilyKeyStateProcessed%
   \fi%
 }
 \DefineFamilyKey{SVG}{clear}[true]{\FamilyOptions{SVG}{clean=#1}}
 \newif\if@svgx@exclude
 \FamilyBoolKey{SVG}{exclude}{@svgx@exclude}
-\newcommand*\svgx@setlist[2][]{%
+\newcommand*\svgx@normalize@list[2][]{%
   \begingroup%
     \edef\svg@tempa{%
       \endgroup%
-      \etex@unexpanded{\svgx@@setlist#2}{%
+      \etex@unexpanded{\svgx@@normalize@list#2}{%
         \IfArgIsEmpty{#1}{%
           \etex@unexpanded\expandafter{#2}%
         }{%
@@ -599,7 +599,7 @@
     }%
   \svg@tempa%
 }
-\newcommand*\svgx@@setlist[2]{%
+\newcommand*\svgx@@normalize@list[2]{%
   \begingroup%
     \let\svg@tempb\@empty%
     \@for\svg@tempa:={,#2}\do{%
@@ -625,22 +625,22 @@
     \fi%
   \svg@tempa%
 }
-\newcommand*\svgx@ifinlist[2]{%
+\newcommand*\svgx@ifin@list[2]{%
   \begingroup%
     \edef\svg@tempa{%
       \endgroup%
-      \noexpand\svgx@@ifinlist{#1}{#2}%
+      \noexpand\svgx@@ifin@list{#1}{#2}%
     }%
   \svg@tempa%
 }
-\newcommand*\svgx@@ifinlist[2]{%
+\newcommand*\svgx@@ifin@list[2]{%
   \begingroup%
     \edef\svg@tempa{%
-      \def\noexpand\svg@tempa####1,\detokenize{#1},####2\noexpand\@nil{%
+      \def\noexpand\svg@tempa####1,\detokenize{#2},####2\noexpand\@nil{%
         \def\noexpand\svg@tempb{####2}%
       }%
       \def\noexpand\svg@tempb{%
-        ,\detokenize{#2},\detokenize{#1},%
+        ,\detokenize{#1},\detokenize{#2},%
       }%
     }%
     \svg@tempa%
@@ -651,6 +651,25 @@
       \aftergroup\@firstoftwo%
     \fi%
   \endgroup%
+}
+\newcommand*\svgx@removekey@list[2]{%
+  \begingroup%
+    \def\svg@tempa##1,#2##2,##3\@nil{%
+      \IfArgIsEmpty{##3}{\let\svg@tempb#1}{%
+        \def\svg@tempa####1,#2,\@nil{%
+          \l@addto@macro\svg@tempb{,####1}%
+        }%
+        \def\svg@tempb{##1}%
+        \svg@tempa,##3\@nil%
+      }%
+    }%
+    \expandafter\svg@tempa\expandafter,#1,#2,\@nil%
+    \svgx@normalize@list{\svg@tempb}%
+    \edef\svg@tempa{%
+      \endgroup%
+      \def\noexpand#1{\etex@unexpanded\expandafter{\svg@tempb}}%
+    }%
+  \svg@tempa%
 }
 \newcommand*\svgx@ifvalueisinherit[1]{%
   \begingroup%
@@ -666,7 +685,7 @@
 \newcommand*\svgx@onlywindows[1]{}
 \AfterPackage*{ifplatform}{\renewcommand*\svgx@onlywindows[1]{\ifwindows#1\fi}}
 \newcommand*\svgx@ifkeyandval[3]{%
-  \def\svg@tempa##1=##2=##3\@nil{\ifstr{##3}{=}{#2}{#3}}%
+  \def\svg@tempa##1=##2=##3\@nil{\IfArgIsEmpty{##3}{#3}{#2}}%
   \svg@tempa#1==\@nil%
 }
 \newcommand*\svgx@cnv@get@dpi[1]{%
@@ -715,12 +734,17 @@
     }%
   \svg@tempb%
 }
+%
 \newcommand*\svgx@setformatkey[2]{%
   \svgx@ifkeyandval{#1}{%
-    \svg@ifvalueisrelax{##2}{%
-      \expandafter\let\csname #2@##1\endcsname\relax%
-    }{%
-      \@namedef{#2@##1}{##2}%
+    \IfArgIsEmpty{##1}{}{%
+      \edef\svg@tempa{\trim@spaces{##1}}%
+      \svg@ifvalueisrelax{##2}{%
+        \expandafter\let\csname #2@\svg@tempa\endcsname\relax%
+      }{%
+        \@namedef{#2@\svg@tempa}{##2}%
+      }%
+      \FamilyKeyStateProcessed%
     }%
   }{%
     \svg@ifvalueisrelax{##1}{%
@@ -728,6 +752,7 @@
     }{%
       \@namedef{#2}{##1}%
     }%
+    \FamilyKeyStateProcessed%
   }%
 }
 \newcommand*\svgx@useformatkey[3]{%
@@ -860,12 +885,12 @@
 }
 \DefineFamilyMember[.graphicx]{SVG}
 \newcommand*\svgx@graphicx@keys{%
-  width,height,keepaspectratio,distort,%
-  scale,angle,origin,draft%
+  width,height,scale,keepaspectratio,distort,angle,origin,draft%
 }
 \newcommand*\svgx@params@exec{}
+\newcommand*\svgx@params@relax{}
 \newcommand*\svgx@params@pass{}
-\newcommand*\svgx@params@temp{}
+\newcommand*\svgx@params@unknown{}
 % DOC \ToDo{revise with KOMA-Script v3.27, use \FamilyOptions}
 \newcommand*\svgx@include{}
 \def\svgx@include[#1]{%
@@ -873,79 +898,76 @@
   {\svgx@@include{#1}}{%
     \begingroup%
       \svg@local@param@use%
-      \svgx@@setlist\svgx@params@pass{#1}%
-      % DOC revise with v3.27, use \FamilyOptions
-      \RelaxFamilyKey[.svg.sty]{SVG}{lastpage}
-      \@tfor\svg@tempb:={.svg.sty}{.svg-extract.sty}{.param}\do{%
-        \let\svgx@params@temp\svgx@params@pass%
+      \begingroup%
+        \svgx@@normalize@list\svgx@params@unknown{#1}%
+        % DOC revise with v3.27, use \FamilyOptions
+        \RelaxFamilyKey[.svg.sty]{SVG}{lastpage}
+        \@for\svg@tempb:={.svg.sty,.svg-extract.sty,.param}\do{%
+          \let\svgx@params@pass\svgx@params@unknown%
+          \let\svgx@params@unknown\@empty%
+          \DefineFamilyKey[\svg@tempb]{SVG}{@else@}{%
+            \expandafter\svgx@@ifin@list\expandafter{\svgx@params@pass}{####1}%
+              {\l@addto@macro\svgx@params@unknown{,####1}}{}%
+            \FamilyKeyStateProcessed%
+          }%
+          \expandafter\FamilyExecuteOptions\expandafter[\svg@tempb]{SVG}{#1}%
+        }%
+        % DOC \svgx@params@unknown enthält jetzt alle unbekannten Optionen
+        \svgx@normalize@list{\svgx@params@unknown}%
+        \let\svgx@params@exec\@empty%
+        \let\svgx@params@relax\@empty%
         \let\svgx@params@pass\@empty%
-        \DefineFamilyKey[\svg@tempb]{SVG}{@else@}{%
-          \def\svg@tempa########1{%
-            \svgx@@ifinlist{####1}{########1}%
-              {\l@addto@macro\svgx@params@pass{####1,}}{}%
-          }%
-          \expandafter\svg@tempa\expandafter{\svgx@params@temp}%
-          \FamilyKeyStateProcessed%
-        }%
-        \expandafter\FamilyExecuteOptions\expandafter[\svg@tempb]{SVG}{#1}%
-      }%
-      % DOC enthält jetzt alle völlig unbekannten Optionen
-      \svgx@setlist[\svgx@params@pass]{\svgx@params@temp}%
-      \let\svgx@params@exec\@empty%
-      \let\svgx@params@pass\@empty%
-      \def\svg@tempb####1{%
-        \DefineFamilyKey[.graphicx]{SVG}{####1}[]{%
-          \IfArgIsEmpty{########1}{%
-            \l@addto@macro\svgx@params@pass{####1,}%
-          }{%
+        \def\svg@tempb####1{%
+          \DefineFamilyKey[.graphicx]{SVG}{####1}[]{%
+            \svgx@removekey@list{\svgx@params@relax}{####1}%
+            \svgx@removekey@list{\svgx@params@pass}{####1}%
             \svg@ifvalueisrelax{########1}{%
-              % TODO direkt hier ausführen?! vorherige Gruppe beenden + öffnen?
-              % TODO besser noch verschachtelte Gruppe (\svg@deprecated@param)
-              \l@addto@macro\svgx@params@exec%
+              \l@addto@macro\svgx@params@relax{,####1=########1}%
             }{%
-              \l@addto@macro\svgx@params@pass%
+              \IfArgIsEmpty{########1}{%
+                \l@addto@macro\svgx@params@pass{,####1}%
+              }{%
+                \l@addto@macro\svgx@params@pass{,####1=########1}%
+              }%
             }%
-            {####1=########1,}%
+            \FamilyKeyStateProcessed%
           }%
+        }%
+        \@for\svg@tempa:=\svgx@graphicx@keys\do{%
+          \expandafter\svg@tempb\expandafter{\svg@tempa}%
+        }%
+        \DefineFamilyKey[.graphicx]{SVG}{distort}[true]{%
+          \FamilySetBool{SVG}{distort}{@svg@tempswa}{####1}%
+          \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+            \if@svg@tempswa%
+              \FamilyExecuteOptions[.graphicx]{SVG}{keepaspectratio=false}%
+            \else
+              \FamilyExecuteOptions[.graphicx]{SVG}{keepaspectratio=true}%
+            \fi%
+          \fi%
+        }%
+        % DOC preserve right order
+        \DefineFamilyKey[.graphicx]{SVG}{@else@}{%
+          \expandafter\svgx@@ifin@list\expandafter{\svgx@params@unknown}{####1}%
+            {\l@addto@macro\svgx@params@pass{,####1}}%
+            {\l@addto@macro\svgx@params@exec{,####1}}%
           \FamilyKeyStateProcessed%
         }%
-      }%
-      \@for\svg@tempa:=\svgx@graphicx@keys\do{%
-        \expandafter\svg@tempb\expandafter{\svg@tempa}%
-      }%
-      \DefineFamilyKey[.graphicx]{SVG}{distort}[true]{%
-        \FamilySetBool{SVG}{distort}{@svg@tempswa}{####1}%
-        \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-          \if@svg@tempswa%
-            \FamilyExecuteOptions[.graphicx]{SVG}{keepaspectratio=false}%
-          \else
-            \FamilyExecuteOptions[.graphicx]{SVG}{keepaspectratio=true}%
-          \fi%
-        \fi%
-      }%
-      \DefineFamilyKey[.graphicx]{SVG}{@else@}{%
-        \def\svg@tempa########1{%
-          \svgx@@ifinlist{####1}{########1}%
-            {\l@addto@macro\svgx@params@pass{####1,}}%
-            {\l@addto@macro\svgx@params@exec{####1,}}%
+        \FamilyExecuteOptions[.graphicx]{SVG}{#1}%
+        \svgx@normalize@list{\svgx@params@exec}%
+        \svgx@normalize@list{\svgx@params@relax}%
+        \svgx@normalize@list{\svgx@params@pass}%
+        \edef\svg@tempa{%
+          \endgroup%
+          \def\noexpand\svgx@params@exec%
+            {\etex@unexpanded\expandafter{\svgx@params@exec}}%
+          \def\noexpand\svgx@params@relax%
+            {\etex@unexpanded\expandafter{\svgx@params@relax}}%
+          \def\noexpand\svgx@params@pass%
+            {\etex@unexpanded\expandafter{\svgx@params@pass}}%
         }%
-        \expandafter\svg@tempa\expandafter{\svgx@params@temp}%
-        \FamilyKeyStateProcessed
-      }%
-      \FamilyExecuteOptions[.graphicx]{SVG}{#1}%
-      \svgx@setlist{\svgx@params@exec}%
-      \svgx@setlist{\svgx@params@pass}%
-      \edef\svg@tempa{%
-        \endgroup%
-        \begingroup%
-        \def\noexpand\svgx@params@exec%
-          {\etex@unexpanded\expandafter{\svgx@params@exec}}%
-        \def\noexpand\svgx@params@pass%
-          {\etex@unexpanded\expandafter{\svgx@params@pass}}%
-      }%
-    \svg@tempa%
-      % TODO geht das eventuell eleganter in Zeile 900?
-      \expandafter\svg@local@param@set\expandafter{\svgx@params@exec}%
+      \svg@tempa%
+      \expandafter\svg@local@param@set\expandafter{\svgx@params@relax}%
       \def\svg@tempb{%
         draft\if@svg@draft\else=false\fi,%
       }%
@@ -959,28 +981,9 @@
       \ifdim\dimexpr\svg@param@scale\p@\relax=\p@\relax\else%
         \l@addto@macro\svg@tempb{scale=\svg@param@scale,}%
       \fi%
-      \ifdim\dimexpr\svg@param@angle\p@\relax=\z@\relax\else%
-        \l@addto@macro\svg@tempb{%
-          origin=\svg@param@origin,%
-          angle=\svg@param@angle%
-        }%
-      \fi%
       \edef\svgx@params@pass{%
         \svg@tempb\etex@unexpanded\expandafter{\svgx@params@pass}%
       }%
-      \def\svg@tempb####1{%
-        \DefineFamilyKey[.graphicx]{SVG}{####1}[]{\FamilyKeyStateProcessed}%
-      }%
-      \@for\svg@tempa:=\svgx@graphicx@keys\do{%
-        \expandafter\svg@tempb\expandafter{\svg@tempa}%
-      }%
-      \let\svgx@params@temp\@empty%
-      \DefineFamilyKey[.graphicx]{SVG}{@else@}{%
-        \l@addto@macro\svgx@params@temp{####1,}%
-        \FamilyKeyStateProcessed
-      }%
-      \FamilyExecuteOptions[.graphicx]{SVG}{\svgx@params@exec}%
-      \svgx@setlist[\svgx@params@temp]{\svgx@params@exec}%
       \edef\svg@tempa{%
         \endgroup%
         \noexpand\svgx@@@include%
@@ -1151,7 +1154,7 @@
   \begingroup%
     \@svg@tempswafalse%
     \edef\svg@tempa{%
-      \noexpand\svgx@@setlist\noexpand\svg@tempa{#1}%
+      \noexpand\svgx@@normalize@list\noexpand\svg@tempa{#1}%
     }%
     \svg@tempa%
     \@for\svg@tempb:=\svg@tempa\do{%
@@ -1424,11 +1427,11 @@
     \fi\fi%
     \if@svg@tempswa%
       \svg@tempa{dvips}{dvi}{ps}%
-      \svgx@ifinlist{eps}{\svgx@format}{\svg@tempa{pstoeps}{ps}{eps}}{}%
-      \svgx@ifinlist{pdf}{\svgx@format}{\svg@tempa{pstopdf}{ps}{pdf}}{}%
+      \svgx@ifin@list{\svgx@format}{eps}{\svg@tempa{pstoeps}{ps}{eps}}{}%
+      \svgx@ifin@list{\svgx@format}{pdf}{\svg@tempa{pstopdf}{ps}{pdf}}{}%
     \else%
-      \svgx@ifinlist{eps}{\svgx@format}{\svg@tempa{pdftoeps}{pdf}{eps}}{}%
-      \svgx@ifinlist{ps}{\svgx@format}{\svg@tempa{pdftops}{pdf}{ps}}{}%
+      \svgx@ifin@list{\svgx@format}{eps}{\svg@tempa{pdftoeps}{pdf}{eps}}{}%
+      \svgx@ifin@list{\svgx@format}{ps}{\svg@tempa{pdftops}{pdf}{ps}}{}%
     \fi%
     \ifnum\svgx@cnv@mode>\z@\relax%
       \ifx\svgx@cnv@dpi\relax%
@@ -1438,7 +1441,7 @@
       \fi%
       \svgx@cnv@get@input@format%
       \@for\svg@tempa:=\svgx@cnv@format\do{%
-        \svgx@ifinlist{\svg@tempa}{\svgx@format}{%
+        \svgx@ifin@list{\svgx@format}{\svg@tempa}{%
           \svgx@eaddto@shell{%
             \noexpand\PackageInfoNoLine{svg-extract}{%
               Generating file `\svgx@out@name.\svg@tempa' was\MessageBreak%
@@ -1470,9 +1473,8 @@
         \noexpand\svgx@move{\svgx@out@name}{\svg@tempa}{\svgx@out@path}%
       }%
     }%
-    \edef\svg@tempb{\svgx@format,\svgx@cnv@format}%
     \@for\svg@tempa:=\svgx@clean\do{%
-      \svgx@ifinlist{\svg@tempa}{\svg@tempb}{}{%
+      \svgx@ifin@list{\svgx@format,\svgx@cnv@format}{\svg@tempa}{}{%
         \svgx@eaddto@shell{%
           \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
             \noexpand\svg@shell@rm{\svgx@out@name.\svg@tempa}%
@@ -1563,7 +1565,7 @@
     \ifxetex\else\ifpdf\else%
       \renewcommand*\svgx@cnv@input@format{ps}%
     \fi\fi%
-    \svgx@ifinlist{\svgx@cnv@input@format}{\svgx@cnv@format}{%
+    \svgx@ifin@list{\svgx@cnv@format}{\svgx@cnv@input@format}{%
       \let\svgx@format\svgx@cnv@input@format%
     }{}%
   \fi%
@@ -1603,7 +1605,7 @@
       \svg@shell@move{#1.#2}{#3#1.#2}%
     }{%
       \edef\svg@tempa{#2}%
-      \svgx@ifinlist{\svg@tempa}{pdf,ps,eps}{%
+      \svgx@ifin@list{pdf,ps,eps}{\svg@tempa}{%
         \svgx@file@missing[extraction]{#1.#2}%
       }{%
         \PackageWarningNoLine{svg-extract}{%

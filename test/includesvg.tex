@@ -6,22 +6,22 @@
   \usepackage{fontspec}
 }
 \usepackage{babel}
-\usepackage{svg}
-\usepackage[on]{svg-extract}
+\usepackage[forced]{svg}
+\usepackage[forced]{svg-extract}
 
 \makeatletter
 
-\svgsetup{extract=force}
+%\svgsetup{inkscapeexe="C:/Program Files/Inkscape1/inkscape.exe"}
 
 \begin{document}
 %\section*{This is a test}
 \begin{figure}
-\centering
+%\centering
 %\def\svgwidth{12cm}
+\svgsetup{width=5cm}
 
-%\svgsetup{width=9cm}
-
-%\def\svgwidth{12cm}
+%\let\svgwidth\relax
+%\def\svgwidth{3cm}
 %\fbox{%
 \includesvgx[%
 %  clean=true,
@@ -30,20 +30,27 @@
 %  extractname=,
 %  convert,
 %  inkscapearea=crop,
-  pretex={\footnote{aaa}},%
-%  width=\relax,
-  width=12cm,
+%  pretex={\footnote{aaa}},%
+  height=\relax,
+%  width=5cm,
+%  command=test,
+%  width=relax,
+%  width=\textwidth,
+%  extractangle=2,
 %  extractheight=-3cm,
-%  scale=1.5,%inkscapelatex=false,
+%  scale=1.5,%
+%  inkscapelatex=false,
 %][
-%  distort, 
-%  keepaspectratio,
+  distort, 
+  keepaspectratio,
 %  draft,
-%  extractheight=aaa,
-%  extractscale=0.5,
-%  angle=5,
-%  lastpage=true,
-%  distort,%extractdistort,
+  extractheight=3cm,
+  extractscale=0.5,
+  angle=15,
+    origin=r,
+  lastpage=3,
+%  distort,
+  extractdistort,
 %][
 %  width=5cm,
 %  draft

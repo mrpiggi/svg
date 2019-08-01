@@ -36,7 +36,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg}[%
-  2019/07/29 v2.03\space%
+  2019/08/01 v2.03\space%
   (include SVG pictures)%
 ]
 \RequirePackage{scrbase}[2016/06/14]
@@ -588,7 +588,12 @@
     \ifx\svg@tempa\svg@tempb\relax%
       \aftergroup\@firstoftwo%
     \else%
-      \aftergroup\@secondoftwo%
+      \def\svg@tempb{relax}%
+      \ifx\svg@tempa\svg@tempb\relax%
+        \aftergroup\@firstoftwo%
+      \else%
+        \aftergroup\@secondoftwo%
+      \fi%
     \fi%
   \endgroup%
 }
@@ -863,10 +868,18 @@
   \begingroup%
     \let\svg@tempa\@empty%
     \ifx\svgwidth\@undefined\else%
-      \l@addto@macro\svg@tempa{,width=\svgwidth}%
+      \ifx\svgwidth\relax%
+        \l@addto@macro\svg@tempa{,width=\relax}%
+      \else%
+        \l@addto@macro\svg@tempa{,width=\svgwidth}%
+      \fi%
     \fi%
     \ifx\svgscale\@undefined\else%
-      \l@addto@macro\svg@tempa{,scale=\svgscale}%
+      \ifx\svgscale\relax%
+        \l@addto@macro\svg@tempa{,scale=\relax}%
+      \else%
+        \l@addto@macro\svg@tempa{,scale=\svgscale}%
+      \fi%
     \fi%
     \ifx\svg@tempa\@empty%
       \def\svg@tempa{\endgroup}%
@@ -1006,7 +1019,7 @@
         \ifstr{##2}{_tex}{\@svg@tempswatrue}{\@svg@tempswafalse}%
       }%
       \@svg@tempswafalse%
-      \@tfor\svg@tempa:={pdf}{eps}{ps}{png}\do{%
+      \@for\svg@tempa:={pdf,eps,ps,png}\do{%
         \begingroup%
           \expandafter\svg@tempb\filename@ext_tex\@nil%
           \svg@extension@parse{\svg@tempa}%
