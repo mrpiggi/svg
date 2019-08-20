@@ -612,18 +612,6 @@
     }%
   \svg@tempb%
 }
-\newcommand*\svg@ifnumber[1]{%
-  \begingroup%
-    \edef\svg@tempa{#1}%
-    \def\svg@tempb{\aftergroup\@secondoftwo}%
-    \ifisinteger{\svg@tempa}{%
-      \ifnumber{\svg@tempa}{%
-        \def\svg@tempb{\aftergroup\@firstoftwo}%
-      }{}%
-    }{}%
-    \svg@tempb%
-  \endgroup%
-}
 \newcommand*\svg@ifvalueisrelax[1]{%
   \begingroup%
     \def\svg@tempa{#1}%
@@ -638,6 +626,18 @@
         \aftergroup\@secondoftwo%
       \fi%
     \fi%
+  \endgroup%
+}
+\newcommand*\svg@ifnumber[1]{%
+  \begingroup%
+    \edef\svg@tempa{#1}%
+    \def\svg@tempb{\aftergroup\@secondoftwo}%
+    \ifisinteger{\svg@tempa}{%
+      \ifnumber{\svg@tempa}{%
+        \def\svg@tempb{\aftergroup\@firstoftwo}%
+      }{}%
+    }{}%
+    \svg@tempb%
   \endgroup%
 }
 \ifx\pdf@filemoddate\@undefined
@@ -893,6 +893,7 @@
     }{\svg@tempa}%
   \endgroup%
 }
+\DefineFamilyMember[.param]{SVG}
 \newcommand*\svg@local@param@set[1]{%
   \svg@local@param@use%
   \FamilyOptions{SVG}{#1}%
@@ -943,7 +944,6 @@
     \fi%
   \svg@tempa%
 }
-\DefineFamilyMember[.param]{SVG}
 \newcommand*\svgsetup{\FamilyOptions{SVG}}
 \newcommand*\setsvg{\FamilyOptions{SVG}}
 \newcommand*\svg@input@path{}

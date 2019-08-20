@@ -1,4 +1,4 @@
-% \CheckSum{4603}
+% \CheckSum{4619}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -1721,7 +1721,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \renewcommand*\svg@ink@ver{\m@ne}%
   \else%
     \def\svg@tempa##1.##2\@nil{%
-      \ifnumber{##1}{%
+      \svg@ifnumber{##1}{%
         \renewcommand*\svg@ink@ver{##1}%
         \FamilyKeyStateProcessed%
       }{}%
@@ -1854,7 +1854,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \svg@lowercase[{#1}]{\svg@tempb}%
     \def\svg@tempa##1dpi##2\@nil{\def\svg@tempa{##1}}%
     \expandafter\svg@tempa\svg@tempb dpi\@nil%
-    \ifnumber{\svg@tempa}{%
+    \svg@ifnumber{\svg@tempa}{%
       \edef\svg@ink@dpi{\svg@tempa}%
       \FamilyKeyStateProcessed%
     }{}%
@@ -3166,6 +3166,24 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 %    \end{macrocode}
 % \end{macro}^^A \svg@ifvalueisrelax
+% \begin{macro}{\svg@ifnumber}
+% \changes{v2.03}{2019/08/20}{new}^^A
+% Checks for a positive integer in the expanded argument.
+%    \begin{macrocode}
+\newcommand*\svg@ifnumber[1]{%
+  \begingroup%
+    \edef\svg@tempa{#1}%
+    \def\svg@tempb{\aftergroup\@secondoftwo}%
+    \ifisinteger{\svg@tempa}{%
+      \ifnumber{\svg@tempa}{%
+        \def\svg@tempb{\aftergroup\@firstoftwo}%
+      }{}%
+    }{}%
+    \svg@tempb%
+  \endgroup%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@ifnumber
 % \begin{macro}{\svg@iffilenewer}
 % \changes{v2.03}{2019/07/18}{Xe\TeX{} provides \cs{filemoddate}}^^A
 % The macro \cs{svg@iffilenewer} is used to decide, whether the export with 
@@ -3438,9 +3456,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % If no version was found, an error message is shown.
 %    \begin{macrocode}
   \endgroup%
-  \ifnum\svg@ink@ver=\m@ne\relax%
-    \svg@ink@ver@detect@wrn%
-  \fi%
+  \svg@ifnumber{\svg@ink@ver}{}{\svg@ink@ver@detect@wrn}%
 }
 \newcommand*\svg@ink@ver@detect@wrn{%
   \PackageWarningNoLine{svg}{%
@@ -6197,9 +6213,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % was given and there's nothing more to do. If the argument is something like 
 % \val{300dpix400dpi}, the third argument is the second number.
 %    \begin{macrocode}
-      \ifnumber{##1}{%
+      \svg@ifnumber{##1}{%
         \IfArgIsEmpty{##3}{\@svg@tempswatrue}{%
-          \ifnumber{##3}{\edef\svg@tempa{##1x##3}}{}%
+          \svg@ifnumber{##3}{\edef\svg@tempa{##1x##3}}{}%
         }%
       }{}%
       \if@svg@tempswa\else%
@@ -6214,10 +6230,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \ifstr{##3}{x}{%
         \@svg@tempswatrue%
         \IfArgIsEmpty{##1}{\@svg@tempswafalse}{%
-          \ifnumber{##1}{}{\@svg@tempswafalse}%
+          \svg@ifnumber{##1}{}{\@svg@tempswafalse}%
         }%
         \IfArgIsEmpty{##2}{\@svg@tempswafalse}{%
-          \ifnumber{##2}{}{\@svg@tempswafalse}%
+          \svg@ifnumber{##2}{}{\@svg@tempswafalse}%
         }%
         \if@svg@tempswa%
           \edef\svg@tempa{##1x##2}%

@@ -1,5 +1,5 @@
 \listfiles
-\documentclass[ngerman]{scrartcl}
+\documentclass[ngerman,draft]{scrartcl}
 \ifpdftex{
   \usepackage[T1]{fontenc}
 }{
@@ -10,11 +10,19 @@
 \usepackage[forced]{svg-extract}
 
 \makeatletter
+%\svgsetup{draft=false}
 
-%\svgsetup{inkscapeexe="C:/Program Files/Inkscape1/inkscape.exe"}
+%\RequirePackage{ifplatform}[2010/10/22]
+
+\svgsetup{inkscapeexe="C:/Program Files/Inkscape1/inkscape.exe"}
+%\svgsetup{inkscapeversion=111.vv}
+%\svgsetup{inkscapeversion=0.94.2}
 
 \begin{document}
+\makeatletter
+%\svg@ifnumber{5}{ja}{nein}
 %\section*{This is a test}
+
 \begin{figure}
 %\centering
 %\def\svgwidth{12cm}
@@ -23,7 +31,7 @@
 %\let\svgwidth\relax
 %\def\svgwidth{3cm}
 %\fbox{%
-\includesvgx[%
+\includesvg[%
 %  clean=true,
 %  inkscapepath="aaa bbb",
 %  extractpath="hi hh",
@@ -47,7 +55,7 @@
   extractheight=3cm,
   extractscale=0.5,
   angle=15,
-    origin=r,
+  origin=r,
   lastpage=3,
 %  distort,
   extractdistort,

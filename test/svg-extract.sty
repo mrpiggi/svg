@@ -693,9 +693,9 @@
     \def\svg@tempa##1dpi##2x##3dpi##4\@nil{%
       \edef\svg@tempa{##1}%
       \@svg@tempswafalse%
-      \ifnumber{##1}{%
+      \svg@ifnumber{##1}{%
         \IfArgIsEmpty{##3}{\@svg@tempswatrue}{%
-          \ifnumber{##3}{\edef\svg@tempa{##1x##3}}{}%
+          \svg@ifnumber{##3}{\edef\svg@tempa{##1x##3}}{}%
         }%
       }{}%
       \if@svg@tempswa\else%
@@ -706,10 +706,10 @@
       \ifstr{##3}{x}{%
         \@svg@tempswatrue%
         \IfArgIsEmpty{##1}{\@svg@tempswafalse}{%
-          \ifnumber{##1}{}{\@svg@tempswafalse}%
+          \svg@ifnumber{##1}{}{\@svg@tempswafalse}%
         }%
         \IfArgIsEmpty{##2}{\@svg@tempswafalse}{%
-          \ifnumber{##2}{}{\@svg@tempswafalse}%
+          \svg@ifnumber{##2}{}{\@svg@tempswafalse}%
         }%
         \if@svg@tempswa%
           \edef\svg@tempa{##1x##2}%
