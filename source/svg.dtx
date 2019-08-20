@@ -1,4 +1,4 @@
-% \CheckSum{4620}
+% \CheckSum{4617}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -6500,11 +6500,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % and deleting files are provided, if \file{-{}-shell-escape} is enabled. Only 
 % then package \pkg{ifplatform} is only used in order to do not raise a warning.
 %    \begin{macrocode}
-\ifnum\pdf@shellescape=\@ne\relax\else%
-  \svg@catcodecodes@restore%
-  \expandafter\endinput%
+\ifnum\pdf@shellescape=\@ne\relax
+  \RequirePackage{ifplatform}[2010/10/22]
 \fi
-\RequirePackage{ifplatform}[2010/10/22]
 %    \end{macrocode}
 % \begin{macro}{\svg@shell@mkdir}
 % \begin{macro}{\svg@shell@@mkdir}
@@ -6514,6 +6512,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svg@shell@@rm}
 % The platform dependent commands for file access.
 %    \begin{macrocode}
+\@ifpackageloaded{ifplatform}{
 \ifwindows
   \newcommand*\svg@shell@@mkdir[1]{if not exist "#1" mkdir "#1"}
   \newcommand*\svg@shell@@mv{move}
@@ -6554,6 +6553,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \ShellEscape{\svg@shell@@rm\space"\svg@tempa"}%
   \endgroup%
 }
+}{}
 %    \end{macrocode}
 % \end{macro}^^A \svg@shell@@rm
 % \end{macro}^^A \svg@shell@rm
