@@ -1,4 +1,4 @@
-% \CheckSum{4536}
+% \CheckSum{4603}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -446,12 +446,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{DescribeValues}
 % \ToDo{Hint for MacOS}[v2.03]
 %
-% \DescribeOption{inkscapename}^^A
-% The file names of the \app{Inkscape}~export are derived from the name of the 
-% base SVG~file by default but can be modified with 
-% \opt{inkscapename}|=|\file{\meta{filename}}. It's possible to use counters for
-% specifying the name of the exported file. Repeatedly specifying the same file 
-% name will overwrite previously created files. 
+% \DescribeOption{inkscapeversion}^^A
+% \ToDo{describe option}[v2.03]
 %
 % \DescribeOption{inkscapeexe}^^A
 % For including a SVG~file, \app{Inkscape} is used to separate the text and
@@ -466,6 +462,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % path where the executable of \app{Inkscape} is located. The option is set to
 % \opt{inkscapeexe}|=|\val{inkscape} by default.
 % \ToDo{Hint for MacOS}[v2.03]
+%
+% \DescribeOption{inkscapename}^^A
+% The file names of the \app{Inkscape}~export are derived from the name of the 
+% base SVG~file by default but can be modified with 
+% \opt{inkscapename}|=|\file{\meta{filename}}. It's possible to use counters for
+% specifying the name of the exported file. Repeatedly specifying the same file 
+% name will overwrite previously created files. 
 % 
 % \DescribeOption{inkscapeformat}^^A
 % With this option, the \app{Inkscape}~export~format can be controlled. Valid 
@@ -1555,7 +1558,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \svg@lowercase{\svg@tempb}%
   \FamilySetNumerical{SVG}{inkscape}{svg@tempa}{%
     {false}{0},{off}{0},{no}{0},%
-    {true}{1},{on}{1},{yes}{1},{onlynewer}{1},{newer}{1},%
+    {true}{1},{on}{1},{yes}{1},{auto}{1},{onlynewer}{1},{newer}{1},%
     {forced}{2},{force}{2},{overwrite}{2},%
     {pdf}{3},{eps}{4},{ps}{5},{png}{6},%
     {drawing}{7},{crop}{7},%
@@ -1677,6 +1680,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{option}^^A inkscape
 % \begin{option}{on}
 % \changes{v2.00}{2017/02/24}{new}^^A
+% \begin{option}{forced}
+% \changes{v2.03}{2019/07/25}{new}^^A
 % \begin{option}{auto}
 % \changes{v2.03}{2019/07/25}{new}^^A
 % \begin{option}{off}
@@ -1691,7 +1696,73 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{option}^^A off
 % \end{option}^^A auto
+% \end{option}^^A forced
 % \end{option}^^A on
+% \begin{option}{inkscapeversion}
+% \changes{v2.03}{2019/08/02}{new}^^A
+% \begin{macro}{\svg@ink@ver}
+% \changes{v2.03}{2019/06/28}{new}^^A
+% \begin{option}{inkscapeexe}
+% \changes{v2.00}{2017/02/17}{new}^^A
+% \changes{v2.03}{2019/06/28}{only usable in preamble}%
+% \begin{macro}{\svg@ink@exe}
+% \begin{option}{inkscapeopt}
+% \changes{v2.00}{2017/02/17}{new}^^A
+% \begin{macro}{\svg@ink@opt}
+% With these options, the terminal command for invoking \app{Inkscape} as well 
+% as additional options can be defined.
+%    \begin{macrocode}
+\newcommand*\svg@ink@ver{\m@ne}
+\DefineFamilyKey{SVG}{inkscapeversion}[true]{%
+  \FamilySetNumerical{SVG}{inkscape}{svg@tempa}{%
+    {true}{0},{on}{0},{yes}{0},{auto}{0},{detect}{0}%
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \renewcommand*\svg@ink@ver{\m@ne}%
+  \else%
+    \def\svg@tempa##1.##2\@nil{%
+      \ifnumber{##1}{%
+        \renewcommand*\svg@ink@ver{##1}%
+        \FamilyKeyStateProcessed%
+      }{}%
+    }%
+    \svg@tempa#1.0\@nil%
+  \fi%
+}
+\newcommand*\svg@ink@exe{inkscape}
+\DefineFamilyKey{SVG}{inkscapeexe}{%
+  \svg@sanitize@dq\svg@ink@exe{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svg@ink@opt{}
+\DefineFamilyKey{SVG}{inkscapeopt}{%
+  \renewcommand*\svg@ink@opt{#1}%
+  \FamilyKeyStateProcessed%
+}
+%    \end{macrocode}
+% The two options \opt{inkscapeversion} and \opt{inkscapeexe} can only be used 
+% within the preamble.
+%    \begin{macrocode}
+\AtBeginDocument{%
+  \def\svg@tempa#1{%
+    \DefineFamilyKey[.svg.sty]{SVG}{#1}[]{%
+      \PackageError{svg}{Option `#1' too late}{%
+        Option `#1' can only be set within\MessageBreak%
+        the preamble but you have tried to set it up later.%
+      }%
+      \FamilyKeyStateProcessed%
+    }%
+  }%
+  \svg@tempa{inkscapeexe}%
+  \svg@tempa{inkscapeversion}%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@ink@opt
+% \end{option}^^A inkscapeopt
+% \end{macro}^^A \svg@ink@exe
+% \end{option}^^A inkscapeexe
+% \end{macro}^^A \svg@ink@ver
+% \end{option}^^A inkscapeversion
 % \begin{option}{inkscapeformat}
 % \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{macro}{\svg@ink@format}
@@ -1794,38 +1865,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@ink@dpi
 % \end{option}^^A inkscapedensity
 % \end{option}^^A inkscapedpi
-% \begin{option}{inkscapeexe}
-% \changes{v2.00}{2017/02/17}{new}^^A
-% \changes{v2.03}{2019/06/28}{only usable in preamble}%
-% \begin{macro}{\svg@ink@exe}
-% \begin{option}{inkscapeopt}
-% \changes{v2.00}{2017/02/17}{new}^^A
-% \begin{macro}{\svg@ink@opt}
-% With these options, the terminal command for invoking \app{Inkscape} as well 
-% as additional options can be defined.
-%    \begin{macrocode}
-\newcommand*\svg@ink@exe{inkscape}
-\DefineFamilyKey{SVG}{inkscapeexe}{%
-  \if@atdocument%
-    \PackageError{svg}{Option `inkscapeexe' too late}{%
-      Option `inkscapeexe' can only be set within the\MessageBreak%
-      preamble but you have tried to set it up later.%
-    }%
-  \else%
-    \renewcommand*\svg@ink@exe{#1}%
-  \fi%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svg@ink@opt{}
-\DefineFamilyKey{SVG}{inkscapeopt}{%
-  \renewcommand*\svg@ink@opt{#1}%
-  \FamilyKeyStateProcessed%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svg@ink@opt
-% \end{option}^^A inkscapeopt
-% \end{macro}^^A \svg@ink@exe
-% \end{option}^^A inkscapeexe
 %
 %
 %
@@ -3188,7 +3227,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
     \if@svg@ink@latex%
       \IfFileExists{#1_tex}{%
-        \ifnum\pdf@shellescape=\@ne\relax\if@svg@ink@run%
+        \if@svg@ink@run\ifnum\pdf@shellescape=\@ne\relax%
           \svg@iffilenewer{#1_tex}{#1}{%
             \@svg@ink@runfalse%
             \svg@quotes@remove[{#1}]{\svg@tempa}%
@@ -3267,11 +3306,15 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \if@svg@ink@run
 % \end{macro}^^A \svg@ink@run
-% \begin{macro}{\svg@ink@get@ver}
+% \begin{macro}{\svg@ink@ver@settings}
+% \changes{v2.03}{2019/08/20}{new}^^A
+% \begin{macro}{\svg@ink@ver@detect}
 % \changes{v2.03}{2019/06/28}{new}^^A
-% \begin{macro}{\svg@ink@ver}
-% \changes{v2.03}{2019/06/28}{new}^^A
-% \begin{macro}{\svg@ink@lastexe}
+% \begin{macro}{\svg@ink@ver@@detect}
+% \changes{v2.03}{2019/08/20}{new}^^A
+% \begin{macro}{\svg@ink@ver@detect@wrn}
+% \changes{v2.03}{2019/08/20}{new}^^A
+% \begin{macro}{\if@svg@ink@ver@detect}
 % \changes{v2.03}{2019/06/28}{new}^^A
 % As the interface of the command line tool of \app{Inkscape} has changed 
 % between versions \val{0.x} and \val{1.x}, we have to check the used version 
@@ -3281,102 +3324,154 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   \item[\val{-1}] version check has not be done or \app{Inkscape} could not 
 %     be found/executed
 %   \item[\val{0}] \app{Inkscape} version \val{0.x} was found
-%   \item[\val{1}] \app{Inkscape} version \val{1.x} was found
+%   \item[\val{1}] \app{Inkscape} version \val{1.x} or later was found
 % \end{description}
+%
+% All necessary information are stored within \cs{svg@ink@ver@settings} as 
+% three arguments, whereas the first one is the manually set version, the 
+% second is the used \opt{inkscapeexe} for automatic detection and the third 
+% one is the detected version itself.
 %    \begin{macrocode}
-\newcommand*\svg@ink@ver{\m@ne}
-\newcommand*\svg@ink@get@ver{%
-  \ifnum\pdf@shellescape=\@ne\relax%
-%    \end{macrocode}
-% The version check can only be done with extended shell access. Therefore, the
-% call stored in \cs{svg@ink@exe} is done with \cs{@@input\textbar"'\dots'" -V}
-% in order to read the result from \val{stdout}.
-% \ToDo{%
-%   \url{https://tex.stackexchange.com/questions/9792}%
-%   \val{-enable-pipes} in MikTeX?! check \cs{pdftexbanner};%
-%   scan log for xelatex?!
-% }[v2.03]
-% \ToDo{set \cs{svg@ink@ver} manually}[v2.03]
-%    \begin{macrocode}
-    \begingroup%
-      \endlinechar=\m@ne%
-      \everyeof{\noexpand}%
-      \svg@quotes@remove{\svg@ink@exe}%
-      \edef\svg@tempa{%
-        \edef\noexpand\svg@tempa{%
-          \noexpand\@@input|"'\svg@ink@exe'\space-V" %
-        }%
-      }%
-      \svg@tempa%
-%    \end{macrocode}
-% The found version is stored in \cs{svg@tempa} and parsed afterwards.
-%    \begin{macrocode}
-      \def\svg@tempb Inkscape ##1.##2\@nil{%
-        \gdef\svg@ink@ver{##1}%
-      }%
-      \expandafter\svg@tempb\svg@tempa Inkscape -1.0\@nil%
-    \endgroup%
-  \fi%
-}
+\newcommand*\svg@ink@ver@settings{{\svg@ink@ver}{\svg@ink@exe}{\m@ne}}
+\newif\if@svg@ink@ver@detect
 %    \end{macrocode}
 % In order to run the check for \app{Inkscape} version at the beginning of the 
 % document only if needed, the version stored in \cs{svg@ink@ver} is written to 
 % the aux-file. As a change of the given \opt{inkscapeexe} must also enforce 
-% the version check, this value is written as well.
+% the version check as well as a change of \cs{svg@ink@ver}, these values are 
+% also written.
 %    \begin{macrocode}
-\newcommand*\svg@ink@lastexe{}
-\AtBeginDocument{%
+\newcommand*\svg@ink@ver@detect[3]{%
 %    \end{macrocode}
-% Enforce the check after a change.
+% The first two arguments to \cs{svg@ink@ver@settings} are temporary stored in 
+% \cs{svg@tempb} as they are maybe manipulated in further process.
 %    \begin{macrocode}
-  \ifx\svg@ink@lastexe\svg@ink@exe\else%
-    \def\svg@ink@ver{\m@ne}%
-  \fi%
-  \ifnum\pdf@shellescape=\@ne\relax%
-    \ifnum\svg@ink@ver=\m@ne\relax%
-      \svg@ink@get@ver%
+  \svg@sanitize@dq\svg@tempb{{\svg@ink@ver}{#2}}%
+  \@svg@ink@ver@detectfalse%
+  \ifnum\svg@ink@ver=\m@ne\relax%
+    \ifnum\pdf@shellescape=\@ne\relax%
 %    \end{macrocode}
-% If no version was found, an error message is shown.
+% If \opt{inkscapeexe} was not changed\dots
 %    \begin{macrocode}
-      \ifnum\svg@ink@ver=\m@ne\relax%
-        \PackageErrorNoLine{svg}{`Inkscape' not found}{%
-          The invocation of `\svg@ink@exe\space-V'\MessageBreak%
-          did not provide a version info for Inkscape.%
-        }%
+      \svg@sanitize@dq\svg@tempa{#2}%
+      \ifx\svg@tempa\svg@ink@exe\relax%
+%    \end{macrocode}
+% \dots then enforce the check after a change of mode to \val{detect}\dots
+%    \begin{macrocode}
+        \ifnum#1>\m@ne\relax%
+          \@svg@ink@ver@detecttrue%
+%    \end{macrocode}
+% \dots or if detection was never invoked, do so.
+%    \begin{macrocode}
+        \else%
+          \ifnum#3=\m@ne\relax%
+            \@svg@ink@ver@detecttrue%
+          \fi%
+        \fi%
+%    \end{macrocode}
+% Enforce the check after a change of \opt{inkscapeexe} and store the new one 
+% in \cs{svg@tempb}.
+%    \begin{macrocode}
+      \else%
+        \edef\svg@tempb{{\svg@ink@ver}{\svg@ink@exe}}%
+        \@svg@ink@ver@detecttrue%
       \fi%
     \fi%
   \fi%
 %    \end{macrocode}
+% Run detection if necessary and store the detected version to 
+% \cs{svg@ink@ver@settings}. Otherwise set previous detected version in 
+% automatic mode.
+%    \begin{macrocode}
+  \if@svg@ink@ver@detect%
+    \svg@ink@ver@@detect%
+    \edef\svg@ink@ver@settings{\svg@tempb{\svg@ink@ver}}%
+  \else%
+    \ifnum\svg@ink@ver=\m@ne\relax%
+      \def\svg@ink@ver{#3}%
+    \fi%
+    \edef\svg@ink@ver@settings{\svg@tempb{#3}}%
+  \fi%
+}
+%    \end{macrocode}
+% The detection is only done with extended shell access. Therefore, 
+% \cs{if@svg@ink@ver@detect} is used and set by \cs{svg@ink@settings}. The
+% call of \app{Inkscape} stored in \cs{svg@ink@exe} is done with 
+% \cs{@@input\textbar"'\dots'" -V} in order to read the result from
+% \val{stdout}.
+% \ToDo{%
+%   \url{https://tex.stackexchange.com/questions/9792}%
+%   \val{-enable-pipes} in MikTeX?!
+% }[v2.03]
+%    \begin{macrocode}
+\newcommand*\svg@ink@ver@@detect{%
+  \begingroup%
+    \endlinechar=\m@ne%
+    \everyeof{\noexpand}%
+    \svg@quotes@remove{\svg@ink@exe}%
+    \edef\svg@tempa{%
+      \edef\noexpand\svg@tempa{%
+        \noexpand\@@input|"'\svg@ink@exe'\space-V" %
+      }%
+    }%
+    \svg@tempa%
+%    \end{macrocode}
+% The found version is stored in \cs{svg@tempa} and parsed afterwards.
+%    \begin{macrocode}
+    \def\svg@tempb Inkscape ##1.##2\@nil{%
+      \gdef\svg@ink@ver{##1}%
+    }%
+    \expandafter\svg@tempb\svg@tempa Inkscape \m@ne.\@nil%
+%    \end{macrocode}
+% If no version was found, an error message is shown.
+%    \begin{macrocode}
+  \endgroup%
+  \ifnum\svg@ink@ver=\m@ne\relax%
+    \svg@ink@ver@detect@wrn%
+  \fi%
+}
+\newcommand*\svg@ink@ver@detect@wrn{%
+  \PackageWarningNoLine{svg}{%
+    The invocation of\MessageBreak`\svg@ink@exe\space-V'\MessageBreak%
+    did not provide a version info for Inkscape.%
+  }%
+  \global\let\svg@ink@ver@detect@wrn\relax%
+}
+%    \end{macrocode}
+% Comparing the stored settings from last the last run with current settings.
+%    \begin{macrocode}
+\AtBeginDocument{\expandafter\svg@ink@ver@detect\svg@ink@ver@settings}
+%    \end{macrocode}
 % Writing \cs{svg@ink@exe} and \cs{svg@ink@ver} to the main aux-file.
 %    \begin{macrocode}
+\BeforeClosingMainAux{%
   \if@filesw%
     \immediate\write\@mainaux{%
-      \string\gdef\string\svg@ink@ver{\svg@ink@ver}%
-      \string\gdef\string\svg@ink@lastexe{\svg@ink@exe}%
+      \string\gdef\string\svg@ink@ver@settings{\svg@ink@ver@settings}%
     }%
   \fi%
 }
 %    \end{macrocode}
-% \end{macro}^^A \svg@ink@lastexe
-% \end{macro}^^A \svg@ink@ver
-% \end{macro}^^A \svg@ink@get@ver
+% \end{macro}^^A \if@svg@ink@ver@detect
+% \end{macro}^^A \svg@ink@ver@detect@wrn
+% \end{macro}^^A \svg@ink@ver@@detect
+% \end{macro}^^A \svg@ink@ver@detect
+% \end{macro}^^A \svg@ink@ver@settings
 % \begin{macro}{\svg@ink@cmd}
 % \changes{v2.03}{2019/06/28}{distinguish \app{Inkscape} versions}^^A
 % The actual call of \app{Inkscape} at command line.
 %    \begin{macrocode}
 \newcommand*\svg@ink@cmd[2]{%
-  \ifnum\svg@ink@ver>\m@ne%
-    \svg@ink@exe\space"#1.\svg@file@ext"\space%
-    --without-gui\space\svg@ink@area\space%
-    \ifx\svg@ink@dpi\relax\else--export-dpi=\svg@ink@dpi\space\fi%
-    \if@svg@ink@latex--export-latex\space\fi%
-    \ifx\svg@ink@opt\@empty\else\svg@ink@opt\space\fi%
-    \ifcase\svg@ink@ver%
-      --export-\svg@ink@format="#2"\space%
-    \else%
-      --export-type=\svg@ink@format\space%
-      --export-file="#2"\space%
-    \fi%
+  \svg@ink@exe\space"#1.\svg@file@ext"\space%
+  --without-gui\space\svg@ink@area\space%
+  \ifx\svg@ink@dpi\relax\else--export-dpi=\svg@ink@dpi\space\fi%
+  \if@svg@ink@latex--export-latex\space\fi%
+  \ifx\svg@ink@opt\@empty\else\svg@ink@opt\space\fi%
+  \ifnum\svg@ink@ver<\@ne%
+    --export-\svg@ink@format="#2"\space%
+  \else%
+    --export-type=\svg@ink@format\space%
+    --export-file="#2"\space%
   \fi%
 }
 %    \end{macrocode}
@@ -3548,7 +3643,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \else%
 %    \end{macrocode}
 % If the export with \app{Inkscape} was done without \LaTeX~support or 
-% parameter \prm{draft was given}, the resulting graphic file will be included
+% parameter \prm{draft} was given, the resulting graphic file will be included
 % with \cs{includegraphics}.
 %    \begin{macrocode}
     \def\svg@tempb{%
@@ -3767,7 +3862,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \svg@lowercase[{#1}]{\svg@tempa}%
   \FamilySetNumerical{SVG}{extract}{svg@tempa}{%
     {false}{0},{off}{0},{no}{0},%
-    {true}{1},{on}{1},{yes}{1},{onlynewer}{1},{newer}{1},%
+    {true}{1},{on}{1},{yes}{1},{auto}{1},{onlynewer}{1},{newer}{1},%
     {forced}{2},{force}{2},{overwrite}{2},%
     {pdf}{3},{eps}{4},{ps}{5}%
   }{\svg@tempa}%
@@ -3797,6 +3892,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{option}^^A extract
 % \begin{option}{on}
 % \changes{v2.00}{2017/02/24}{new}^^A
+% \begin{option}{forced}
+% \changes{v2.03}{2019/07/25}{new}^^A
 % \begin{option}{auto}
 % \changes{v2.03}{2019/07/25}{new}^^A
 % \begin{option}{off}
@@ -3813,6 +3910,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{option}^^A off
 % \end{option}^^A auto
+% \end{option}^^A forced
 % \end{option}^^A on
 % \begin{option}{extractformat}
 % \changes{v2.00}{2017/02/24}{new}^^A
@@ -4130,7 +4228,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \DefineFamilyKey{SVG}{convert}[true]{%
   \FamilySetNumerical{SVG}{convert}{svg@tempa}{%
     {false}{0},{off}{0},{no}{0},%
-    {true}{1},{on}{1},{yes}{1},{onlynewer}{1},{newer}{1},%
+    {true}{1},{on}{1},{yes}{1},{auto}{1},{onlynewer}{1},{newer}{1},%
     {forced}{2},{force}{2},{overwrite}{2},%
     {magick}{3},{imagemagick}{3},{convert}{3},%
     {gs}{4},{ghostscript}{4},%
@@ -6335,7 +6433,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 %<*base>
 \FamilyExecuteOptions{SVG}{%
-  inkscape=true,inkscapepath=basesubdir,
+  inkscape=true,inkscapeversion=detect,inkscapepath=basesubdir,
   inkscapelatex=true,inkscapearea=drawing,distort=false,%
   usexcolor=true,usetransparent=true%
 }

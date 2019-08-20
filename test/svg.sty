@@ -91,13 +91,21 @@
     }%
   \fi%
 }
+% TODO load pgfcore, if necessary
+%\documentclass{article}
+%\usepackage{pstricks}
+%\usepackage{svg}
+%\usepackage{pgfcore}
+%\begin{document}
+%hello
+%\end{document}
 \newcommand*\svg@ink@mode{}
 \DefineFamilyKey{SVG}{inkscape}[true]{%
   \svg@sanitize@dq\svg@tempb{#1}%
   \svg@lowercase{\svg@tempb}%
   \FamilySetNumerical{SVG}{inkscape}{svg@tempa}{%
     {false}{0},{off}{0},{no}{0},%
-    {true}{1},{on}{1},{yes}{1},{onlynewer}{1},{newer}{1},%
+    {true}{1},{on}{1},{yes}{1},{auto}{1},{onlynewer}{1},{newer}{1},%
     {forced}{2},{force}{2},{overwrite}{2},%
     {pdf}{3},{eps}{4},{ps}{5},{png}{6},%
     {drawing}{7},{crop}{7},%
@@ -196,6 +204,46 @@
 \DeclareOption{forced}{\AtEndOfPackage{\FamilyOptions{SVG}{inkscape=forced}}}
 \DeclareOption{auto}{\AtEndOfPackage{\FamilyOptions{SVG}{inkscape=true}}}
 \DeclareOption{off}{\AtEndOfPackage{\FamilyOptions{SVG}{inkscape=false}}}
+\newcommand*\svg@ink@ver{\m@ne}
+\DefineFamilyKey{SVG}{inkscapeversion}[true]{%
+  \FamilySetNumerical{SVG}{inkscape}{svg@tempa}{%
+    {true}{0},{on}{0},{yes}{0},{auto}{0},{detect}{0}%
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \renewcommand*\svg@ink@ver{\m@ne}%
+  \else%
+    \def\svg@tempa##1.##2\@nil{%
+      \svg@ifnumber{##1}{%
+        \renewcommand*\svg@ink@ver{##1}%
+        \FamilyKeyStateProcessed%
+      }{}%
+    }%
+    \svg@tempa#1.0\@nil%
+  \fi%
+}
+\newcommand*\svg@ink@exe{inkscape}
+\DefineFamilyKey{SVG}{inkscapeexe}{%
+  \svg@sanitize@dq\svg@ink@exe{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svg@ink@opt{}
+\DefineFamilyKey{SVG}{inkscapeopt}{%
+  \renewcommand*\svg@ink@opt{#1}%
+  \FamilyKeyStateProcessed%
+}
+\AtBeginDocument{%
+  \def\svg@tempa#1{%
+    \DefineFamilyKey[.svg.sty]{SVG}{#1}[]{%
+      \PackageError{svg}{Option `#1' too late}{%
+        Option `#1' can only be set within\MessageBreak%
+        the preamble but you have tried to set it up later.%
+      }%
+      \FamilyKeyStateProcessed%
+    }%
+  }%
+  \svg@tempa{inkscapeexe}%
+  \svg@tempa{inkscapeversion}%
+}
 \newcommand*\svg@ink@format{pdf}
 \ifxetex\else\ifpdf\else
   \renewcommand*\svg@ink@format{eps}
@@ -246,30 +294,13 @@
     \svg@lowercase[{#1}]{\svg@tempb}%
     \def\svg@tempa##1dpi##2\@nil{\def\svg@tempa{##1}}%
     \expandafter\svg@tempa\svg@tempb dpi\@nil%
-    \ifnumber{\svg@tempa}{%
+    \svg@ifnumber{\svg@tempa}{%
       \edef\svg@ink@dpi{\svg@tempa}%
       \FamilyKeyStateProcessed%
     }{}%
   }%
 }
 \DefineFamilyKey{SVG}{inkscapedensity}{\FamilyOptions{SVG}{inkscapedpi=#1}}
-\newcommand*\svg@ink@exe{inkscape}
-\DefineFamilyKey{SVG}{inkscapeexe}{%
-  \if@atdocument%
-    \PackageError{svg}{Option `inkscapeexe' too late}{%
-      Option `inkscapeexe' can only be set within the\MessageBreak%
-      preamble but you have tried to set it up later.%
-    }%
-  \else%
-    \renewcommand*\svg@ink@exe{#1}%
-  \fi%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svg@ink@opt{}
-\DefineFamilyKey{SVG}{inkscapeopt}{%
-  \renewcommand*\svg@ink@opt{#1}%
-  \FamilyKeyStateProcessed%
-}
 \DefineFamilyKey{SVG}{svgpath}{%
   \PackageWarning{svg}{%
     The key `svgpath' is deprecated. It's recommended\MessageBreak%
@@ -442,7 +473,27 @@
 }
 \newif\if@svg@draft
 \FamilyBoolKey{SVG}{draft}{@svg@draft}
-\AtBeginDocument{\if@svg@draft\else\ifGin@draft\@svg@drafttrue\fi\fi}
+\AfterPackage*{graphicx}{\ifGin@draft\@svg@drafttrue\fi}
+\newcommand*\svg@lowercase[2][]{%
+  \begingroup%
+    \edef\svg@tempa{%
+      \endgroup%
+      \lowercase{\noexpand\def\noexpand#2{\IfArgIsEmpty{#1}{#2}{#1}}}%
+    }%
+  \svg@tempa%
+}
+\newcommand*\svg@ifnumber[1]{%
+  \begingroup%
+    \edef\svg@tempa{#1}%
+    \def\svg@tempb{\aftergroup\@secondoftwo}%
+    \ifisinteger{\svg@tempa}{%
+      \ifnumber{\svg@tempa}{%
+        \def\svg@tempb{\aftergroup\@firstoftwo}%
+      }{}%
+    }{}%
+    \svg@tempb%
+  \endgroup%
+}
 \newcommand*\svg@deactivate@dq{}
 \AfterPackage+{babel}{%
   \renewcommand*\svg@deactivate@dq{\bbl@deactivate{"}}%
@@ -452,14 +503,6 @@
   \begingroup%
     \svg@deactivate@dq%
     \edef\svg@tempa{\endgroup\def\noexpand#1{#2}}%
-  \svg@tempa%
-}
-\newcommand*\svg@lowercase[2][]{%
-  \begingroup%
-    \edef\svg@tempa{%
-      \endgroup%
-      \lowercase{\noexpand\def\noexpand#2{\IfArgIsEmpty{#1}{#2}{#1}}}%
-    }%
   \svg@tempa%
 }
 \newcommand*\svg@quotes@remove[2][]{%
@@ -513,6 +556,22 @@
       \def\noexpand#2{\svg@tempa}%
     }%
   \svg@tempb%
+}
+\newcommand*\svg@ifvalueisrelax[1]{%
+  \begingroup%
+    \def\svg@tempa{#1}%
+    \def\svg@tempb{\relax}%
+    \ifx\svg@tempa\svg@tempb\relax%
+      \aftergroup\@firstoftwo%
+    \else%
+      \def\svg@tempb{relax}%
+      \ifx\svg@tempa\svg@tempb\relax%
+        \aftergroup\@firstoftwo%
+      \else%
+        \aftergroup\@secondoftwo%
+      \fi%
+    \fi%
+  \endgroup%
 }
 \newcommand*\svg@set@input@path[1][]{%
   \begingroup%
@@ -580,22 +639,6 @@
     \svg@normalize@@path#2/\@nil%
     \edef\svg@tempa{#1/\svg@tempa}%
   }%
-}
-\newcommand*\svg@ifvalueisrelax[1]{%
-  \begingroup%
-    \def\svg@tempa{#1}%
-    \def\svg@tempb{\relax}%
-    \ifx\svg@tempa\svg@tempb\relax%
-      \aftergroup\@firstoftwo%
-    \else%
-      \def\svg@tempb{relax}%
-      \ifx\svg@tempa\svg@tempb\relax%
-        \aftergroup\@firstoftwo%
-      \else%
-        \aftergroup\@secondoftwo%
-      \fi%
-    \fi%
-  \endgroup%
 }
 \ifx\pdf@filemoddate\@undefined
   \ifx\filemoddate\@undefined\else
@@ -697,7 +740,7 @@
 \svg@dummy@key[true]{clear}
 \svg@dummy@key[true]{exclude}
 \FamilyExecuteOptions{SVG}{%
-  inkscape=true,inkscapepath=basesubdir,
+  inkscape=true,inkscapeversion=detect,inkscapepath=basesubdir,
   inkscapelatex=true,inkscapearea=drawing,distort=false,%
   usexcolor=true,usetransparent=true%
 }
@@ -1073,7 +1116,7 @@
       {\@svg@ink@runtrue}{\@svg@ink@runfalse}%
     \if@svg@ink@latex%
       \IfFileExists{#1_tex}{%
-        \ifnum\pdf@shellescape=\@ne\relax\if@svg@ink@run%
+        \if@svg@ink@run\ifnum\pdf@shellescape=\@ne\relax%
           \svg@iffilenewer{#1_tex}{#1}{%
             \@svg@ink@runfalse%
             \svg@quotes@remove[{#1}]{\svg@tempa}%
@@ -1130,63 +1173,82 @@
     \fi%
   \fi%
 }
-\newcommand*\svg@ink@ver{\m@ne}
-\newcommand*\svg@ink@get@ver{%
-  \ifnum\pdf@shellescape=\@ne\relax%
-    \begingroup%
-      \endlinechar=\m@ne%
-      \everyeof{\noexpand}%
-      \svg@quotes@remove{\svg@ink@exe}%
-      \edef\svg@tempa{%
-        \edef\noexpand\svg@tempa{%
-          \noexpand\@@input|"'\svg@ink@exe'\space-V" %
-        }%
-      }%
-      \svg@tempa%
-      \def\svg@tempb Inkscape ##1.##2\@nil{%
-        \gdef\svg@ink@ver{##1}%
-      }%
-      \expandafter\svg@tempb\svg@tempa Inkscape -1.0\@nil%
-    \endgroup%
-  \fi%
-}
-% TODO enable \svg@ink@exe to be set manually per option (MikTeX)
-\newcommand*\svg@ink@lastexe{}
-\AtBeginDocument{%
-  \ifx\svg@ink@lastexe\svg@ink@exe\else%
-    \def\svg@ink@ver{\m@ne}%
-  \fi%
-  \ifnum\pdf@shellescape=\@ne\relax%
-    \ifnum\svg@ink@ver=\m@ne\relax%
-      \svg@ink@get@ver%
-      \ifnum\svg@ink@ver=\m@ne\relax%
-        \PackageErrorNoLine{svg}{`Inkscape' not found}{%
-          The invocation of `\svg@ink@exe\space-V'\MessageBreak%
-          did not provide a version info for Inkscape.%
-        }%
+\newcommand*\svg@ink@ver@settings{{\svg@ink@ver}{\svg@ink@exe}{\m@ne}}
+\newif\if@svg@ink@ver@detect
+\newcommand*\svg@ink@ver@detect[3]{%
+  \svg@sanitize@dq\svg@tempb{{\svg@ink@ver}{#2}}%
+  \@svg@ink@ver@detectfalse%
+  \ifnum\svg@ink@ver=\m@ne\relax%
+    \ifnum\pdf@shellescape=\@ne\relax%
+      \svg@sanitize@dq\svg@tempa{#2}%
+      \ifx\svg@tempa\svg@ink@exe\relax%
+        \ifnum#1>\m@ne\relax%
+          \@svg@ink@ver@detecttrue%
+        \else%
+          \ifnum#3=\m@ne\relax%
+            \@svg@ink@ver@detecttrue%
+          \fi%
+        \fi%
+      \else%
+        \edef\svg@tempb{{\svg@ink@ver}{\svg@ink@exe}}%
+        \@svg@ink@ver@detecttrue%
       \fi%
     \fi%
   \fi%
+  \if@svg@ink@ver@detect%
+    \svg@ink@ver@@detect%
+    \edef\svg@ink@ver@settings{\svg@tempb{\svg@ink@ver}}%
+  \else%
+    \ifnum\svg@ink@ver=\m@ne\relax%
+      \def\svg@ink@ver{#3}%
+    \fi%
+    \edef\svg@ink@ver@settings{\svg@tempb{#3}}%
+  \fi%
+}
+\newcommand*\svg@ink@ver@@detect{%
+  \begingroup%
+    \endlinechar=\m@ne%
+    \everyeof{\noexpand}%
+    \svg@quotes@remove{\svg@ink@exe}%
+    \edef\svg@tempa{%
+      \edef\noexpand\svg@tempa{%
+        \noexpand\@@input|"'\svg@ink@exe'\space-V" %
+      }%
+    }%
+    \svg@tempa%
+    \def\svg@tempb Inkscape ##1.##2\@nil{%
+      \gdef\svg@ink@ver{##1}%
+    }%
+    \expandafter\svg@tempb\svg@tempa Inkscape \m@ne.\@nil%
+  \endgroup%
+  \svg@ifnumber{\svg@ink@ver}{}{\svg@ink@ver@detect@wrn}%
+}
+\newcommand*\svg@ink@ver@detect@wrn{%
+  \PackageWarningNoLine{svg}{%
+    The invocation of\MessageBreak`\svg@ink@exe\space-V'\MessageBreak%
+    did not provide a version info for Inkscape.%
+  }%
+  \global\let\svg@ink@ver@detect@wrn\relax%
+}
+\AtBeginDocument{\expandafter\svg@ink@ver@detect\svg@ink@ver@settings}
+\BeforeClosingMainAux{%
   \if@filesw%
     \immediate\write\@mainaux{%
-      \string\gdef\string\svg@ink@ver{\svg@ink@ver}%
-      \string\gdef\string\svg@ink@lastexe{\svg@ink@exe}%
+      \string\gdef\string\svg@ink@ver@settings{\svg@ink@ver@settings}%
     }%
   \fi%
 }
 \newcommand*\svg@ink@cmd[2]{%
-  \ifnum\svg@ink@ver>\m@ne%
-    \svg@ink@exe\space"#1.\svg@file@ext"\space%
-    --without-gui\space\svg@ink@area\space%
-    \ifx\svg@ink@dpi\relax\else--export-dpi=\svg@ink@dpi\space\fi%
-    \if@svg@ink@latex--export-latex\space\fi%
-    \ifx\svg@ink@opt\@empty\else\svg@ink@opt\space\fi%
-    \ifcase\svg@ink@ver%
-      --export-\svg@ink@format="#2"\space%
-    \else%
-      --export-type=\svg@ink@format\space%
-      --export-file="#2"\space%
-    \fi%
+  \svg@ink@exe\space"#1.\svg@file@ext"\space%
+  --without-gui\space\svg@ink@area\space%
+  \ifx\svg@ink@dpi\relax\else--export-dpi=\svg@ink@dpi\space\fi%
+  \if@svg@ink@latex--export-latex\space\fi%
+  \ifx\svg@ink@opt\@empty\else\svg@ink@opt\space\fi%
+  \ifnum\svg@ink@ver<\@ne%
+    --export-\svg@ink@format="#2"\space%
+  \else%
+    --export-type=\svg@ink@format\space%
+    --export-file="#2"\space%
   \fi%
 }
 \newcommand*\svg@get@lastpage[1]{%
@@ -1388,11 +1450,10 @@
     be used together with package `svg-extract'.%
   }%
 }
-\ifnum\pdf@shellescape=\@ne\relax\else%
-  \svg@catcodecodes@restore%
-  \expandafter\endinput%
+\ifnum\pdf@shellescape=\@ne\relax
+  \RequirePackage{ifplatform}[2010/10/22]
 \fi
-\RequirePackage{ifplatform}[2010/10/22]
+\@ifpackageloaded{ifplatform}{
 \ifwindows
   \newcommand*\svg@shell@@mkdir[1]{if not exist "#1" mkdir "#1"}
   \newcommand*\svg@shell@@mv{move}
@@ -1427,6 +1488,7 @@
     \ShellEscape{\svg@shell@@rm\space"\svg@tempa"}%
   \endgroup%
 }
+}{}
 \svg@catcodecodes@restore
 \endinput
 %%
