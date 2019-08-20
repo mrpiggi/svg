@@ -1,12 +1,14 @@
 \listfiles
-\documentclass[ngerman,draft]{scrartcl}
+\documentclass[ngerman]{scrartcl}
 \ifpdftex{
   \usepackage[T1]{fontenc}
 }{
   \usepackage{fontspec}
 }
 \usepackage{babel}
-\usepackage[forced]{svg}
+\PassOptionsToPackage{draft}{graphicx}
+%\usepackage[draft]{graphicx}
+\usepackage[forced,draft=false]{svg}
 \usepackage[forced]{svg-extract}
 
 \makeatletter
@@ -20,6 +22,7 @@
 
 \begin{document}
 \makeatletter
+\meaning\if@svg@draft
 %\svg@ifnumber{5}{ja}{nein}
 %\section*{This is a test}
 

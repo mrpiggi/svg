@@ -90,15 +90,10 @@
       \PackageWarning{svg}{Package `transparent' was loaded anyway}%
     }%
   \fi%
+  \AfterPackage*{transparent}{%
+    \@ifpackagelater{transparent}{2018/11/19}{}{\RequirePackage{pgfsys}}%
+  }%
 }
-% TODO load pgfcore, if necessary
-%\documentclass{article}
-%\usepackage{pstricks}
-%\usepackage{svg}
-%\usepackage{pgfcore}
-%\begin{document}
-%hello
-%\end{document}
 \newcommand*\svg@ink@mode{}
 \DefineFamilyKey{SVG}{inkscape}[true]{%
   \svg@sanitize@dq\svg@tempb{#1}%
@@ -231,8 +226,8 @@
   \renewcommand*\svg@ink@opt{#1}%
   \FamilyKeyStateProcessed%
 }
-\AtBeginDocument{%
-  \def\svg@tempa#1{%
+\def\svg@tempa#1{%
+  \AtBeginDocument{%
     \DefineFamilyKey[.svg.sty]{SVG}{#1}[]{%
       \PackageError{svg}{Option `#1' too late}{%
         Option `#1' can only be set within\MessageBreak%
@@ -241,9 +236,9 @@
       \FamilyKeyStateProcessed%
     }%
   }%
-  \svg@tempa{inkscapeexe}%
-  \svg@tempa{inkscapeversion}%
 }
+\svg@tempa{inkscapeexe}
+\svg@tempa{inkscapeversion}
 \newcommand*\svg@ink@format{pdf}
 \ifxetex\else\ifpdf\else
   \renewcommand*\svg@ink@format{eps}

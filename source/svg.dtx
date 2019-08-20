@@ -1,4 +1,4 @@
-% \CheckSum{4617}
+% \CheckSum{4620}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -97,7 +97,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<package&identify&base>\ProvidesPackage{svg}[%
 %<package&identify&extract>\ProvidesPackage{svg-extract}[%
 %<*dtx|package&identify>
-  2019/08/01 v2.03\space%
+  2019/08/21 v2.03\space%
 %<package&identify&base>  (include SVG pictures)%
 %<package&identify&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -1521,6 +1521,15 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \PackageWarning{svg}{Package `transparent' was loaded anyway}%
     }%
   \fi%
+%    \end{macrocode}
+% There is an issue\footnote{\url{https://github.com/ho-tex/oberdiek/issues/62}}
+% with package \pkg{transparent}, which currently implements an \emph{invalid} 
+% check relying on internal commands of package \pkg{pgfsys}, whereas these
+% have changed in the latest version.
+%    \begin{macrocode}
+  \AfterPackage*{transparent}{%
+    \@ifpackagelater{transparent}{2018/11/19}{}{\RequirePackage{pgfsys}}%
+  }%
 }
 %    \end{macrocode}
 % \end{macro}^^A \if@svg@use@transparent
@@ -1743,8 +1752,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The two options \opt{inkscapeversion} and \opt{inkscapeexe} can only be used 
 % within the preamble.
 %    \begin{macrocode}
-\AtBeginDocument{%
-  \def\svg@tempa#1{%
+\def\svg@tempa#1{%
+  \AtBeginDocument{%
     \DefineFamilyKey[.svg.sty]{SVG}{#1}[]{%
       \PackageError{svg}{Option `#1' too late}{%
         Option `#1' can only be set within\MessageBreak%
@@ -1753,9 +1762,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \FamilyKeyStateProcessed%
     }%
   }%
-  \svg@tempa{inkscapeexe}%
-  \svg@tempa{inkscapeversion}%
 }
+\svg@tempa{inkscapeexe}
+\svg@tempa{inkscapeversion}
 %    \end{macrocode}
 % \end{macro}^^A \svg@ink@opt
 % \end{option}^^A inkscapeopt
