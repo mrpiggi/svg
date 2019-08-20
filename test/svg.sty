@@ -1323,8 +1323,12 @@
   \fi%
   \if@svg@tempswa%
     \svg@patches{\svg@tempa}%
-    \ifnum\value{svg@param@lastpage}=\z@\relax%
-      \expandafter\svg@get@lastpage\expandafter{\svg@tempb}%
+    \ifGin@draft%
+      \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{1}%
+    \else%
+      \ifnum\value{svg@param@lastpage}=\z@\relax%
+        \expandafter\svg@get@lastpage\expandafter{\svg@tempb}%
+      \fi%
     \fi%
     \edef\svg@tempa{%
       \ifx\svg@param@pretex\relax\else%

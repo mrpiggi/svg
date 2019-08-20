@@ -1,4 +1,4 @@
-% \CheckSum{4619}
+% \CheckSum{4620}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -2162,7 +2162,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 \newif\if@svg@draft
 \FamilyBoolKey{SVG}{draft}{@svg@draft}
-\AtBeginDocument{\if@svg@draft\else\ifGin@draft\@svg@drafttrue\fi\fi}
+\AfterPackage*{graphicx}{\ifGin@draft\@svg@drafttrue\fi}
 %    \end{macrocode}
 % \end{macro}^^A \if@svg@draft
 % \end{option}^^A draft
@@ -3625,8 +3625,16 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \fi%
   \if@svg@tempswa%
     \svg@patches{\svg@tempa}%
-    \ifnum\value{svg@param@lastpage}=\z@\relax%
-      \expandafter\svg@get@lastpage\expandafter{\svg@tempb}%
+%    \end{macrocode}
+% If \pkg{graphicx} is in draft mode, the first page is sufficient. Otherwise, 
+% the last page is detected if set so.
+%    \begin{macrocode}
+    \ifGin@draft%
+      \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{1}%
+    \else%
+      \ifnum\value{svg@param@lastpage}=\z@\relax%
+        \expandafter\svg@get@lastpage\expandafter{\svg@tempb}%
+      \fi%
     \fi%
     \edef\svg@tempa{%
       \ifx\svg@param@pretex\relax\else%
