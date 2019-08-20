@@ -2201,22 +2201,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 %    \end{macrocode}
 % \end{macro}^^A \svg@sanitize@dq
-% \begin{macro}{\svg@lowercase}
-% \changes{v2.03}{2019/07/25}{new}^^A
-% Defines the second argument to the lowercase expansion of the first argument, 
-% if given. Otherwise, the expansion of the second argument itself is 
-% lowercased.
-%    \begin{macrocode}
-\newcommand*\svg@lowercase[2][]{%
-  \begingroup%
-    \edef\svg@tempa{%
-      \endgroup%
-      \lowercase{\noexpand\def\noexpand#2{\IfArgIsEmpty{#1}{#2}{#1}}}%
-    }%
-  \svg@tempa%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svg@lowercase
 % \begin{macro}{\svg@quotes@remove}
 % \changes{v2.02}{2018/09/07}{usage of \cs{svg@sanitize@dq}}^^A
 % \changes{v2.02}{2018/09/07}{calling \cs{svg@quotes@check}}^^A
@@ -2277,29 +2261,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \if@svg@quotes@found
 % \end{macro}^^A \svg@quotes@@check
 % \end{macro}^^A \svg@quotes@check
-% \begin{macro}{\svg@remove@leadingchar}
-% \changes{v2.02}{2018/09/07}{new}^^A
-% This command removes the single character in given with the first argument 
-% from the expanded macro in the second argument.
-%    \begin{macrocode}
-\newcommand*\svg@remove@leadingchar[2]{%
-  \begingroup%
-    \svg@sanitize@dq\svg@tempa{#2}%
-    \def\svg@tempb{%
-      \def\svg@tempa####1\@nil{\def\svg@tempa{####1}}%
-      \kernel@ifnextchar#1%
-        {\expandafter\svg@tempa\@gobble}%
-        {\svg@tempa}%
-    }%
-    \expandafter\svg@tempb\svg@tempa\@nil%
-    \edef\svg@tempb{%
-      \endgroup%
-      \def\noexpand#2{\svg@tempa}%
-    }%
-  \svg@tempb%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svg@remove@leadingchar% 
 % \begin{macro}{\svg@set@input@path}
 % \changes{v2.01}{2017/11/28}{new}^^A
 % \changes{v2.02}{2018/09/07}{usage of \cs{svg@deactivate@dq}}^^A
@@ -2415,71 +2376,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svg@normalize@@path
 % \end{macro}^^A \svg@normalize@path
-% \begin{macro}{\svg@ifvalueisrelax}
-% \changes{v2.03}{2019/08/01}{also accepts string \val{relax}}^^A
-% For some keys the usage of \val{\cs{relax}} as a value should lead to a 
-% special reaction, such as restoring to default behavior or reseting the key.
-% Therefore, \cs{svg@ifvalueisrelax} checks, whether \val{\cs{relax}} was used
-% as value or not.
-%    \begin{macrocode}
-\newcommand*\svg@ifvalueisrelax[1]{%
-  \begingroup%
-    \def\svg@tempa{#1}%
-    \def\svg@tempb{\relax}%
-    \ifx\svg@tempa\svg@tempb\relax%
-      \aftergroup\@firstoftwo%
-    \else%
-      \def\svg@tempb{relax}%
-      \ifx\svg@tempa\svg@tempb\relax%
-        \aftergroup\@firstoftwo%
-      \else%
-        \aftergroup\@secondoftwo%
-      \fi%
-    \fi%
-  \endgroup%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svg@ifvalueisrelax
-% \begin{macro}{\svg@iffilenewer}
-% \changes{v2.03}{2019/07/18}{Xe\TeX{} provides \cs{filemoddate}}^^A
-% The macro \cs{svg@iffilenewer} is used to decide, whether the export with 
-% \app{Inkscape} is necessary due to an updated SVG~file. This is checked with 
-% either \cs{pdf@filemoddate} (pdf\TeX{} and Lua\TeX{}) or \cs{filemoddate} 
-% (Xe\TeX{}).
-%    \begin{macrocode}
-\ifx\pdf@filemoddate\@undefined
-  \ifx\filemoddate\@undefined\else
-    \ifx\strcmp\@undefined\else
-      \newcommand*\svg@iffilenewer[2]{%
-        \begingroup%
-          \edef\svg@tempa{\filemoddate{#1}}%
-          \edef\svg@tempb{\filemoddate{#2}}%
-          \ifnum\strcmp{\svg@tempa}{\svg@tempb}>\z@\relax%
-            \aftergroup\@firstoftwo%
-          \else%
-            \aftergroup\@secondoftwo%
-          \fi%
-        \endgroup%
-      }
-    \fi
-  \fi
-\else
-  \ifx\pdf@strcmp\@undefined\else
-    \newcommand*\svg@iffilenewer[2]{%
-      \begingroup%
-        \edef\svg@tempa{\pdf@filemoddate{#1}}%
-        \edef\svg@tempb{\pdf@filemoddate{#2}}%
-        \ifnum\pdf@strcmp{\svg@tempa}{\svg@tempb}>\z@\relax%
-          \aftergroup\@firstoftwo%
-        \else%
-          \aftergroup\@secondoftwo%
-        \fi%
-      \endgroup%
-    }
-  \fi
-\fi
-%    \end{macrocode}
-% \end{macro}^^A \svg@iffilenewer
 %
 % \iffalse
 %</option>
@@ -2742,7 +2638,25 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svg@file@missing
 %
-% \subsection{Optional Parameters for user commands}
+% \iffalse
+%</body>
+%</package&base>
+% \fi
+%
+% \subsection{User commands}
+% \subsubsection{Optional parameters for user commands}
+%
+% The family member is defined for both \pkg{svg} and \pkg{svg-extract}.
+%    \begin{macrocode}
+%<*body>
+\DefineFamilyMember[.param]{SVG}
+%</body>
+%    \end{macrocode}
+%
+% \iffalse
+%<*package&base>
+%<*body>
+% \fi
 %
 % \begin{macro}{\svg@local@param@set}
 % \changes{v2.02}{2018/09/07}{reasonable value for key \opt{distort}}^^A
@@ -2827,25 +2741,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svg@local@param@deprecated
 %
-% \iffalse
-%</body>
-%</package&base>
-% \fi
-%
-% The family member is defined for both \pkg{svg} and \pkg{svg-extract}.
-%    \begin{macrocode}
-%<*body>
-\DefineFamilyMember[.param]{SVG}
-%</body>
-%    \end{macrocode}
-%
-%
-% \iffalse
-%<*package&base>
-%<*body>
-% \fi
-%
-% \subsection{User commands}
+% \subsubsection{Definition of user commands}
 %
 % \begin{macro}{\svgsetup}
 % \changes{v2.00}{2017/02/17}{new}^^A
@@ -3087,6 +2983,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The given file extension is examined, where a known extension overwrites the 
 % current setting for \opt{inkscapeformat}. If there's a suffix \file{\_tex}, 
 % the option \opt{inkscapelatex} is set to \val{true} by default.
+% \ToDo{use svg@lowercase?!}[v2.03]
 %    \begin{macrocode}
     \svg@filename@parse{#2}%
     \ifx\filename@ext\relax\else%
@@ -3196,9 +3093,124 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \includeinkscape
 %
+% \iffalse
+%</body>
+%<*option>
+% \fi
+%
 %
 %
 % \subsection{Auxiliary macros}
+%
+% \begin{macro}{\svg@lowercase}
+% \changes{v2.03}{2019/07/25}{new}^^A
+% Defines the second argument to the lowercase expansion of the first argument, 
+% if given. Otherwise, the expansion of the second argument itself is 
+% lowercased.
+%    \begin{macrocode}
+\newcommand*\svg@lowercase[2][]{%
+  \begingroup%
+    \edef\svg@tempa{%
+      \endgroup%
+      \lowercase{\noexpand\def\noexpand#2{\IfArgIsEmpty{#1}{#2}{#1}}}%
+    }%
+  \svg@tempa%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@lowercase
+% \begin{macro}{\svg@remove@leadingchar}
+% \changes{v2.02}{2018/09/07}{new}^^A
+% This command removes the single character in given with the first argument 
+% from the expanded macro in the second argument.
+%    \begin{macrocode}
+\newcommand*\svg@remove@leadingchar[2]{%
+  \begingroup%
+    \svg@sanitize@dq\svg@tempa{#2}%
+    \def\svg@tempb{%
+      \def\svg@tempa####1\@nil{\def\svg@tempa{####1}}%
+      \kernel@ifnextchar#1%
+        {\expandafter\svg@tempa\@gobble}%
+        {\svg@tempa}%
+    }%
+    \expandafter\svg@tempb\svg@tempa\@nil%
+    \edef\svg@tempb{%
+      \endgroup%
+      \def\noexpand#2{\svg@tempa}%
+    }%
+  \svg@tempb%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@remove@leadingchar
+% \begin{macro}{\svg@ifvalueisrelax}
+% \changes{v2.03}{2019/08/01}{also accepts string \val{relax}}^^A
+% For some keys the usage of \val{\cs{relax}} as a value should lead to a 
+% special reaction, such as restoring to default behavior or reseting the key.
+% Therefore, \cs{svg@ifvalueisrelax} checks, whether \val{\cs{relax}} was used
+% as value or not.
+%    \begin{macrocode}
+\newcommand*\svg@ifvalueisrelax[1]{%
+  \begingroup%
+    \def\svg@tempa{#1}%
+    \def\svg@tempb{\relax}%
+    \ifx\svg@tempa\svg@tempb\relax%
+      \aftergroup\@firstoftwo%
+    \else%
+      \def\svg@tempb{relax}%
+      \ifx\svg@tempa\svg@tempb\relax%
+        \aftergroup\@firstoftwo%
+      \else%
+        \aftergroup\@secondoftwo%
+      \fi%
+    \fi%
+  \endgroup%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@ifvalueisrelax
+% \begin{macro}{\svg@iffilenewer}
+% \changes{v2.03}{2019/07/18}{Xe\TeX{} provides \cs{filemoddate}}^^A
+% The macro \cs{svg@iffilenewer} is used to decide, whether the export with 
+% \app{Inkscape} is necessary due to an updated SVG~file. This is checked with 
+% either \cs{pdf@filemoddate} (pdf\TeX{} and Lua\TeX{}) or \cs{filemoddate} 
+% (Xe\TeX{}).
+%    \begin{macrocode}
+\ifx\pdf@filemoddate\@undefined
+  \ifx\filemoddate\@undefined\else
+    \ifx\strcmp\@undefined\else
+      \newcommand*\svg@iffilenewer[2]{%
+        \begingroup%
+          \edef\svg@tempa{\filemoddate{#1}}%
+          \edef\svg@tempb{\filemoddate{#2}}%
+          \ifnum\strcmp{\svg@tempa}{\svg@tempb}>\z@\relax%
+            \aftergroup\@firstoftwo%
+          \else%
+            \aftergroup\@secondoftwo%
+          \fi%
+        \endgroup%
+      }
+    \fi
+  \fi
+\else
+  \ifx\pdf@strcmp\@undefined\else
+    \newcommand*\svg@iffilenewer[2]{%
+      \begingroup%
+        \edef\svg@tempa{\pdf@filemoddate{#1}}%
+        \edef\svg@tempb{\pdf@filemoddate{#2}}%
+        \ifnum\pdf@strcmp{\svg@tempa}{\svg@tempb}>\z@\relax%
+          \aftergroup\@firstoftwo%
+        \else%
+          \aftergroup\@secondoftwo%
+        \fi%
+      \endgroup%
+    }
+  \fi
+\fi
+%    \end{macrocode}
+% \end{macro}^^A \svg@iffilenewer
+%
+% \iffalse
+%</option>
+%<*body>
+% \fi
 %
 % \begin{macro}{\svg@ink@run}
 % \changes{v2.03}{2019/06/25}{%

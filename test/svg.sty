@@ -474,26 +474,6 @@
 \newif\if@svg@draft
 \FamilyBoolKey{SVG}{draft}{@svg@draft}
 \AfterPackage*{graphicx}{\ifGin@draft\@svg@drafttrue\fi}
-\newcommand*\svg@lowercase[2][]{%
-  \begingroup%
-    \edef\svg@tempa{%
-      \endgroup%
-      \lowercase{\noexpand\def\noexpand#2{\IfArgIsEmpty{#1}{#2}{#1}}}%
-    }%
-  \svg@tempa%
-}
-\newcommand*\svg@ifnumber[1]{%
-  \begingroup%
-    \edef\svg@tempa{#1}%
-    \def\svg@tempb{\aftergroup\@secondoftwo}%
-    \ifisinteger{\svg@tempa}{%
-      \ifnumber{\svg@tempa}{%
-        \def\svg@tempb{\aftergroup\@firstoftwo}%
-      }{}%
-    }{}%
-    \svg@tempb%
-  \endgroup%
-}
 \newcommand*\svg@deactivate@dq{}
 \AfterPackage+{babel}{%
   \renewcommand*\svg@deactivate@dq{\bbl@deactivate{"}}%
@@ -540,38 +520,6 @@
 \newcommand*\svg@quotes@@check{}
 \def\svg@quotes@@check#1"#2\@nil{%
   \IfArgIsEmpty{#2}{\@svg@quotes@foundfalse}{\@svg@quotes@foundtrue}%
-}
-\newcommand*\svg@remove@leadingchar[2]{%
-  \begingroup%
-    \svg@sanitize@dq\svg@tempa{#2}%
-    \def\svg@tempb{%
-      \def\svg@tempa####1\@nil{\def\svg@tempa{####1}}%
-      \kernel@ifnextchar#1%
-        {\expandafter\svg@tempa\@gobble}%
-        {\svg@tempa}%
-    }%
-    \expandafter\svg@tempb\svg@tempa\@nil%
-    \edef\svg@tempb{%
-      \endgroup%
-      \def\noexpand#2{\svg@tempa}%
-    }%
-  \svg@tempb%
-}
-\newcommand*\svg@ifvalueisrelax[1]{%
-  \begingroup%
-    \def\svg@tempa{#1}%
-    \def\svg@tempb{\relax}%
-    \ifx\svg@tempa\svg@tempb\relax%
-      \aftergroup\@firstoftwo%
-    \else%
-      \def\svg@tempb{relax}%
-      \ifx\svg@tempa\svg@tempb\relax%
-        \aftergroup\@firstoftwo%
-      \else%
-        \aftergroup\@secondoftwo%
-      \fi%
-    \fi%
-  \endgroup%
 }
 \newcommand*\svg@set@input@path[1][]{%
   \begingroup%
@@ -639,6 +587,58 @@
     \svg@normalize@@path#2/\@nil%
     \edef\svg@tempa{#1/\svg@tempa}%
   }%
+}
+\newcommand*\svg@lowercase[2][]{%
+  \begingroup%
+    \edef\svg@tempa{%
+      \endgroup%
+      \lowercase{\noexpand\def\noexpand#2{\IfArgIsEmpty{#1}{#2}{#1}}}%
+    }%
+  \svg@tempa%
+}
+\newcommand*\svg@remove@leadingchar[2]{%
+  \begingroup%
+    \svg@sanitize@dq\svg@tempa{#2}%
+    \def\svg@tempb{%
+      \def\svg@tempa####1\@nil{\def\svg@tempa{####1}}%
+      \kernel@ifnextchar#1%
+        {\expandafter\svg@tempa\@gobble}%
+        {\svg@tempa}%
+    }%
+    \expandafter\svg@tempb\svg@tempa\@nil%
+    \edef\svg@tempb{%
+      \endgroup%
+      \def\noexpand#2{\svg@tempa}%
+    }%
+  \svg@tempb%
+}
+\newcommand*\svg@ifnumber[1]{%
+  \begingroup%
+    \edef\svg@tempa{#1}%
+    \def\svg@tempb{\aftergroup\@secondoftwo}%
+    \ifisinteger{\svg@tempa}{%
+      \ifnumber{\svg@tempa}{%
+        \def\svg@tempb{\aftergroup\@firstoftwo}%
+      }{}%
+    }{}%
+    \svg@tempb%
+  \endgroup%
+}
+\newcommand*\svg@ifvalueisrelax[1]{%
+  \begingroup%
+    \def\svg@tempa{#1}%
+    \def\svg@tempb{\relax}%
+    \ifx\svg@tempa\svg@tempb\relax%
+      \aftergroup\@firstoftwo%
+    \else%
+      \def\svg@tempb{relax}%
+      \ifx\svg@tempa\svg@tempb\relax%
+        \aftergroup\@firstoftwo%
+      \else%
+        \aftergroup\@secondoftwo%
+      \fi%
+    \fi%
+  \endgroup%
 }
 \ifx\pdf@filemoddate\@undefined
   \ifx\filemoddate\@undefined\else
