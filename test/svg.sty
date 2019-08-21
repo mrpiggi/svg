@@ -36,7 +36,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg}[%
-  2019/08/01 v2.03\space%
+  2019/08/21 v2.03\space%
   (include SVG pictures)%
 ]
 \RequirePackage{scrbase}[2016/06/14]
@@ -403,30 +403,6 @@
         \FamilyKeyStateProcessed%
       \fi%
     }{}%
-  }%
-}
-\newcommand*\svg@param@scale@wrn{%
-  \begingroup%
-    \ifdim\dimexpr\svg@param@scale\p@\relax=\p@\relax\else%
-      \let\svg@tempa\@empty%
-      \ifdim\svg@param@width>\z@\relax%
-        \l@addto@macro\svg@tempa{,width=\svg@param@width}%
-      \fi%
-      \ifdim\svg@param@height>\z@\relax%
-        \l@addto@macro\svg@tempa{,height=\svg@param@height}%
-      \fi%
-      \ifx\svg@tempa\@empty\else%
-        \svg@remove@leadingchar,\svg@tempa%
-        \svg@param@scale@@wrn{scale=\svg@param@scale}{\svg@tempa}%
-      \fi%
-    \fi%
-  \endgroup%
-}
-% TODO anpassen für extract... und includegraphics
-\newcommand*\svg@param@scale@@wrn[2]{%
-  \PackageWarning{svg}{%
-    The parameter `#1' is not applied\MessageBreak%
-    because `#2' is set%
   }%
 }
 \newcommand*\svg@param@pretex{}
@@ -1057,7 +1033,7 @@
         \ifstr{##2}{_tex}{\@svg@tempswatrue}{\@svg@tempswafalse}%
       }%
       \@svg@tempswafalse%
-      \@for\svg@tempa:={pdf,eps,ps,png}\do{%
+      \@tfor\svg@tempa:={pdf}{eps}{ps}{png}\do{%
         \begingroup%
           \expandafter\svg@tempb\filename@ext_tex\@nil%
           \svg@extension@parse{\svg@tempa}%
@@ -1289,9 +1265,46 @@
   }%
   \global\let\transparent\@gobble%
 }
+\newcommand*\svg@param@size@check{%
+  \begingroup%
+    \ifdim\dimexpr\svg@param@scale\p@\relax=\p@\relax\else%
+      \let\svg@tempb\@empty%
+      \@for\svg@tempa:={scale,width,height}\do{%
+        \edef\svg@tempb{%
+          \etex@unexpanded\expandafter{\svg@tempb}%
+          {\svg@tempa}{\csname svg@param@\svg@tempa\endcsname}%
+        }%
+      }%
+      \expandafter\svg@param@size@wrn\svg@tempb%
+    \fi%
+  \endgroup%
+}
+\newcommand*\svg@param@size@wrn[6]{%
+  \begingroup%
+    \ifdim\dimexpr#2\p@\relax=\p@\relax\else%
+      \let\svg@tempa\@empty%
+      \ifdim#4>\z@\relax%
+        \l@addto@macro\svg@tempa{#3=#4}%
+      \fi%
+      \ifdim#6>\z@\relax%
+        \ifx\svg@tempa\@empty\else%
+          \l@addto@macro\svg@tempa{,}%
+        \fi%
+        \l@addto@macro\svg@tempa{#5=#6}%
+      \fi%
+      \ifx\svg@tempa\@empty\else%
+        \PackageWarning{svg}{%
+          The parameter `#1=#2' is not applied\MessageBreak%
+          because `\svg@tempa'\MessageBreak%
+          is given as well%
+        }%
+      \fi%
+    \fi%
+  \endgroup%
+}
 \newcommand*\svg@process[1]{\svg@ink@include{#1}}
 \newcommand*\svg@ink@include[1]{%
-  \svg@param@scale@wrn%
+  \svg@param@size@check%
   \svg@set@input@path%
   \def\svg@tempb##1.##2\@nil{%
     \IfArgIsEmpty{##2}{%

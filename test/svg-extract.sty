@@ -36,7 +36,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg-extract}[%
-  2019/08/01 v2.03\space%
+  2019/08/21 v2.03\space%
   (extract independent graphics from SVG pictures)%
 ]
 \RequirePackage{svg}[2017/03/27]
@@ -976,10 +976,10 @@
       \ifdim\svg@param@height>\z@\relax%
         \l@addto@macro\svg@tempb{height=\svg@param@height,}%
       \fi%
-      \l@addto@macro\svg@tempb{keepaspectratio\if@svg@param@distort=false\fi,}%
       \ifdim\dimexpr\svg@param@scale\p@\relax=\p@\relax\else%
         \l@addto@macro\svg@tempb{scale=\svg@param@scale,}%
       \fi%
+      \l@addto@macro\svg@tempb{keepaspectratio\if@svg@param@distort=false\fi,}%
       \edef\svgx@params@pass{%
         \svg@tempb\etex@unexpanded\expandafter{\svgx@params@pass}%
       }%
@@ -1069,11 +1069,15 @@
 % TODO inputformat from \svgx@ext@get@input@format if not set
 % CREATE inputformat/inputtype/includeformat/includetype (something like this)
     % (\svgx@format,\svgx@cnv@format) 
-  % TODO set extract=true, if \svgx@out@base does not exist?
+  % TODO set extract=true/force only, if \svgx@out@base does not exist?
     \svgx@include@cmd[{#1,exclude,extract=force}]{#3}%
     \ifx\svgx@out@base\@empty\else%
       \IfFileExists{\svgx@out@base.pdf}{%
-        % TODO \svg@param@scale@@wrn%
+        \begingroup%
+          \DefineFamilyKey[.svg.sty]{SVG}{@else@}{\FamilyKeyStateProcessed}%
+          \FamilyExecuteOptions[.svg.sty]{SVG}{#2}%
+          \svg@param@size@check%
+        \endgroup%
         \includegraphics[{#2}]{\svgx@out@base.pdf}%
       }{%
         % TODO Warning with hint to run with --shell-escape
@@ -1081,6 +1085,35 @@
       }%
     \fi%
   \endgroup
+}
+\newcommand*\svgx@param@size@check{%
+  \begingroup%
+    \ifdim\dimexpr\svgx@param@scale\p@\relax=\p@\relax\else%
+      \let\svg@tempb\@empty%
+      \@for\svg@tempa:={scale,width,height}\do{%
+        \begingroup%
+          \edef\svg@tempb{%
+            \expandafter\noexpand\csname svg@param@\svg@tempa\endcsname%
+          }%
+          \expandafter\ifx\csname svgx@param@\svg@tempa\endcsname\svg@tempb%
+            \aftergroup\@svg@tempswatrue%
+          \else%
+            \aftergroup\@svg@tempswafalse%
+          \fi%
+        \endgroup%
+        \edef\svg@tempb{%
+          \etex@unexpanded\expandafter{\svg@tempb}%
+          \if@svg@tempswa%
+            {[inherited]\svg@tempa}%
+          \else%
+            {extract\svg@tempa}%
+          \fi%
+          {\csname svgx@param@\svg@tempa\endcsname}%
+        }%
+      }%
+      \expandafter\svg@param@size@wrn\svg@tempb%
+    \fi%
+  \endgroup%
 }
 \newif\if@svgx@run
 \newcommand*\svgx@out@base{}
@@ -1116,6 +1149,7 @@
       \@svgx@runtrue%
     \fi%
     \ifcase\svgx@mode\relax\else%
+      \svgx@param@size@check%
       \if@svgx@run\else%
         \ifcase\svgx@cnv@mode\relax\or% true
           \svgx@ifexpired[\svgx@cnv@format]{\svgx@out@base}{#1}%

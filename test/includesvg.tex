@@ -6,30 +6,42 @@
   \usepackage{fontspec}
 }
 \usepackage{babel}
-\PassOptionsToPackage{draft}{graphicx}
 %\usepackage[draft]{graphicx}
-\usepackage[forced,draft=false]{svg}
-\usepackage[forced]{svg-extract}
+\usepackage[auto]{svg}
+\usepackage[auto]{svg-extract}
 
 \makeatletter
-%\svgsetup{draft=false}
+\svgsetup{width=6cm}
 
 %\RequirePackage{ifplatform}[2010/10/22]
 
-\svgsetup{inkscapeexe="C:/Program Files/Inkscape1/inkscape.exe"}
+%\svgsetup{inkscapeexe="C:/Program Files/Inkscape1/inkscape.exe"}
 %\svgsetup{inkscapeversion=111.vv}
 %\svgsetup{inkscapeversion=0.94.2}
 
 \begin{document}
-\makeatletter
-\meaning\if@svg@draft
-%\svg@ifnumber{5}{ja}{nein}
-%\section*{This is a test}
+%\includesvg[
+%  lastpage=1,
+%  width=6cm,
+%  height=5cm,%
+%  scale=1.5,
+%%  extractwidth=\relax,
+%%  extractheight=8cm ,
+%  extractscale=2.5,
+%  extract=force
+%]{svg-example}
+\includeinkscape[
+  lastpage=1,
+  extractwidth=7cm ,
+  extractheight=8cm ,
+  extractscale=2.5
+]{svg-example_svg-tex.pdf_tex}
+\end{document}
 
 \begin{figure}
 %\centering
 %\def\svgwidth{12cm}
-\svgsetup{width=5cm}
+%\svgsetup{width=5cm}
 
 %\let\svgwidth\relax
 %\def\svgwidth{3cm}
@@ -42,26 +54,26 @@
 %  convert,
 %  inkscapearea=crop,
 %  pretex={\footnote{aaa}},%
-  height=\relax,
+%  height=\relax,
 %  width=5cm,
 %  command=test,
 %  width=relax,
-%  width=\textwidth,
-%  extractangle=2,
-%  extractheight=-3cm,
+%  width=.6\textwidth,
+%%  extractangle=2,
+%%  extractheight=-3cm,
 %  scale=1.5,%
 %  inkscapelatex=false,
 %][
-  distort, 
-  keepaspectratio,
-%  draft,
-  extractheight=3cm,
-  extractscale=0.5,
-  angle=15,
-  origin=r,
-  lastpage=3,
-%  distort,
-  extractdistort,
+%  distort, 
+%  keepaspectratio,
+%%  draft,
+%  extractheight=3cm,
+%  extractscale=0.5,
+%  angle=15,
+%  origin=r,
+%  lastpage=3,
+%%  distort,
+%  extractdistort,
 %][
 %  width=5cm,
 %  draft
