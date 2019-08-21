@@ -5,22 +5,31 @@
 }{
   \usepackage{fontspec}
 }
+\usepackage{pdftexcmds}[2016/05/16]
+\begin{document}
+\makeatletter
+\ifnum\pdf@shellescape=\@ne\relax
+gucke \@@input"|'C:/Program Files/Inkscape1/inkscape.exe' -V" %
+\input "|dir/b"
+\fi
+oder was?
+\end{document}
+
 \usepackage{babel}
 %\usepackage[draft]{graphicx}
 \usepackage[auto]{svg}
-\usepackage[auto]{svg-extract}
-
-\makeatletter
-\svgsetup{width=6cm}
+\usepackage[auto,clean]{svg-extract}
 
 %\RequirePackage{ifplatform}[2010/10/22]
 
-%\svgsetup{inkscapeexe="C:/Program Files/Inkscape1/inkscape.exe"}
-%\svgsetup{inkscapeversion=111.vv}
+\svgsetup{inkscapeexe="C:/Program Files/Inkscape1/inkscape.exe"}
+\svgsetup{inkscapeversion=detect}
 %\svgsetup{inkscapeversion=0.94.2}
 
 \begin{document}
-%\includesvg[
+\edef\bla{\csname svg@ink@ver\endcsname}
+\meaning\bla
+\includesvg[
 %  lastpage=1,
 %  width=6cm,
 %  height=5cm,%
@@ -29,13 +38,13 @@
 %%  extractheight=8cm ,
 %  extractscale=2.5,
 %  extract=force
-%]{svg-example}
-\includeinkscape[
-  lastpage=1,
-  extractwidth=7cm ,
-  extractheight=8cm ,
-  extractscale=2.5
-]{svg-example_svg-tex.pdf_tex}
+]{svg-example}
+%\includeinkscape[
+%  lastpage=1,
+%  extractwidth=7cm ,
+%  extractheight=8cm ,
+%  extractscale=2.5
+%]{"svg-example_svg-tex.PDF_TEX"}
 \end{document}
 
 \begin{figure}

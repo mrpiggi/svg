@@ -890,7 +890,6 @@
 \newcommand*\svgx@params@relax{}
 \newcommand*\svgx@params@pass{}
 \newcommand*\svgx@params@unknown{}
-% DOC \ToDo{revise with KOMA-Script v3.27, use \FamilyOptions}
 \newcommand*\svgx@include{}
 \def\svgx@include[#1]{%
   \kernel@ifnextchar[%]
@@ -899,7 +898,7 @@
       \svg@local@param@use%
       \begingroup%
         \svgx@@normalize@list\svgx@params@unknown{#1}%
-        % DOC revise with v3.27, use \FamilyOptions
+% DOC \ToDo{revise; \opt{@else@} together with \cs{FamilyOptions}}[KOMA v3.27]
         \RelaxFamilyKey[.svg.sty]{SVG}{lastpage}
         \@for\svg@tempb:={.svg.sty,.svg-extract.sty,.param}\do{%
           \let\svgx@params@pass\svgx@params@unknown%
@@ -1159,6 +1158,7 @@
         \fi%
       \fi%
     \fi%
+    \svgx@shell{}%
     \if@svgx@run%
       \svgx@run{#1}%
     \else%
@@ -1179,6 +1179,16 @@
         \fi%
       \fi%
     \fi%
+    \@for\svg@tempa:=\svgx@clean\do{%
+      \svgx@ifin@list{\svgx@format,\svgx@cnv@format}{\svg@tempa}{}{%
+        \svgx@eaddto@shell{%
+          \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
+            \noexpand\svg@shell@rm{\svgx@out@name.\svg@tempa}%
+          }{}%
+        }%
+      }%
+    }%
+    \expandafter\AfterReadingMainAux\expandafter{\the\svgx@shell}%
   \fi%
 }
 \newcommand*\svgx@ifexpired[3][%
@@ -1200,7 +1210,9 @@
     \fi%
   \endgroup%
 }
+\newtoks\svgx@shell
 \ifnum\pdf@shellescape=\@ne\relax\else%
+  \newcommand*\svgx@eaddto@shell[1]{}%
   \newcommand*\svgx@run[1]{%
     \begingroup%
       \svg@quotes@remove[{#1}]{\svg@tempa}%
@@ -1217,7 +1229,6 @@
 \newcommand*\svgx@read@line{}
 \newwrite\svgx@stream@out
 \newif\if@svgx@preamble@write
-\newtoks\svgx@shell
 \newcommand*\svgx@eaddto@shell[1]{%
   \begingroup%
     \edef\svg@tempa{%
@@ -1506,16 +1517,16 @@
         \noexpand\svgx@move{\svgx@out@name}{\svg@tempa}{\svgx@out@path}%
       }%
     }%
-    \@for\svg@tempa:=\svgx@clean\do{%
-      \svgx@ifin@list{\svgx@format,\svgx@cnv@format}{\svg@tempa}{}{%
-        \svgx@eaddto@shell{%
-          \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
-            \noexpand\svg@shell@rm{\svgx@out@name.\svg@tempa}%
-          }{}%
-        }%
-      }%
-    }%
-    \expandafter\AfterReadingMainAux\expandafter{\the\svgx@shell}%
+%    \@for\svg@tempa:=\svgx@clean\do{%
+%      \svgx@ifin@list{\svgx@format,\svgx@cnv@format}{\svg@tempa}{}{%
+%        \svgx@eaddto@shell{%
+%          \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
+%            \noexpand\svg@shell@rm{\svgx@out@name.\svg@tempa}%
+%          }{}%
+%        }%
+%      }%
+%    }%
+%    \expandafter\AfterReadingMainAux\expandafter{\the\svgx@shell}%
   }%
 }
 \newcommand*\svgx@out@sec{unknown}

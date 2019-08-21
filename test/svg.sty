@@ -213,7 +213,7 @@
         \FamilyKeyStateProcessed%
       }{}%
     }%
-    \svg@tempa#1.0\@nil%
+    \svg@tempa#1.\@nil%
   \fi%
 }
 \newcommand*\svg@ink@exe{inkscape}
@@ -711,7 +711,7 @@
 \svg@dummy@key[true]{clear}
 \svg@dummy@key[true]{exclude}
 \FamilyExecuteOptions{SVG}{%
-  inkscape=true,inkscapeversion=detect,inkscapepath=basesubdir,
+  inkscape=true,inkscapeversion=0,inkscapepath=basesubdir,
   inkscapelatex=true,inkscapearea=drawing,distort=false,%
   usexcolor=true,usetransparent=true%
 }
@@ -1024,10 +1024,7 @@
   \begingroup%
     \svg@filename@parse{#2}%
     \ifx\filename@ext\relax\else%
-      \svg@quotes@remove{\filename@ext}%
-      \expandafter\lowercase\expandafter{%
-        \expandafter\def\expandafter\filename@ext\expandafter{\filename@ext}%
-      }%
+      \svg@lowercase{\filename@ext}%
       \def\svg@tempb##1_tex##2\@nil{%
         \IfArgIsEmpty{##1}{}{\def\filename@ext{##1}}%
         \ifstr{##2}{_tex}{\@svg@tempswatrue}{\@svg@tempswafalse}%

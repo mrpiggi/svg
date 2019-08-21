@@ -1,4 +1,4 @@
-% \CheckSum{4708}
+% \CheckSum{4699}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -97,7 +97,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<package&identify&base>\ProvidesPackage{svg}[%
 %<package&identify&extract>\ProvidesPackage{svg-extract}[%
 %<*dtx|package&identify>
-  2019/08/21 v2.03\space%
+  2019/08/22 v2.03\space%
 %<package&identify&base>  (include SVG pictures)%
 %<package&identify&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -446,9 +446,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{DescribeValues}
 % \ToDo{Hint for MacOS}[v2.03]
 %
-% \DescribeOption{inkscapeversion}^^A
-% \ToDo{describe option}[v2.03]
-%
 % \DescribeOption{inkscapeexe}^^A
 % For including a SVG~file, \app{Inkscape} is used to separate the text and
 % image from the SVG~file itself. In order to execute the command line tool 
@@ -462,6 +459,15 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % path where the executable of \app{Inkscape} is located. The option is set to
 % \opt{inkscapeexe}|=|\val{inkscape} by default.
 % \ToDo{Hint for MacOS}[v2.03]
+%
+% \DescribeOption{inkscapeversion}^^A
+% The command line tool for \app{Inkscape} is going to be changed slightly from 
+% version \val{0.9x} to \val{1.x} and makes some adaptions necessary. 
+% It can be set either to \opt{inkscapeversion}|=|\val{0}---which is set by 
+% default---or to any newer version with a value greater than \val{0}.
+% Additionally, there is also the possibility to detect the used \app{Inkscape}
+% version automatically. This is done by calling given \opt{inkscapeexe} with
+% parameter \prm{-V} and is activated with \opt{inkscapeversion}|=|\val{detect}.
 %
 % \DescribeOption{inkscapename}^^A
 % The file names of the \app{Inkscape}~export are derived from the name of the 
@@ -1735,7 +1741,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \FamilyKeyStateProcessed%
       }{}%
     }%
-    \svg@tempa#1.0\@nil%
+    \svg@tempa#1.\@nil%
   \fi%
 }
 \newcommand*\svg@ink@exe{inkscape}
@@ -2905,7 +2911,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.03}{2019/07/25}{revised}^^A
 % In addition to the automatic finding of the last page, which is included, it 
 % can also be given directly as parameter.
-% \ToDo{remove duplicated part of member [.svg.sty]}[KOMA v3.27]
+% \ToDo{%
+%   remove duplicated part of key \val{[.svg.sty]\{SVG\}\{lastpage\}}%
+% }[KOMA 3.27]
 %    \begin{macrocode}
 \svg@local@param@def{%
   \DefineFamilyKey[.param]{SVG}{lastpage}[true]{%
@@ -2970,14 +2978,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The given file extension is examined, where a known extension overwrites the 
 % current setting for \opt{inkscapeformat}. If there's a suffix \file{\_tex}, 
 % the option \opt{inkscapelatex} is set to \val{true} by default.
-% \ToDo{use svg@lowercase?!}[v2.03]
 %    \begin{macrocode}
     \svg@filename@parse{#2}%
     \ifx\filename@ext\relax\else%
-      \svg@quotes@remove{\filename@ext}%
-      \expandafter\lowercase\expandafter{%
-        \expandafter\def\expandafter\filename@ext\expandafter{\filename@ext}%
-      }%
+      \svg@lowercase{\filename@ext}%
       \def\svg@tempb##1_tex##2\@nil{%
         \IfArgIsEmpty{##1}{}{\def\filename@ext{##1}}%
         \ifstr{##2}{_tex}{\@svg@tempswatrue}{\@svg@tempswafalse}%
@@ -6546,7 +6550,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 %<*base>
 \FamilyExecuteOptions{SVG}{%
-  inkscape=true,inkscapeversion=detect,inkscapepath=basesubdir,
+  inkscape=true,inkscapeversion=0,inkscapepath=basesubdir,
   inkscapelatex=true,inkscapearea=drawing,distort=false,%
   usexcolor=true,usetransparent=true%
 }
