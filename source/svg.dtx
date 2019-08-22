@@ -3295,8 +3295,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Executing \app{Inkscape} on command line. Afterwards, the export results are 
 % moved into the given output path.
 %    \begin{macrocode}
-      \svg@quotes@remove[\svg@file@base.\svg@file@ext]{\svg@tempa}%
       \svg@quotes@remove[{#1}]{\svg@tempb}%
+      \svg@quotes@remove[\svg@file@base.\svg@file@ext]{\svg@tempa}%
       \svg@shell@mkdir{\svg@out@path}%
       \PackageInfo{svg}{%
         Exporting `\svg@tempa'%
@@ -3334,7 +3334,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svg@troubleshooting[4]{%
   \PackageWarning{#1}{%
     #2 from input file\MessageBreak`#3'\MessageBreak%
-    failed to output file\MessageBreak`#4'\MessageBreak%
+    failed for output file\MessageBreak`#4'\MessageBreak%
     Troubleshooting: Check `\jobname.log' for\MessageBreak%
     > Package #1 Info:\MessageBreak%
     > #2 `#3'\MessageBreak
@@ -5326,7 +5326,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \fi%
   \stepcounter{svgx@out@count}%
 %    \end{macrocode}
-% Now it is checked, if \cs{svgx@out@name} expands to an empty string or not. 
+% Now it is checked, if \cs{svgx@out@name} expands to an empty string or not.
+% \ToDo{add \val{./} to \cs{svgx@out@name} if \cs{svgx@out@path} empty?}[v2.03]
 %    \begin{macrocode}
   \begingroup%
     \svg@quotes@remove[\svgx@out@name]{\svgx@out@base}%
@@ -5403,9 +5404,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \@for\svg@tempa:=\svgx@clean\do{%
       \svgx@ifin@list{\svgx@format,\svgx@cnv@format}{\svg@tempa}{}{%
         \svgx@afterdocument@eaddto{%
-          \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
-            \noexpand\svg@shell@rm{\svgx@out@name.\svg@tempa}%
-          }{}%
+          \noexpand\svg@shell@rm{\svgx@out@name.\svg@tempa}%
         }%
       }%
     }%
@@ -5857,6 +5856,24 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \svgx@ifin@list{\svgx@format}{ps}{\svg@tempa{pdftops}{pdf}{ps}}{}%
     \fi%
 %    \end{macrocode}
+% Before the conversion tool is invoked, it is checked, if all desired 
+% extraction files exist. At least, the input file for conversion.
+%    \begin{macrocode}
+    \svgx@cnv@get@input@format%
+    \ifx\svgx@format\@empty%
+      \let\svg@tempa\svgx@cnv@input@format%
+    \else%
+      \let\svg@tempa\svgx@format%
+    \fi%
+    \@for\svg@tempa:=\svg@tempa\do{%
+      \svgx@afterdocument@eaddto{%
+        \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{}{%
+          \noexpand\svg@troubleshooting{svg-extract}%
+            {Extracting}{\svg@tempb}{\svgx@out@name.\svg@tempa}%
+        }%
+      }%
+    }%
+%    \end{macrocode}
 % Now the desired conversion tool is invoked if requested.
 %    \begin{macrocode}
     \ifnum\svgx@cnv@mode>\z@\relax%
@@ -5869,11 +5886,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
           \def\svgx@cnv@dpi@png{300}%
         \fi%
       \fi%
-%    \end{macrocode}
-% The first given file type with option \opt{extractformat} is used as source 
-% for the conversion process.
-%    \begin{macrocode}
-      \svgx@cnv@get@input@format%
 %    \end{macrocode}
 % The conversion is done for each desired file type given in a list by option 
 % \opt{convertformat}.
@@ -5916,13 +5928,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \svg@quotes@remove[{#1}]{\svg@tempb}%
     \@for\svg@tempa:=\svgx@format\do{%
       \svgx@afterdocument@eaddto{%
-        \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
-          \noexpand\svg@shell@move{\svgx@out@name.\svg@tempa}%
-            {\svgx@out@path\svgx@out@name.\svg@tempa}%
-        }{%
-          \noexpand\svg@troubleshooting{svg-extract}%
-            {Extracting}{\svg@tempb}{\svgx@out@name.\svg@tempa}%
-        }%
+        \noexpand\svg@shell@move{\svgx@out@name.\svg@tempa}%
+          {\svgx@out@path\svgx@out@name.\svg@tempa}%
       }%
     }%
     \svgx@afterdocument@eaddto{%
@@ -6081,7 +6088,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     }%
   \svg@tempa%
 %    \end{macrocode}
-% If \cs{svgx@format} was empty, \cs{svgx@cnv@input@format} is set to the a 
+% If \cs{svgx@format} was empty, \cs{svgx@cnv@input@format} is set to the 
 % file type, which is generated anyway\dots
 %    \begin{macrocode}
   \ifx\svgx@cnv@input@format\@empty%
@@ -6091,9 +6098,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \fi\fi%
 %    \end{macrocode}
 % \dots and if this file type is included in list \cs{svgx@cnv@input@format} 
-%then
-% \cs{svgx@format} will be set to this file type as well in order to skip the 
-% unnecessary conversation.
+% then \cs{svgx@format} will be set to this file type as well in order to skip
+% the unnecessary conversation.
 %    \begin{macrocode}
     \svgx@ifin@list{\svgx@cnv@format}{\svgx@cnv@input@format}{%
       \let\svgx@format\svgx@cnv@input@format%
@@ -6181,8 +6187,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \@for\svg@tempa:={,#2}\do{%
       \edef\svg@tempa{\expandafter\trim@spaces@noexp\expandafter{\svg@tempa}}%
       \ifx\svg@tempa\@empty\else%
-        \expandafter\l@addto@macro\expandafter\svg@tempb\expandafter%
-          {\expandafter,\svg@tempa}%
+        \edef\svg@tempa{%
+          \etex@unexpanded{\l@addto@macro\svg@tempb}%
+            {,\etex@unexpanded\expandafter{\svg@tempa}}%
+        }\svg@tempa%
       \fi%
     }%
     \ifx\svg@tempb\@empty%
@@ -6646,15 +6654,28 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 \newcommand*\svg@shell@move[2]{%
   \begingroup%
-    \svg@quotes@remove[{#1}]{\svg@tempa}%
-    \svg@quotes@remove[{#2}]{\svg@tempb}%
-    \ShellEscape{\svg@shell@@mv\space"\svg@tempa"\space"\svg@tempb"}%
+%    \end{macrocode}
+% Expand in order to prevent overwriting \cs{svg@tempa} or \cs{svg@tempb} if 
+% given as argument.
+%    \begin{macrocode}
+    \edef\svg@tempa{%
+      \noexpand\svg@quotes@remove[{#1}]{\noexpand\svg@tempa}%
+      \noexpand\svg@quotes@remove[{#2}]{\noexpand\svg@tempb}%
+    }%
+    \svg@tempa%
+    \IfFileExists{"\svg@tempa"}{%
+      \ifx\svg@tempa\svg@tempb\else%
+        \ShellEscape{\svg@shell@@mv\space"\svg@tempa"\space"\svg@tempb"}%
+      \fi%
+    }{}%
   \endgroup%
 }
 \newcommand*\svg@shell@rm[1]{%
   \begingroup%
     \svg@quotes@remove[{#1}]{\svg@tempa}%
-    \ShellEscape{\svg@shell@@rm\space"\svg@tempa"}%
+    \IfFileExists{"\svg@tempa"}{%
+      \ShellEscape{\svg@shell@@rm\space"\svg@tempa"}%
+    }{}%
   \endgroup%
 }
 }{}

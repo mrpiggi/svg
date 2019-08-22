@@ -16,12 +16,56 @@
 %\svgsetup{inkscapeversion=detect}
 %\svgsetup{inkscapeversion=0.94.2}
 
+\svgpath{{testink}{"test ink"}}
+
 \begin{document}
+%\newcommand\testiffile[2]{%
+%\def\bla##1{%
+%%  \svg@sanitize@dq\xxx@tempa{##1}%
+%  \edef\xxx@tempa{##1}%
+%  \texttt{\xxx@tempa}: \IfFileExists{\xxx@tempa}{jepp}{nope}\newline
+%}
+%
+%\bla{#1.#2}
+%\bla{./#1.#2}
+%
+%\smallskip
+%
+%\bla{"#1".#2}
+%\bla{"./#1".#2}
+%\bla{./"#1".#2}
+%
+%\smallskip
+%
+%\bla{"#1.#2"}
+%\bla{"./#1.#2"}
+%
+%\clearpage
+%}
+%
+%\testiffile{xr}{sty}
+%
+%\bigskip
+%
+%\testiffile{bar.foo}{baz}
+%
+%\testiffile{bar foo}{baz}
+%
+%\testiffile{Ordner/bar.foo}{baz}
+%
+%\testiffile{Ordner/bar foo}{baz}
+%
+%\testiffile{Neuer Ordner/bar.foo}{baz}
+%
+%\testiffile{Neuer Ordner/bar foo}{baz}
+%\end{document}
+
 \edef\bla{\csname svg@ink@ver\endcsname}
 \meaning\bla
+
 \includesvg[
   lastpage=1,
-  extract=forced,convert=forced,%extractformat={bar,baar,bla,pdf,eps}
+  extract=forced,convert=forced,extractformat={bar,baar,bla,eps,ps},
   convertformat={png,jpg}
 %  width=6cm,
 %  height=5cm,%
@@ -30,7 +74,7 @@
 %%  extractheight=8cm ,
 %  extractscale=2.5,
 %  extract=force
-]{"svg-example"}
+]{svg example.svg}
 %\includeinkscape[
 %  lastpage=1,
 %  extractwidth=7cm ,
