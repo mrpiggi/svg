@@ -5402,14 +5402,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
     \@for\svg@tempa:=\svgx@clean\do{%
       \svgx@ifin@list{\svgx@format,\svgx@cnv@format}{\svg@tempa}{}{%
-        \svgx@eaddto@shell{%
+        \svgx@afterdocument@eaddto{%
           \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
             \noexpand\svg@shell@rm{\svgx@out@name.\svg@tempa}%
           }{}%
         }%
       }%
     }%
-    \svgx@execute@shell%
+    \svgx@afterdocument@append%
   \fi%
 }
 %    \end{macrocode}
@@ -5451,19 +5451,19 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svgx@read@line}
 % \begin{macro}{\svgx@stream@out}
 % \begin{macro}{\if@svgx@preamble@write}
-% \begin{macro}{\svgx@shell}
+% \begin{macro}{\svgx@afterdocument@toks}
 % \changes{v2.03}{2019/07/10}{new}^^A
-% \begin{macro}{\svgx@eaddto@shell}
+% \begin{macro}{\svgx@afterdocument@eaddto}
 % \changes{v2.03}{2019/07/10}{new}^^A
-% \begin{macro}{\svgx@execute@shell}
+% \begin{macro}{\svgx@afterdocument@append}
 % \changes{v2.03}{2019/08/22}{new}^^A
 % Since it's necessary to enable option \file{-{}-shell-escape} for extraction, 
 % the command raises a warning if it is not activated. Afterwards, the package 
 % is finished.
 %    \begin{macrocode}
 \ifnum\pdf@shellescape=\@ne\relax\else%
-  \newcommand*\svgx@eaddto@shell[1]{}%
-  \newcommand*\svgx@execute@shell{}%
+  \newcommand*\svgx@afterdocument@eaddto[1]{}%
+  \newcommand*\svgx@afterdocument@append{}%
   \newcommand*\svgx@run[1]{%
     \begingroup%
       \svg@quotes@remove[{#1}]{\svg@tempa}%
@@ -5492,20 +5492,20 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % related stuff after the main~auxiliary~file was read. This is done with
 % \cs{AfterReadingMainAux} provided by package \pkg{scrlfile}. For this 
 % purpose, infos as well as all shell commands are stored within the token
-% register \cs{svgx@shell}.
+% register \cs{svgx@afterdocument@toks}.
 %    \begin{macrocode}
-\newtoks\svgx@shell
-\newcommand*\svgx@eaddto@shell[1]{%
+\newtoks\svgx@afterdocument@toks
+\newcommand*\svgx@afterdocument@eaddto[1]{%
   \begingroup%
     \edef\svg@tempa{%
       \endgroup%
-      \noexpand\addto@hook\noexpand\svgx@shell{#1}%
+      \noexpand\addto@hook\noexpand\svgx@afterdocument@toks{#1}%
     }%
   \svg@tempa%
 }
-\newcommand*\svgx@execute@shell{%
-  \expandafter\AfterReadingMainAux\expandafter{\the\svgx@shell}%
-  \svgx@shell{}%
+\newcommand*\svgx@afterdocument@append{%
+  \expandafter\AfterReadingMainAux\expandafter{\the\svgx@afterdocument@toks}%
+  \svgx@afterdocument@toks{}%
 }
 \newcommand*\svgx@run[1]{%
 %    \end{macrocode}
@@ -5808,7 +5808,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \opt{extractruns}.
 %    \begin{macrocode}
     \svg@quotes@remove[{#1}]{\svg@tempb}%
-    \svgx@eaddto@shell{%
+    \svgx@afterdocument@eaddto{%
       \noexpand\PackageInfoNoLine{svg-extract}{Extracting `\svg@tempb'}%
       \noexpand\PackageInfoNoLine{svg-extract}{%
         Executing LaTeX (\svgx@latex@exe) on\MessageBreak%
@@ -5819,7 +5819,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
       }%
     }%
     \loop\ifnum\value{svgx@iterations}>\z@\relax%
-      \svgx@eaddto@shell{%
+      \svgx@afterdocument@eaddto{%
         \noexpand\ShellEscape{%
           \svgx@latex@exe\space%
           \ifx\svgx@latex@opt\@empty\else\svgx@latex@opt\space\fi%
@@ -5833,7 +5833,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % conversion tools supplied by most \LaTeXe~distributions if necessary.
 %    \begin{macrocode}
     \def\svg@tempa##1##2##3{%
-      \svgx@eaddto@shell{%
+      \svgx@afterdocument@eaddto{%
         \noexpand\PackageInfoNoLine{svg-extract}{%
           Executing ##1 on\MessageBreak%
           `\svgx@out@name.##2'%
@@ -5880,7 +5880,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
       \@for\svg@tempa:=\svgx@cnv@format\do{%
         \svgx@ifin@list{\svgx@format}{\svg@tempa}{%
-          \svgx@eaddto@shell{%
+          \svgx@afterdocument@eaddto{%
             \noexpand\PackageInfoNoLine{svg-extract}{%
               Generating file `\svgx@out@name.\svg@tempa' was\MessageBreak%
               specified with `extractformat' (\svgx@format)\MessageBreak%
@@ -5890,7 +5890,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
           }%
         }{%
           \edef\svg@tempb{\svgx@out@path\svgx@out@name}%
-          \svgx@eaddto@shell{%
+          \svgx@afterdocument@eaddto{%
             \noexpand\PackageInfoNoLine{svg-extract}{%
               Converting (\svg@tempa) `\svgx@out@name.\svgx@cnv@input@format'%
             }%
@@ -5915,7 +5915,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
     \svg@quotes@remove[{#1}]{\svg@tempb}%
     \@for\svg@tempa:=\svgx@format\do{%
-      \svgx@eaddto@shell{%
+      \svgx@afterdocument@eaddto{%
         \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
           \noexpand\svg@shell@move{\svgx@out@name.\svg@tempa}%
             {\svgx@out@path\svgx@out@name.\svg@tempa}%
@@ -5925,15 +5925,15 @@ svg-extract -- Extract independent graphic files from SVG pictures
         }%
       }%
     }%
-    \svgx@eaddto@shell{%
+    \svgx@afterdocument@eaddto{%
       \noexpand\PackageInfoNoLine{svg-extract}{Done for `\svg@tempb'}%
     }%
   }%
 }
 %    \end{macrocode}
-% \end{macro}^^A \svgx@execute@shell
-% \end{macro}^^A \svgx@eaddto@shell
-% \end{macro}^^A \svgx@shell
+% \end{macro}^^A \svgx@afterdocument@append
+% \end{macro}^^A \svgx@afterdocument@eaddto
+% \end{macro}^^A \svgx@afterdocument@toks
 % \end{macro}^^A \if@svgx@preamble@write
 % \end{macro}^^A \svgx@stream@out
 % \end{macro}^^A \svgx@read@line

@@ -1198,14 +1198,14 @@
     \fi%
     \@for\svg@tempa:=\svgx@clean\do{%
       \svgx@ifin@list{\svgx@format,\svgx@cnv@format}{\svg@tempa}{}{%
-        \svgx@eaddto@shell{%
-          \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
+        \svgx@afterdocument@eaddto{%
+%          \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
             \noexpand\svg@shell@rm{\svgx@out@name.\svg@tempa}%
-          }{}%
+%          }{}%
         }%
       }%
     }%
-    \svgx@execute@shell%
+    \svgx@afterdocument@append%
   \fi%
 }
 \newcommand*\svgx@ifexpired[3][%
@@ -1228,8 +1228,8 @@
   \endgroup%
 }
 \ifnum\pdf@shellescape=\@ne\relax\else%
-  \newcommand*\svgx@eaddto@shell[1]{}%
-  \newcommand*\svgx@execute@shell{}%
+  \newcommand*\svgx@afterdocument@eaddto[1]{}%
+  \newcommand*\svgx@afterdocument@append{}%
   \newcommand*\svgx@run[1]{%
     \begingroup%
       \svg@quotes@remove[{#1}]{\svg@tempa}%
@@ -1247,18 +1247,18 @@
 \newwrite\svgx@stream@out
 \newif\if@svgx@preamble@write
 % TODO rename to delayed execution
-\newtoks\svgx@shell
-\newcommand*\svgx@eaddto@shell[1]{%
+\newtoks\svgx@afterdocument@toks
+\newcommand*\svgx@afterdocument@eaddto[1]{%
   \begingroup%
     \edef\svg@tempa{%
       \endgroup%
-      \noexpand\addto@hook\noexpand\svgx@shell{#1}%
+      \noexpand\addto@hook\noexpand\svgx@afterdocument@toks{#1}%
     }%
   \svg@tempa%
 }
-\newcommand*\svgx@execute@shell{%
-  \expandafter\AfterReadingMainAux\expandafter{\the\svgx@shell}%
-  \svgx@shell{}%
+\newcommand*\svgx@afterdocument@append{%
+  \expandafter\AfterReadingMainAux\expandafter{\the\svgx@afterdocument@toks}%
+  \svgx@afterdocument@toks{}%
 }
 \newcommand*\svgx@run[1]{%
   \begingroup%
@@ -1458,7 +1458,7 @@
   }{%
     \svg@shell@mkdir{\svgx@out@path}%
     \svg@quotes@remove[{#1}]{\svg@tempb}%
-    \svgx@eaddto@shell{%
+    \svgx@afterdocument@eaddto{%
       \noexpand\PackageInfoNoLine{svg-extract}{Extracting `\svg@tempb'}%
       \noexpand\PackageInfoNoLine{svg-extract}{%
         Executing LaTeX (\svgx@latex@exe) on\MessageBreak%
@@ -1469,7 +1469,7 @@
       }%
     }%
     \loop\ifnum\value{svgx@iterations}>\z@\relax%
-      \svgx@eaddto@shell{%
+      \svgx@afterdocument@eaddto{%
         \noexpand\ShellEscape{%
           \svgx@latex@exe\space%
           \ifx\svgx@latex@opt\@empty\else\svgx@latex@opt\space\fi%
@@ -1479,7 +1479,7 @@
       \advance\c@svgx@iterations\m@ne%
     \repeat%
     \def\svg@tempa##1##2##3{%
-      \svgx@eaddto@shell{%
+      \svgx@afterdocument@eaddto{%
         \noexpand\PackageInfoNoLine{svg-extract}{%
           Executing ##1 on\MessageBreak%
           `\svgx@out@name.##2'%
@@ -1509,13 +1509,13 @@
         \fi%
       \fi%
       \svgx@cnv@get@input@format%
-      \svgx@eaddto@shell{%
+      \svgx@afterdocument@eaddto{%
         \noexpand\IfFileExists{"\svgx@out@name".\svgx@cnv@input@format}%
           {\noexpand\@svg@tempswatrue}{\noexpand\@svg@tempswafalse}%
       }%
       \@for\svg@tempa:=\svgx@cnv@format\do{%
         \svgx@ifin@list{\svgx@format}{\svg@tempa}{%
-          \svgx@eaddto@shell{%
+          \svgx@afterdocument@eaddto{%
             \noexpand\if@svg@tempswa%
               \noexpand\PackageInfoNoLine{svg-extract}{%
                 Generating file `\svgx@out@name.\svg@tempa' was\MessageBreak%
@@ -1527,7 +1527,7 @@
           }%
         }{%
           \edef\svg@tempb{\svgx@out@path\svgx@out@name}%
-          \svgx@eaddto@shell{%
+          \svgx@afterdocument@eaddto{%
             \noexpand\if@svg@tempswa%
               \noexpand\PackageInfoNoLine{svg-extract}{%
                 Converting (\svg@tempa) `\svgx@out@name.\svgx@cnv@input@format'%
@@ -1546,7 +1546,7 @@
           }%
         }%
       }%
-      \svgx@eaddto@shell{%
+      \svgx@afterdocument@eaddto{%
         \noexpand\if@svg@tempswa\noexpand\else%
           \noexpand\PackageWarningNoLine{svg-extract}{%
             Converting aborted because the file\MessageBreak%
@@ -1558,9 +1558,9 @@
     \fi%
     \svg@quotes@remove[{#1}]{\svg@tempb}%
     \@for\svg@tempa:=\svgx@format\do{%
-      \svgx@eaddto@shell{%
+      \svgx@afterdocument@eaddto{%
         \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
-          \noexpand\svg@shell@move{\svgx@out@name.\svg@tempa}%
+          \noexpand\svg@shell@move{./\svgx@out@name.\svg@tempa}%
             {\svgx@out@path\svgx@out@name.\svg@tempa}%
         }{%
           \noexpand\svg@troubleshooting{svg-extract}%
@@ -1568,7 +1568,7 @@
         }%
       }%
     }%
-    \svgx@eaddto@shell{%
+    \svgx@afterdocument@eaddto{%
       \noexpand\PackageInfoNoLine{svg-extract}{Done for `\svg@tempb'}%
     }%
   }%
