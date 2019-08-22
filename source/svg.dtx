@@ -1,4 +1,4 @@
-% \CheckSum{4697}
+% \CheckSum{4721}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -3990,6 +3990,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{option}{extractformat}
 % \changes{v2.00}{2017/02/24}{new}^^A
 % \changes{v2.03}{2019/07/13}{uses \cs{svgx@normalize@list}}^^A
+% \changes{v2.03}{2019/08/22}{validates given formats}^^A
 % \begin{macro}{\svgx@format}
 % \begin{option}{pdf}
 % \changes{v2.00}{2017/03/02}{deprecated}^^A
@@ -4012,6 +4013,29 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \DefineFamilyKey{SVG}{extractformat}{%
   \svg@lowercase[{#1}]{\svgx@format}%
   \svgx@normalize@list{\svgx@format}%
+%    \end{macrocode}
+% The given formats are validated, only \val{pdf,ps,eps} are supported. Any 
+% other format is stored in \cs{svg@tempb}, which is used to create a specific 
+% warning, and removed from list \cs{svgx@format}.
+%    \begin{macrocode}
+  \let\svg@tempb\@empty%
+  \@for\svg@tempa:=\svgx@format\do{%
+    \svgx@ifin@list{pdf,ps,eps}{\svg@tempa}{}{%
+      \edef\svg@tempb{\svg@tempb,\svg@tempa}%
+      \edef\svg@tempa{%
+        \etex@unexpanded{\svgx@removekey@list{\svgx@format}}{\svg@tempa}%
+      }%
+      \svg@tempa%
+    }%
+  }%
+  \ifx\svg@tempb\@empty\else%
+    \svgx@normalize@list{\svg@tempb}%
+    \PackageWarning{svg-extract}{%
+      The format(s) `\svg@tempb'are invalid. \MessageBreak%
+      Only formats `pdf,ps,eps' are supported, so\MessageBreak%
+      `exportformat=\svgx@format' was set%
+    }%
+  \fi%
   \FamilyKeyStateProcessed%
 }
 \DefineFamilyKey{SVG}{pdf}[true]{%
@@ -6093,17 +6117,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \IfFileExists{"#1".#2}{%
       \svg@shell@move{#1.#2}{#3#1.#2}%
     }{%
-      \edef\svg@tempa{#2}%
-      \svgx@ifin@list{pdf,ps,eps}{\svg@tempa}{%
-        \svgx@file@missing[extraction]{#1.#2}%
-      }{%
-        \PackageWarningNoLine{svg-extract}{%
-          The extraction to format `#2' failed\MessageBreak%
-          for `#1.#2'\MessageBreak%
-          Only file types `pdf,ps,eps' are supported for\MessageBreak%
-          key `exportformat'%
-        }%
-      }%
+      \svgx@file@missing[extraction]{#1.#2}%
     }%
   \endgroup%
 }
