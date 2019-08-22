@@ -57,62 +57,62 @@ all: $(PACKAGE)
 $(PACKAGE): $(OUT_FILES)
 
 %.sty: $(SRC__FILE)
-  $(TEX) $<
+	$(TEX) $<
 
 # creates documentation only
 pdf: $(DOC__FILE)
 
 %.pdf: $(SRC__FILE) $(SRC_FILES)
-  $(MAKE) mostlyclean
-  $(LATEX) --shell-escape "\def\tudfinalflag{}\input{$<}"
-  $(LATEX) "\def\tudfinalflag{}\input{$<}"
-  $(LATEX) --shell-escape "\def\tudfinalflag{}\input{$<}"
-  $(LATEX) "\def\tudfinalflag{}\input{$<}"
-  $(LATEX) "\def\tudfinalflag{}\input{$<}"
-  $(LATEX) --shell-escape "\def\tudfinalflag{}\input{$<}"
+	$(MAKE) mostlyclean
+	$(LATEX) --shell-escape "\def\tudfinalflag{}\input{$<}"
+	$(LATEX) "\def\tudfinalflag{}\input{$<}"
+	$(LATEX) --shell-escape "\def\tudfinalflag{}\input{$<}"
+	$(LATEX) "\def\tudfinalflag{}\input{$<}"
+	$(LATEX) "\def\tudfinalflag{}\input{$<}"
+	$(LATEX) --shell-escape "\def\tudfinalflag{}\input{$<}"
 
 # removes all temporary files created with all or doc
 mostlyclean:
-  $(call rm_dirs,$(TMP_DIRS))
-  $(call rm_files,$(TMP_FILES))
+	$(call rm_dirs,$(TMP_DIRS))
+	$(call rm_files,$(TMP_FILES))
 
 # addtionally removes package files and documentation
 clean: mostlyclean
-  $(call rm_files,$(OUT_FILES))
-  $(call rm_files,$(DOC_FILES))
+	$(call rm_files,$(OUT_FILES))
+	$(call rm_files,$(DOC_FILES))
 
 # creates TDS folder structure with generated files
 dist: $(PACKAGE) pdf
-  $(call rm_dirs,$(RLS_DIR))
-  $(call copy_tds,$(RLS_DIR))
+	$(call rm_dirs,$(RLS_DIR))
+	$(call copy_tds,$(RLS_DIR))
 
 # removes TDS folder structure
 distclean: 
-  $(call rm_tds,$(RLS_DIR))
-  $(call rm_tds,$(GIT_DIR))
-  $(call rm_dirs,$(CTAN_DIR)$(PACKAGE)/)
+	$(call rm_tds,$(RLS_DIR))
+	$(call rm_tds,$(GIT_DIR))
+	$(call rm_dirs,$(CTAN_DIR)$(PACKAGE)/)
 
 # creates zip files for CTAN and GitHub from TDS folder structure
 release: $(PACKAGE) pdf
-  $(call rm_dirs,$(GIT_DIR))
-  $(call copy_tds,$(GIT_DIR))
-  $(call rm_dirs,$(CTAN_DIR))
-  $(call copy_tds,$(CTAN_DIR)$(PACKAGE)/,$(TDS_SUFFIX))
-  $(call cp_files,$(CTAN_DIR)$(PACKAGE)/$(subst $(TDS_SUFFIX),,$(TDS_DOC_DIR))README.md,$(CTAN_DIR)$(PACKAGE))
-  cd $(GIT_DIR) && zip -r $(PACKAGE)_$(VERSION).zip *
-  cd $(CTAN_DIR) && zip -r -D $(PACKAGE).zip * \
-    -x "$(PACKAGE)/$(subst $(TDS_SUFFIX),,$(TDS_TEX_DIR))*.*" "$(PACKAGE)/$(subst $(TDS_SUFFIX),,$(TDS_DOC_DIR))README.md"
-  $(MAKE) distclean
+	$(call rm_dirs,$(GIT_DIR))
+	$(call copy_tds,$(GIT_DIR))
+	$(call rm_dirs,$(CTAN_DIR))
+	$(call copy_tds,$(CTAN_DIR)$(PACKAGE)/,$(TDS_SUFFIX))
+	$(call cp_files,$(CTAN_DIR)$(PACKAGE)/$(subst $(TDS_SUFFIX),,$(TDS_DOC_DIR))README.md,$(CTAN_DIR)$(PACKAGE))
+	cd $(GIT_DIR) && zip -r $(PACKAGE)_$(VERSION).zip *
+	cd $(CTAN_DIR) && zip -r -D $(PACKAGE).zip * \
+		-x "$(PACKAGE)/$(subst $(TDS_SUFFIX),,$(TDS_TEX_DIR))*.*" "$(PACKAGE)/$(subst $(TDS_SUFFIX),,$(TDS_DOC_DIR))README.md"
+	$(MAKE) distclean
 
 releaseclean:
-  $(call rm_dirs,$(RLS_DIR))
+	$(call rm_dirs,$(RLS_DIR))
 
 # installs all files in TDS folder structur in TEXMF_HOME
 install: $(PACKAGE) pdf
-  $(call copy_tds,$(TEXMF_HOME))
-  texhash
+	$(call copy_tds,$(TEXMF_HOME))
+	texhash
 
 # removes all installed files from TEXMF_HOME
 uninstall:
-  $(call rm_dirs,$(addprefix $(TEXMF_HOME),$(TDS_DIRS)))
-  texhash
+	$(call rm_dirs,$(addprefix $(TEXMF_HOME),$(TDS_DIRS)))
+	texhash
