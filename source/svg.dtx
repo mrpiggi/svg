@@ -1,4 +1,4 @@
-% \CheckSum{4721}
+% \CheckSum{4728}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -5383,6 +5383,19 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \fi%
       \fi%
     \fi%
+%    \end{macrocode}
+% At the very end, all unwanted auxiliary files are deleted.
+%    \begin{macrocode}
+    \@for\svg@tempa:=\svgx@clean\do{%
+      \svgx@ifin@list{\svgx@format,\svgx@cnv@format}{\svg@tempa}{}{%
+        \svgx@eaddto@shell{%
+          \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
+            \noexpand\svg@shell@rm{\svgx@out@name.\svg@tempa}%
+          }{}%
+        }%
+      }%
+    }%
+    \svgx@execute@shell%
   \fi%
 }
 %    \end{macrocode}
@@ -5428,11 +5441,15 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.03}{2019/07/10}{new}^^A
 % \begin{macro}{\svgx@eaddto@shell}
 % \changes{v2.03}{2019/07/10}{new}^^A
+% \begin{macro}{\svgx@execute@shell}
+% \changes{v2.03}{2019/08/22}{new}^^A
 % Since it's necessary to enable option \file{-{}-shell-escape} for extraction, 
 % the command raises a warning if it is not activated. Afterwards, the package 
 % is finished.
 %    \begin{macrocode}
 \ifnum\pdf@shellescape=\@ne\relax\else%
+  \newcommand*\svgx@eaddto@shell[1]{}%
+  \newcommand*\svgx@execute@shell{}%
   \newcommand*\svgx@run[1]{%
     \begingroup%
       \svg@quotes@remove[{#1}]{\svg@tempa}%
@@ -5455,6 +5472,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svgx@read@line{}
 \newwrite\svgx@stream@out
 \newif\if@svgx@preamble@write
+%    \end{macrocode}
+% As the extraction maybe needs to include the main~auxiliary~file with 
+% \cs{externaldocument} provided by package \pkg{xr} it is necessary to do all 
+% related stuff after the main~auxiliary~file was read. This is done with
+% \cs{AfterReadingMainAux} provided by package \pkg{scrlfile}. For this 
+% purpose, infos as well as all shell commands are stored within the token
+% register \cs{svgx@shell}.
+%    \begin{macrocode}
 \newtoks\svgx@shell
 \newcommand*\svgx@eaddto@shell[1]{%
   \begingroup%
@@ -5463,6 +5488,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \noexpand\addto@hook\noexpand\svgx@shell{#1}%
     }%
   \svg@tempa%
+}
+\newcommand*\svgx@execute@shell{%
+  \expandafter\AfterReadingMainAux\expandafter{\the\svgx@shell}%
+  \svgx@shell{}%
 }
 \newcommand*\svgx@run[1]{%
 %    \end{macrocode}
@@ -5760,15 +5789,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
     \svg@shell@mkdir{\svgx@out@path}%
 %    \end{macrocode}
-% As the extraction maybe needs to include the main~auxiliary~file with 
-% \cs{externaldocument} provided by package \pkg{xr} it is necessary to do all 
-% related stuff after the main~auxiliary~file was read. This is done with
-% \cs{AfterReadingMainAux} provided by package \pkg{scrlfile}. For this 
-% purpose, infos as well as all shell commands are stored within the token
-% register \cs{svgx@shell}.
-%    \begin{macrocode}
-    \svgx@shell{}%
-%    \end{macrocode}
 % First of all the separate auxiliary \LaTeX~file is compiled with the detected 
 % \LaTeX~processor (\cs{svgx@latex@exe}) as often as defined by counter option 
 % \opt{extractruns}.
@@ -5878,22 +5898,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \noexpand\svgx@move{\svgx@out@name}{\svg@tempa}{\svgx@out@path}%
       }%
     }%
-%    \end{macrocode}
-% At the very end, all unwanted auxiliary files are deleted.
-%    \begin{macrocode}
-    \@for\svg@tempa:=\svgx@clean\do{%
-      \svgx@ifin@list{\svgx@format,\svgx@cnv@format}{\svg@tempa}{}{%
-        \svgx@eaddto@shell{%
-          \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
-            \noexpand\svg@shell@rm{\svgx@out@name.\svg@tempa}%
-          }{}%
-        }%
-      }%
-    }%
-    \expandafter\AfterReadingMainAux\expandafter{\the\svgx@shell}%
   }%
 }
 %    \end{macrocode}
+% \end{macro}^^A \svgx@execute@shell
 % \end{macro}^^A \svgx@eaddto@shell
 % \end{macro}^^A \svgx@shell
 % \end{macro}^^A \if@svgx@preamble@write

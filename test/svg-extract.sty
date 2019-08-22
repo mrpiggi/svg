@@ -36,7 +36,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg-extract}[%
-  2019/08/21 v2.03\space%
+  2019/08/22 v2.03\space%
   (extract independent graphics from SVG pictures)%
 ]
 \RequirePackage{svg}[2017/03/27]
@@ -1259,7 +1259,7 @@
 \newcommand*\svgx@execute@shell{%
   \expandafter\AfterReadingMainAux\expandafter{\the\svgx@shell}%
   \svgx@shell{}%
-}%
+}
 \newcommand*\svgx@run[1]{%
   \begingroup%
     \def\svg@tempa##1.##2\@nil{%
