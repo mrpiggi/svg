@@ -1,4 +1,4 @@
-% \CheckSum{4699}
+% \CheckSum{4697}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -462,12 +462,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \DescribeOption{inkscapeversion}^^A
 % The command line tool for \app{Inkscape} is going to be changed slightly from 
-% version \val{0.9x} to \val{1.x} and makes some adaptions necessary. 
-% It can be set either to \opt{inkscapeversion}|=|\val{0}---which is set by 
-% default---or to any newer version with a value greater than \val{0}.
-% Additionally, there is also the possibility to detect the used \app{Inkscape}
-% version automatically. This is done by calling given \opt{inkscapeexe} with
-% parameter \prm{-V} and is activated with \opt{inkscapeversion}|=|\val{detect}.
+% version \val{0.9x} to \val{1.x} and makes some adaptions necessary. It can be
+% set either to \opt{inkscapeversion}|=|\val{0}---which is set by default---or
+% to any newer version with a value greater than \val{0}. Additionally, it is
+% possible to detect the used \app{Inkscape} version automatically. This is
+% activated with \opt{inkscapeversion}|=|\val{detect} and done by calling the
+% given \opt{inkscapeexe} with parameter \prm{-V} through a pipe.
+%
+% \centerline{\emph{This functionallity does currently not work with MiK\TeX!}}
 %
 % \DescribeOption{inkscapename}^^A
 % The file names of the \app{Inkscape}~export are derived from the name of the 
@@ -2743,6 +2745,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The macro \cs{svgsetup} can be used to change options after loading the 
 % package \pkg{svg} both in preamble and the document body. For compatibility 
 % reasons, \cs{setsvg} is also defined.
+% \ToDo{replace \cs{FamilyOptions\{SVG\}} with \cs{svgsetup}}[v2.03]
 %    \begin{macrocode}
 \newcommand*\svgsetup{\FamilyOptions{SVG}}
 \newcommand*\setsvg{\FamilyOptions{SVG}}
@@ -3333,8 +3336,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.03}{2019/06/28}{new}^^A
 % \begin{macro}{\svg@ink@ver@@detect}
 % \changes{v2.03}{2019/08/20}{new}^^A
-% \begin{macro}{\svg@ink@ver@detect@wrn}
-% \changes{v2.03}{2019/08/20}{new}^^A
 % \begin{macro}{\if@svg@ink@ver@detect}
 % \changes{v2.03}{2019/06/28}{new}^^A
 % As the interface of the command line tool of \app{Inkscape} has changed 
@@ -3407,6 +3408,18 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \if@svg@ink@ver@detect%
     \svg@ink@ver@@detect%
     \edef\svg@ink@ver@settings{\svg@tempb{\svg@ink@ver}}%
+%    \end{macrocode}
+% If no version was found, an error message is shown.
+%    \begin{macrocode}
+    \svg@ifnumber{\svg@ink@ver}{}{%
+      \PackageErrorNoLine{svg}{Inkscape version not found}{%
+        It was tried to invoke\MessageBreak`\svg@ink@exe\space-V'\MessageBreak%
+        but no version info for Inkscape could gathered. Please\MessageBreak%
+        set it up manually with `inkscapeversion=<version>'%
+      }%
+      \renewcommand*\svg@ink@run[1]{}%
+      \renewcommand*\svg@file@missing[3][]{}%
+    }%
   \else%
     \ifnum\svg@ink@ver=\m@ne\relax%
       \def\svg@ink@ver{#3}%
@@ -3443,18 +3456,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \gdef\svg@ink@ver{##1}%
     }%
     \expandafter\svg@tempb\svg@tempa Inkscape \m@ne.\@nil%
-%    \end{macrocode}
-% If no version was found, an error message is shown.
-%    \begin{macrocode}
   \endgroup%
-  \svg@ifnumber{\svg@ink@ver}{}{\svg@ink@ver@detect@wrn}%
-}
-\newcommand*\svg@ink@ver@detect@wrn{%
-  \PackageWarningNoLine{svg}{%
-    The invocation of\MessageBreak`\svg@ink@exe\space-V'\MessageBreak%
-    did not provide a version info for Inkscape.%
-  }%
-  \global\let\svg@ink@ver@detect@wrn\relax%
 }
 %    \end{macrocode}
 % Comparing the stored settings from last the last run with current settings.
@@ -3472,7 +3474,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 %    \end{macrocode}
 % \end{macro}^^A \if@svg@ink@ver@detect
-% \end{macro}^^A \svg@ink@ver@detect@wrn
 % \end{macro}^^A \svg@ink@ver@@detect
 % \end{macro}^^A \svg@ink@ver@detect
 % \end{macro}^^A \svg@ink@ver@settings

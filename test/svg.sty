@@ -1112,23 +1112,22 @@
           \FamilyOptions{SVG}{inkscapedpi=300}%
         }{}%
       \fi%
+      \svg@quotes@remove[\svg@file@base.\svg@file@ext]{\svg@tempa}%
+      \svg@quotes@remove[{#1}]{\svg@tempb}%
+      \svg@shell@mkdir{\svg@out@path}%
       \PackageInfo{svg}{%
-        Calling Inkscape%
+        Exporting \svg@tempa%
         \ifx\svg@ink@opt\@empty\else%
           \space with added options `\svg@ink@opt'%
         \fi%
       }%
-      \svg@quotes@remove[\svg@file@base]{\svg@tempa}%
-      \svg@quotes@remove[{#1}]{\svg@tempb}%
-      \svg@shell@mkdir{\svg@out@path}%
       \ShellEscape{\svg@ink@cmd{\svg@tempa}{\svg@tempb}}%
       \IfFileExists{#1}{}{%
         \PackageWarning{svg}{%
           The export with Inkscape failed for file\MessageBreak%
-          `\svg@tempa.\svg@file@ext'\MessageBreak%
-          Troubleshooting: Please check in the log file how\MessageBreak%
-          the invocation of Inkscape took place and try to\MessageBreak%
-          execute it yourself in the terminal%
+          Troubleshooting: Please check the log file for\MessageBreak%
+          'Package svg Info: Exporting \svg@tempa'\MessageBreak
+          and try to execute the invocation manually in the terminal%
         }%
       }%
     \else%
@@ -1166,6 +1165,15 @@
   \if@svg@ink@ver@detect%
     \svg@ink@ver@@detect%
     \edef\svg@ink@ver@settings{\svg@tempb{\svg@ink@ver}}%
+    \svg@ifnumber{\svg@ink@ver}{}{%
+      \PackageErrorNoLine{svg}{Inkscape version not found}{%
+        It was tried to invoke\MessageBreak`\svg@ink@exe\space-V'\MessageBreak%
+        but no version info for Inkscape could gathered. Please\MessageBreak%
+        set it up manually with `inkscapeversion=<version>'%
+      }%
+      \renewcommand*\svg@ink@run[1]{}%
+      \renewcommand*\svg@file@missing[3][]{}%
+    }%
   \else%
     \ifnum\svg@ink@ver=\m@ne\relax%
       \def\svg@ink@ver{#3}%
@@ -1189,14 +1197,6 @@
     }%
     \expandafter\svg@tempb\svg@tempa Inkscape \m@ne.\@nil%
   \endgroup%
-  \svg@ifnumber{\svg@ink@ver}{}{\svg@ink@ver@detect@wrn}%
-}
-\newcommand*\svg@ink@ver@detect@wrn{%
-  \PackageWarningNoLine{svg}{%
-    The invocation of\MessageBreak`\svg@ink@exe\space-V'\MessageBreak%
-    did not provide a version info for Inkscape.%
-  }%
-  \global\let\svg@ink@ver@detect@wrn\relax%
 }
 \AtBeginDocument{\expandafter\svg@ink@ver@detect\svg@ink@ver@settings}
 \BeforeClosingMainAux{%
@@ -1207,7 +1207,7 @@
   \fi%
 }
 \newcommand*\svg@ink@cmd[2]{%
-  \svg@ink@exe\space"#1.\svg@file@ext"\space%
+  \svg@ink@exe\space"#1"\space%
   --without-gui\space\svg@ink@area\space%
   \ifx\svg@ink@dpi\relax\else--export-dpi=\svg@ink@dpi\space\fi%
   \if@svg@ink@latex--export-latex\space\fi%

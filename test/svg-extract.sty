@@ -82,6 +82,24 @@
 \DefineFamilyKey{SVG}{extractformat}{%
   \svg@lowercase[{#1}]{\svgx@format}%
   \svgx@normalize@list{\svgx@format}%
+  \let\svg@tempb\@empty%
+  \@for\svg@tempa:=\svgx@format\do{%
+    \svgx@ifin@list{pdf,ps,eps}{\svg@tempa}{}{%
+      \edef\svg@tempb{\svg@tempb,\svg@tempa}%
+      \edef\svg@tempa{%
+        \etex@unexpanded{\svgx@removekey@list{\svgx@format}}{\svg@tempa}%
+      }%
+      \svg@tempa%
+    }%
+  }%
+  \ifx\svg@tempb\@empty\else%
+    \svgx@normalize@list{\svg@tempb}%
+    \PackageWarning{svg-extract}{%
+      The format(s) `\svg@tempb'are invalid. \MessageBreak%
+      Only formats `pdf,ps,eps' are supported, so\MessageBreak%
+      `exportformat=\svgx@format' was set%
+    }%
+  \fi%
   \FamilyKeyStateProcessed%
 }
 \DefineFamilyKey{SVG}{pdf}[true]{%
@@ -1158,7 +1176,6 @@
         \fi%
       \fi%
     \fi%
-    \svgx@shell{}%
     \if@svgx@run%
       \svgx@run{#1}%
     \else%
@@ -1188,7 +1205,7 @@
         }%
       }%
     }%
-    \expandafter\AfterReadingMainAux\expandafter{\the\svgx@shell}%
+    \svgx@execute@shell%
   \fi%
 }
 \newcommand*\svgx@ifexpired[3][%
@@ -1210,9 +1227,9 @@
     \fi%
   \endgroup%
 }
-\newtoks\svgx@shell
 \ifnum\pdf@shellescape=\@ne\relax\else%
   \newcommand*\svgx@eaddto@shell[1]{}%
+  \newcommand*\svgx@execute@shell{}%
   \newcommand*\svgx@run[1]{%
     \begingroup%
       \svg@quotes@remove[{#1}]{\svg@tempa}%
@@ -1229,6 +1246,8 @@
 \newcommand*\svgx@read@line{}
 \newwrite\svgx@stream@out
 \newif\if@svgx@preamble@write
+% TODO rename to delayed execution
+\newtoks\svgx@shell
 \newcommand*\svgx@eaddto@shell[1]{%
   \begingroup%
     \edef\svg@tempa{%
@@ -1237,6 +1256,10 @@
     }%
   \svg@tempa%
 }
+\newcommand*\svgx@execute@shell{%
+  \expandafter\AfterReadingMainAux\expandafter{\the\svgx@shell}%
+  \svgx@shell{}%
+}%
 \newcommand*\svgx@run[1]{%
   \begingroup%
     \def\svg@tempa##1.##2\@nil{%
@@ -1434,10 +1457,11 @@
     }%
   }{%
     \svg@shell@mkdir{\svgx@out@path}%
-    \svgx@shell{}%
+    \svg@quotes@remove[{#1}]{\svg@tempb}%
     \svgx@eaddto@shell{%
+      \noexpand\PackageInfoNoLine{svg-extract}{Extracting \svg@tempb}%
       \noexpand\PackageInfoNoLine{svg-extract}{%
-        Running LaTeX (\svgx@latex@exe) on\MessageBreak%
+        Executing LaTeX (\svgx@latex@exe) on\MessageBreak%
         `\svgx@out@name.\svgx@latex@ext'%
         \ifx\svgx@latex@opt\@empty\else%
           \MessageBreak with added options `\svgx@latex@opt'%
@@ -1457,7 +1481,8 @@
     \def\svg@tempa##1##2##3{%
       \svgx@eaddto@shell{%
         \noexpand\PackageInfoNoLine{svg-extract}{%
-          Running ##1 on `\svgx@out@name.##2'%
+          Executing ##1 on\MessageBreak%
+          `\svgx@out@name.##2'%
         }%
         \noexpand\ShellEscape{%
           \@nameuse{svgx@##1@exe}\space\@nameuse{svgx@##1@opt}\space%
@@ -1484,49 +1509,62 @@
         \fi%
       \fi%
       \svgx@cnv@get@input@format%
+      \svgx@eaddto@shell{%
+        \noexpand\IfFileExists{"\svgx@out@name".\svgx@cnv@input@format}%
+          {\noexpand\@svg@tempswatrue}{\noexpand\@svg@tempswafalse}%
+      }%
       \@for\svg@tempa:=\svgx@cnv@format\do{%
         \svgx@ifin@list{\svgx@format}{\svg@tempa}{%
           \svgx@eaddto@shell{%
-            \noexpand\PackageInfoNoLine{svg-extract}{%
-              Generating file `\svgx@out@name.\svg@tempa' was\MessageBreak%
-              specified with `extractformat' (\svgx@format)\MessageBreak%
-              as well as with `convertformat' (\svgx@cnv@format)\MessageBreak%
-              so the conversion won't be done%
-            }%
+            \noexpand\if@svg@tempswa%
+              \noexpand\PackageInfoNoLine{svg-extract}{%
+                Generating file `\svgx@out@name.\svg@tempa' was\MessageBreak%
+                specified with `extractformat' (\svgx@format)\MessageBreak%
+                as well as with `convertformat' (\svgx@cnv@format)\MessageBreak%
+                so the conversion won't be done%
+              }%
+            \noexpand\fi%
           }%
         }{%
           \edef\svg@tempb{\svgx@out@path\svgx@out@name}%
           \svgx@eaddto@shell{%
-            \noexpand\PackageInfoNoLine{svg-extract}{%
-              Converting `\svgx@out@name.\svgx@cnv@input@format'\MessageBreak%
-              to `\svg@tempb.\svg@tempa'%
-            }%
-            \noexpand\ShellEscape{%
-              \svgx@cnv@cmd{\svgx@out@name}{\svgx@cnv@input@format}%
-                {\svgx@out@path}{\svg@tempa}%
-            }%
-            \noexpand\IfFileExists{"\svg@tempb".\svg@tempa}{}{%
-              \noexpand\svgx@file@missing{\svg@tempb.\svg@tempa}%
-            }%
+            \noexpand\if@svg@tempswa%
+              \noexpand\PackageInfoNoLine{svg-extract}{%
+                Converting `\svgx@out@name.\svgx@cnv@input@format'\MessageBreak%
+                to `\svg@tempb.\svg@tempa'%
+              }%
+              \noexpand\ShellEscape{%
+                \svgx@cnv@cmd{\svgx@out@name}{\svgx@cnv@input@format}%
+                  {\svgx@out@path}{\svg@tempa}%
+              }%
+              \noexpand\IfFileExists{"a\svg@tempb".\svg@tempa}{}{%
+                \noexpand\svgx@missing{Converting}{\svg@tempb.\svg@tempa}%
+                  {\svgx@out@name.\svgx@cnv@input@format}%
+              }%
+            \noexpand\fi%
           }%
         }%
+      }%
+      \svgx@eaddto@shell{%
+        \noexpand\if@svg@tempswa\noexpand\else%
+          \noexpand\PackageWarningNoLine{svg-extract}{%
+            Converting aborted because the file\MessageBreak%
+            `\svgx@out@name.\svgx@cnv@input@format'\MessageBreak%
+            is missing%
+          }%
+        \noexpand\fi%
       }%
     \fi%
     \@for\svg@tempa:=\svgx@format\do{%
       \svgx@eaddto@shell{%
-        \noexpand\svgx@move{\svgx@out@name}{\svg@tempa}{\svgx@out@path}%
+        \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
+          \noexpand\svg@shell@move{\svgx@out@name.\svg@tempa}%
+            {\svgx@out@path\svgx@out@name.\svg@tempa}%
+        }{%
+          \noexpand\svgx@missing{Extracting}{\svgx@out@name.\svg@tempa}{#1}%
+        }%
       }%
     }%
-%    \@for\svg@tempa:=\svgx@clean\do{%
-%      \svgx@ifin@list{\svgx@format,\svgx@cnv@format}{\svg@tempa}{}{%
-%        \svgx@eaddto@shell{%
-%          \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
-%            \noexpand\svg@shell@rm{\svgx@out@name.\svg@tempa}%
-%          }{}%
-%        }%
-%      }%
-%    }%
-%    \expandafter\AfterReadingMainAux\expandafter{\the\svgx@shell}%
   }%
 }
 \newcommand*\svgx@out@sec{unknown}
@@ -1643,33 +1681,17 @@
   \svgx@useformatkey{svgx@gs@opt}{#4}{}%
   -sOutputFile="#3#1.#4"\space"#1.#2"%
 }
-\newcommand*\svgx@move[3]{%
+\newcommand*\svgx@missing[3]{%
   \begingroup%
-    \IfFileExists{"#1".#2}{%
-      \svg@shell@move{#1.#2}{#3#1.#2}%
-    }{%
-      \edef\svg@tempa{#2}%
-      \svgx@ifin@list{pdf,ps,eps}{\svg@tempa}{%
-        \svgx@file@missing[extraction]{#1.#2}%
-      }{%
-        \PackageWarningNoLine{svg-extract}{%
-          The extraction to format `#2' failed\MessageBreak%
-          for `#1.#2'\MessageBreak%
-          Only file types `pdf,ps,eps' are supported for\MessageBreak%
-          key `exportformat'%
-        }%
-      }%
+    \svg@quotes@remove[{#3}]{\svg@tempa}%
+    \PackageWarningNoLine{svg-extract}{%
+      #1\space the graphic file failed for\MessageBreak%
+      `#2'\MessageBreak%
+      Troubleshooting: Please check the log file for\MessageBreak%
+      'Package svg-extract Info: #1 \svg@tempa'\MessageBreak
+      and try to execute the invocation manually in the terminal%
     }%
   \endgroup%
-}
-\newcommand*\svgx@file@missing[2][conversion]{%
-  \PackageWarningNoLine{svg-extract}{%
-    The graphic file #1\space failed\MessageBreak%
-    for `#2'\MessageBreak%
-    Troubleshooting: Please check the log file how\MessageBreak%
-    the invocation of the #1\space took place and\MessageBreak%
-    try to execute it yourself in the terminal%
-  }%
 }
 \endinput
 %%

@@ -5,16 +5,6 @@
 }{
   \usepackage{fontspec}
 }
-\usepackage{pdftexcmds}[2016/05/16]
-\begin{document}
-\makeatletter
-\ifnum\pdf@shellescape=\@ne\relax
-gucke \@@input"|'C:/Program Files/Inkscape1/inkscape.exe' -V" %
-\input "|dir/b"
-\fi
-oder was?
-\end{document}
-
 \usepackage{babel}
 %\usepackage[draft]{graphicx}
 \usepackage[auto]{svg}
@@ -30,7 +20,8 @@ oder was?
 \edef\bla{\csname svg@ink@ver\endcsname}
 \meaning\bla
 \includesvg[
-%  lastpage=1,
+  lastpage=1,
+  extract=forced,convert=forced,extractformat={bar,baar,bla,pdf,eps}
 %  width=6cm,
 %  height=5cm,%
 %  scale=1.5,
@@ -38,13 +29,15 @@ oder was?
 %%  extractheight=8cm ,
 %  extractscale=2.5,
 %  extract=force
-]{svg-example}
+]{"svg-example"}
 %\includeinkscape[
 %  lastpage=1,
 %  extractwidth=7cm ,
 %  extractheight=8cm ,
 %  extractscale=2.5
 %]{"svg-example_svg-tex.PDF_TEX"}
+blubb
+foo
 \end{document}
 
 \begin{figure}
