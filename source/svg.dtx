@@ -1,4 +1,4 @@
-% \CheckSum{4728}
+% \CheckSum{4745}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -3291,28 +3291,22 @@ svg-extract -- Extract independent graphic files from SVG pictures
           \FamilyOptions{SVG}{inkscapedpi=300}%
         }{}%
       \fi%
-      \PackageInfo{svg}{%
-        Calling Inkscape%
-        \ifx\svg@ink@opt\@empty\else%
-          \space with added options `\svg@ink@opt'%
-        \fi%
-      }%
 %    \end{macrocode}
 % Executing \app{Inkscape} on command line. Afterwards, the export results are 
 % moved into the given output path.
 %    \begin{macrocode}
-      \svg@quotes@remove[\svg@file@base]{\svg@tempa}%
+      \svg@quotes@remove[\svg@file@base.\svg@file@ext]{\svg@tempa}%
       \svg@quotes@remove[{#1}]{\svg@tempb}%
       \svg@shell@mkdir{\svg@out@path}%
+      \PackageInfo{svg}{%
+        Exporting `\svg@tempa'%
+        \ifx\svg@ink@opt\@empty\else%
+          \space with added options `\svg@ink@opt'%
+        \fi%
+      }%
       \ShellEscape{\svg@ink@cmd{\svg@tempa}{\svg@tempb}}%
       \IfFileExists{#1}{}{%
-        \PackageWarning{svg}{%
-          The export with Inkscape failed for file\MessageBreak%
-          `\svg@tempa.\svg@file@ext'\MessageBreak%
-          Troubleshooting: Please check in the log file how\MessageBreak%
-          the invocation of Inkscape took place and try to\MessageBreak%
-          execute it yourself in the terminal%
-        }%
+        \svg@troubleshooting{svg}{Exporting}{\svg@tempa}{\svg@tempb}%
       }%
 %    \end{macrocode}
 % If \file{-{}-shell-escape} wasn't enabled, a warning is issued.
@@ -3330,6 +3324,26 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \if@svg@ink@run
 % \end{macro}^^A \svg@ink@run
+% \begin{macro}{\svg@troubleshooting}
+% \changes{v2.03}{2019/08/22}{new}^^A
+% This macro is used to generate a specific warning with some hints for 
+% troubleshooting, if probably something during the invocation of an external
+% programm went wrong and so the process of exporting/extracting/conversion 
+% was not finished sucessfully.
+%    \begin{macrocode}
+\newcommand*\svg@troubleshooting[4]{%
+  \PackageWarning{#1}{%
+    #2 from input file\MessageBreak`#3'\MessageBreak%
+    failed to output file\MessageBreak`#4'\MessageBreak%
+    Troubleshooting: Check `\jobname.log' for\MessageBreak%
+    > Package #1 Info:\MessageBreak%
+    > #2 `#3'\MessageBreak
+    and try to examine occuring problems by executing\MessageBreak%
+    following invocations manually%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@troubleshooting
 % \begin{macro}{\svg@ink@ver@settings}
 % \changes{v2.03}{2019/08/20}{new}^^A
 % \begin{macro}{\svg@ink@ver@detect}
@@ -3482,7 +3496,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The actual call of \app{Inkscape} at command line.
 %    \begin{macrocode}
 \newcommand*\svg@ink@cmd[2]{%
-  \svg@ink@exe\space"#1.\svg@file@ext"\space%
+  \svg@ink@exe\space"#1"\space%
   --without-gui\space\svg@ink@area\space%
   \ifx\svg@ink@dpi\relax\else--export-dpi=\svg@ink@dpi\space\fi%
   \if@svg@ink@latex--export-latex\space\fi%
@@ -5793,9 +5807,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \LaTeX~processor (\cs{svgx@latex@exe}) as often as defined by counter option 
 % \opt{extractruns}.
 %    \begin{macrocode}
+    \svg@quotes@remove[{#1}]{\svg@tempb}%
     \svgx@eaddto@shell{%
+      \noexpand\PackageInfoNoLine{svg-extract}{Extracting `\svg@tempb'}%
       \noexpand\PackageInfoNoLine{svg-extract}{%
-        Running LaTeX (\svgx@latex@exe) on\MessageBreak%
+        Executing LaTeX (\svgx@latex@exe) on\MessageBreak%
         `\svgx@out@name.\svgx@latex@ext'%
         \ifx\svgx@latex@opt\@empty\else%
           \MessageBreak with added options `\svgx@latex@opt'%
@@ -5819,7 +5835,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \def\svg@tempa##1##2##3{%
       \svgx@eaddto@shell{%
         \noexpand\PackageInfoNoLine{svg-extract}{%
-          Running ##1 on `\svgx@out@name.##2'%
+          Executing ##1 on\MessageBreak%
+          `\svgx@out@name.##2'%
         }%
         \noexpand\ShellEscape{%
           \@nameuse{svgx@##1@exe}\space\@nameuse{svgx@##1@opt}\space%
@@ -5875,15 +5892,17 @@ svg-extract -- Extract independent graphic files from SVG pictures
           \edef\svg@tempb{\svgx@out@path\svgx@out@name}%
           \svgx@eaddto@shell{%
             \noexpand\PackageInfoNoLine{svg-extract}{%
-              Converting `\svgx@out@name.\svgx@cnv@input@format'\MessageBreak%
-              to `\svg@tempb.\svg@tempa'%
+              Converting (\svg@tempa) `\svgx@out@name.\svgx@cnv@input@format'%
             }%
             \noexpand\ShellEscape{%
               \svgx@cnv@cmd{\svgx@out@name}{\svgx@cnv@input@format}%
                 {\svgx@out@path}{\svg@tempa}%
             }%
             \noexpand\IfFileExists{"\svg@tempb".\svg@tempa}{}{%
-              \noexpand\svgx@file@missing{\svg@tempb.\svg@tempa}%
+              \noexpand\svg@troubleshooting{svg-extract}%
+                {Converting (\svg@tempa)}%
+                {\svgx@out@name.\svgx@cnv@input@format}%
+                {\svg@tempb.\svg@tempa}%
             }%
           }%
         }%
@@ -5891,12 +5910,23 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \fi%
 %    \end{macrocode}
 % As both extraction and conversion are done, all files intended to be 
-% extracted are moved to the desired output folder (\opt{extractpath}).
+% extracted are moved to the desired output folder (\opt{extractpath}), if 
+% existing. Otherwise a warning is given.
 %    \begin{macrocode}
+    \svg@quotes@remove[{#1}]{\svg@tempb}%
     \@for\svg@tempa:=\svgx@format\do{%
       \svgx@eaddto@shell{%
-        \noexpand\svgx@move{\svgx@out@name}{\svg@tempa}{\svgx@out@path}%
+        \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
+          \noexpand\svg@shell@move{\svgx@out@name.\svg@tempa}%
+            {\svgx@out@path\svgx@out@name.\svg@tempa}%
+        }{%
+          \noexpand\svg@troubleshooting{svg-extract}%
+            {Extracting}{\svg@tempb}{\svgx@out@name.\svg@tempa}%
+        }%
       }%
+    }%
+    \svgx@eaddto@shell{%
+      \noexpand\PackageInfoNoLine{svg-extract}{Done for `\svg@tempb'}%
     }%
   }%
 }
@@ -6115,36 +6145,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svgx@gs@cmd
 % \end{macro}^^A \svgx@magick@cmd
-% \begin{macro}{\svgx@move}
-% This macro proves, if an the extraction of a file was succesful and moves it 
-% to the desired extraction path. If the file doesn't exist, a warning is 
-% shown, whether the extraction failed or the desired file type was wrong.
-%    \begin{macrocode}
-\newcommand*\svgx@move[3]{%
-  \begingroup%
-    \IfFileExists{"#1".#2}{%
-      \svg@shell@move{#1.#2}{#3#1.#2}%
-    }{%
-      \svgx@file@missing[extraction]{#1.#2}%
-    }%
-  \endgroup%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svgx@move
-% \begin{macro}{\svgx@file@missing}
-% \changes{v2.03}{2019/07/11}{new}^^A
-%    \begin{macrocode}
-\newcommand*\svgx@file@missing[2][conversion]{%
-  \PackageWarningNoLine{svg-extract}{%
-    The graphic file #1\space failed\MessageBreak%
-    for `#2'\MessageBreak%
-    Troubleshooting: Please check the log file how\MessageBreak%
-    the invocation of the #1\space took place and\MessageBreak%
-    try to execute it yourself in the terminal%
-  }%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svgx@file@missing
 %
 % \iffalse
 %</package&extract&body>

@@ -7,13 +7,13 @@
 }
 \usepackage{babel}
 %\usepackage[draft]{graphicx}
-\usepackage[auto]{svg}
+\usepackage[forced]{svg}
 \usepackage[auto,clean]{svg-extract}
 
 %\RequirePackage{ifplatform}[2010/10/22]
 
-\svgsetup{inkscapeexe="C:/Program Files/Inkscape1/inkscape.exe"}
-\svgsetup{inkscapeversion=detect}
+%\svgsetup{inkscapeexe="C:/Program Files/Inkscape1/inkscape.exe"}
+%\svgsetup{inkscapeversion=detect}
 %\svgsetup{inkscapeversion=0.94.2}
 
 \begin{document}
@@ -21,7 +21,8 @@
 \meaning\bla
 \includesvg[
   lastpage=1,
-  extract=forced,convert=forced,extractformat={bar,baar,bla,pdf,eps}
+  extract=forced,convert=forced,%extractformat={bar,baar,bla,pdf,eps}
+  convertformat={png,jpg}
 %  width=6cm,
 %  height=5cm,%
 %  scale=1.5,

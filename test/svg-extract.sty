@@ -1459,7 +1459,7 @@
     \svg@shell@mkdir{\svgx@out@path}%
     \svg@quotes@remove[{#1}]{\svg@tempb}%
     \svgx@eaddto@shell{%
-      \noexpand\PackageInfoNoLine{svg-extract}{Extracting \svg@tempb}%
+      \noexpand\PackageInfoNoLine{svg-extract}{Extracting `\svg@tempb'}%
       \noexpand\PackageInfoNoLine{svg-extract}{%
         Executing LaTeX (\svgx@latex@exe) on\MessageBreak%
         `\svgx@out@name.\svgx@latex@ext'%
@@ -1530,16 +1530,17 @@
           \svgx@eaddto@shell{%
             \noexpand\if@svg@tempswa%
               \noexpand\PackageInfoNoLine{svg-extract}{%
-                Converting `\svgx@out@name.\svgx@cnv@input@format'\MessageBreak%
-                to `\svg@tempb.\svg@tempa'%
+                Converting (\svg@tempa) `\svgx@out@name.\svgx@cnv@input@format'%
               }%
               \noexpand\ShellEscape{%
                 \svgx@cnv@cmd{\svgx@out@name}{\svgx@cnv@input@format}%
                   {\svgx@out@path}{\svg@tempa}%
               }%
-              \noexpand\IfFileExists{"a\svg@tempb".\svg@tempa}{}{%
-                \noexpand\svgx@missing{Converting}{\svg@tempb.\svg@tempa}%
+              \noexpand\IfFileExists{"\svg@tempb".\svg@tempa}{}{%
+                \noexpand\svg@troubleshooting{svg-extract}%
+                  {Converting (\svg@tempa)}%
                   {\svgx@out@name.\svgx@cnv@input@format}%
+                  {\svg@tempb.\svg@tempa}%
               }%
             \noexpand\fi%
           }%
@@ -1555,15 +1556,20 @@
         \noexpand\fi%
       }%
     \fi%
+    \svg@quotes@remove[{#1}]{\svg@tempb}%
     \@for\svg@tempa:=\svgx@format\do{%
       \svgx@eaddto@shell{%
         \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{%
           \noexpand\svg@shell@move{\svgx@out@name.\svg@tempa}%
             {\svgx@out@path\svgx@out@name.\svg@tempa}%
         }{%
-          \noexpand\svgx@missing{Extracting}{\svgx@out@name.\svg@tempa}{#1}%
+          \noexpand\svg@troubleshooting{svg-extract}%
+            {Extracting}{\svg@tempb}{\svgx@out@name.\svg@tempa}%
         }%
       }%
+    }%
+    \svgx@eaddto@shell{%
+      \noexpand\PackageInfoNoLine{svg-extract}{Done for `\svg@tempb'}%
     }%
   }%
 }
@@ -1680,18 +1686,6 @@
   \svgx@useformatkey{svgx@cnv@dpi}{#4}{-r}%
   \svgx@useformatkey{svgx@gs@opt}{#4}{}%
   -sOutputFile="#3#1.#4"\space"#1.#2"%
-}
-\newcommand*\svgx@missing[3]{%
-  \begingroup%
-    \svg@quotes@remove[{#3}]{\svg@tempa}%
-    \PackageWarningNoLine{svg-extract}{%
-      #1\space the graphic file failed for\MessageBreak%
-      `#2'\MessageBreak%
-      Troubleshooting: Please check the log file for\MessageBreak%
-      'Package svg-extract Info: #1 \svg@tempa'\MessageBreak
-      and try to execute the invocation manually in the terminal%
-    }%
-  \endgroup%
 }
 \endinput
 %%

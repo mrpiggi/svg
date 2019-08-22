@@ -1116,19 +1116,14 @@
       \svg@quotes@remove[{#1}]{\svg@tempb}%
       \svg@shell@mkdir{\svg@out@path}%
       \PackageInfo{svg}{%
-        Exporting \svg@tempa%
+        Exporting `\svg@tempa'%
         \ifx\svg@ink@opt\@empty\else%
           \space with added options `\svg@ink@opt'%
         \fi%
       }%
       \ShellEscape{\svg@ink@cmd{\svg@tempa}{\svg@tempb}}%
       \IfFileExists{#1}{}{%
-        \PackageWarning{svg}{%
-          The export with Inkscape failed for file\MessageBreak%
-          Troubleshooting: Please check the log file for\MessageBreak%
-          'Package svg Info: Exporting \svg@tempa'\MessageBreak
-          and try to execute the invocation manually in the terminal%
-        }%
+        \svg@troubleshooting{svg}{Exporting}{\svg@tempa}{\svg@tempb}%
       }%
     \else%
       \svg@quotes@remove[\svg@file@base]{\svg@tempa}%
@@ -1139,6 +1134,17 @@
       }%
     \fi%
   \fi%
+}
+\newcommand*\svg@troubleshooting[4]{%
+  \PackageWarning{#1}{%
+    #2 from input file\MessageBreak`#3'\MessageBreak%
+    failed to output file\MessageBreak`#4'\MessageBreak%
+    Troubleshooting: Check `\jobname.log' for\MessageBreak%
+    > Package #1 Info:\MessageBreak%
+    > #2 `#3'\MessageBreak
+    and try to examine occuring problems by executing\MessageBreak%
+    following invocations manually%
+  }%
 }
 \newcommand*\svg@ink@ver@settings{{\svg@ink@ver}{\svg@ink@exe}{\m@ne}}
 \newif\if@svg@ink@ver@detect
