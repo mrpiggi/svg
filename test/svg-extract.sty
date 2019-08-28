@@ -420,9 +420,9 @@
     \or% svgsubpath
       \renewcommand*\svgx@out@path{\svg@file@path svg-extract/}%
     \or% basepath
-      \renewcommand*\svgx@out@path{./}%
+      \renewcommand*\svgx@out@path{\@currdir}%
     \or% basesubpath
-      \renewcommand*\svgx@out@path{./svg-extract/}%
+      \renewcommand*\svgx@out@path{\@currdir svg-extract/}%
     \or% inkscapepath
       \renewcommand*\svgx@out@path{\svg@out@path}%
     \or% inkscapesubpath
@@ -437,13 +437,13 @@
 \DefineFamilyKey{SVG}{path}{%
   \svg@deprecated@key[svg-extract]{path=#1}{extractpath=#1}%
 }
+% TODO revise \svg@out@name > change to \svg@file@name?
 \newcommand*\svgx@out@name{\the\value{svgx@out@count}-\svg@out@name}
 \newcounter{svgx@out@count}
 \newif\if@svgx@out@sec
 \DefineFamilyKey{SVG}{extractname}{%
   \svg@ifvalueisrelax{#1}{%
-    \renewcommand*\svgx@out@name{\the\value{svgx@out@count}-\svg@out@name}%
-    \FamilyKeyStateProcessed%
+    \svgsetup{extractname=filenamenumbered}%
   }{%
     \svg@sanitize@dq\svg@tempb{#1}%
     \FamilySetNumerical{SVG}{extractname}{svg@tempa}{%
@@ -861,7 +861,7 @@
 }
 \FamilyExecuteOptions{SVG}{%
   extract=forced,extractpath=basesubdir,%
-  extractruns=2,extractname=namenumbered,extractdistort=inherit,%
+  extractruns=2,extractname=filenamenumbered,extractdistort=inherit,%
   convert=magick,convert=false,%
   gsdevice={png=png16m},gsdevice={jpeg=jpeg},gsdevice={jpg=jpeg},%
   gsdevice={tif=tiff48nc},gsdevice={tiff=tiff48nc},%
@@ -1091,6 +1091,8 @@
   % TODO set extract=true/force only, if \svgx@out@base does not exist?
     \svgx@include@cmd[{#1,exclude,extract=force}]{#3}%
     \ifx\svgx@out@base\@empty\else%
+        % TODO \IfFileExists auf "name".ext überprüfen
+        % TODO  ggf. mit ./ verwenden?!
       \IfFileExists{\svgx@out@base.pdf}{%
         \begingroup%
           \DefineFamilyKey[.svg.sty]{SVG}{@else@}{\FamilyKeyStateProcessed}%
@@ -1136,15 +1138,19 @@
 }
 \newif\if@svgx@run
 \newcommand*\svgx@out@base{}
-\renewcommand*\svg@process[1]{%
+\renewcommand*\svg@process[3]{%
   \if@svgx@exclude\else%
-    \svg@ink@include{#1}%
+    \svg@ink@include{#1}{#2}{#3}%
   \fi%
   \if@svgx@out@sec%
     \svgx@get@out@sec%
   \fi%
   \stepcounter{svgx@out@count}%
+  % TODO preceed \svgx@out@name with ./
+  % TODO wo einbinden?!
+%  \svg@normalize@name{svgx}{extract}{svgx@out}%
   \begingroup%
+    % TODO REVISE
     \svg@quotes@remove[\svgx@out@name]{\svgx@out@base}%
     \ifx\svgx@out@base\@empty\else%
       \svg@quotes@remove[\svgx@out@path\svgx@out@name]{\svgx@out@base}%
@@ -1162,7 +1168,7 @@
     \ifcase\svgx@mode\relax% false
       \@svgx@runfalse%
     \or% true
-      \svgx@ifexpired[\svgx@format]{\svgx@out@base}{#1}%
+      \svgx@ifexpired[\svgx@format]{\svgx@out@base}{#3}%
         {\@svgx@runtrue}{\@svgx@runfalse}%
     \or% forced
       \@svgx@runtrue%
@@ -1171,7 +1177,7 @@
       \svgx@param@size@check%
       \if@svgx@run\else%
         \ifcase\svgx@cnv@mode\relax\or% true
-          \svgx@ifexpired[\svgx@cnv@format]{\svgx@out@base}{#1}%
+          \svgx@ifexpired[\svgx@cnv@format]{\svgx@out@base}{#3}%
             {\@svgx@runtrue}{\@svgx@runfalse}%
         \or% forced
           \@svgx@runtrue%
@@ -1179,20 +1185,21 @@
       \fi%
     \fi%
     \if@svgx@run%
-      \svgx@run{#1}%
+      \svgx@run{#3}%
     \else%
       \ifnum\svgx@cnv@mode>\z@\relax%
         \PackageWarning{svg-extract}{%
-          Image `#1'\MessageBreak%
+          Image `#3'\MessageBreak%
           could not be converted as `extract=false' was set%
         }%
       \fi%
       \if@svgx@exclude%
-        \svgx@ifexpired{\svgx@out@base}{#1}%
+        % TODO what if \svg@iffilenewer undefined?!
+        \svgx@ifexpired{\svgx@out@base}{#3}%
           {\@svg@tempswatrue}{\@svg@tempswafalse}%
         \if@svg@tempswa%
           \PackageWarning{svg-extract}{%
-            Image `#1'\MessageBreak%
+            Image `#3'\MessageBreak%
             was neither extracted/converted nor included%
           }%
         \fi%
@@ -1260,44 +1267,42 @@
   \svgx@afterdocument@toks{}%
 }
 \newcommand*\svgx@run[1]{%
-  \begingroup%
-    \def\svg@tempa##1.##2\@nil{%
-      \IfArgIsEmpty{##2}{\edef\svgx@preamble{##1.\svgx@latex@ext}}{}%
-    }%
-    \expandafter\svg@tempa\svgx@preamble.\@nil%
-    \IfFileExists{\svg@file@path\svgx@preamble}{%
-      \@svg@file@foundtrue%
-    }{%
-      \svg@get@path[]{\svgx@preamble}{\svg@out@path}%
-      \def\svg@tempa####1.####2\@nil{%
-        \edef\svgx@preamble{\svg@file@name.####2}%
-      }%
-      \expandafter\svg@tempa\svgx@preamble\@nil%
-    }%
-    \edef\svg@tempa{%
-      \endgroup%
-      \if@svg@file@found%
-        \ifx\svg@file@path\@empty%
-          \def\noexpand\svgx@preamble{./\svgx@preamble}%
-        \else%
-          \def\noexpand\svgx@preamble{\svg@file@path\svgx@preamble}%
-        \fi%
+  \ifx\svgx@preamble\@empty\relax\else%
+    \begingroup%
+      % TODO REVISE use \svg@filename@parse instead?!
+      \svg@filename@split@base@ext\svgx@preamble{\svg@tempa}{\svg@tempb}%
+      \ifx\svg@tempb\@empty\relax%
+        \let\svg@tempb\svgx@latex@ext%
+      \else%
+        \svg@remove@leadingchar.\svg@tempb%
       \fi%
-    }%
-  \svg@tempa%
+      % TODO REVISE
+      \svg@get@file[\svg@out@path]{\svgx@preamble}{\svg@tempb}%
+      \if@svg@file@found%
+        \svg@quotes@remove[\svg@file@base]{\svg@tempa}%
+      \else
+        \svg@quotes@remove{\svg@tempa}%
+      \fi%
+      \edef\svg@tempa{%
+        \endgroup%
+        \def\noexpand\svgx@preamble{\svg@tempa.\svg@tempb}%
+      }%
+    \svg@tempa%
+  \fi%
   \svg@quotes@remove{\svgx@out@path}%
   \svg@quotes@remove{\svgx@out@name}%
   \begingroup%
     \endlinechar=\m@ne%
-    \IfFileExists{\svgx@preamble}{%
+    % TODO \IfFileExists auf "name".ext überprüfen
+    \IfFileExists{"\svgx@preamble"}{%
       \PackageInfo{svg-extract}{%
         The preamble file `\svgx@preamble'\MessageBreak%
         is used for the generation of the auxiliary file\MessageBreak%
         `\svgx@out@name.\svgx@latex@ext'%
       }%
       \catcode`\#=12\relax%
-      \immediate\openout\svgx@stream@out="\svgx@out@name".\svgx@latex@ext%
-      \immediate\openin\svgx@stream@in=\svgx@preamble%
+      \immediate\openout\svgx@stream@out="\svgx@out@name.\svgx@latex@ext"%
+      \immediate\openin\svgx@stream@in="\svgx@preamble"%
       \@svg@tempswatrue%
       \@svgx@preamble@writetrue%
       \let\svgx@read@line\@empty%
@@ -1325,7 +1330,7 @@
       \immediate\closein\svgx@stream@in%
       \immediate\closeout\svgx@stream@out%
       \catcode`\#=6\relax%
-      \immediate\openin\svgx@stream@in="\svgx@out@name".\svgx@latex@ext%
+      \immediate\openin\svgx@stream@in="\svgx@out@name.\svgx@latex@ext"%
       \let\svg@tempa\@empty%
       \loop\unless\ifeof\svgx@stream@in%
         \readline\svgx@stream@in to\svgx@read@line%
@@ -1338,6 +1343,7 @@
       \repeat%
       \immediate\closein\svgx@stream@in%
     }{%
+      % TODO revise (trim@spaces?!)
       \svg@quotes@remove{\svgx@preamble}%
       \ifx\svgx@preamble\@empty\else%
         \PackageWarning{svg-extract}{%
@@ -1347,7 +1353,7 @@
       \fi%
       \let\svg@tempa\@empty%
     }%
-    \immediate\openout\svgx@stream@out="\svgx@out@name".\svgx@latex@ext%
+    \immediate\openout\svgx@stream@out="\svgx@out@name.\svgx@latex@ext"%
     \immediate\write\svgx@stream@out{%
       \@percentchar\@percentchar\space This file was generated by package
       `svg-extract'^^J%
@@ -1507,11 +1513,10 @@
     \else%
       \let\svg@tempa\svgx@format%
     \fi%
-        % TODO all \IfFileExists ggf. mit ./ verwenden!
-        % TODO all \IfFileExists auf "name".ext überprüfen
     \@for\svg@tempa:=\svg@tempa\do{%
       \svgx@afterdocument@eaddto{%
-        \noexpand\IfFileExists{"\svgx@out@name".\svg@tempa}{}{%
+      % TODO \IfFileExists auf "name".ext überprüfen
+        \noexpand\IfFileExists{"\svgx@out@name.\svg@tempa"}{}{%
           \noexpand\svg@troubleshooting{svg-extract}%
             {Extracting}{\svg@tempb}{\svgx@out@name.\svg@tempa}%
         }%
@@ -1543,7 +1548,8 @@
               \svgx@cnv@cmd{\svgx@out@name}{\svgx@cnv@input@format}%
                 {\svgx@out@path}{\svg@tempa}%
             }%
-            \noexpand\IfFileExists{"\svg@tempb".\svg@tempa}{}{%
+            % TODO \IfFileExists auf "name".ext überprüfen
+            \noexpand\IfFileExists{"\svg@tempb.\svg@tempa"}{}{%
               \noexpand\svg@troubleshooting{svg-extract}%
                 {Converting (\svg@tempa)}%
                 {\svgx@out@name.\svgx@cnv@input@format}%
@@ -1553,13 +1559,13 @@
         }%
       }%
     \fi%
-    \svg@quotes@remove[{#1}]{\svg@tempb}%
     \@for\svg@tempa:=\svgx@format\do{%
       \svgx@afterdocument@eaddto{%
         \noexpand\svg@shell@move{\svgx@out@name.\svg@tempa}%
           {\svgx@out@path\svgx@out@name.\svg@tempa}%
       }%
     }%
+    \svg@quotes@remove[{#1}]{\svg@tempb}%
     \svgx@afterdocument@eaddto{%
       \noexpand\PackageInfoNoLine{svg-extract}{Done for `\svg@tempb'}%
     }%

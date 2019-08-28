@@ -1,14 +1,18 @@
 \listfiles
+%\RequirePackage[2015/01/01]{latexrelease}
 \documentclass[ngerman]{scrartcl}
 \ifpdftex{
   \usepackage[T1]{fontenc}
 }{
   \usepackage{fontspec}
 }
-\usepackage{babel}
+%\usepackage[utf8]{inputenc}
+%\usepackage{babel}
 %\usepackage[draft]{graphicx}
 \usepackage[forced]{svg}
-\usepackage[auto,clean]{svg-extract}
+\usepackage[off,clean=false,convert=forced]{svg-extract}
+
+\usepackage[space]{grffile}
 
 %\RequirePackage{ifplatform}[2010/10/22]
 
@@ -16,57 +20,162 @@
 %\svgsetup{inkscapeversion=detect}
 %\svgsetup{inkscapeversion=0.94.2}
 
-\svgpath{{testink}{"test ink"}}
+%\svgsetup{inkscapepath=}
+\svgpath{{"test ink"}{foo}}
+
+\graphicspath{{test ink/}}
+
+%\usepackage{grffile}
 
 \begin{document}
-%\newcommand\testiffile[2]{%
-%\def\bla##1{%
-%%  \svg@sanitize@dq\xxx@tempa{##1}%
-%  \edef\xxx@tempa{##1}%
-%  \texttt{\xxx@tempa}: \IfFileExists{\xxx@tempa}{jepp}{nope}\newline
-%}
-%
-%\bla{#1.#2}
-%\bla{./#1.#2}
-%
-%\smallskip
-%
-%\bla{"#1".#2}
-%\bla{"./#1".#2}
-%\bla{./"#1".#2}
-%
-%\smallskip
-%
-%\bla{"#1.#2"}
-%\bla{"./#1.#2"}
-%
-%\clearpage
-%}
-%
-%\testiffile{xr}{sty}
-%
-%\bigskip
-%
-%\testiffile{bar.foo}{baz}
-%
-%\testiffile{bar foo}{baz}
-%
-%\testiffile{Ordner/bar.foo}{baz}
-%
-%\testiffile{Ordner/bar foo}{baz}
-%
-%\testiffile{Neuer Ordner/bar.foo}{baz}
-%
-%\testiffile{Neuer Ordner/bar foo}{baz}
-%\end{document}
-
 \edef\bla{\csname svg@ink@ver\endcsname}
 \meaning\bla
+\makeatletter
+\@makeother\"
+
+
+%\meaning\kernel@ifstar
+
+%\newcommand\blubb{%
+%  \kernel@ifstar{\@blubb{\trim@spaces}}{\@blubb{\@firstofone}}
+%}%
+%\newcommand*\@blubb[1]{%
+%  \kernel@ifnextchar[%]
+%    {\@@blubb{#1}}{\@@blubb{#1}[]}%
+%}
+%\newcommand*\@@blubb{}
+%\def\@@blubb#1[#2]#3{%
+%  \par1: \detokenize{#1}
+%  \par2: \detokenize{#2}
+%  \par3: \detokenize{#3}
+%}
+
+\def\bla{"  leer  "}
+\svg@quotes@remove*[ ". ff " ]{\bla}
+\par!\meaning\bla!
+
+\svgsetup{svgextension=" . sssA    "}
+
+\meaning\svg@file@ext
+
+%\svg@quotes@remove*{stern}
+%
+%\svg@quotes@remove[test]{optional}
+%
+%\svg@quotes@remove*[test]{alles}
+
+\end{document}
+
+
+\meaning\@filef@und
+
+\IfFileExists{ test ink/svg example.foo .svg}{}{}
+
+\meaning\@filef@und!
+
+\bigskip
+
+\def\bla{" "    }
+\svg@IfFileExists{ svg example.foo.svg}{\meaning\@filef@und}{nope}%
+
+\begingroup%
+%  \svg@set@input@path
+  \svg@IfFileExists{ svg example.foo.svg}{\meaning\@filef@und}{nope}%
+  
+\endgroup
+
+
+\svg@IfFileExists{ "test ink / svg example.foo .svg "}{\meaning\@filef@und}{no}%
+
+\svg@IfFileExists{test ink/svg example.foo .svg}{\meaning\@filef@und}{no}%
+
+\bigskip
+
+%
+%%\meaning\Ginclude@eps
+%
+%\includegraphics{test ink/DDC+01}
+%
+%%\def\bla{aaabbbccc}
+%%
+%%\def\foo#1 #2\@nil{#1--#2}
+%%
+%%\expandafter\foo\expandafter\bla\space\@nil
+%%
+%\end{document}
+
+%
+%\meaning\@currdir
+%
+%\bigskip
+
+%
+%%
+%\def\foo{"   "}
+%\svg@normalize@path[]{\foo}
+%\meaning\foo
+%
+%\def\foo{"  /  "}
+%\svg@normalize@path[]\foo
+%\meaning\foo
+%
+%\def\foo{aaa.}
+%\svg@normalize@path[]\foo
+%\meaning\foo
+%
+%\def\foo{./}
+%\svg@normalize@path[]\foo
+%\meaning\foo
+%
+%\def\foo{"bla"}
+%\svg@normalize@path\foo
+%\meaning\foo
+%
+%\def\foo{"   /bla   "}
+%\svg@normalize@path\foo
+%\meaning\foo
+%
+%%\svg@normalize@path[{\foo}]{\svg@tempa}%
+%%
+%%\meaning\svg@tempa
+%
+%%\svg@quotes@remove
+%
+%%\svg@shell@mkdir{\svg@out@path}%
+
+%\svgsetup{inkscapename="aaaa"}
+%\svg@normalize@name{svg}{inkscape}{svg@out}%
+%\meaning\svg@out@name
+%
+%%\svg@normalize@path{./aaa}
+%
+%\meaning\svg@out@path
+
+%\svg@get@lastpage{"./svg-inkscape/svg example.foo_svg-tex.pdf"}
+
+%\end{document}
+
+\includesvg[
+%  lastpage=1,
+  inkscapepath=basesubpath,inkscape=forced,
+%  extract=false,
+  %extractformat={bar,baar,bla,eps,ps},
+  convertformat={png,jpg},%inkscapepath=,
+%  inkscapename=  "      aaa ",%vvv,
+%  width=6cm,
+%  height=5cm,% 
+%  scale=1.5,
+%%  extractwidth=\relax,
+%%  extractheight=8cm ,
+%  extractscale=2.5,
+%  extract=force
+]{svg example.foo}
+%\end{document}
 
 \includesvg[
   lastpage=1,
-  extract=forced,convert=forced,extractformat={bar,baar,bla,eps,ps},
-  convertformat={png,jpg}
+  convertformat={png,jpg},
+  inkscapepath=svgpath,
 %  width=6cm,
 %  height=5cm,%
 %  scale=1.5,
@@ -74,15 +183,29 @@
 %%  extractheight=8cm ,
 %  extractscale=2.5,
 %  extract=force
-]{svg example.svg}
-%\includeinkscape[
+]{svg.example}
+%
+%\includeinkscape[%
+%  extractpreamble=aaa bbb.bla,
+%  lastpage=1,extract=force,
+%  convertformat={png,jpg},
+%  extractname=./bla/testfile,
+%%  inkscapepath=,
+%%  width=6cm,
+%%  height=5cm,%
+%%  scale=1.5,
+%%%  extractwidth=\relax,
+%%%  extractheight=8cm ,
+%%  extractscale=2.5,
+%%  extract=force
+%]{svgexample.foo_svg-tex}
+
+%\includeinkscapex[
 %  lastpage=1,
 %  extractwidth=7cm ,
 %  extractheight=8cm ,
 %  extractscale=2.5
 %]{"svg-example_svg-tex.PDF_TEX"}
-blubb
-foo
 \end{document}
 
 \begin{figure}
