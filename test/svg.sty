@@ -36,7 +36,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg}[%
-  2019/08/22 v2.03\space%
+  2019/08/28 v2.03\space%
   (include SVG pictures)%
 ]
 \RequirePackage{scrbase}[2016/06/14]
@@ -131,7 +131,7 @@
     \ifcase\svg@tempa\relax% false
       \def\svg@ink@mode{0}%
     \or% true
-      \ifx\svg@iffilenewer\@undefined%
+      \ifx\svg@IfFileNewer\@undefined%
         \def\svg@ink@mode{2}%
       \else%
         \def\svg@ink@mode{1}%
@@ -639,11 +639,48 @@
     \svg@tempb%
   \endgroup%
 }
+\newcommand*\svg@IfFileExists[1]{%
+  \begingroup%
+    \@svg@tempswafalse%
+    \svg@quotes@remove*[{#1}]{\svg@tempa}%
+    \expandafter\IfArgIsEmpty\expandafter{\svg@tempa}{}{%
+      \svg@filename@parse[\relax]{#1}%
+      \edef\svg@tempa{\filename@area\filename@base}%
+      \ifx\input@path\@undefined%
+        \let\input@path\@empty%
+      \fi%
+      \edef\input@path{%
+        {\@currdir}\ifx\filename@area\@empty\else{}\fi\input@path%
+      }%
+      \expandafter\@tfor\expandafter\svg@tempb\expandafter:\expandafter=%
+          \input@path\do{%
+        \edef\svg@tempb{\svg@tempb\svg@tempa}%
+        \let\input@path\@undefined%
+        \begingroup%
+          \svg@quotes@remove*{\svg@tempb}%
+          \IfFileExists{"\svg@tempb"}{\aftergroup\@svg@tempswatrue}{}%
+        \endgroup%
+        \if@svg@tempswa%
+          \@break@tfor%
+        \fi%
+      }%
+    }%
+    \edef\svg@tempa{%
+      \endgroup%
+      \if@svg@tempswa%
+        \def\noexpand\@filef@und{\svg@tempb}%
+        \noexpand\@firstoftwo%
+      \else%
+        \noexpand\@secondoftwo%
+      \fi%
+    }%
+  \svg@tempa%
+}
 % TODO zusammenfassen --> svg@filemoddate + svg@strcmp
 \ifx\pdf@filemoddate\@undefined
   \ifx\filemoddate\@undefined\else
     \ifx\strcmp\@undefined\else
-      \newcommand*\svg@iffilenewer[2]{%
+      \newcommand*\svg@IfFileNewer[2]{%
         \begingroup%
           \edef\svg@tempa{\filemoddate{#1}}%
           \edef\svg@tempb{\filemoddate{#2}}%
@@ -658,7 +695,7 @@
   \fi
 \else
   \ifx\pdf@strcmp\@undefined\else
-    \newcommand*\svg@iffilenewer[2]{%
+    \newcommand*\svg@IfFileNewer[2]{%
       \begingroup%
         \edef\svg@tempa{\pdf@filemoddate{#1}}%
         \edef\svg@tempb{\pdf@filemoddate{#2}}%
@@ -671,61 +708,6 @@
     }
   \fi
 \fi
-\ifx\pdf@filesize\@undefined
-  \ifx\filesize\@undefined\else%
-    \newcommand*\svg@filesize{\filesize}%
-  \fi
-\else
-  \newcommand*\svg@filesize{\pdf@filesize}%
-\fi
-% TODO replace \IfFileExists with \svg@IfFileExists
-\ifx\svg@filesize\@undefined%
-  \newcommand*\svg@IfFileExists{\IfFileExists}%
-\else%
-  \newcommand*\svg@IfFileExists[1]{%
-    \begingroup%
-      \@svg@file@foundfalse%
-      \svg@quotes@remove*[{#1}]{\svg@tempa}%
-      \expandafter\IfArgIsEmpty\expandafter{\svg@tempa}{}{%
-        \svg@filename@parse[\relax]{#1}%
-        \edef\svg@tempa{\filename@area\filename@base}%
-        \edef\svg@tempb{\svg@filesize{\svg@tempa}}%
-        \ifx\svg@tempb\@empty%
-          \@svg@file@foundfalse%
-          \ifx\input@path\@undefined\else%
-            \expandafter\@tfor\expandafter\svg@tempb\expandafter:\expandafter=%
-                \input@path\do{%
-              \begingroup%
-                \edef\svg@tempb{\svg@filesize{\svg@tempb\svg@tempa}}%
-                \edef\svg@tempa{%
-                  \endgroup%
-                  \ifx\svg@tempb\@empty\else%
-                    \noexpand\@svg@file@foundtrue%
-                  \fi%
-                }%
-              \svg@tempa%
-              \if@svg@file@found%
-                \edef\svg@tempa{\svg@tempb\svg@tempa}%
-                \@break@tfor%
-              \fi%
-            }%
-          \fi%
-        \else%
-          \@svg@file@foundtrue%
-        \fi%
-      }%
-      \edef\svg@tempa{%
-        \endgroup%
-        \if@svg@file@found%
-          \def\noexpand\@filef@und{\svg@tempa}%
-          \noexpand\@firstoftwo%
-        \else%
-          \noexpand\@secondoftwo%
-        \fi%
-      }%
-    \svg@tempa%
-  }%
-\fi%
 \DefineFamilyMember[.dummy]{SVG}
 \newcommand*\svg@dummy@key[2][]{%
   \IfArgIsEmpty{#1}{%
@@ -800,9 +782,6 @@
   inkscapelatex=true,inkscapearea=drawing,distort=false,%
   usexcolor=true,usetransparent=true%
 }
-%
-% TODO replace \IFFileExists with \[pdf@]filesize
-%
 \FamilyProcessOptions{SVG}
 \newif\if@svg@file@found
 \newcommand*\svg@file@path{}
@@ -827,13 +806,13 @@
     \fi%
     % DOC done
     \svg@quotes@remove[\filename@area\filename@base]{\svg@tempa}%
-    \par\meaning\svg@tempa--\meaning\filename@ext\par
-    \meaning\input@path%
+%    \par\meaning\svg@tempa--\meaning\filename@ext\par
+%    !\meaning\input@path!%
     \IfFileExists{"\svg@tempa.\filename@ext"}{%
-%      \@svg@file@foundtrue%
-%      \edef\@filef@und{\expandafter\trim@post@space\expandafter{\@filef@und}}%
-%      \svg@filename@parse[{#3}]{\@filef@und}%
-%      \svg@tempb%
+      \@svg@file@foundtrue%
+      \edef\@filef@und{\expandafter\trim@post@space\expandafter{\@filef@und}}%
+      \svg@filename@parse[{#3}]{\@filef@und}%
+      \svg@tempb%
     }{}%
     \svg@sanitize@dq\svg@tempb{#2}%
     \edef\svg@tempa{%
@@ -1070,13 +1049,13 @@
         \fi%
         \if@svg@file@found%
           \par\bigskip \textbf{includesvg} \meaning\svg@out@file\par 
-          \meaning\svg@out@path\meaning\svg@out@name (\meaning\svg@file@name)
+%          \meaning\svg@out@path\meaning\svg@out@name (\meaning\svg@file@name)
           % TODO pass \svg@out@path, (adapted) \svg@out@name
           \svg@process{\svg@out@path}{\svg@out@name}{\svg@out@file}%
         \fi%
       \fi%
     \else%
-%      \svg@file@missing[\svg@file@ext]{\svg@file@base}{}%
+      \svg@file@missing[\svg@file@ext]{\svg@file@base}{}%
     \fi%
   \endgroup%
 }
@@ -1163,14 +1142,14 @@
       \svg@quotes@remove[\svg@file@path\svg@file@name]{\svg@out@file}%
       \edef\svg@out@file{"\svg@out@file.\svg@ink@format"}%
       \if@svg@ink@latex%
-        \IfFileExists{\svg@out@file_tex}{}{%
+        \svg@IfFileExists{\svg@out@file_tex}{}{%
           \@svg@file@foundfalse%
           \svg@file@missing{\svg@out@file_tex}{\svg@out@file}%
         }%
       \fi%
       \if@svg@file@found%
         \par\bigskip \textbf{includeinkscape} \meaning\svg@out@file\par 
-        \meaning\svg@out@path\meaning\svg@out@name (\meaning\svg@file@name)
+%        \meaning\svg@out@path\meaning\svg@out@name (\meaning\svg@file@name)
         % TODO pass \svg@out@path, (adapted) \svg@out@name and \svg@ink@format
         \svg@process{}{}{\svg@out@file}%
       \fi%
@@ -1186,12 +1165,12 @@
   \ifcase\svg@ink@mode\relax% false
     \@svg@ink@runfalse%
   \or% true
-    \svg@iffilenewer{\svg@file@base.\svg@file@ext}{#1}%
+    \svg@IfFileNewer{\svg@file@base.\svg@file@ext}{#1}%
       {\@svg@ink@runtrue}{\@svg@ink@runfalse}%
     \if@svg@ink@latex%
-      \IfFileExists{"#1_tex"}{%
+      \svg@IfFileExists{#1_tex}{%
         \if@svg@ink@run\ifnum\pdf@shellescape=\@ne\relax%
-          \svg@iffilenewer{#1_tex}{#1}{%
+          \svg@IfFileNewer{#1_tex}{#1}{%
             \@svg@ink@runfalse%
             \svg@quotes@remove[{#1}]{\svg@tempa}%
             \PackageWarning{svg}{%
@@ -1230,7 +1209,7 @@
       }%
       % TODO \pdfmdfivesum{svg-example.svg}
       \ShellEscape{\svg@ink@cmd{\svg@tempa}{\svg@tempb}}%
-      \IfFileExists{"#1"}{}{%
+      \svg@IfFileExists{#1}{}{%
         \svg@troubleshooting{svg}{Exporting}{\svg@tempa}{\svg@tempb}%
       }%
     \else%
@@ -1453,8 +1432,8 @@
   \par>>\detokenize{finally: #3 vs . #1 and #2}\edef\foo{#3}\meaning\foo%
   \edef\svg@tempa{{#1#2}.\svg@ink@format}%
   \svg@quotes@remove[\expandafter\@firstofone\svg@tempa]{\svg@tempb}%
-  \par\meaning\svg@tempa
-  \par\meaning\svg@tempb\par
+%  \par\meaning\svg@tempa
+%  \par\meaning\svg@tempb\par
   \@svg@tempswatrue%
 %                        \@svg@tempswafalse%
   \if@svg@draft%

@@ -36,7 +36,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg-extract}[%
-  2019/08/22 v2.03\space%
+  2019/08/28 v2.03\space%
   (extract independent graphics from SVG pictures)%
 ]
 \RequirePackage{svg}[2017/03/27]
@@ -55,7 +55,7 @@
     \ifcase\svg@tempa\relax% false
       \def\svgx@mode{0}%
     \or% true
-      \ifx\svg@iffilenewer\@undefined%
+      \ifx\svg@IfFileNewer\@undefined%
         \def\svgx@mode{2}%
       \else%
         \def\svgx@mode{1}%
@@ -244,7 +244,7 @@
     \ifcase\svg@tempa\relax% false
       \def\svgx@cnv@mode{0}%
     \or% true
-      \ifx\svg@iffilenewer\@undefined%
+      \ifx\svg@IfFileNewer\@undefined%
         \def\svgx@cnv@mode{2}%
       \else%
         \def\svgx@cnv@mode{1}%
@@ -1225,7 +1225,7 @@
     }%
     \svg@tempa%
     \@for\svg@tempb:=\svg@tempa\do{%
-      \svg@iffilenewer{#2.\svg@tempb}{#3}{}{\@svg@tempswatrue}%
+      \svg@IfFileNewer{#2.\svg@tempb}{#3}{}{\@svg@tempswatrue}%
     }%
     \if@svg@tempswa%
       \aftergroup\@firstoftwo%
@@ -1293,8 +1293,7 @@
   \svg@quotes@remove{\svgx@out@name}%
   \begingroup%
     \endlinechar=\m@ne%
-    % TODO \IfFileExists auf "name".ext überprüfen
-    \IfFileExists{"\svgx@preamble"}{%
+    \svg@IfFileExists{\svgx@preamble}{%
       \PackageInfo{svg-extract}{%
         The preamble file `\svgx@preamble'\MessageBreak%
         is used for the generation of the auxiliary file\MessageBreak%
@@ -1515,8 +1514,7 @@
     \fi%
     \@for\svg@tempa:=\svg@tempa\do{%
       \svgx@afterdocument@eaddto{%
-      % TODO \IfFileExists auf "name".ext überprüfen
-        \noexpand\IfFileExists{"\svgx@out@name.\svg@tempa"}{}{%
+        \noexpand\svg@IfFileExists{\svgx@out@name.\svg@tempa}{}{%
           \noexpand\svg@troubleshooting{svg-extract}%
             {Extracting}{\svg@tempb}{\svgx@out@name.\svg@tempa}%
         }%
@@ -1548,8 +1546,7 @@
               \svgx@cnv@cmd{\svgx@out@name}{\svgx@cnv@input@format}%
                 {\svgx@out@path}{\svg@tempa}%
             }%
-            % TODO \IfFileExists auf "name".ext überprüfen
-            \noexpand\IfFileExists{"\svg@tempb.\svg@tempa"}{}{%
+            \noexpand\svg@IfFileExists{\svg@tempb.\svg@tempa}{}{%
               \noexpand\svg@troubleshooting{svg-extract}%
                 {Converting (\svg@tempa)}%
                 {\svgx@out@name.\svgx@cnv@input@format}%

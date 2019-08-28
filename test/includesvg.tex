@@ -21,9 +21,9 @@
 %\svgsetup{inkscapeversion=0.94.2}
 
 %\svgsetup{inkscapepath=}
-\svgpath{{"test ink"}{foo}}
+\svgpath{{"test ink"/}{foo}}
 
-\graphicspath{{test ink/}}
+%\graphicspath{{C:/Users/Hanisch/}}
 
 %\usepackage{grffile}
 
@@ -34,126 +34,39 @@
 \@makeother\"
 
 
-%\meaning\kernel@ifstar
-
-%\newcommand\blubb{%
-%  \kernel@ifstar{\@blubb{\trim@spaces}}{\@blubb{\@firstofone}}
-%}%
-%\newcommand*\@blubb[1]{%
-%  \kernel@ifnextchar[%]
-%    {\@@blubb{#1}}{\@@blubb{#1}[]}%
-%}
-%\newcommand*\@@blubb{}
-%\def\@@blubb#1[#2]#3{%
-%  \par1: \detokenize{#1}
-%  \par2: \detokenize{#2}
-%  \par3: \detokenize{#3}
-%}
-
-\def\bla{"  leer  "}
-\svg@quotes@remove*[ ". ff " ]{\bla}
-\par!\meaning\bla!
-
-\svgsetup{svgextension=" . sssA    "}
-
-\meaning\svg@file@ext
-
-%\svg@quotes@remove*{stern}
+%\IfFileExists{xr.sty}{jepp}{nope}
 %
-%\svg@quotes@remove[test]{optional}
+%\svg@IfFileExists{xr.sty}{jepp}{nope}
 %
-%\svg@quotes@remove*[test]{alles}
-
-\end{document}
-
-
-\meaning\@filef@und
-
-\IfFileExists{ test ink/svg example.foo .svg}{}{}
-
-\meaning\@filef@und!
-
-\bigskip
-
-\def\bla{" "    }
-\svg@IfFileExists{ svg example.foo.svg}{\meaning\@filef@und}{nope}%
-
-\begingroup%
+%\begingroup%
 %  \svg@set@input@path
-  \svg@IfFileExists{ svg example.foo.svg}{\meaning\@filef@und}{nope}%
-  
-\endgroup
+%  \svg@IfFileExists{C:/Users/Hanisch/none.jpg}{\meaning\@filef@und}{nope}
+%  
+%  \svg@IfFileExists{xr.sty}{\meaning\@filef@und}{nope}
+%  
+%  \svg@IfFileExists{svg-example.svg}{\meaning\@filef@und}{nope}
+%  
+%  \svg@IfFileExists{ svg example.foo .svg}{\meaning\@filef@und}{nope}%
+%  
+%\endgroup
 
-
-\svg@IfFileExists{ "test ink / svg example.foo .svg "}{\meaning\@filef@und}{no}%
-
-\svg@IfFileExists{test ink/svg example.foo .svg}{\meaning\@filef@und}{no}%
-
-\bigskip
-
+%\bigskip
 %
-%%\meaning\Ginclude@eps
-%
-%\includegraphics{test ink/DDC+01}
-%
-%%\def\bla{aaabbbccc}
-%%
-%%\def\foo#1 #2\@nil{#1--#2}
-%%
-%%\expandafter\foo\expandafter\bla\space\@nil
-%%
-%\end{document}
-
-%
-%\meaning\@currdir
+%\begingroup%
+%%  \svg@set@input@path
+%  \IfFileExists{ svg example.foo.svg}{\meaning\@filef@und}{nope}%
+%  
+%  \svg@IfFileExists{ svg example.foo.svg}{\meaning\@filef@und}{nope}%
+%\endgroup
 %
 %\bigskip
-
 %
-%%
-%\def\foo{"   "}
-%\svg@normalize@path[]{\foo}
-%\meaning\foo
+%\svg@IfFileExists{ "test ink "/svg example.foo .svg" 
+%}{\meaning\@filef@und}{xx}%
 %
-%\def\foo{"  /  "}
-%\svg@normalize@path[]\foo
-%\meaning\foo
+%\svg@IfFileExists{test ink/svg example.foo .svg}{\meaning\@filef@und}{xx}%
 %
-%\def\foo{aaa.}
-%\svg@normalize@path[]\foo
-%\meaning\foo
-%
-%\def\foo{./}
-%\svg@normalize@path[]\foo
-%\meaning\foo
-%
-%\def\foo{"bla"}
-%\svg@normalize@path\foo
-%\meaning\foo
-%
-%\def\foo{"   /bla   "}
-%\svg@normalize@path\foo
-%\meaning\foo
-%
-%%\svg@normalize@path[{\foo}]{\svg@tempa}%
-%%
-%%\meaning\svg@tempa
-%
-%%\svg@quotes@remove
-%
-%%\svg@shell@mkdir{\svg@out@path}%
-
-%\svgsetup{inkscapename="aaaa"}
-%\svg@normalize@name{svg}{inkscape}{svg@out}%
-%\meaning\svg@out@name
-%
-%%\svg@normalize@path{./aaa}
-%
-%\meaning\svg@out@path
-
-%\svg@get@lastpage{"./svg-inkscape/svg example.foo_svg-tex.pdf"}
-
-%\end{document}
+%\bigskip
 
 \includesvg[
 %  lastpage=1,
@@ -169,7 +82,7 @@
 %%  extractheight=8cm ,
 %  extractscale=2.5,
 %  extract=force
-]{svg example.foo}
+]{svg example .foo}
 %\end{document}
 
 \includesvg[
