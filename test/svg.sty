@@ -131,6 +131,7 @@
     \ifcase\svg@tempa\relax% false
       \def\svg@ink@mode{0}%
     \or% true
+      % TODO Warning!
       \ifx\svg@IfFileNewer\@undefined%
         \def\svg@ink@mode{2}%
       \else%
@@ -329,7 +330,6 @@
 \newcommand*\svg@file@ext{svg}
 \DefineFamilyKey{SVG}{svgextension}{%
   \svg@quotes@remove*[{#1}]{\svg@file@ext}%
-  \svg@lowercase{\svg@file@ext}%
   \svg@remove@leadingchar.\svg@file@ext%
   \FamilyKeyStateProcessed%
 }
@@ -407,7 +407,7 @@
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \if@svg@tempswa%
       \FamilyExecuteOptions[.svg.sty]{SVG}{distort=false}%
-    \else
+    \else%
       \FamilyExecuteOptions[.svg.sty]{SVG}{distort=true}%
     \fi%
   \fi%
@@ -481,26 +481,35 @@
     \edef\svg@tempa{\endgroup\def\noexpand#1{#2}}%
   \svg@tempa%
 }
+% TODO search for \if@svg@quotes@found and check
+\newif\if@svg@quotes@found
+\newcommand*\svg@quotes@check[1]{%
+  \expandafter\svg@@quotes@check#1"\@nil%
+}
+\newcommand*\svg@@quotes@check{}
+\def\svg@@quotes@check#1"#2\@nil{%
+  \IfArgIsEmpty{#2}{\@svg@quotes@foundfalse}{\@svg@quotes@foundtrue}%
+}
 \newcommand\svg@quotes@remove{%
   \kernel@ifstar%
-    {\@@svg@quotes@remove{\trim@spaces}}%
-    {\@@svg@quotes@remove{\@firstofone}}%
+    {\svg@@quotes@remove{\trim@spaces}}%
+    {\svg@@quotes@remove{\@firstofone}}%
 }
-\newcommand*\@@svg@quotes@remove[1]{%
+\newcommand*\svg@@quotes@remove[1]{%
   \kernel@ifnextchar[%]
-    {\@@@svg@quotes@remove{#1}}%
-    {\@@@svg@quotes@remove{#1}[]}%
+    {\svg@@@quotes@remove{#1}}%
+    {\svg@@@quotes@remove{#1}[\@nil]}%
 }
-\newcommand*\@@@svg@quotes@remove{}
-\def\@@@svg@quotes@remove#1[#2]#3{%
+\newcommand*\svg@@@quotes@remove{}
+\def\svg@@@quotes@remove#1[#2]#3{%
   \begingroup%
-    \IfArgIsEmpty{#2}{%
+    \ifstr{\detokenize{#2}}{\detokenize{\@nil}}{%
       \svg@sanitize@dq\svg@tempa{#3}%
     }{%
       \svg@sanitize@dq\svg@tempa{#2}%
     }%
     \expandafter\svg@quotes@check\expandafter{\svg@tempa}%
-    \expandafter\@@@@svg@quotes@remove\svg@tempa""\@nil%
+    \expandafter\svg@@@@quotes@remove\svg@tempa""\@nil%
     \edef\svg@tempb{%
       \endgroup%
       \def\noexpand#3{\expandafter#1\expandafter{\svg@tempa}}%
@@ -512,22 +521,21 @@
     }%
   \svg@tempb%
 }
-\newcommand*\@@@@svg@quotes@remove{}
-\def\@@@@svg@quotes@remove#1"#2"#3\@nil{%
+\newcommand*\svg@@@@quotes@remove{}
+\def\svg@@@@quotes@remove#1"#2"#3\@nil{%
   \IfArgIsEmpty{#2}{%
     \edef\svg@tempa{#1}%
   }{%
-    \@@@@svg@quotes@remove#1#2#3""\@nil%
+    \svg@@@@quotes@remove#1#2#3""\@nil%
   }%
 }
-% TODO search for \if@svg@quotes@found and check
-\newif\if@svg@quotes@found
-\newcommand*\svg@quotes@check[1]{%
-  \expandafter\@@svg@quotes@check#1"\@nil%
-}
-\newcommand*\@@svg@quotes@check{}
-\def\@@svg@quotes@check#1"#2\@nil{%
-  \IfArgIsEmpty{#2}{\@svg@quotes@foundfalse}{\@svg@quotes@foundtrue}%
+\newcommand*\svg@quotes@normalize[1]{%
+  \svg@quotes@remove{#1}%
+  \if@svg@quotes@found%
+    \ifx#1\@empty\else%
+      \edef#1{"#1"}%
+    \fi%
+  \fi%
 }
 \newcommand*\svg@set@input@path[1][]{%
   \begingroup%
@@ -611,6 +619,16 @@
     }%
   \svg@tempa%
 }
+\newcommand*\svg@ifstr@nocase[2]{%
+  \begingroup%
+    \svg@quotes@remove[{#1}]{\svg@tempa}%
+    \svg@quotes@remove[{#2}]{\svg@tempb}%
+    \edef\svg@tempa{%
+      \endgroup%
+      \lowercase{\noexpand\ifstr{\svg@tempa}{\svg@tempb}}%
+    }%
+  \svg@tempa%
+}
 \newcommand*\svg@remove@leadingchar[2]{%
   \begingroup%
     \svg@sanitize@dq\svg@tempa{#2}%
@@ -677,6 +695,7 @@
   \svg@tempa%
 }
 % TODO zusammenfassen --> svg@filemoddate + svg@strcmp
+% TODO check usage of \svgx@ifexpired (maybe move to package svg)
 \ifx\pdf@filemoddate\@undefined
   \ifx\filemoddate\@undefined\else
     \ifx\strcmp\@undefined\else
@@ -778,7 +797,7 @@
 \svg@dummy@key[true]{exclude}
 % TODO \FamilyExecuteOptions right at definition of each key?!
 \FamilyExecuteOptions{SVG}{%
-  inkscape=true,inkscapeversion=0,inkscapepath=basesubdir,
+  inkscape=true,inkscapeversion=0,inkscapepath=basesubdir,%
   inkscapelatex=true,inkscapearea=drawing,distort=false,%
   usexcolor=true,usetransparent=true%
 }
@@ -790,29 +809,14 @@
 \newcommand*\svg@get@file[3][]{%
   \begingroup%
     \svg@filename@parse[{#3}]{#2}%
+    \ifx\filename@ext\relax%
+      \edef\filename@ext{#3}%
+    \fi%
     \svg@set@input@path[{#1}]%
     \@svg@file@foundfalse%
-    % DOC some trickery to keep quotes as given
-    \def\svg@tempb{\relax}%
-    \ifx\filename@area\@empty\else%
-      \svg@quotes@check\filename@area%
-      \if@svg@quotes@found\else%
-        \l@addto@macro\svg@tempb{\svg@quotes@remove{\filename@area}}%
-      \fi%
-    \fi%
-    \svg@quotes@check\filename@base%
-    \if@svg@quotes@found\else%
-      \l@addto@macro\svg@tempb{\svg@quotes@remove{\filename@base}}%
-    \fi%
-    % DOC done
-    \svg@quotes@remove[\filename@area\filename@base]{\svg@tempa}%
-%    \par\meaning\svg@tempa--\meaning\filename@ext\par
-%    !\meaning\input@path!%
-    \IfFileExists{"\svg@tempa.\filename@ext"}{%
+    \svg@IfFileExists{\filename@area\filename@base.\filename@ext}{%
       \@svg@file@foundtrue%
-      \edef\@filef@und{\expandafter\trim@post@space\expandafter{\@filef@und}}%
-      \svg@filename@parse[{#3}]{\@filef@und}%
-      \svg@tempb%
+      \svg@filename@parse[\filename@ext]{\@filef@und}%
     }{}%
     \svg@sanitize@dq\svg@tempb{#2}%
     \edef\svg@tempa{%
@@ -830,89 +834,80 @@
       \fi%
     }%
   \svg@tempa%
-  \svg@quotes@remove{\svg@file@base}%
-  \if@svg@quotes@found%
-    \edef\svg@file@base{"\svg@file@base"}%
-  \fi%
+  \svg@quotes@normalize{\svg@file@base}%
 }
 \newcommand*\svg@filename@parse[2][]{%
   \begingroup%
+    \edef\svg@tempb{#1}%
     \svg@sanitize@dq\svg@tempa{#2}%
     \expandafter\filename@parse\expandafter{\svg@tempa}%
     \svg@normalize@path[\@empty]{\filename@area}%
-    \svg@remove@leadingchar"\filename@base%
     \ifx\filename@ext\relax\else%
-      \svg@quotes@remove*{\filename@ext}%
-      \if@svg@quotes@found%
-        \edef\filename@base{\filename@base"}%
-      \fi%
-      \svg@lowercase{\filename@ext}%
-      \IfArgIsEmpty{#1}{}{\svg@extension@parse{#1}}%
+      \expandafter\svg@extension@parse\expandafter{\svg@tempb}%
     \fi%
-    \svg@quotes@remove*{\filename@base}%
-    \if@svg@quotes@found%
-      \ifx\filename@base\@empty\else%
-        \edef\filename@base{"\filename@base"}%
-      \fi%
-    \fi%
+    \svg@quotes@normalize{\filename@base}%
     \edef\svg@tempa{%
       \endgroup%
       \def\noexpand\filename@area{\filename@area}%
       \def\noexpand\filename@base{\filename@base}%
       \ifx\filename@ext\relax%
-        \if\relax#1\relax%
-          \let\noexpand\filename@ext\noexpand\relax%
-        \else%
-          \def\noexpand\filename@ext{#1}%
-        \fi%
+        \let\noexpand\filename@ext\noexpand\relax%
       \else%
         \def\noexpand\filename@ext{\filename@ext}%
       \fi%
     }%
   \svg@tempa%
-  \ifx\filename@ext\@empty%
-    \let\filename@ext\relax%
-  \fi%
 }
 \newcommand*\svg@extension@parse[1]{%
-  \ifstr{#1}{\filename@ext}{}{%
+  \ifx\filename@ext\relax\else%
     \begingroup%
-      \edef\svg@tempa{%
-        \let\noexpand\svg@tempa\noexpand\@empty%
-        \let\noexpand\svg@tempb\relax%
-        \noexpand\svg@extension@@parse%
-          \filename@ext.\noexpand\@nil#1\noexpand\@nil%
+      \svg@ifstr@nocase{#1}{\filename@ext}{}{%
+        \def\svg@tempa##1.##2\@nil##3\@nil{%
+          \IfArgIsEmpty{##2}{%
+            \edef\filename@ext{##1}%
+          }{%
+            \edef\filename@base{\filename@base.##1}%
+            \svg@ifstr@nocase{##2}{##3.}{%
+              \def\svg@tempb####1.\@nil{\edef\filename@ext{####1}}%
+              \svg@tempb##2\@nil%
+            }{%
+              \svg@tempa##2\@nil##3\@nil%
+            }%
+          }%
+        }%
+        \edef\svg@tempb{%
+          \noexpand\svg@tempa\filename@ext.\noexpand\@nil#1\noexpand\@nil%
+        }%
+        \svg@tempb%
       }%
-      \svg@tempa%
+      \svg@ifstr@nocase{#1}{\filename@ext}{}{%
+        \IfArgIsEmpty{#1}{}{%
+          \ifx\filename@ext\@empty\else%
+            \edef\filename@base{\filename@base.\filename@ext}%
+            \let\filename@ext\@empty%
+          \fi%
+        }%
+      }%
+      \svg@quotes@normalize{\filename@base}%
+      \svg@quotes@normalize{\filename@ext}%
       \edef\svg@tempa{%
         \endgroup%
-        \def\noexpand\filename@base{\filename@base\svg@tempa}%
-        \ifx\svg@tempb\relax%
+        \def\noexpand\filename@base{\filename@base}%
+        \ifx\filename@ext\@empty%
           \let\noexpand\filename@ext\relax%
         \else%
-          \def\noexpand\filename@ext{\svg@tempb}%
+          \def\noexpand\filename@ext{\filename@ext}%
         \fi%
       }%
     \svg@tempa%
-  }%
-}
-\newcommand*\svg@extension@@parse{}
-\def\svg@extension@@parse#1.#2\@nil#3\@nil{%
-  \edef\svg@tempa{\svg@tempa.#1}%
-  \IfArgIsEmpty{#2}{}{%
-    \ifstr{#2}{#3.}{%
-      \edef\svg@tempb{#3}%
-    }{%
-      \svg@extension@@parse#2\@nil#3\@nil%
-    }%
-  }%
+  \fi%
 }
 % TODO revise optional argument?!
 \newcommand*\svg@file@missing[3][]{%
   \begingroup%
     % TODO sinnvoll?
     \svg@quotes@remove[{#2}]{\svg@tempa}%
-    % TODO use \svg@get@file?
+    % TODO use \svg@get@file? check result
     \svg@filename@parse[{#1}]{\svg@tempa}%
     \IfArgIsEmpty{#1}{%
       \svg@quotes@remove[{#3}]{\svg@tempb}%
@@ -1037,12 +1032,12 @@
         \edef\svg@out@file{\svg@tempa.\svg@ink@format}%
         \svg@ink@run{\svg@out@file}%
         % TODO beide Warnungen zusammenfassen!
-        \IfFileExists{"\svg@out@file"}{}{%
+        \svg@IfFileExists{\svg@out@file}{}{%
           \@svg@file@foundfalse%
           \svg@file@missing{\svg@out@file}{\svg@file@base.\svg@file@ext}%
         }%
         \if@svg@ink@latex%
-          \IfFileExists{"\svg@out@file_tex"}{}{%
+          \svg@IfFileExists{\svg@out@file_tex}{}{%
             \@svg@file@foundfalse%
             \svg@file@missing{\svg@out@file_tex}{\svg@file@base.\svg@file@ext}%
           }%
@@ -1098,7 +1093,7 @@
 }
 \newcommand*\includeinkscape[2][]{%
   \begingroup%
-    % TODO use \svg@get@file?
+    % TODO use \svg@get@file early?
     \svg@filename@parse{#2}%
     \ifx\filename@ext\relax\else%
       \def\svg@tempb##1_tex##2\@nil{%
@@ -1225,6 +1220,7 @@
 \newcommand*\svg@normalize@name[3]{%
   \begingroup%
     \svg@sanitize@dq\svg@tempa{\csname #3@name\endcsname}%
+    \meaning\svg@tempa
     \svg@filename@parse[\relax]{\svg@tempa}%
     \ifx\filename@area\@empty\else%
       \PackageWarning{#1}{%
@@ -1259,7 +1255,7 @@
     failed for output file\MessageBreak`#4'\MessageBreak%
     Troubleshooting: Check `\jobname.log' for\MessageBreak%
     > Package #1 Info:\MessageBreak%
-    > #2 `#3'\MessageBreak
+    > #2 `#3'\MessageBreak%
     and try to examine occuring problems by executing\MessageBreak%
     following invocations manually%
   }%
@@ -1625,7 +1621,7 @@
 \fi
 \newcommand*\svg@shell@mkdir[1]{%
   \begingroup%
-    \svg@quotes@remove[{#1}]{\svg@tempa}
+    \svg@quotes@remove[{#1}]{\svg@tempa}%
     \svg@normalize@path{\svg@tempa}%
     \ifx\svg@tempa\@currdir\else%
       \ShellEscape{\svg@shell@@mkdir{\svg@tempa}}%
@@ -1641,7 +1637,7 @@
     }%
     \svg@tempa%
     \begingroup%
-      % TODO use \svg@filename@parse instead?!
+      % TODO use svg@filename@parse instead?!
       \svg@filename@split@base@ext\svg@tempa{\svg@tempa}{\svg@tempb}%
       \IfFileExists{"\svg@tempa"\svg@tempb}%
         {\aftergroup\@firstofone}{\aftergroup\@gobble}%
@@ -1658,7 +1654,7 @@
   \begingroup%
     \svg@quotes@remove[{#1}]{\svg@tempb}%
     \begingroup%
-      % TODO use \svg@filename@parse instead?!
+      % TODO use svg@filename@parse instead?!
       \svg@filename@split@base@ext\svg@tempb{\svg@tempa}{\svg@tempb}%
       \edef\svg@tempa{%
         \endgroup%
