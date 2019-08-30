@@ -1,4 +1,4 @@
-% \CheckSum{4959}
+% \CheckSum{4971}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -2443,7 +2443,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
     \svg@append@input@path{\svg@file@path}{\svg@input@path}%
     \svg@append@input@path{\svg@file@path}{\Ginput@path}%
-    \IfArgIsEmpty{#1}{}{\svg@append@input@path{\svg@file@path}{{#1}}}%
+    \IfArgIsEmpty{#1}{}{%
+      \edef\svg@tempa{#1}%
+      \svg@append@input@path{\svg@file@path}{{\svg@tempa}}%
+    }%
     \svg@append@input@path{\svg@file@path}{\input@path}%
 %    \end{macrocode}
 % Finally, \cs{input@path} is set.
@@ -2463,28 +2466,34 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 \newcommand*\svg@append@input@path[2]{%
   \ifx#2\@undefined\else%
-    \edef\svg@tempb{#2}%
-    \expandafter\@tfor\expandafter\svg@tempa\expandafter:\expandafter=%
-        \svg@tempb\do{%
+    \begingroup%
+      \edef\svg@tempb{#2}%
+      \expandafter\@tfor\expandafter\svg@tempa\expandafter:\expandafter=%
+          \svg@tempb\do{%
 %    \end{macrocode}
 % Passing each new path to \cs{svg@normalize@path}. If a path already exists, 
 % switch \cs{if@svg@tempswa} is set to \val{false}.
 %    \begin{macrocode}
-      \svg@normalize@path{\svg@tempa}%
-      \ifx\svg@tempa\@currdir\else%
-        \@svg@tempswatrue%
-        \expandafter\@tfor\expandafter\svg@tempb\expandafter:\expandafter=%
-            #1\do{%
-          \ifx\svg@tempa\svg@tempb%
-            \@svg@tempswafalse%
-            \@break@tfor%
+        \svg@normalize@path{\svg@tempa}%
+        \ifx\svg@tempa\@currdir\else%
+          \@svg@tempswatrue%
+          \expandafter\@tfor\expandafter\svg@tempb\expandafter:\expandafter=%
+              #1\do{%
+            \ifx\svg@tempa\svg@tempb%
+              \@svg@tempswafalse%
+              \@break@tfor%
+            \fi%
+          }%
+          \if@svg@tempswa%
+            \edef#1{#1{\svg@tempa}}%
           \fi%
-        }%
-        \if@svg@tempswa%
-          \edef#1{#1{\svg@tempa}}%
         \fi%
-      \fi%
-    }%
+      }%
+      \edef\svg@tempb{%
+        \endgroup%
+        \def\noexpand#1{#1}%
+      }%
+    \svg@tempb%
   \fi%
 }
 %    \end{macrocode}
@@ -2584,28 +2593,38 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
     \svg@set@input@path[{#1}]%
 %    \end{macrocode}
-% The specified file is searched with \cs{svg@IfFileExists}. If the file search 
-% was succesful, the macro \cs{svg@filename@parse} is called with the result.
+% The specified file is searched with \cs{svg@IfFileExists}.
 %    \begin{macrocode}
     \@svg@file@foundfalse%
     \svg@IfFileExists{\filename@area\filename@base.\filename@ext}{%
       \@svg@file@foundtrue%
+    }{%
+%    \end{macrocode}
+% If no file was found, we are trying again and trim surrounding spaces at the 
+% given file name as they are maybe unwanted.
+%    \begin{macrocode}
+      \svg@quotes@normalize*[\filename@base]{\svg@tempa}%
+      \svg@IfFileExists{\filename@area\svg@tempa.\filename@ext}{%
+        \@svg@file@foundtrue%
+      }{}%
+    }%
+%    \end{macrocode}
+% If the file search was succesful, the macro \cs{svg@filename@parse} is called
+% with the result.
+%    \begin{macrocode}
+    \if@svg@file@found%
       \svg@filename@parse[\filename@ext]{\@filef@und}%
-    }{}%
-    \svg@sanitize@dq\svg@tempb{#2}%
+    \fi%
     \edef\svg@tempa{%
       \endgroup%
       \if@svg@file@found%
         \noexpand\@svg@file@foundtrue%
-        \def\noexpand\svg@file@path{\filename@area}%
-        \def\noexpand\svg@file@name{\filename@base}%
-        \def\noexpand\svg@file@base{\filename@area\filename@base}%
       \else%
         \noexpand\@svg@file@foundfalse%
-        \let\noexpand\svg@file@path\noexpand\@empty%
-        \def\noexpand\svg@file@name{\svg@tempb}%
-        \def\noexpand\svg@file@base{\svg@tempb}%
       \fi%
+      \def\noexpand\svg@file@path{\filename@area}%
+      \def\noexpand\svg@file@name{\filename@base}%
+      \def\noexpand\svg@file@base{\filename@area\filename@base}%
     }%
   \svg@tempa%
 %    \end{macrocode}
@@ -3368,13 +3387,17 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svg@IfFileExists[1]{%
   \begingroup%
     \@svg@tempswafalse%
-    \svg@quotes@remove*[{#1}]{\svg@tempa}%
-    \expandafter\IfArgIsEmpty\expandafter{\svg@tempa}{}{%
+%    \end{macrocode}
+% Expanding the given argument.
+%    \begin{macrocode}
+    \svg@quotes@remove[{#1}]{\svg@tempa}%
+    \edef\svg@tempb{\expandafter\trim@spaces\expandafter{\svg@tempa}}%
+    \expandafter\IfArgIsEmpty\expandafter{\svg@tempb}{}{%
 %    \end{macrocode}
 % The optional argument of \cs{svg@filename@parse} appends any given extension 
 % inclusive the dot to \cs{filename@base}.
 %    \begin{macrocode}
-      \svg@filename@parse[\relax]{#1}%
+      \svg@filename@parse[\relax]{\svg@tempa}%
       \edef\svg@tempa{\filename@area\filename@base}%
 %    \end{macrocode}
 % After parsing the given file name, \cs{input@path} is evaluated. As TDS of 
