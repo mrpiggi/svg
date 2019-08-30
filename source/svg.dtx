@@ -1,4 +1,4 @@
-% \CheckSum{4915}
+% \CheckSum{4941}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -586,11 +586,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % Consequently, the total number of pages is read and only existing PDF~pages
 % are included, if both options \opt{inkscapeformat}|=|\val{pdf} and 
-% \opt{lastpage}|=|\val{true} are set. This is the default setting and can be
-% switched off with \opt{lastpage}|=|\val{false}. It's also possible to set the 
-% number of the last page included of a PDF~graphic manually as optional
-% parameter for \cs{includesvg} or \cs{includeinkscape}. For details, see the
-% description of the respective commands.
+% \opt{lastpage}|=|\val{true} are set. This is the default setting 
+% (unless DVI~output is active) and can be switched off with
+% \opt{lastpage}|=|\val{false}. It's also possible to set the number of the
+% last page included of a PDF~graphic manually as optional parameter for 
+% \cs{includesvg} or \cs{includeinkscape}. For details, see the description of
+% the respective commands.
 %
 %
 %
@@ -1430,31 +1431,114 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<*base>
 % \fi
 %
-% \subsection{Helper macros}
+% \subsection{Dealing with catcodes}
+%
+% The catcodes for |"| and |_| have to be of type \val{other}. They current 
+% setting are saved and restored at the end of the package.
+% \begin{macro}{\svg@catcodes@restore}
+% \changes{v2.03}{2019/08/30}{new}^^A
+% \begin{macro}{\svg@catcodes@set}
+% \changes{v2.03}{2019/08/30}{new}^^A
+% \begin{macro}{\svg@@catcodes@set}
+% \changes{v2.03}{2019/08/30}{new}^^A
+% All catcodes of relevant special characters are stored and adapted with
+% \cs{svg@catcodes@set}. Therefore, \cs{svg@@catcodes@set} is called with a 
+% specific special character. First, it's definition is expanded to
+% \cs{svg@catcodes@restore} and then set to \val{other}. So it is possible
+% to call \cs{svg@catcodes@restore} and \cs{svg@catcodes@set} multiple times
+% within the package to swap category codes as needed.
+%    \begin{macrocode}
+\newcommand*\svg@catcodes@restore{}
+\newcommand*\svg@catcodes@set{%
+  \ifx\svg@catcodes@restore\@empty%
+    \svg@@catcodes@set\"%
+    \svg@@catcodes@set\_%
+    \l@addto@macro\svg@catcodes@restore{\let\svg@catcodes@restore\@empty}%
+  \fi%
+}
+\newcommand*\svg@@catcodes@set[1]{%
+  \edef\svg@catcodes@restore{%
+    \etex@unexpanded\expandafter{\svg@catcodes@restore}%
+    \catcode`\noexpand#1\the\catcode`#1\relax%
+  }%
+  \@makeother#1%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@@catcodes@set
+% \end{macro}^^A \svg@catcodes@set
+% \end{macro}^^A \svg@catcodes@restore
+% \begin{macro}{\svg@RequirePackage}
+% \changes{v2.03}{2019/08/30}{new}^^A
+% In order to load other packages within these two and not interferring the 
+% catcodes, this macro is defined, where catcodes are restored before and reset
+% after loading.
+%    \begin{macrocode}
+\newcommand*\svg@RequirePackage{}
+\def\svg@RequirePackage#1[#2]{%
+  \svg@catcodes@restore%
+  \RequirePackage{#1}[#2]%
+  \svg@catcodes@set%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@RequirePackage
+%
+% \iffalse
+%</base>
+% \fi
+%
+% The setup itself right at the beginning of the two packages.
+% \ToDo{why svg-extract issues an error when using?}
+%    \begin{macrocode}
+%<base>\svg@catcodes@set
+\AtEndOfPackage{\svg@catcodes@restore}
+%    \end{macrocode}
+%
+% \iffalse
+%<*base>
+% \fi
+%
+% \subsection{General macros}
 %
 % \begin{macro}{\svg@tempa}
 % \begin{macro}{\svg@tempb}
 % \begin{macro}{\if@svg@tempswa}
 % \begin{macro}{\svg@box}
-% \begin{macro}{\svg@catcodecodes@restore}
-% Internal temporary macros. The catcode for double quotes are also temporarily 
-% changed.
+% Internal temporary macros.
 %    \begin{macrocode}
 \newcommand*\svg@tempa{}
 \newcommand*\svg@tempb{}
 \newbox\svg@box
 \newif\if@svg@tempswa
-\newcommand*\svg@catcodecodes@restore{}
-\edef\svg@catcodecodes@restore{%
-  \catcode`\noexpand\"\the\catcode`\"\relax%
-}
-\@makeother\"%
 %    \end{macrocode}
-% \end{macro}^^A \svg@catcodecodes@restore
 % \end{macro}^^A \svg@box
 % \end{macro}^^A \if@svg@tempswa
 % \end{macro}^^A \svg@tempb
 % \end{macro}^^A \svg@tempa
+% \begin{macro}{\svg@ifvalueisrelax}
+% \changes{v2.03}{2019/08/01}{also accepts string \val{relax}}^^A
+% For some keys the usage of \val{\cs{relax}} as a value should lead to a 
+% special reaction, such as restoring to default behavior or reseting the key.
+% Therefore, \cs{svg@ifvalueisrelax} checks, whether \val{\cs{relax}} was used
+% as value or not.
+%    \begin{macrocode}
+\newcommand*\svg@ifvalueisrelax[1]{%
+  \begingroup%
+    \def\svg@tempa{#1}%
+    \def\svg@tempb{\relax}%
+    \ifx\svg@tempa\svg@tempb\relax%
+      \aftergroup\@firstoftwo%
+    \else%
+      \def\svg@tempb{relax}%
+      \ifx\svg@tempa\svg@tempb\relax%
+        \aftergroup\@firstoftwo%
+      \else%
+        \aftergroup\@secondoftwo%
+      \fi%
+    \fi%
+  \endgroup%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@ifvalueisrelax
 %
 % \iffalse
 %</base>
@@ -2028,7 +2112,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \ToDo{%
 %   implement key \opt{size} in order to use it as master key like%
 %   \opt{size=1.5} (scale), \opt{size=5cm} (width) or even \opt{size=5cm:6cm}
-%   (width and height)
+%   (width and height) \opt{size=:6cm} (only height) and {size=5cm!6cm} 
+%   (distort) as well as \opt{size=5cm:*}, \opt{size=*:6cm}, \opt{size=5cm!*},
+%   \opt{size=*!6cm} for inheritance (check if given).
 % }[v2.03]
 %    \begin{macrocode}
 \newcommand*\svg@param@width{\z@}
@@ -3231,31 +3317,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 %    \end{macrocode}
 % \end{macro}^^A \svg@remove@leadingchar
-% \begin{macro}{\svg@ifvalueisrelax}
-% \changes{v2.03}{2019/08/01}{also accepts string \val{relax}}^^A
-% For some keys the usage of \val{\cs{relax}} as a value should lead to a 
-% special reaction, such as restoring to default behavior or reseting the key.
-% Therefore, \cs{svg@ifvalueisrelax} checks, whether \val{\cs{relax}} was used
-% as value or not.
-%    \begin{macrocode}
-\newcommand*\svg@ifvalueisrelax[1]{%
-  \begingroup%
-    \def\svg@tempa{#1}%
-    \def\svg@tempb{\relax}%
-    \ifx\svg@tempa\svg@tempb\relax%
-      \aftergroup\@firstoftwo%
-    \else%
-      \def\svg@tempb{relax}%
-      \ifx\svg@tempa\svg@tempb\relax%
-        \aftergroup\@firstoftwo%
-      \else%
-        \aftergroup\@secondoftwo%
-      \fi%
-    \fi%
-  \endgroup%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svg@ifvalueisrelax
 % \begin{macro}{\svg@ifnumber}
 % \changes{v2.03}{2019/08/20}{new}^^A
 % Checks for a positive integer in the expanded argument.
@@ -5366,6 +5427,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \ToDo{how to handle/map parameters?}[v2.03]
 % \ToDo{warning with hint to run with --shell-escape if file is missing}[v2.03]
 % \ToDo{option to delete generated inkscape output}[v2.03]
+% \ToDo{handle option \opt{size} to pass to includegraphics}[v2.03]
 %    \begin{macrocode}
 %<*extract>
 \newcommand*\svgx@include@cmd{}
@@ -6775,7 +6837,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % then package \pkg{ifplatform} is only used in order to do not raise a warning.
 %    \begin{macrocode}
 \ifnum\pdf@shellescape=\@ne\relax
-  \RequirePackage{ifplatform}[2010/10/22]
+  \svg@RequirePackage{ifplatform}[2010/10/22]
 \fi
 %    \end{macrocode}
 % \begin{macro}{\svg@shell@mkdir}
@@ -6849,10 +6911,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@shell@mv
 % \end{macro}^^A \svg@shell@@mkdir
 % \end{macro}^^A \svg@shell@mkdir
-% At the very end, the catcodes are restored.
-%    \begin{macrocode}
-\svg@catcodecodes@restore
-%    \end{macrocode}
 %
 % \iffalse
 %</package&base&body>

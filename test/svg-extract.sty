@@ -40,6 +40,8 @@
   (extract independent graphics from SVG pictures)%
 ]
 \RequirePackage{svg}[2017/03/27]
+\svg@catcodes@set
+\AtEndOfPackage{\svg@catcodes@restore}
 \DefineFamily{SVG}
 \DefineFamilyMember{SVG}
 \newcommand*\svgx@mode{1}

@@ -36,7 +36,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg}[%
-  2019/08/28 v2.03\space%
+  2019/08/29 v2.03\space%
   (include SVG pictures)%
 ]
 \RequirePackage{scrbase}[2016/06/14]
@@ -48,17 +48,49 @@
 \RequirePackage{shellesc}[2016/06/07]
 \RequirePackage{trimspaces}[2009/09/17]
 \RequirePackage{graphicx}[1999/02/16]
+\newcommand*\svg@catcodes@restore{}
+\newcommand*\svg@catcodes@set{%
+  \ifx\svg@catcodes@restore\@empty%
+    \svg@@catcodes@set\"%
+    \svg@@catcodes@set\_%
+    \l@addto@macro\svg@catcodes@restore{\let\svg@catcodes@restore\@empty}%
+  \fi%
+}
+\newcommand*\svg@@catcodes@set[1]{%
+  \edef\svg@catcodes@restore{%
+    \etex@unexpanded\expandafter{\svg@catcodes@restore}%
+    \catcode`\noexpand#1\the\catcode`#1\relax%
+  }%
+  \@makeother#1%
+}
+\newcommand*\svg@RequirePackage{}
+\def\svg@RequirePackage#1[#2]{%
+  \svg@catcodes@restore%
+  \RequirePackage{#1}[#2]%
+  \svg@catcodes@set%
+}
+\svg@catcodes@set
+\AtEndOfPackage{\svg@catcodes@restore}
 \newcommand*\svg@tempa{}
 \newcommand*\svg@tempb{}
 \newbox\svg@box
 \newif\if@svg@tempswa
-\newcommand*\svg@catcodecodes@restore{}
-\edef\svg@catcodecodes@restore{%
-  \catcode`\noexpand\"\the\catcode`\"\relax%
-  \catcode`\noexpand\_\the\catcode`\_\relax%
+\newcommand*\svg@ifvalueisrelax[1]{%
+  \begingroup%
+    \def\svg@tempa{#1}%
+    \def\svg@tempb{\relax}%
+    \ifx\svg@tempa\svg@tempb\relax%
+      \aftergroup\@firstoftwo%
+    \else%
+      \def\svg@tempb{relax}%
+      \ifx\svg@tempa\svg@tempb\relax%
+        \aftergroup\@firstoftwo%
+      \else%
+        \aftergroup\@secondoftwo%
+      \fi%
+    \fi%
+  \endgroup%
 }
-\@makeother\"%
-\@makeother\_%
 \DefineFamily{SVG}
 \DefineFamilyMember{SVG}
 \newcommand*\svg@deprecated@key[3][svg]{%
@@ -96,21 +128,16 @@
     \@ifpackagelater{transparent}{2018/11/19}{}{\RequirePackage{pgfsys}}%
   }%
 }
-\newcommand*\svg@ifvalueisrelax[1]{%
-  \begingroup%
-    \def\svg@tempa{#1}%
-    \def\svg@tempb{\relax}%
-    \ifx\svg@tempa\svg@tempb\relax%
-      \aftergroup\@firstoftwo%
-    \else%
-      \def\svg@tempb{relax}%
-      \ifx\svg@tempa\svg@tempb\relax%
-        \aftergroup\@firstoftwo%
-      \else%
-        \aftergroup\@secondoftwo%
-      \fi%
-    \fi%
-  \endgroup%
+\newcommand*\svg@ifdvimode{%
+  \@svg@tempswatrue%
+  \ifxetex\else\ifpdf\else%
+    \@svg@tempswafalse%
+  \fi\fi%
+  \if@svg@tempswa%
+    \expandafter\@firstoftwo%
+  \else%
+    \expandafter\@secondoftwo%
+  \fi%
 }
 \newcommand*\svg@ink@mode{}
 \DefineFamilyKey{SVG}{inkscape}[true]{%
@@ -464,9 +491,15 @@
     \fi%
   \fi%
 }
+\@svg@tempswatrue
 \ifxetex\else\ifpdf\else
-  \FamilyExecuteOptions{SVG}{lastpage=false}
+  \@svg@tempswafalse
 \fi\fi
+\if@svg@tempswa
+  \FamilyExecuteOptions{SVG}{lastpage=true}
+\else
+  \FamilyExecuteOptions{SVG}{lastpage=false}
+\fi
 \newif\if@svg@draft
 \FamilyBoolKey{SVG}{draft}{@svg@draft}
 \AfterPackage*{graphicx}{\ifGin@draft\@svg@drafttrue\fi}
@@ -1607,7 +1640,7 @@
   }%
 }
 \ifnum\pdf@shellescape=\@ne\relax
-  \RequirePackage{ifplatform}[2010/10/22]
+  \svg@RequirePackage{ifplatform}[2010/10/22]
 \fi
 \@ifpackageloaded{ifplatform}{
 \ifwindows
@@ -1667,7 +1700,6 @@
   \endgroup%
 }
 }{}
-\svg@catcodecodes@restore
 \endinput
 %%
 %% End of file `svg.sty'.

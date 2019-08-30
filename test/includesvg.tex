@@ -6,13 +6,14 @@
 }{
   \usepackage{fontspec}
 }
+\usepackage{lmodern}
 %\usepackage[utf8]{inputenc}
 %\usepackage{babel}
 %\usepackage[draft]{graphicx}
-\usepackage[forced]{svg}
-\usepackage[off,clean=false,convert=forced]{svg-extract}
+\usepackage[]{svg}
+\usepackage[clean=false,convert=forced]{svg-extract}
 
-\usepackage[space]{grffile}
+%\usepackage[space]{grffile}
 
 %\RequirePackage{ifplatform}[2010/10/22]
 
@@ -28,45 +29,8 @@
 %\usepackage{grffile}
 
 \begin{document}
-\edef\bla{\csname svg@ink@ver\endcsname}
-\meaning\bla
+%\includesvg{"MWE.svg"}
 \makeatletter
-\@makeother\"
-
-
-%\IfFileExists{xr.sty}{jepp}{nope}
-%
-%\svg@IfFileExists{xr.sty}{jepp}{nope}
-%
-%\begingroup%
-%  \svg@set@input@path
-%  \svg@IfFileExists{C:/Users/Hanisch/none.jpg}{\meaning\@filef@und}{nope}
-%  
-%  \svg@IfFileExists{xr.sty}{\meaning\@filef@und}{nope}
-%  
-%  \svg@IfFileExists{svg-example.svg}{\meaning\@filef@und}{nope}
-%  
-%  \svg@IfFileExists{ svg example.foo .svg}{\meaning\@filef@und}{nope}%
-%  
-%\endgroup
-
-%\bigskip
-%
-%\begingroup%
-%%  \svg@set@input@path
-%  \IfFileExists{ svg example.foo.svg}{\meaning\@filef@und}{nope}%
-%  
-%  \svg@IfFileExists{ svg example.foo.svg}{\meaning\@filef@und}{nope}%
-%\endgroup
-%
-%\bigskip
-%
-%\svg@IfFileExists{ "test ink "/svg example.foo .svg" 
-%}{\meaning\@filef@und}{xx}%
-%
-%\svg@IfFileExists{test ink/svg example.foo .svg}{\meaning\@filef@und}{xx}%
-%
-%\bigskip
 
 \includesvg[
 %  lastpage=1,
@@ -82,8 +46,8 @@
 %%  extractheight=8cm ,
 %  extractscale=2.5,
 %  extract=force
-]{svg example .foo}
-%\end{document}
+]{svg example .foo.svg}
+\end{document}
 
 \includesvg[
   lastpage=1,
