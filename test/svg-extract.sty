@@ -36,7 +36,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg-extract}[%
-  2019/08/29 v2.03\space%
+  2019/08/30 v2.03\space%
   (extract independent graphics from SVG pictures)%
 ]
 \RequirePackage{svg}[2017/03/27]
@@ -1270,6 +1270,7 @@
   \expandafter\AfterReadingMainAux\expandafter{\the\svgx@afterdocument@toks}%
   \svgx@afterdocument@toks{}%
 }
+% TODO split in different macros!
 \newcommand*\svgx@run[1]{%
   \ifx\svgx@preamble\@empty\relax\else%
     \begingroup%

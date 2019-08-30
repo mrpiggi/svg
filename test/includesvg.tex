@@ -8,10 +8,10 @@
 }
 \usepackage{lmodern}
 %\usepackage[utf8]{inputenc}
-%\usepackage{babel}
+\usepackage{babel}
 %\usepackage[draft]{graphicx}
 \usepackage[]{svg}
-\usepackage[clean=false,convert=forced]{svg-extract}
+%\usepackage[clean=false,convert=forced]{svg-extract}
 
 %\usepackage[space]{grffile}
 
@@ -29,8 +29,22 @@
 %\usepackage{grffile}
 
 \begin{document}
-%\includesvg{"MWE.svg"}
 \makeatletter
+
+\includesvg[]{ mwe.bla / MWE }
+
+aaa
+
+%\def\bla{ aaa " bbb " ccc }
+%\svg@quotes@normalize{\bla}
+%\meaning\bla
+%
+%\def\bla{ aaa " bbb " ccc }
+%\svg@quotes@normalize[" vvv "]{\bla}
+%\meaning\bla
+
+\end{document}
+
 
 \includesvg[
 %  lastpage=1,

@@ -36,7 +36,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg}[%
-  2019/08/29 v2.03\space%
+  2019/08/30 v2.03\space%
   (include SVG pictures)%
 ]
 \RequirePackage{scrbase}[2016/06/14]
@@ -562,11 +562,26 @@
     \svg@@@@quotes@remove#1#2#3""\@nil%
   }%
 }
-\newcommand*\svg@quotes@normalize[1]{%
-  \svg@quotes@remove{#1}%
+\newcommand*\svg@quotes@normalize{%
+  \kernel@ifstar%
+    {\svg@@quotes@normalize{*}}%
+    {\svg@@quotes@normalize{}}%
+}
+\newcommand*\svg@@quotes@normalize[1]{%
+  \kernel@ifnextchar[%]
+    {\svg@@@quotes@normalize{#1}}%
+    {\svg@@@quotes@normalize{#1}[\@nil]}%
+}
+\newcommand*\svg@@@quotes@normalize{}
+\def\svg@@@quotes@normalize#1[#2]#3{%
+  \ifstr{\detokenize{#2}}{\detokenize{\@nil}}{%
+    \svg@quotes@remove#1{#3}%
+  }{%
+    \svg@quotes@remove#1[#2]{#3}%
+  }%
   \if@svg@quotes@found%
-    \ifx#1\@empty\else%
-      \edef#1{"#1"}%
+    \ifx#3\@empty\else%
+      \edef#3{"#3"}%
     \fi%
   \fi%
 }
@@ -579,7 +594,10 @@
     \fi%
     \svg@append@input@path{\svg@file@path}{\svg@input@path}%
     \svg@append@input@path{\svg@file@path}{\Ginput@path}%
-    \IfArgIsEmpty{#1}{}{\svg@append@input@path{\svg@file@path}{{#1}}}%
+    \IfArgIsEmpty{#1}{}{%
+      \edef\svg@tempa{#1}%
+      \svg@append@input@path{\svg@file@path}{{\svg@tempa}}%
+    }%
     \svg@append@input@path{\svg@file@path}{\input@path}%
     \edef\svg@tempa{%
       \endgroup%
@@ -591,24 +609,30 @@
 }
 \newcommand*\svg@append@input@path[2]{%
   \ifx#2\@undefined\else%
-    \edef\svg@tempb{#2}%
-    \expandafter\@tfor\expandafter\svg@tempa\expandafter:\expandafter=%
-        \svg@tempb\do{%
-      \svg@normalize@path{\svg@tempa}%
-      \ifx\svg@tempa\@currdir\else%
-        \@svg@tempswatrue%
-        \expandafter\@tfor\expandafter\svg@tempb\expandafter:\expandafter=%
-            #1\do{%
-          \ifx\svg@tempa\svg@tempb%
-            \@svg@tempswafalse%
-            \@break@tfor%
+    \begingroup%
+      \edef\svg@tempb{#2}%
+      \expandafter\@tfor\expandafter\svg@tempa\expandafter:\expandafter=%
+          \svg@tempb\do{%
+        \svg@normalize@path{\svg@tempa}%
+        \ifx\svg@tempa\@currdir\else%
+          \@svg@tempswatrue%
+          \expandafter\@tfor\expandafter\svg@tempb\expandafter:\expandafter=%
+              #1\do{%
+            \ifx\svg@tempa\svg@tempb%
+              \@svg@tempswafalse%
+              \@break@tfor%
+            \fi%
+          }%
+          \if@svg@tempswa%
+            \edef#1{#1{\svg@tempa}}%
           \fi%
-        }%
-        \if@svg@tempswa%
-          \edef#1{#1{\svg@tempa}}%
         \fi%
-      \fi%
-    }%
+      }%
+      \edef\svg@tempb{%
+        \endgroup%
+        \def\noexpand#1{#1}%
+      }%
+    \svg@tempb%
   \fi%
 }
 \newcommand*\svg@normalize@path[2][\@currdir]{%
@@ -693,9 +717,10 @@
 \newcommand*\svg@IfFileExists[1]{%
   \begingroup%
     \@svg@tempswafalse%
-    \svg@quotes@remove*[{#1}]{\svg@tempa}%
-    \expandafter\IfArgIsEmpty\expandafter{\svg@tempa}{}{%
-      \svg@filename@parse[\relax]{#1}%
+    \svg@quotes@remove[{#1}]{\svg@tempa}%
+    \edef\svg@tempb{\expandafter\trim@spaces\expandafter{\svg@tempa}}%
+    \expandafter\IfArgIsEmpty\expandafter{\svg@tempb}{}{%
+      \svg@filename@parse[\relax]{\svg@tempa}%
       \edef\svg@tempa{\filename@area\filename@base}%
       \ifx\input@path\@undefined%
         \let\input@path\@empty%
@@ -849,22 +874,25 @@
     \@svg@file@foundfalse%
     \svg@IfFileExists{\filename@area\filename@base.\filename@ext}{%
       \@svg@file@foundtrue%
+    }{%
+      \svg@quotes@normalize*[\filename@base]{\svg@tempa}%
+      \svg@IfFileExists{\filename@area\svg@tempa.\filename@ext}{%
+        \@svg@file@foundtrue%
+      }{}%
+    }%
+    \if@svg@file@found%
       \svg@filename@parse[\filename@ext]{\@filef@und}%
-    }{}%
-    \svg@sanitize@dq\svg@tempb{#2}%
+    \fi%
     \edef\svg@tempa{%
       \endgroup%
       \if@svg@file@found%
         \noexpand\@svg@file@foundtrue%
-        \def\noexpand\svg@file@path{\filename@area}%
-        \def\noexpand\svg@file@name{\filename@base}%
-        \def\noexpand\svg@file@base{\filename@area\filename@base}%
       \else%
         \noexpand\@svg@file@foundfalse%
-        \let\noexpand\svg@file@path\noexpand\@empty%
-        \def\noexpand\svg@file@name{\svg@tempb}%
-        \def\noexpand\svg@file@base{\svg@tempb}%
       \fi%
+      \def\noexpand\svg@file@path{\filename@area}%
+      \def\noexpand\svg@file@name{\filename@base}%
+      \def\noexpand\svg@file@base{\filename@area\filename@base}%
     }%
   \svg@tempa%
   \svg@quotes@normalize{\svg@file@base}%
@@ -935,55 +963,54 @@
     \svg@tempa%
   \fi%
 }
-% TODO revise optional argument?!
-\newcommand*\svg@file@missing[3][]{%
+% TODO optionales argument für path, check all invocations
+\newcommand*\svg@in@file@missing[3][]{%
   \begingroup%
-    % TODO sinnvoll?
-    \svg@quotes@remove[{#2}]{\svg@tempa}%
-    % TODO use \svg@get@file? check result
-    \svg@filename@parse[{#1}]{\svg@tempa}%
-    \IfArgIsEmpty{#1}{%
-      \svg@quotes@remove[{#3}]{\svg@tempb}%
-      \def\svg@tempa{%
-        Did you run the export with Inkscape? There's no file\MessageBreak%
-        `\filename@area\filename@base.\filename@ext'\MessageBreak%
-        although `\svg@tempb' was found.%
+    % TODO \svg@filename@parse notwendig?
+    \svg@filename@parse[{#1}]{#2}%
+    \ifx\filename@area\@currdir%
+      \let\filename@area\@empty%
+    \fi%
+    \edef\filename@ext{#1}%
+    \svg@set@input@path[#3]%
+    \ifx\input@path\@undefined%
+      \def\svg@tempb{No additional path was given.}%
+    \else%
+      \def\svg@tempb{Following folders have additionally been searched:}%
+      \expandafter\@tfor\expandafter\svg@tempa\expandafter:\expandafter=%
+          \input@path\do{%
+        \edef\svg@tempb{\svg@tempb\noexpand\MessageBreak\svg@tempa}%
       }%
-    }{%
-      % TODO \svg@tempb überarbeiten
-      \edef\filename@ext{#1}%
-      % TODO \@currdir
-      \ifstr{\filename@area}{./}{\let\filename@area\@empty}{}%
-      \edef\svg@tempb{#3}%
-      \ifstr{\svg@tempb}{./}{\let\svg@tempb\@empty}{}%
-      \ifx\svg@tempb\@empty%
-        \svg@set@input@path%
+    \fi%
+    \def\svg@tempa{%
+      There's no file `\filename@base.\filename@ext'\MessageBreak%
+      \ifx\filename@area\@empty%
+        neither in the current directory nor any other searched\MessageBreak%
+        path given by \string\svgpath\space or \string\graphicspath.%
+        \MessageBreak\svg@tempb%
       \else%
-        \svg@set@input@path[\svg@tempb]%
+        in folder `\filename@area'.%
       \fi%
-      \ifx\input@path\@undefined%
-        \def\svg@tempb{No additional path was given.}%
-      \else%
-        \def\svg@tempb{Following folders have additionally been searched:}%
-        \expandafter\@tfor\expandafter\svg@tempa\expandafter:\expandafter=%
-            \input@path\do{%
-          \edef\svg@tempb{\svg@tempb\noexpand\MessageBreak\svg@tempa}%
-        }%
-      \fi%
-      \def\svg@tempa{%
-        There's no file `\filename@base.\filename@ext'\MessageBreak%
-        \ifx\filename@area\@empty%
-          neither in the current directory nor any other searched\MessageBreak%
-          path given by \string\svgpath\space or \string\graphicspath.%
-          \MessageBreak\svg@tempb%
-        \else%
-          in folder `\filename@area'.%
-        \fi%
-      }%
     }%
+    \PackageWarning{svg}%
+    {\svg@tempa}%
+%    \PackageError{svg}{%
+%      File `\filename@base.\filename@ext' is missing%
+%    }{\svg@tempa}%
+  \endgroup%
+}
+% TODO check all invocations
+\newcommand*\svg@out@file@missing[2]{%
+  \begingroup%
+    % TODO \svg@filename@parse notwendig?
+    \svg@filename@parse{#1}%
     \PackageError{svg}{%
       File `\filename@base.\filename@ext' is missing%
-    }{\svg@tempa}%
+    }{%
+      Did you run the export with Inkscape? There's no file\MessageBreak%
+      `\filename@area\filename@base.\filename@ext'\MessageBreak%
+      although `#2' was found.%
+    }%
   \endgroup%
 }
 \DefineFamilyMember[.param]{SVG}
@@ -1051,39 +1078,42 @@
   }%
   \futurelet\svg@tempb\svg@tempa#1\@nil%
 }
+\newcommand*\svg@in@file{}
 \newcommand*\svg@out@file{}
 \newcommand*\includesvg[2][]{%
   \begingroup%
     \svg@local@param@set{#1}%
     \svg@get@file{#2}{\svg@file@ext}%
+    % TODO \svg@in@file für \svg@in@file@missing notwendig oder reicht ergebnis
+    % von \svg@get@file?
     \if@svg@file@found%
+      \svg@quotes@remove[\svg@file@base.\svg@file@ext]{\svg@in@file}%
       \svg@normalize@name{svg}{inkscape}{svg@out}%
       \ifx\svg@out@name\@empty\else%
-%TODO\svg@quotes@remove[\svg@out@path\svg@out@name.\svg@ink@format]{\svg@out@file}%
-        \svg@quotes@remove[\svg@out@path\svg@out@name]{\svg@tempa}%
-%        \edef\svg@out@file{"\svg@tempa".\svg@ink@format}%
-        \edef\svg@out@file{\svg@tempa.\svg@ink@format}%
-        \svg@ink@run{\svg@out@file}%
+        \svg@quotes@remove%
+          [\svg@out@path\svg@out@name.\svg@ink@format]{\svg@out@file}%
+        \svg@ink@run{\svg@in@file}{\svg@out@file}%
         % TODO beide Warnungen zusammenfassen!
         \svg@IfFileExists{\svg@out@file}{}{%
           \@svg@file@foundfalse%
-          \svg@file@missing{\svg@out@file}{\svg@file@base.\svg@file@ext}%
+          \svg@out@file@missing{\svg@out@file}{\svg@in@file}%
         }%
         \if@svg@ink@latex%
           \svg@IfFileExists{\svg@out@file_tex}{}{%
             \@svg@file@foundfalse%
-            \svg@file@missing{\svg@out@file_tex}{\svg@file@base.\svg@file@ext}%
+            \svg@out@file@missing{\svg@out@file_tex}{\svg@in@file}%
           }%
         \fi%
         \if@svg@file@found%
           \par\bigskip \textbf{includesvg} \meaning\svg@out@file\par 
 %          \meaning\svg@out@path\meaning\svg@out@name (\meaning\svg@file@name)
           % TODO pass \svg@out@path, (adapted) \svg@out@name
-          \svg@process{\svg@out@path}{\svg@out@name}{\svg@out@file}%
+          \svg@process{\svg@out@path}{\svg@out@name}{}%
         \fi%
       \fi%
     \else%
-      \svg@file@missing[\svg@file@ext]{\svg@file@base}{}%
+      % TODO pass \svg@file@path \svg@file@name.\svg@file@ext
+      \svg@in@file@missing[\svg@file@ext]{\svg@file@base}{}%
     \fi%
   \endgroup%
 }
@@ -1126,7 +1156,7 @@
 }
 \newcommand*\includeinkscape[2][]{%
   \begingroup%
-    % TODO use \svg@get@file early?
+    % TODO use svg@get@file early?
     \svg@filename@parse{#2}%
     \ifx\filename@ext\relax\else%
       \def\svg@tempb##1_tex##2\@nil{%
@@ -1172,7 +1202,7 @@
       \if@svg@ink@latex%
         \svg@IfFileExists{\svg@out@file_tex}{}{%
           \@svg@file@foundfalse%
-          \svg@file@missing{\svg@out@file_tex}{\svg@out@file}%
+          \svg@out@file@missing{\svg@out@file_tex}{\svg@out@file}%
         }%
       \fi%
       \if@svg@file@found%
@@ -1182,33 +1212,32 @@
         \svg@process{}{}{\svg@out@file}%
       \fi%
     \else%
-      % TODO \svg@out@path empty? what about \input@path
-      \svg@file@missing[\svg@ink@format]{\svg@file@base}{\svg@out@path}%
+      % TODO pass \svg@file@path \svg@file@name.\svg@ink@format
+      \svg@in@file@missing[\svg@ink@format]{\svg@file@base}{\svg@out@path}%
     \fi%
   \endgroup%
 }
 \newif\if@svg@ink@run
-% TODO maybe pass \svg@out@path and \svg@out@name
-\newcommand*\svg@ink@run[1]{%
+\newcommand*\svg@ink@run[2]{%
   \ifcase\svg@ink@mode\relax% false
     \@svg@ink@runfalse%
   \or% true
-    \svg@IfFileNewer{\svg@file@base.\svg@file@ext}{#1}%
+    \svg@IfFileNewer{#1}{#2}%
       {\@svg@ink@runtrue}{\@svg@ink@runfalse}%
     \if@svg@ink@latex%
-      \svg@IfFileExists{#1_tex}{%
+      \svg@IfFileExists{#2_tex}{%
         \if@svg@ink@run\ifnum\pdf@shellescape=\@ne\relax%
-          \svg@IfFileNewer{#1_tex}{#1}{%
+          \svg@IfFileNewer{#2_tex}{#2}{%
             \@svg@ink@runfalse%
-            \svg@quotes@remove[{#1}]{\svg@tempa}%
             \PackageWarning{svg}{%
               Since the encountered filedate of file\MessageBreak%
-              `\svg@tempa_tex' is newer than \MessageBreak%
-              `\svg@tempa' it's supposed that\MessageBreak%
-              you customized this file. To avoid an accidental\MessageBreak%
-              overwriting of this file, the Inkscape export\MessageBreak%
-              won't be done. If you want to overwrite the\MessageBreak%
-              existing file please choose the parameter\MessageBreak%
+              `#2_tex'\MessageBreak%
+              is newer than\MessageBreak%
+              `#2'\MessageBreak%
+              it's supposed that you customized this file. To\MessageBreak%
+              avoid an accidental overwriting of this file, the\MessageBreak%
+              Inkscape export won't be done. If you want to\MessageBreak%
+              overwrite the existing file, please set parameter\MessageBreak%
               `inkscape=force'%
             }%
           }{}%
@@ -1225,27 +1254,19 @@
           \FamilyOptions{SVG}{inkscapedpi=300}%
         }{}%
       \fi%
-      % TODO REVISE
-      \svg@quotes@remove[{#1}]{\svg@tempb}%
-      \svg@quotes@remove[\svg@file@base.\svg@file@ext]{\svg@tempa}%
       \svg@shell@mkdir{\svg@out@path}%
       \PackageInfo{svg}{%
-        Exporting `\svg@tempa'%
-        \ifx\svg@ink@opt\@empty\else%
-          \space with added options `\svg@ink@opt'%
-        \fi%
+        Exporting `#1'%
+        \ifx\svg@ink@opt\@empty\else\space with added options `\svg@ink@opt'\fi%
       }%
       % TODO \pdfmdfivesum{svg-example.svg}
-      \ShellEscape{\svg@ink@cmd{\svg@tempa}{\svg@tempb}}%
-      \svg@IfFileExists{#1}{}{%
-        \svg@troubleshooting{svg}{Exporting}{\svg@tempa}{\svg@tempb}%
-      }%
+      \ShellEscape{\svg@ink@cmd{#1}{#2}}%
+      \svg@IfFileExists{#2}{}{\svg@troubleshooting{svg}{Exporting}{#1}{#2}}%
     \else%
-      \svg@quotes@remove[\svg@file@base]{\svg@tempa}%
       \PackageWarning{svg}{%
         You didn't enable `--shell-escape' option so it\MessageBreak%
         wasn't possible to launch the Inkscape export for\MessageBreak%
-        `\svg@tempa.\svg@file@ext'%
+        `#1'%
       }%
     \fi%
   \fi%
@@ -1253,7 +1274,6 @@
 \newcommand*\svg@normalize@name[3]{%
   \begingroup%
     \svg@sanitize@dq\svg@tempa{\csname #3@name\endcsname}%
-    \meaning\svg@tempa
     \svg@filename@parse[\relax]{\svg@tempa}%
     \ifx\filename@area\@empty\else%
       \PackageWarning{#1}{%
@@ -1325,7 +1345,8 @@
         set it up manually with `inkscapeversion=<version>'%
       }%
       \renewcommand*\svg@ink@run[1]{}%
-      \renewcommand*\svg@file@missing[3][]{}%
+      % TODO welcher befehl muss neu definiert werden?
+%      \renewcommand*\svg@file@missing[3][]{}%
     }%
   \else%
     \ifnum\svg@ink@ver=\m@ne\relax%
@@ -1458,33 +1479,30 @@
 \newcommand*\svg@ink@include[3]{%
   \svg@param@size@check%
   \svg@set@input@path%
-  \par>>\detokenize{finally: #3 vs . #1 and #2}\edef\foo{#3}\meaning\foo%
-  \edef\svg@tempa{{#1#2}.\svg@ink@format}%
-  \svg@quotes@remove[\expandafter\@firstofone\svg@tempa]{\svg@tempb}%
-%  \par\meaning\svg@tempa
-%  \par\meaning\svg@tempb\par
+  \par>>{finally: #3{} vs. #1{} and #2{}}\par%
   \@svg@tempswatrue%
-%                        \@svg@tempswafalse%
   \if@svg@draft%
     \@svg@tempswafalse%
   \fi%
   \if@svg@ink@latex\else%
     \@svg@tempswafalse%
   \fi%
+  \edef\svg@tempa{{#1#2}.\svg@ink@format}%
   \if@svg@tempswa%
     \svg@patches{\svg@tempa}%
+    \svg@quotes@remove[\expandafter\@firstofone\svg@tempa]{\svg@tempa}%
     \ifGin@draft%
       \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{1}%
     \else%
       \ifnum\value{svg@param@lastpage}=\z@\relax%
-        \expandafter\svg@get@lastpage\expandafter{"\svg@tempb"}%
+        \expandafter\svg@get@lastpage\expandafter{"\svg@tempa"}%
       \fi%
     \fi%
     \edef\svg@tempa{%
       \ifx\svg@param@pretex\relax\else%
         \noexpand\svg@param@pretex%
       \fi%
-      \noexpand\input{"\svg@tempb_tex"}%
+      \noexpand\input{"\svg@tempa_tex"}%
       \ifx\svg@param@apptex\relax\else%
         \noexpand\svg@param@apptex%
       \fi%

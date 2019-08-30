@@ -1,4 +1,4 @@
-% \CheckSum{4941}
+% \CheckSum{4959}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -97,7 +97,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<package&identify&base>\ProvidesPackage{svg}[%
 %<package&identify&extract>\ProvidesPackage{svg-extract}[%
 %<*dtx|package&identify>
-  2019/08/29 v2.03\space%
+  2019/08/30 v2.03\space%
 %<package&identify&base>  (include SVG pictures)%
 %<package&identify&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -2378,18 +2378,39 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@quotes@remove
 % \begin{macro}{\svg@quotes@normalize}
 % \changes{v2.03}{2019/08/29}{new}^^A
+% \begin{macro}{\svg@@quotes@normalize}
+% \changes{v2.03}{2019/08/29}{new}^^A
+% \begin{macro}{\svg@@@quotes@normalize}
+% \changes{v2.03}{2019/08/29}{new}^^A
 % Removes all quotes found and if any was existent, encloses the non-empty 
 % string in the same.
 %    \begin{macrocode}
-\newcommand*\svg@quotes@normalize[1]{%
-  \svg@quotes@remove{#1}%
+\newcommand*\svg@quotes@normalize{%
+  \kernel@ifstar%
+    {\svg@@quotes@normalize{*}}%
+    {\svg@@quotes@normalize{}}%
+}
+\newcommand*\svg@@quotes@normalize[1]{%
+  \kernel@ifnextchar[%]
+    {\svg@@@quotes@normalize{#1}}%
+    {\svg@@@quotes@normalize{#1}[\@nil]}%
+}
+\newcommand*\svg@@@quotes@normalize{}
+\def\svg@@@quotes@normalize#1[#2]#3{%
+  \ifstr{\detokenize{#2}}{\detokenize{\@nil}}{%
+    \svg@quotes@remove#1{#3}%
+  }{%
+    \svg@quotes@remove#1[#2]{#3}%
+  }%
   \if@svg@quotes@found%
-    \ifx#1\@empty\else%
-      \edef#1{"#1"}%
+    \ifx#3\@empty\else%
+      \edef#3{"#3"}%
     \fi%
   \fi%
 }
 %    \end{macrocode}
+% \end{macro}^^A \svg@@@quotes@normalize
+% \end{macro}^^A \svg@@quotes@normalize
 % \end{macro}^^A \svg@quotes@normalize
 % \begin{macro}{\svg@set@input@path}
 % \changes{v2.01}{2017/11/28}{new}^^A
