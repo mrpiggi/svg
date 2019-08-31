@@ -56,7 +56,7 @@
     \ifcase\svg@tempa\relax% false
       \def\svgx@mode{0}%
     \or% true
-      % TODO Warning!
+      % TODO Warning! check when executed?
       \ifx\svg@IfFileNewer\@undefined%
         \def\svgx@mode{2}%
       \else%
@@ -247,7 +247,7 @@
     \ifcase\svg@tempa\relax% false
       \def\svgx@cnv@mode{0}%
     \or% true
-      % TODO Warning!
+      % TODO Warning! check when executed?
       \ifx\svg@IfFileNewer\@undefined%
         \def\svgx@cnv@mode{2}%
       \else%
@@ -441,7 +441,7 @@
 \DefineFamilyKey{SVG}{path}{%
   \svg@deprecated@key[svg-extract]{path=#1}{extractpath=#1}%
 }
-% TODO revise \svg@out@name > change to \svg@file@name?
+% TODO revise argument: \svg@out@name > \svg@file@name?
 \newcommand*\svgx@out@name{\the\value{svgx@out@count}-\svg@out@name}
 \newcounter{svgx@out@count}
 \newif\if@svgx@out@sec
@@ -1150,8 +1150,8 @@
     \svgx@get@out@sec%
   \fi%
   \stepcounter{svgx@out@count}%
-  % TODO preceed \svgx@out@name with ./
-  % TODO wo einbinden?!
+  % TODO preceed \svgx@out@name with ./ ?
+  % TODO wo \svg@normalize@name einbinden?!
 %  \svg@normalize@name{svgx}{extract}{svgx@out}%
   \begingroup%
     % TODO REVISE
@@ -1270,7 +1270,7 @@
   \expandafter\AfterReadingMainAux\expandafter{\the\svgx@afterdocument@toks}%
   \svgx@afterdocument@toks{}%
 }
-% TODO split in different macros!
+% TODO split parts in different macros!
 \newcommand*\svgx@run[1]{%
   \ifx\svgx@preamble\@empty\relax\else%
     \begingroup%
@@ -1281,7 +1281,7 @@
       \else%
         \svg@remove@leadingchar.\svg@tempb%
       \fi%
-      % TODO REVISE
+      % TODO REVISE use iffileexists first?
       \svg@get@file[\svg@out@path]{\svgx@preamble}{\svg@tempb}%
       \if@svg@file@found%
         \svg@quotes@remove[\svg@file@base]{\svg@tempa}%
