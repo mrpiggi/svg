@@ -1,4 +1,4 @@
-% \CheckSum{4928}
+% \CheckSum{5025}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -97,7 +97,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<package&identify&base>\ProvidesPackage{svg}[%
 %<package&identify&extract>\ProvidesPackage{svg-extract}[%
 %<*dtx|package&identify>
-  2019/08/30 v2.03\space%
+  2019/09/04 v2.03\space%
 %<package&identify&base>  (include SVG pictures)%
 %<package&identify&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -118,14 +118,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \svgsetup{extract=true,extractpreamble=svg-preamble.tex,clean=true}
 
 \usepackage{xpatch}
-\ifdefined\includesvg
-  \xpretocmd{\includesvg}{\MakePercentComment}{}{}
-  \xapptocmd{\includesvg}{\MakePercentIgnore}{}{}
-\fi
-\ifdefined\includeinkscape
-  \xpretocmd{\includeinkscape}{\MakePercentComment}{}{}
-  \xapptocmd{\includeinkscape}{\MakePercentIgnore}{}{}
-\fi
+\xpretocmd{\svg@process}{\MakePercentComment}{}{%
+  \GenericError{}{Patching \string\svg@process not successful}{%
+    see `\jobname.dtx' on input line \the\numexpr\inputlineno-4\relax%
+  }{}%
+}
 \ifdefined\pdfsuppresswarningpagegroup
   \pdfsuppresswarningpagegroup=1
 \fi
@@ -205,6 +202,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \end{abstract}
   \tableofcontents
   \ToDo{move multiple \val{@} from internal cs to \val{svg@@...}}[v2.03]
+  \ToDo{use \cs{@tempa} instead of \cs{svg@tempa} in FamilyKeys!}[v2.03]
   \ToDo{call makefile from .bat}[v2.03]
   \ToDo{%
     general note to path and file names (umlauts or any other non-ascii) at the 
@@ -1447,7 +1445,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \cs{svg@catcodes@restore} and then set to \val{other}. So it is possible
 % to call \cs{svg@catcodes@restore} and \cs{svg@catcodes@set} multiple times
 % within the package to swap category codes as needed.
-% \ToDo{zwei Versionen für beide Pakete notwendig?}[v2.03]
 %    \begin{macrocode}
 \newcommand*\svg@catcodes@restore{}
 \newcommand*\svg@catcodes@set{%
@@ -1488,9 +1485,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \fi
 %
 % The setup itself right at the beginning of the two packages.
-% \ToDo{why svg-extract issues an error when using?}
 %    \begin{macrocode}
-%<base>\svg@catcodes@set
+\svg@catcodes@set
 \AtEndOfPackage{\svg@catcodes@restore}
 %    \end{macrocode}
 %
@@ -2356,10 +2352,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \svg@sanitize@dq\svg@tempa{#2}%
     }%
     \expandafter\svg@quotes@check\expandafter{\svg@tempa}%
-    \expandafter\svg@@@@quotes@remove\svg@tempa""\@nil%
+    \expandafter\svg@@@@quotes@remove\svg@tempa"\@nil%
+    \edef\svg@tempa{\expandafter#1\expandafter{\svg@tempa}}%
     \edef\svg@tempb{%
       \endgroup%
-      \def\noexpand#3{\expandafter#1\expandafter{\svg@tempa}}%
+      \def\noexpand#3{\expandafter\detokenize\expandafter{\svg@tempa}}%
       \if@svg@quotes@found%
         \noexpand\@svg@quotes@foundtrue%
       \else%
@@ -2368,12 +2365,15 @@ svg-extract -- Extract independent graphic files from SVG pictures
     }%
   \svg@tempb%
 }
+%    \end{macrocode}
+% Recursivly calling \cs{svg@@@@quotes@remove} removes every occuring quote.
+%    \begin{macrocode}
 \newcommand*\svg@@@@quotes@remove{}
-\def\svg@@@@quotes@remove#1"#2"#3\@nil{%
+\def\svg@@@@quotes@remove#1"#2\@nil{%
   \IfArgIsEmpty{#2}{%
     \edef\svg@tempa{#1}%
   }{%
-    \svg@@@@quotes@remove#1#2#3""\@nil%
+    \svg@@@@quotes@remove#1#2\@nil%
   }%
 }
 %    \end{macrocode}
@@ -2388,7 +2388,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svg@@@quotes@normalize}
 % \changes{v2.03}{2019/08/29}{new}^^A
 % Removes all quotes found and if any was existent, encloses the non-empty 
-% string in the same.
+% string in the same. The star version trims spaces from string after removing 
+% quotes with \cs{svg@quotes@remove*}.
 %    \begin{macrocode}
 \newcommand*\svg@quotes@normalize{%
   \kernel@ifstar%
@@ -2590,7 +2591,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % quotes within are normalized.
 %    \begin{macrocode}
     \svg@normalize@path[\@empty]{\filename@area}%
+    \svg@remove@leadingchar"\filename@base%
     \ifx\filename@ext\relax\else%
+      \expandafter\svg@quotes@check\expandafter{\filename@ext}%
+      \if@svg@quotes@found%
+        \edef\filename@base{\filename@base"}%
+      \fi%
       \expandafter\svg@extension@parse\expandafter{\svg@tempb}%
     \fi%
     \svg@quotes@normalize{\filename@base}%
@@ -2624,6 +2630,16 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svg@extension@parse[1]{%
   \ifx\filename@ext\relax\else%
     \begingroup%
+%    \end{macrocode}
+% First of all, any given space \emph{after} file extension itself is stripped.
+%    \begin{macrocode}
+      \svg@quotes@remove{\filename@ext}%
+      \trim@post@space@in\filename@ext%
+      \ifx\filename@ext\@empty\else%
+        \if@svg@quotes@found%
+          \edef\filename@ext{"\filename@ext"}%
+        \fi%
+      \fi%
 %    \end{macrocode}
 % If file extension is the same as desired, nothing to do.
 %    \begin{macrocode}
@@ -2719,8 +2735,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % Expanding the given argument.
 %    \begin{macrocode}
-    \svg@quotes@remove[{#1}]{\svg@tempa}%
-    \edef\svg@tempb{\expandafter\trim@spaces\expandafter{\svg@tempa}}%
+    \edef\svg@tempa{%
+      \noexpand\svg@quotes@normalize[{#1}]{\noexpand\svg@tempa}%
+      \noexpand\svg@quotes@remove*[{#1}]{\noexpand\svg@tempb}%
+    }%
+    \svg@tempa%
     \expandafter\IfArgIsEmpty\expandafter{\svg@tempb}{}{%
 %    \end{macrocode}
 % The optional argument of \cs{svg@filename@parse} appends any given extension 
@@ -2777,6 +2796,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svg@get@file}
 % \changes{v2.01}{2017/11/28}{using \cs{svg@set@input@path}}^^A
 % \changes{v2.01}{2017/11/28}{using \cs{trim@spaces}}^^A
+% \begin{macro}{\svg@@get@file}
+% \begin{macro}{\svg@@@get@file}
+% \begin{macro}{\svg@@@@get@file}
 % \begin{macro}{\if@svg@file@found}
 % \begin{macro}{\svg@file@path}
 % \begin{macro}{\svg@file@name}
@@ -2788,91 +2810,106 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % are examined. In the last step, a given path within the optional argument is
 % browsed. The results for file path and name are stored in \cs{svg@file@path}
 % and \cs{svg@file@name} as well as the compound of both in \cs{svg@file@base}.
+% The star variant of this command finds also files by it's base name of the
+% first mandatory argument, if no file with the specified extension could be 
+% located.
 %    \begin{macrocode}
 \newif\if@svg@file@found
 \newcommand*\svg@file@path{}
 \newcommand*\svg@file@name{}
 \newcommand*\svg@file@base{}
-\newcommand*\svg@get@file[3][]{%
+\newcommand*\svg@@@@get@file{}
+\newcommand*\svg@get@file{%
+  \kernel@ifstar%
+    {\let\svg@@@@get@file\@firstofone\svg@@get@file}%
+    {\let\svg@@@@get@file\@gobble\svg@@get@file}%
+}
+\newcommand*\svg@@get@file[3][]{%
   \begingroup%
 %    \end{macrocode}
-% A needed but may be not in second argument included file extension in third
-% argument is appended to \cs{filename@ext}.
-%    \begin{macrocode}
-    \svg@filename@parse[{#3}]{#2}%
-    \ifx\filename@ext\relax%
-      \edef\filename@ext{#3}%
-    \fi%
-%    \end{macrocode}
 % After calling \cs{svg@set@input@path}, all search paths are stored in
-% \cs{input@path}, a single path given in the third argument will also be 
+% \cs{input@path}, a single path given in the optional argument will also be 
 % considered.
 %    \begin{macrocode}
     \svg@set@input@path[{#1}]%
 %    \end{macrocode}
-% The specified file is searched with \cs{svg@IfFileExists}.
+% The file is searched by it's specified extension with \cs{svg@@@get@file}.
 %    \begin{macrocode}
     \@svg@file@foundfalse%
-    \svg@IfFileExists{\filename@area\filename@base.\filename@ext}{%
-      \@svg@file@foundtrue%
-    }{%
+    \svg@@@get@file{#2}{#3}%
 %    \end{macrocode}
-% If no file was found, we are trying again and trim surrounding spaces at the 
-% given file name as they are maybe unwanted.
+% If the file search was not successful and the star version is used, the 
+% search is done again without specifying an extension. In order to prevent
+% unwanted overwriting, the second call is done in a local scope and repeated
+% out of scope, if it has been successful.
 %    \begin{macrocode}
-      \svg@quotes@normalize*[\filename@base]{\svg@tempa}%
-      \svg@IfFileExists{\filename@area\svg@tempa.\filename@ext}{%
-        \@svg@file@foundtrue%
-      }{}%
-    }%
+    \if@svg@file@found\else%
+      \svg@@@@get@file{%
+        \begingroup%
+          \svg@@@get@file{#2}{}%
+          \edef\svg@tempa{%
+            \endgroup%
+            \if@svg@file@found%
+              \noexpand\svg@@@get@file{#2}{}%
+            \fi%
+          }%
+        \svg@tempa%
+      }%
+    \fi%
 %    \end{macrocode}
-% If the file search was succesful, the macro \cs{svg@filename@parse} is called
-% with the result\dots
+% If the file search was successful, the macro \cs{svg@filename@parse} is called
+% with the result. If no path was parsed, the file is located in the current 
+% directory.
 %    \begin{macrocode}
     \if@svg@file@found%
       \svg@filename@parse[\filename@ext]{\@filef@und}%
+      \edef\svg@file@path{%
+        \ifx\filename@area\@empty\@currdir\else\filename@area\fi%
+      }%
+    \else%
+      \edef\svg@file@path{\ifx\filename@area\@currdir\else\filename@area\fi}%
     \fi%
-    \edef\svg@file@path{\ifx\filename@area\@currdir\else\filename@area\fi}%
     \edef\svg@file@name{\filename@base}%
-    \edef\svg@file@base{\svg@file@path\svg@file@name}%
+    \edef\svg@file@base{%
+      \svg@file@path\svg@file@name\ifx\filename@ext\relax\else.\filename@ext\fi%
+    }%
 %    \end{macrocode}
 % Remove potential multiple quotes from \cs{svg@file@base}.
 %    \begin{macrocode}
     \svg@quotes@normalize{\svg@file@base}%
-%    \end{macrocode}
-% \dots otherwise an error message is raised.
-%    \begin{macrocode}
     \if@svg@file@found\else%
 %    \end{macrocode}
-% Collecting all considered path for the error message.
+% If no file was found, an error message is raised.
 %    \begin{macrocode}
-      \ifx\input@path\@undefined%
-        \def\svg@tempb{No additional path was given.}%
-      \else%
-        \def\svg@tempb{Following folders have additionally been searched:}%
-        \expandafter\@tfor\expandafter\svg@tempa\expandafter:\expandafter=%
-            \input@path\do{%
-          \edef\svg@tempb{\svg@tempb\MessageBreak\svg@tempa\svg@file@path}%
-        }%
-      \fi%
-%    \end{macrocode}
-% The error message itself.
-%    \begin{macrocode}
-      \def\svg@tempa{%
-        There's no file `\svg@file@name.#3'\MessageBreak%
+      \edef\svg@tempb{\svg@file@name.#3}%
+      \edef\svg@tempa{%
+        There's no file `\svg@tempb'\MessageBreak%
         neither in\space%
         \ifx\svg@file@path\@empty%
           the current directory%
         \else%
-          in folder `\svg@file@path'%
+          folder `\svg@file@path'%
         \fi%
-        \space nor any other\MessageBreak%
-        searched path given by \string\svgpath\space or \string\graphicspath.%
-        \MessageBreak\svg@tempb%
+        \space nor any other\MessageBreak searched path given by\space% 
+        \string\svgpath\space or \string\graphicspath. \MessageBreak%
       }%
-      \PackageError{svg}{%
-        File `\svg@file@name.#3' is missing%
-      }{\svg@tempa}%
+%    \end{macrocode}
+% Collecting all considered path for the error message and appending it.
+%    \begin{macrocode}
+      \ifx\input@path\@undefined%
+        \edef\svg@tempa{\svg@tempa No additional path was given.}%
+      \else%
+        \edef\svg@tempa{%
+          \svg@tempa Following folders have additionally been searched:%
+        }%
+        \expandafter\@tfor\expandafter\input@path\expandafter:\expandafter=%
+            \input@path\do{%
+          \edef\input@path{\input@path\svg@file@path}%
+          \svg@normalize@path{\input@path}%
+          \edef\svg@tempa{\svg@tempa\MessageBreak\input@path}%
+        }%
+      \fi%
+      \PackageError{svg}{File `\svg@tempb' is missing}{\svg@tempa}%
     \fi%
     \edef\svg@tempa{%
       \endgroup%
@@ -2888,22 +2925,54 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \svg@tempa%
 }
 %    \end{macrocode}
+% A needed file extension in the second argument but may be not given one 
+% within the file name in first argument is appended to \cs{filename@ext}.
+%    \begin{macrocode}
+\newcommand*\svg@@@get@file[2]{%
+  \svg@filename@parse[{#2}]{#1}%
+  \ifx\filename@ext\relax%
+    \edef\filename@ext{#2}%
+  \fi%
+  \svg@IfFileExists{\filename@area\filename@base.\filename@ext}{%
+    \@svg@file@foundtrue%
+  }{%
+%    \end{macrocode}
+% If no file was found, we are trying again and trim surrounding spaces at the 
+% given file name as they are maybe unwanted.
+%    \begin{macrocode}
+    \svg@quotes@normalize*[\filename@base]{\svg@tempa}%
+    \svg@IfFileExists{\filename@area\svg@tempa.\filename@ext}{%
+      \@svg@file@foundtrue%
+    }{}%
+  }%
+}
+%    \end{macrocode}
 % \end{macro}^^A \svg@file@base
 % \end{macro}^^A \svg@file@name
 % \end{macro}^^A \svg@file@path
 % \end{macro}^^A \if@svg@file@found
+% \end{macro}^^A \svg@@@@get@file
+% \end{macro}^^A \svg@@@get@file
+% \end{macro}^^A \svg@@get@file
 % \end{macro}^^A \svg@get@file
 % \begin{macro}{\svg@file@missing}
 % \changes{v2.02}{2018/09/07}{notify svg file when missing exported files}^^A
 % The error message, which is raised, if a file derived is missing.
 %    \begin{macrocode}
-\newcommand*\svg@file@missing[2]{%
-  \PackageError{svg}{File `#1' is missing}{%
-    Did you run the Inkscape export%
-    \if@svg@ink@latex\space with latex output\fi?\MessageBreak%
-    There's no file `#1'\MessageBreak%
-    although `#2' was found.%
-  }%
+\newcommand*\svg@file@missing[2][]{%
+  \begingroup%
+    \svg@quotes@normalize[{#2}]{\svg@tempa}%
+    \PackageError{svg}{File `\svg@tempa' is missing}{%
+      Did you run the Inkscape export%
+      \if@svg@ink@latex\space with latex output\fi?\MessageBreak%
+      There's no file `\svg@tempa'%
+      \IfArgIsEmpty{#1}{}{\MessageBreak although `#1' was found}.%
+      \if@svg@ink@latex%
+        \space Maybe\MessageBreak%
+        you should use optional parameter `inkscapelatex=false'.%
+      \fi%
+    }%
+  \endgroup%
 }
 %    \end{macrocode}
 % \end{macro}^^A \svg@file@missing
@@ -2992,7 +3061,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \ifx\svg@tempa\@empty%
       \def\svg@tempa{\endgroup}%
     \else%
-      \svg@remove@leadingchar,\svg@tempa%
+      \def\svg@tempb,##1\@nil{\edef\svg@tempa{##1}}%
+      \expandafter\svg@tempb\svg@tempa\@nil%
       \PackageWarning{svg}{%
         You should specify the image size with parameters\MessageBreak%
         `width' and `height' or `scale' instead of using\MessageBreak%
@@ -3053,7 +3123,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@input@path
 % \end{macro}^^A \svgpath
 % \begin{macro}{\svg@out@file}
-% This macro is used by \cs{includesvg} to compose the export file name.
+% These macros are used by \cs{includesvg} to compose the export file name.
 %    \begin{macrocode}
 \newcommand*\svg@out@file{}
 %    \end{macrocode}
@@ -3120,46 +3190,33 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \if@svg@file@found%
 %    \end{macrocode}
 % When a SVG~file was found, the resulting export file name is checked, if it 
-% is not empty.
+% is not empty and a maybe given path is moved to \cs{svg@out@path}.
 %    \begin{macrocode}
-      \begingroup%
-        \svg@quotes@normalize*[\svg@out@name]{\svg@tempa}%
-        \ifx\svg@tempa\@empty\else%
-          \edef\svg@tempa{\svg@tempa.\svg@ink@format}%
-        \fi%
-        \edef\svg@tempa{%
-          \endgroup%
-          \def\noexpand\svg@out@file{\svg@tempa}%
-        }%
-      \svg@tempa%
-%    \end{macrocode}
-% Raise an error, if an empty export file name was given.
-%    \begin{macrocode}
-      \ifx\svg@out@file\@empty%
-        \PackageError{svg}{Empty export file name}{%
-          The file name given with option `inkscapename' is empty.%
-        }%
-      \else%
+      \svg@normalize@name{svg}{inkscape}{svg@out}%
+      \ifx\svg@out@name\@empty\else%
 %    \end{macrocode}
 % Running the export with \app{Inkscape} (if necessary) and checking the 
 % required files for graphic inclusion.
 %    \begin{macrocode}
-        \svg@ink@run{\svg@file@base.\svg@file@ext}{\svg@out@file}%
-        \svg@IfFileExists{\svg@out@file}{}{%
+        \edef\svg@out@file{\svg@out@path\svg@out@name.\svg@ink@format}%
+        \svg@ink@run{\svg@file@base}{\svg@out@file}{\svg@ink@format}%
+        \IfFileExists{\svg@out@file}{}{%
           \@svg@file@foundfalse%
-          \svg@file@missing{\svg@out@file}{\svg@file@base.\svg@file@ext}%
+          \svg@file@missing[\svg@file@base]{\svg@out@file}%
         }%
         \if@svg@ink@latex%
-          \svg@IfFileExists{\svg@out@file_tex}{}{%
+          \IfFileExists{\svg@out@file_tex}{}{%
             \@svg@file@foundfalse%
-            \svg@file@missing{\svg@out@file_tex}{\svg@file@base.\svg@file@ext}%
+            \svg@file@missing[\svg@file@base]{\svg@out@file_tex}%
           }%
         \fi%
 %    \end{macrocode}
 % Include the resulting graphic file and maybe extract independent files.
 %    \begin{macrocode}
         \if@svg@file@found%
-          \svg@process{\svg@out@file}%
+          \begingroup%
+            \svg@process{\svg@out@path}{\svg@out@name}{\svg@ink@format}%
+          \endgroup%
         \fi%
       \fi%
     \fi%
@@ -3241,31 +3298,44 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
     \svg@filename@parse{#2}%
     \ifx\filename@ext\relax\else%
-      \svg@lowercase{\filename@ext}%
-      \def\svg@tempb##1_tex##2\@nil{%
-        \IfArgIsEmpty{##1}{}{\def\filename@ext{##1}}%
-        \ifstr{##2}{_tex}{\@svg@tempswatrue}{\@svg@tempswafalse}%
-      }%
       \@svg@tempswafalse%
+%    \end{macrocode}
+% Within macro \cs{svg@tempb} the setup for a known extension will be stored. 
+% If no extentsion will be found, the parsing of the file name will be done 
+% again and any found extension will be considered to be part of the file name 
+% itself (cs{\filename@base}).
+%    \begin{macrocode}
+      \def\svg@tempb{\svg@filename@parse[\relax]{#2}}%
       \@tfor\svg@tempa:={pdf}{eps}{ps}{png}\do{%
-        \begingroup%
-          \expandafter\svg@tempb\filename@ext_tex\@nil%
-          \svg@extension@parse{\svg@tempa}%
-          \ifx\filename@ext\relax%
-            \def\svg@tempb{\endgroup}%
-          \else%
+%    \end{macrocode}
+% If the found extension is equal to a known one, \opt{inkscapeformat} is set 
+% and the extension is appended to \cs{filename@base} in order to parse it 
+% again with \cs{svg@get@file} and preserve the letter case.
+%    \begin{macrocode}
+        \svg@ifstr@nocase{\svg@tempa}{\filename@ext}{%
+          \edef\svg@tempb{%
+            \noexpand\FamilyOptions{SVG}{inkscapeformat=\svg@tempa}%
+            \def\noexpand\filename@base{\filename@base.\filename@ext}%
+          }%
+          \@svg@tempswatrue%
+        }{%
+%    \end{macrocode}
+% If a known extension with appended part \file{\_tex} is found, it is used as
+% well. Additionally, \opt{inkscapelatex}|=|\val{true} is set. For preserving
+% the letter case, the first part of \cs{filename@ext} is parsed and appended
+% to \cs{filename@base}.
+%    \begin{macrocode}
+          \svg@ifstr@nocase{\svg@tempa_tex}{\filename@ext}{%
+            \def\svg@tempb##1_##2\@nil{\def\svg@tempb{##1}}%
+            \expandafter\svg@tempb\filename@ext\@nil%
             \edef\svg@tempb{%
-              \endgroup%
               \noexpand\FamilyOptions{SVG}{inkscapeformat=\svg@tempa}%
-              \if@svg@tempswa%
-                \noexpand\FamilyOptions{SVG}{inkscapelatex=true}%
-              \fi%
-              \def\noexpand\filename@base{\filename@base}%
-              \def\noexpand\filename@ext{\filename@ext}%
-              \noexpand\@svg@tempswatrue%
+              \noexpand\FamilyOptions{SVG}{inkscapelatex=true}%
+              \def\noexpand\filename@base{\filename@base.\svg@tempb}%
             }%
-          \fi%
-        \svg@tempb%
+            \@svg@tempswatrue%
+          }{}%
+        }%
 %    \end{macrocode}
 % Break for loop, if valid extension was found.
 %    \begin{macrocode}
@@ -3273,13 +3343,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
           \@break@tfor%
         \fi%
       }%
-%    \end{macrocode}
-% If no valid extension was found, it is set to the specified format and the 
-% actual found one is appended to cs{\filename@base}.
-%    \begin{macrocode}
-      \if@svg@tempswa\else%
-        \svg@extension@parse{\svg@ink@format}%
-      \fi%
+      \svg@tempb%
     \fi%
 %    \end{macrocode}
 % \begin{parameter}{inkscapeformat}
@@ -3320,18 +3384,19 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % Checking the required files for graphic inclusion.
 %    \begin{macrocode}
-      \edef\svg@out@file{\svg@file@path\svg@file@name.\svg@ink@format}%
       \if@svg@ink@latex%
-        \svg@IfFileExists{\svg@out@file_tex}{}{%
+        \IfFileExists{\svg@file@base_tex}{}{%
           \@svg@file@foundfalse%
-          \svg@file@missing{\svg@out@file_tex}{\svg@out@file}%
+          \svg@file@missing[\svg@file@base]{\svg@file@base_tex}%
         }%
       \fi%
 %    \end{macrocode}
 % Include the resulting graphic file and maybe extract independent files.
 %    \begin{macrocode}
       \if@svg@file@found%
-        \svg@process{\svg@out@file}%
+        \begingroup%
+          \svg@process{\svg@file@path}{\svg@file@name}{\svg@ink@format}%
+        \endgroup%
       \fi%
     \fi%
   \endgroup%
@@ -3347,6 +3412,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 %
 % \subsection{Auxiliary macros}
+% \ToDo{sort genreal helper macros for both packages  }[v2.03]
 % \ToDo{move general macros up to "Helper macros"}[v2.03]
 %
 % \begin{macro}{\svg@lowercase}
@@ -3368,12 +3434,16 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svg@ifstr@nocase}
 % \changes{v2.03}{2019/08/29}{new}^^A
 % Compares two string like \cs{ifstr} from \pkg {scrbase} but case-insensitive 
-% and ignoring any quotes.
+% and ignoring any quotes. The arguments are expanded in a macro in order to 
+% prevent overwriting of \cs{svg@tempa} or \cs{svg@tempb} if used in argument.
 %    \begin{macrocode}
 \newcommand*\svg@ifstr@nocase[2]{%
   \begingroup%
-    \svg@quotes@remove[{#1}]{\svg@tempa}%
-    \svg@quotes@remove[{#2}]{\svg@tempb}%
+    \edef\svg@tempa{%
+      \noexpand\svg@quotes@remove[{#1}]{\noexpand\svg@tempa}%
+      \noexpand\svg@quotes@remove[{#2}]{\noexpand\svg@tempb}%
+    }%
+    \svg@tempa%
     \edef\svg@tempa{%
       \endgroup%
       \lowercase{\noexpand\ifstr{\svg@tempa}{\svg@tempb}}%
@@ -3477,7 +3547,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The command, which performs the call of \app{Inkscape} via \cs{ShellEscape}.
 %    \begin{macrocode}
 \newif\if@svg@ink@run
-\newcommand*\svg@ink@run[2]{%
+\newcommand*\svg@ink@run[3]{%
   \ifcase\svg@ink@mode\relax% false
     \@svg@ink@runfalse%
   \or% true
@@ -3531,11 +3601,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % For exporting PNG~files, the used density ist set to \val{300dpi}, if no
 % value was given.
 %    \begin{macrocode}
-      \ifx\svg@ink@dpi\relax%
-        \ifstr{\svg@ink@format}{png}{%
+      \ifstr{#3}{png}{%
+        \ifx\svg@ink@dpi\relax%
           \FamilyOptions{SVG}{inkscapedpi=300}%
-        }{}%
-      \fi%
+        \fi%
+      }{}%
 %    \end{macrocode}
 % Executing \app{Inkscape} on command line. Afterwards, the export results are 
 % moved into the given output path.
@@ -3545,7 +3615,23 @@ svg-extract -- Extract independent graphic files from SVG pictures
         Exporting `#1'%
         \ifx\svg@ink@opt\@empty\else\space with added options `\svg@ink@opt'\fi%
       }%
-      \ShellEscape{\svg@ink@cmd{#1}{#2}}%
+%    \end{macrocode}
+% Expanded definition in order to prevent overwriting of \cs{svg@tempa} or 
+% \cs{svg@tempb} if given as argument.
+%    \begin{macrocode}
+      \begingroup%
+        \edef\svg@tempa{%
+          \noexpand\svg@quotes@remove[{#1}]{\noexpand\svg@tempa}%
+          \noexpand\svg@quotes@remove[{#2}]{\noexpand\svg@tempb}%
+        }%
+        \svg@tempa%
+        \edef\svg@tempa{%
+          \endgroup%
+          \noexpand\ShellEscape{%
+            \noexpand\svg@ink@cmd{\svg@tempa}{\svg@tempb}{#3}%
+          }%
+        }%
+      \svg@tempa%
       \svg@IfFileExists{#2}{}{\svg@troubleshooting{svg}{Exporting}{#1}{#2}}%
 %    \end{macrocode}
 % If \file{-{}-shell-escape} wasn't enabled, a warning is issued.
@@ -3562,6 +3648,43 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \if@svg@ink@run
 % \end{macro}^^A \svg@ink@run
+% \begin{macro}{\svg@normalize@name}
+% \changes{v2.03}{2019/09/02}{new}^^A
+% This macro is used to normalize a given name of an output file. It's intended 
+% to use it for given names via \opt{inkscapename} or \opt{extractname} and the 
+% according paths \opt{inkscapepath} or \opt{extractpath}. Any given path 
+% in front of a file name is passed to the corresponding \opt{\dots path} 
+% option. If the expansion of the name is empty, an error is thrown.
+%    \begin{macrocode}
+\newcommand*\svg@normalize@name[3]{%
+  \begingroup%
+    \svg@sanitize@dq\svg@tempa{\csname #3@name\endcsname}%
+    \svg@filename@parse[\relax]{\svg@tempa}%
+    \ifx\filename@area\@empty\else%
+      \PackageWarning{#1}{%
+        You've tried to setup `#2name=\svg@tempa'\MessageBreak%
+        with a preceeded path. This is not recommended. You\MessageBreak%
+        should use `#2path=\filename@area'\MessageBreak%
+        and `#2name=\filename@base'\MessageBreak%
+        instead, which is done now%
+      }%
+    \fi%
+    \ifx\filename@base\@empty%
+      \PackageError{#1}{`#2name' is empty}{%
+        The file name given with option `#2name' is empty.%
+      }%
+    \fi%
+    \edef\svg@tempb{%
+      \endgroup%
+      \ifx\filename@area\@empty\else%
+        \noexpand\@namedef{#3@path}{\filename@area}%
+      \fi%
+      \noexpand\@namedef{#3@name}{\filename@base}%
+    }%
+  \svg@tempb%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@normalize@name
 % \begin{macro}{\svg@troubleshooting}
 % \changes{v2.03}{2019/08/22}{new}^^A
 % This macro is used to generate a specific warning with some hints for 
@@ -3731,16 +3854,16 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.03}{2019/06/28}{distinguish \app{Inkscape} versions}^^A
 % The actual call of \app{Inkscape} at command line.
 %    \begin{macrocode}
-\newcommand*\svg@ink@cmd[2]{%
+\newcommand*\svg@ink@cmd[3]{%
   \svg@ink@exe\space"#1"\space%
   --without-gui\space\svg@ink@area\space%
   \ifx\svg@ink@dpi\relax\else--export-dpi=\svg@ink@dpi\space\fi%
   \if@svg@ink@latex--export-latex\space\fi%
   \ifx\svg@ink@opt\@empty\else\svg@ink@opt\space\fi%
   \ifnum\svg@ink@ver<\@ne%
-    --export-\svg@ink@format="#2"\space%
+    --export-#3="#2"\space%
   \else%
-    --export-type=\svg@ink@format\space%
+    --export-type=#3\space%
     --export-file="#2"\space%
   \fi%
 }
@@ -3752,38 +3875,36 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % purpose, the total page number is read from the PDF~file. 
 %    \begin{macrocode}
 \newcommand*\svg@get@lastpage[1]{%
-  \ifstr{\svg@ink@format}{pdf}{%
-    \begingroup%
-      \@tempcnta=\m@ne\relax%
-      \ifx\XeTeXpdfpagecount\@undefined%
-        \ifpdf%
-          \ifx\pdfximage\@undefined%
-            \ifx\saveimageresource\@undefined\else%
-              \saveimageresource{#1}%
-              \@tempcnta=\lastsavedimageresourcepages\relax%
-            \fi%
-          \else%
-            \pdfximage{#1}%
-            \@tempcnta=\pdflastximagepages\relax%
+  \begingroup%
+    \@tempcnta=\m@ne\relax%
+    \ifx\XeTeXpdfpagecount\@undefined%
+      \ifpdf%
+        \ifx\pdfximage\@undefined%
+          \ifx\saveimageresource\@undefined\else%
+            \saveimageresource{#1}%
+            \@tempcnta=\lastsavedimageresourcepages\relax%
           \fi%
+        \else%
+          \pdfximage{#1}%
+          \@tempcnta=\pdflastximagepages\relax%
         \fi%
-      \else%
-        \@tempcnta=\XeTeXpdfpagecount#1\relax%
       \fi%
-      \ifnum\@tempcnta=\m@ne\relax%
-        \PackageWarning{svg}{%
-          It wasn't possible to detect the last page\MessageBreak%
-          of `#1'%
-        }%
-      \else%
-        \PackageInfo{svg}{Last page of `#1'\MessageBreak is `\the\@tempcnta'}%
-      \fi%
-      \edef\svg@tempa{%
-        \endgroup%
-        \noexpand\FamilyExecuteOptions[.param]{SVG}{lastpage=\the\@tempcnta}%
+    \else%
+      \@tempcnta=\XeTeXpdfpagecount#1\relax%
+    \fi%
+    \ifnum\@tempcnta=\m@ne\relax%
+      \PackageWarning{svg}{%
+        It wasn't possible to detect the last page\MessageBreak%
+        of `#1'%
       }%
-    \svg@tempa%
-  }{}%
+    \else%
+      \PackageInfo{svg}{Last page of `#1'\MessageBreak is `\the\@tempcnta'}%
+    \fi%
+    \edef\svg@tempa{%
+      \endgroup%
+      \noexpand\FamilyExecuteOptions[.param]{SVG}{lastpage=\the\@tempcnta}%
+    }%
+  \svg@tempa%
 }
 %    \end{macrocode}
 % \end{macro}^^A \svg@get@lastpage
@@ -3862,7 +3983,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % independent graphic files including option \opt{exclude} as well as macro 
 % \cs{includesvgx}. Therefore it is redefined later.
 %    \begin{macrocode}
-\newcommand*\svg@process[1]{\svg@ink@include{#1}}
+\newcommand*\svg@process[3]{\svg@ink@include{#1}{#2}{#3}}
 %    \end{macrocode}
 % \end{macro}^^A \svg@process
 % \begin{macro}{\svg@ink@include}
@@ -3870,35 +3991,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % included. The macro \cs{svg@set@input@path} is called to support input
 % commands like \cs{input}\marg{tex filename} within SVG~files.
 %    \begin{macrocode}
-\newcommand*\svg@ink@include[1]{%
+\newcommand*\svg@ink@include[3]{%
   \svg@param@size@check%
   \svg@set@input@path%
-%    \end{macrocode}
-% In order to support file names with multiple dots, the argument is parsed
-% recursively and only the part after the last dot is stored in \cs{svg@tempb}
-% as extension. Everything before is stored in \cs{svg@tempa}.
-%    \begin{macrocode}
-  \def\svg@tempb##1.##2\@nil{%
-    \IfArgIsEmpty{##2}{%
-      \def\svg@tempb{##1}%
-    }{%
-      \edef\svg@tempa{\svg@tempa.##1}%
-      \svg@tempb##2\@nil%
-    }%
-  }%
-  \edef\svg@tempa{%
-    \etex@unexpanded{\let\svg@tempa\@empty}%
-    \noexpand\svg@tempb#1.\noexpand\@nil%
-  }%
-  \svg@tempa%
-%    \end{macrocode}
-% Afterwards \cs{svg@tempa} is defined with the file name itself within 
-% enclosing braces followed by the extension and \cs{svg@tempb} holds the 
-% original file name plus extension without enclosing braces.
-%    \begin{macrocode}
-  \svg@remove@leadingchar.\svg@tempa%
-  \edef\svg@tempa{{\svg@tempa}.\svg@tempb}%
-  \edef\svg@tempb{#1}%
 %    \end{macrocode}
 % If the export with \app{Inkscape} was done with \LaTeX~support enabled, the 
 % corresponding file will be used together with \cs{input}. The necessary 
@@ -3912,8 +4007,18 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \if@svg@ink@latex\else%
     \@svg@tempswafalse%
   \fi%
+%    \end{macrocode}
+% In order to support file names with multiple dots, \cs{svg@tempa} is defined 
+% with the file name itself within enclosing braces followed by the extension.
+%    \begin{macrocode}
+  \edef\svg@tempa{{#1#2}.#3}%
   \if@svg@tempswa%
     \svg@patches{\svg@tempa}%
+%    \end{macrocode}
+% After setting the file name for \cs{includegraphics}, it is stored without 
+% enclosing braces and quotes in \cs{svg@tempa} .
+%    \begin{macrocode}
+    \svg@quotes@remove[\expandafter\@firstofone\svg@tempa]{\svg@tempa}%
 %    \end{macrocode}
 % If \pkg{graphicx} is in draft mode, the first page is sufficient. Otherwise, 
 % the last page is detected if set so.
@@ -3921,15 +4026,18 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \ifGin@draft%
       \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{1}%
     \else%
-      \ifnum\value{svg@param@lastpage}=\z@\relax%
-        \expandafter\svg@get@lastpage\expandafter{\svg@tempb}%
-      \fi%
+      \ifstr{#3}{pdf}{%
+        \ifnum\value{svg@param@lastpage}=\z@\relax%
+          \edef\svg@tempb{\noexpand\svg@get@lastpage{"\svg@tempa"}}%
+          \svg@tempb%
+        \fi%
+      }{}%
     \fi%
     \edef\svg@tempa{%
       \ifx\svg@param@pretex\relax\else%
         \noexpand\svg@param@pretex%
       \fi%
-      \noexpand\input{\svg@tempb_tex}%
+      \noexpand\input{"\svg@tempa_tex"}%
       \ifx\svg@param@apptex\relax\else%
         \noexpand\svg@param@apptex%
       \fi%
@@ -4072,10 +4180,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The patch to \cs{includegraphics} is meant to dissolve the \app{Inkscape} bug 
 % concerning the inclusion of more PDF~pages than actually are existing.
 %
-% The given optional parameters to \cs{includegraphics} are processed and the 
-% counter \cnt{svg@param@currpage} is set to the value of a given \prm{page}. 
-% The value of parameter \prm{width} given in the file \cs{svg@out@file\_tex} 
-% is ignored.
+% The parameters for \cs{includegraphics} are processed and counter
+% \cnt{svg@param@currpage} is set to the value of a given \prm{page}. The value
+% of parameter \prm{width} given in the inkscape export file---composed by
+% |\svg@out@path\svg@out@name.\svg@ink@format_tex|---is ignored.
 %    \begin{macrocode}
 \DefineFamily{SVGpatch}
 \DefineFamilyMember{SVGpatch}
@@ -5550,9 +5658,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 \newif\if@svgx@run
 \newcommand*\svgx@out@base{}
-\renewcommand*\svg@process[1]{%
+\renewcommand*\svg@process[3]{%
   \if@svgx@exclude\else%
-    \svg@ink@include{#1}%
+    \svg@ink@include{#1}{#2}{#3}%
   \fi%
 %    \end{macrocode}
 % First some preparing for extraction/conversion. Macro\cs{svgx@get@out@sec} is 
@@ -5613,7 +5721,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % and converting independent graphic files.
 %    \begin{macrocode}
     \if@svgx@run%
-      \svgx@run{#1}%
+      \svgx@run{#1}{#2}{#3}%
     \else%
 %    \end{macrocode}
 % Warning, if option \opt{convert} is active and option \opt{extract} is not.
@@ -5703,15 +5811,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \ifnum\pdf@shellescape=\@ne\relax\else%
   \newcommand*\svgx@afterdocument@eaddto[1]{}%
   \newcommand*\svgx@afterdocument@append{}%
-  \newcommand*\svgx@run[1]{%
-    \begingroup%
-      \svg@quotes@remove[{#1}]{\svg@tempa}%
-      \PackageWarning{svg-extract}{%
-        You didn't enable `--shell-escape' option so it\MessageBreak%
-        wasn't possible to run extraction/conversion for\MessageBreak%
-        `\svg@tempa'\MessageBreak%
-      }%
-    \endgroup%
+  \newcommand*\svgx@run[3]{%
+    \PackageWarning{svg-extract}{%
+      You didn't enable `--shell-escape' option so it\MessageBreak%
+      wasn't possible to run extraction/conversion for\MessageBreak%
+      `#1#2.#3'\MessageBreak%
+    }%
   }%
   \expandafter\endinput%
 \fi
@@ -5746,38 +5851,27 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \expandafter\AfterReadingMainAux\expandafter{\the\svgx@afterdocument@toks}%
   \svgx@afterdocument@toks{}%
 }
-\newcommand*\svgx@run[1]{%
+\newcommand*\svgx@run[3]{%
 %    \end{macrocode}
 % A separate auxiliary \LaTeX~file is created for extracting independent
-% graphic files. The specified preamble is read for this task, if it exists. It
-% is first searched in the same folder as the SVG~file and if it wasn't found,
-% in any other valid folder for SVG~files.
+% graphic files. The specified preamble for this task is checked, if it exists.
+% It is first searched in the same folder as the SVG~file and if it wasn't 
+% found, in any other valid folder for SVG~files. If no preamble file with the 
+% specified \opt{latexext} is found, the file name is searched without it.
 %    \begin{macrocode}
-  \begingroup%
-    \def\svg@tempa##1.##2\@nil{%
-      \IfArgIsEmpty{##2}{\edef\svgx@preamble{##1.\svgx@latex@ext}}{}%
-    }%
-    \expandafter\svg@tempa\svgx@preamble.\@nil%
-    \svg@IfFileExists{\svg@file@path\svgx@preamble}{%
-      \@svg@file@foundtrue%
-    }{%
-      \svg@get@file[]{\svgx@preamble}{\svg@out@path}%
-      \def\svg@tempa####1.####2\@nil{%
-        \edef\svgx@preamble{\svg@file@name.####2}%
-      }%
-      \expandafter\svg@tempa\svgx@preamble\@nil%
-    }%
-    \edef\svg@tempa{%
-      \endgroup%
-      \if@svg@file@found%
-        \ifx\svg@file@path\@empty%
-          \def\noexpand\svgx@preamble{\@currdir\svgx@preamble}%
+  \ifx\svgx@preamble\@empty\relax\else%
+    \begingroup%
+      \svg@get@file*[\svg@out@path]{\svgx@preamble}{\svgx@latex@ext}%
+      \edef\svg@tempa{%
+        \endgroup%
+        \if@svg@file@found%
+          \def\noexpand\svgx@preamble{\svg@file@base}%
         \else%
-          \def\noexpand\svgx@preamble{\svg@file@path\svgx@preamble}%
+          \let\noexpand\svgx@preamble\noexpand\@empty%
         \fi%
-      \fi%
-    }%
-  \svg@tempa%
+      }%
+    \svg@tempa%
+  \fi%
   \svg@quotes@remove{\svgx@out@path}%
   \svg@quotes@remove{\svgx@out@name}%
   \begingroup%
@@ -5980,8 +6074,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \LaTeX~support.
 %    \begin{macrocode}
     \let\svg@tempa\@empty%
-    \if@svg@ink@latex%
-      \ifstr{\svg@ink@format}{pdf}{%
+    \ifstr{#3}{pdf}{%
+      \if@svg@ink@latex%
         \ifnum\value{svg@param@lastpage}>\z@\relax%
           \edef\svg@tempa{lastpage=\the\value{svg@param@lastpage}}%
         \else%
@@ -5991,8 +6085,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
             \def\svg@tempa{lastpage=false}%
           \fi%
         \fi%
-      }{}%
-    \fi%
+      \fi%
+    }{}%
 %    \end{macrocode}
 % The rotation angle, if given.
 %    \begin{macrocode}
@@ -6008,11 +6102,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % the very end of \cs{AtBeginDocument} to ensure, that no other package used 
 % this hook for manipulating the paper size.
 %    \begin{macrocode}
-    \ifx\svg@tempa\@empty%
-      \def\svg@tempa{\string\svgxsetbox{#1}}%
-    \else%
-      \edef\svg@tempa{\noexpand\string\noexpand\svgxsetbox[\svg@tempa]{#1}}%
-    \fi%
+    \edef\svg@tempa{%
+      \noexpand\string\noexpand\svgxsetbox%
+      \ifx\svg@tempa\@empty\else[\svg@tempa]\fi%
+      {#1}{#2}{#3}%
+    }%
     \immediate\write\svgx@stream@out{\svg@tempa}%
 %    \end{macrocode}
 % The actual document body is simple.
@@ -6714,20 +6808,20 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % for example, \TUDScript-classes are using this switch.
 %    \begin{macrocode}
 \newif\if@svgx@standalone
-\newcommand*\svgxsetbox[2][]{%
+\newcommand*\svgxsetbox[4][]{%
   \@svgx@standalonetrue%
-  \svgx@setbox{#1}{#2}%
+  \svgx@setbox{#1}{#2}{#3}{#4}%
   \scr@ifundefinedorrelax{AtEndPreamble}{%
     \let\svg@tempa\@firstofone%
   }{%
     \def\svg@tempa{\AtEndPreamble}%
   }%
-  \svg@tempa{\AtBeginDocument{\svgx@setbox{#1}{#2}}}%
+  \svg@tempa{\AtBeginDocument{\svgx@setbox{#1}{#2}{#3}{#4}}}%
 }
-\newcommand*\svgx@setbox[2]{%
+\newcommand*\svgx@setbox[4]{%
   \sbox\svg@box{%
     \svg@local@param@set{#1,draft=false}%
-    \svg@ink@include{#2}%
+    \svg@ink@include{#2}{#3}{#4}%
   }%
   \svgxsetpapersize% 
 }
@@ -6897,7 +6991,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % Expand in order to prevent overwriting \cs{svg@tempa} or \cs{svg@tempb} if 
 % given as argument.
-% \ToDo{pass first argument directly}[v2.03]
+% \ToDo{pass first argument directly to svg@IfFileExists}[v2.03]
 %    \begin{macrocode}
     \edef\svg@tempa{%
       \noexpand\svg@quotes@remove[{#1}]{\noexpand\svg@tempa}%

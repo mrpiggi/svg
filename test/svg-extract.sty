@@ -199,6 +199,7 @@
   }%
   \FamilyKeyStateProcessed%
 }
+% TODO boolean key true default and false empty
 \newcommand*\svgx@preamble{\jobname.\svgx@latex@ext}%
 \DefineFamilyKey{SVG}{extractpreamble}{%
   \renewcommand*\svgx@preamble{#1}%
@@ -797,20 +798,20 @@
   }%
 }
 \newif\if@svgx@standalone
-\newcommand*\svgxsetbox[2][]{%
+\newcommand*\svgxsetbox[4][]{%
   \@svgx@standalonetrue%
-  \svgx@setbox{#1}{#2}%
+  \svgx@setbox{#1}{#2}{#3}{#4}%
   \scr@ifundefinedorrelax{AtEndPreamble}{%
     \let\svg@tempa\@firstofone%
   }{%
     \def\svg@tempa{\AtEndPreamble}%
   }%
-  \svg@tempa{\AtBeginDocument{\svgx@setbox{#1}{#2}}}%
+  \svg@tempa{\AtBeginDocument{\svgx@setbox{#1}{#2}{#3}{#4}}}%
 }
-\newcommand*\svgx@setbox[2]{%
+\newcommand*\svgx@setbox[4]{%
   \sbox\svg@box{%
     \svg@local@param@set{#1,draft=false}%
-    \svg@ink@include{#2}%
+    \svg@ink@include{#2}{#3}{#4}%
   }%
   \svgxsetpapersize%
 }
@@ -1169,11 +1170,14 @@
       The file name given with option `extractname' is empty.%
     }%
   \else%
+    \par!\meaning\svg@tempa!
     \ifcase\svgx@mode\relax% false
       \@svgx@runfalse%
     \or% true
-      \svgx@ifexpired[\svgx@format]{\svgx@out@base}{#3}%
+    \par1?\meaning\svg@tempa?
+      \svgx@ifexpired[\svgx@format]{\svgx@out@base}{#1#2.#3}%
         {\@svgx@runtrue}{\@svgx@runfalse}%
+        \par?\meaning\svg@tempa?
     \or% forced
       \@svgx@runtrue%
     \fi%
@@ -1181,31 +1185,41 @@
       \svgx@param@size@check%
       \if@svgx@run\else%
         \ifcase\svgx@cnv@mode\relax\or% true
-          \svgx@ifexpired[\svgx@cnv@format]{\svgx@out@base}{#3}%
+        \par2?\meaning\svg@tempa?
+          \svgx@ifexpired[\svgx@cnv@format]{\svgx@out@base}{#1#2.#3}%
             {\@svgx@runtrue}{\@svgx@runfalse}%
+            \par?\meaning\svg@tempa?
         \or% forced
           \@svgx@runtrue%
         \fi%
       \fi%
     \fi%
     \if@svgx@run%
-      \svgx@run{#3}%
+    \par3?\meaning\svg@tempa?
+      \svgx@run{#1}{#2}{#3}%
+      \par?\meaning\svg@tempa?
     \else%
       \ifnum\svgx@cnv@mode>\z@\relax%
+      \par4?\meaning\svg@tempa?
         \PackageWarning{svg-extract}{%
-          Image `#3'\MessageBreak%
+          Image `#1#2.#3'\MessageBreak%
           could not be converted as `extract=false' was set%
         }%
+        \par?\meaning\svg@tempa?
       \fi%
       \if@svgx@exclude%
         % TODO what if \svg@iffilenewer undefined?!
-        \svgx@ifexpired{\svgx@out@base}{#3}%
+        \par5?\meaning\svg@tempa?
+        \svgx@ifexpired{\svgx@out@base}{#1#2.#3}%
           {\@svg@tempswatrue}{\@svg@tempswafalse}%
+          \par?\meaning\svg@tempa?
         \if@svg@tempswa%
+        \par6?\meaning\svg@tempa?
           \PackageWarning{svg-extract}{%
-            Image `#3'\MessageBreak%
+            Image `#1#2.#3'\MessageBreak%
             was neither extracted/converted nor included%
           }%
+          \par?\meaning\svg@tempa?
         \fi%
       \fi%
     \fi%
@@ -1219,6 +1233,7 @@
     \svgx@afterdocument@append%
   \fi%
 }
+% TODO check concerning quotes
 \newcommand*\svgx@ifexpired[3][%
   \svgx@format\ifnum\svgx@cnv@mode>\z@,\svgx@cnv@format\fi%
 ]{%
@@ -1241,15 +1256,12 @@
 \ifnum\pdf@shellescape=\@ne\relax\else%
   \newcommand*\svgx@afterdocument@eaddto[1]{}%
   \newcommand*\svgx@afterdocument@append{}%
-  \newcommand*\svgx@run[1]{%
-    \begingroup%
-      \svg@quotes@remove[{#1}]{\svg@tempa}%
-      \PackageWarning{svg-extract}{%
-        You didn't enable `--shell-escape' option so it\MessageBreak%
-        wasn't possible to run extraction/conversion for\MessageBreak%
-        `\svg@tempa'\MessageBreak%
-      }%
-    \endgroup%
+  \newcommand*\svgx@run[3]{%
+    \PackageWarning{svg-extract}{%
+      You didn't enable `--shell-escape' option so it\MessageBreak%
+      wasn't possible to run extraction/conversion for\MessageBreak%
+      `#1#2.#3'\MessageBreak%
+    }%
   }%
   \expandafter\endinput%
 \fi
@@ -1271,26 +1283,17 @@
   \svgx@afterdocument@toks{}%
 }
 % TODO split parts in different macros!
-\newcommand*\svgx@run[1]{%
+\newcommand*\svgx@run[3]{%
   \ifx\svgx@preamble\@empty\relax\else%
     \begingroup%
-      % TODO REVISE use \svg@filename@parse instead?!
-      \svg@filename@split@base@ext\svgx@preamble{\svg@tempa}{\svg@tempb}%
-      \ifx\svg@tempb\@empty\relax%
-        \let\svg@tempb\svgx@latex@ext%
-      \else%
-        \svg@remove@leadingchar.\svg@tempb%
-      \fi%
-      % TODO REVISE use iffileexists first?
-      \svg@get@file[\svg@out@path]{\svgx@preamble}{\svg@tempb}%
-      \if@svg@file@found%
-        \svg@quotes@remove[\svg@file@base]{\svg@tempa}%
-      \else
-        \svg@quotes@remove{\svg@tempa}%
-      \fi%
+      \svg@get@file*[\svg@out@path]{\svgx@preamble}{\svgx@latex@ext}%
       \edef\svg@tempa{%
         \endgroup%
-        \def\noexpand\svgx@preamble{\svg@tempa.\svg@tempb}%
+        \if@svg@file@found%
+          \def\noexpand\svgx@preamble{\svg@file@base}%
+        \else%
+          \let\noexpand\svgx@preamble\noexpand\@empty%
+        \fi%
       }%
     \svg@tempa%
   \fi%
@@ -1427,8 +1430,8 @@
       \svg@tempa{apptex=\etex@unexpanded\expandafter{\svgx@param@apptex}}%
     \fi%
     \let\svg@tempa\@empty%
-    \if@svg@ink@latex%
-      \ifstr{\svg@ink@format}{pdf}{%
+    \ifstr{#3}{pdf}{%
+      \if@svg@ink@latex%
         \ifnum\value{svg@param@lastpage}>\z@\relax%
           \edef\svg@tempa{lastpage=\the\value{svg@param@lastpage}}%
         \else%
@@ -1438,18 +1441,18 @@
             \def\svg@tempa{lastpage=false}%
           \fi%
         \fi%
-      }{}%
-    \fi%
+      \fi%
+    }{}%
     \ifdim\dimexpr\svgx@param@angle\p@\relax=\z@\relax\else%
       \edef\svg@tempa{%
         angle=\svgx@param@angle\ifx\svg@tempa\@empty\else,\svg@tempa\fi%
       }%
     \fi%
-    \ifx\svg@tempa\@empty%
-      \def\svg@tempa{\string\svgxsetbox{#1}}%
-    \else%
-      \edef\svg@tempa{\noexpand\string\noexpand\svgxsetbox[\svg@tempa]{#1}}%
-    \fi%
+    \edef\svg@tempa{%
+      \noexpand\string\noexpand\svgxsetbox%
+      \ifx\svg@tempa\@empty\else[\svg@tempa]\fi%
+      {#1}{#2}{#3}%
+    }%
     \immediate\write\svgx@stream@out{\svg@tempa}%
     \immediate\write\svgx@stream@out{%
       \string\begin{document}^^J%
@@ -1466,6 +1469,7 @@
     }%
   }{%
     \svg@shell@mkdir{\svgx@out@path}%
+    % TODO revise argument > #1#2.#3
     \svg@quotes@remove[{#1}]{\svg@tempb}%
     \svgx@afterdocument@eaddto{%
       \noexpand\PackageInfoNoLine{svg-extract}{Extracting `\svg@tempb'}%
@@ -1519,6 +1523,7 @@
     \fi%
     \@for\svg@tempa:=\svg@tempa\do{%
       \svgx@afterdocument@eaddto{%
+        % TODO check, use \IfFileExists instead
         \noexpand\svg@IfFileExists{\svgx@out@name.\svg@tempa}{}{%
           \noexpand\svg@troubleshooting{svg-extract}%
             {Extracting}{\svg@tempb}{\svgx@out@name.\svg@tempa}%
@@ -1551,6 +1556,7 @@
               \svgx@cnv@cmd{\svgx@out@name}{\svgx@cnv@input@format}%
                 {\svgx@out@path}{\svg@tempa}%
             }%
+            % TODO check, use \IfFileExists instead
             \noexpand\svg@IfFileExists{\svg@tempb.\svg@tempa}{}{%
               \noexpand\svg@troubleshooting{svg-extract}%
                 {Converting (\svg@tempa)}%
@@ -1567,6 +1573,7 @@
           {\svgx@out@path\svgx@out@name.\svg@tempa}%
       }%
     }%
+    % TODO revise argument > #1#2.#3
     \svg@quotes@remove[{#1}]{\svg@tempb}%
     \svgx@afterdocument@eaddto{%
       \noexpand\PackageInfoNoLine{svg-extract}{Done for `\svg@tempb'}%

@@ -10,14 +10,14 @@
 \usepackage{babel}
 %\usepackage[draft]{graphicx}
 \usepackage[]{svg}
-%\usepackage[clean=false,convert=forced]{svg-extract}
+\usepackage[extract=forced,clean=false,convert=forced]{svg-extract}
 
 %\usepackage[space]{grffile}
 
 %\RequirePackage{ifplatform}[2010/10/22]
 
 %\svgsetup{inkscapeexe="C:/Program Files/Inkscape1/inkscape.exe"}
-\svgsetup{inkscapeversion=detect}
+%\svgsetup{inkscapeversion=detect}
 %\svgsetup{inkscapeversion=0.94.2}
 
 %\svgsetup{inkscapepath=}
@@ -29,12 +29,14 @@
 
 \begin{document}
 \makeatletter
+
+%\includesvg[inkscapepath=]{svg-example}
+
+%\includeinkscape[]{"svg-example_svg"-tex.PdF}
 %
-%\includesvg[]{ ./ MWE }
-%%
-%\includesvg[]{  MWE }
+%\includeinkscape[]{svg-example_svg-tex}
 %
-\includesvg[]{ mwe.bla/ MWE }
+\includeinkscape[]{svg-example_svg-tex.pDf_TEX}
 
 aaa
 
