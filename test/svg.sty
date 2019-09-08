@@ -36,7 +36,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg}[%
-  2019/09/04 v2.03\space%
+  2019/09/06 v2.03\space%
   (include SVG pictures)%
 ]
 \RequirePackage{scrbase}[2016/06/14]
@@ -83,6 +83,18 @@
     \else%
       \aftergroup\@secondoftwo%
     \fi%
+  \endgroup%
+}
+\newcommand*\svg@if@blank[1]{%
+  \begingroup%
+    \edef\svg@tempa{%
+      \noexpand\IfArgIsEmpty{\expandafter\@gobble#1\relax}%
+    }%
+    \svg@tempa{%
+      \aftergroup\@firstoftwo%
+    }{%
+      \aftergroup\@secondoftwo%
+    }%
   \endgroup%
 }
 \newcommand*\svg@ifvalueisrelax[1]{%
@@ -549,6 +561,7 @@
     \edef\svg@tempa{\expandafter#1\expandafter{\svg@tempa}}%
     \expandafter\svg@@@@quotes@remove\svg@tempa"\@nil%
     \edef\svg@tempa{\expandafter#1\expandafter{\svg@tempa}}%
+    \svg@if@blank{\svg@tempa}{\let\svg@tempa\@empty}{}%
     \edef\svg@tempb{%
       \endgroup%
       \def\noexpand#3{\expandafter\detokenize\expandafter{\svg@tempa}}%
@@ -585,15 +598,6 @@
   }{%
     \svg@quotes@remove#1[#2]{#3}%
   }%
-  \begingroup%
-    \edef\svg@tempa{\expandafter\trim@spaces\expandafter{#3}}%
-    \edef\svg@tempb{%
-      \endgroup%
-      \ifx\svg@tempa\@empty%
-        \let\noexpand#3\noexpand\@empty%
-      \fi%
-    }%
-  \svg@tempb%
   \if@svg@quotes@found%
     \ifx#3\@empty\else%
       \edef#3{"#3"}%
@@ -1083,24 +1087,27 @@
       \noexpand\svg@quotes@normalize[{#2}]{\noexpand\svg@tempb}%
     }%
     \svg@tempa%
-    % TODO use text from \svg@troubleshooting
     \PackageError{svg}{%
       Inkscape export\IfArgIsEmpty{#3}{}{ for `#3'} is missing%
     }{%
-      Did you run the Inkscape export%
-      \if@svg@ink@latex\space with latex output\fi?\MessageBreak%
-      \if@svg@ink@run\ifnum\pdf@shellescape=\@ne\relax\else%
-        Most likely you should pass `--shell-escape' flag\MessageBreak%
-        in order to launch the automated Inkscape export.\MessageBreak%
-      \fi\fi%
+      % TODO use text from \svg@troubleshooting, remove
+      \if@svg@ink@run%
+        \ifnum\pdf@shellescape=\@ne\else%
+          Most likely you should pass `--shell-escape' flag\MessageBreak%
+          in order to launch the automated Inkscape export.\MessageBreak%
+        \fi%
+      \else%
+        Did you run the Inkscape export%
+        \if@svg@ink@latex\space with latex output\fi?\MessageBreak%
+      \fi%
       \svg@tempa\MessageBreak%
       could not be found%
       \ifx\svg@tempb\@empty\else%
         \space although\MessageBreak`\svg@tempb'\MessageBreak exists%
-        \if@svg@ink@latex%
+        \if@svg@ink@run\else\if@svg@ink@latex%
           . Maybe you should use optional parameter\MessageBreak%
           `inkscapelatex=false'%
-        \fi%
+        \fi\fi%
       \fi.%
     }%
   \endgroup%
@@ -1177,42 +1184,39 @@
   \begingroup%
     \svg@local@param@set{#1}%
     \svg@get@file{#2}{\svg@file@ext}%
+    \svg@normalize@name{svg}{inkscape}{svg@out}%
+    \ifx\svg@out@name\@empty\@svg@file@foundfalse\fi%
     \if@svg@file@found%
-      \svg@normalize@name{svg}{inkscape}{svg@out}%
-      \ifx\svg@out@name\@empty\else%
-        \edef\svg@out@file{\svg@out@path\svg@out@name.\svg@ink@format}%
-        \svg@ink@run{\svg@file@base}{\svg@out@file}{\svg@ink@format}%
-        \let\svg@tempa\relax%
-        \IfFileExists{\svg@out@file}{}{%
-          \def\svg@tempa{\svg@file@err{\svg@out@file}{}}%
+      \edef\svg@out@file{\svg@out@path\svg@out@name.\svg@ink@format}%
+      \svg@ink@run{\svg@file@base}{\svg@out@file}{\svg@ink@format}%
+      \IfFileExists{\svg@out@file}{}{%
+        \def\svg@tempa{\svg@file@err{\svg@out@file}{}}%
+        \@svg@file@foundfalse%
+      }%
+      \if@svg@ink@latex%
+        \IfFileExists{\svg@out@file_tex}{}{%
+          \if@svg@file@found%
+            \def\svg@tempa{\svg@file@err{\svg@out@file_tex}{\svg@out@file}}%
+          \else%
+            \def\svg@tempa{\svg@file@err{\svg@out@file,\svg@out@file_tex}{}}%
+          \fi%
           \@svg@file@foundfalse%
         }%
-        \if@svg@ink@latex%
-          \IfFileExists{\svg@out@file_tex}{}{%
-            \if@svg@file@found%
-              \def\svg@tempa{\svg@file@err{\svg@out@file_tex}{\svg@out@file}}%
-            \else%
-              \def\svg@tempa{\svg@file@err{\svg@out@file,\svg@out@file_tex}{}}%
-            \fi%
-            \@svg@file@foundfalse%
+      \fi%
+      \if@svg@file@found%
+        \if@svg@ink@run\ifnum\pdf@shellescape=\@ne\relax\else%
+          \PackageWarning{svg}{%
+            You didn't pass `--shell-escape' flag so it\MessageBreak%
+            wasn't possible to (re)launch the Inkscape export\MessageBreak%
+            for `\svg@file@base'%
           }%
-        \fi%
-        \ifx\svg@tempa\relax\else%
-          \l@addto@macro\svg@tempa{{\svg@file@base}}%
-          \svg@tempa%
-        \fi%
-        \if@svg@file@found%
-          \if@svg@ink@run\ifnum\pdf@shellescape=\@ne\relax\else%
-            \PackageWarning{svg}{%
-              You didn't pass `--shell-escape' flag so it\MessageBreak%
-              wasn't possible to (re)launch the Inkscape export\MessageBreak%
-              for `\svg@file@base'%
-            }%
-          \fi\fi%
-          \begingroup%
-            \svg@process{\svg@out@path}{\svg@out@name}{\svg@ink@format}%
-          \endgroup%
-        \fi%
+        \fi\fi%
+        \begingroup%
+          \svg@process{\svg@out@path}{\svg@out@name}{\svg@ink@format}%
+        \endgroup%
+      \else%
+        \l@addto@macro\svg@tempa{{\svg@file@base}}%
+        \svg@tempa%
       \fi%
     \fi%
   \endgroup%
@@ -1307,8 +1311,7 @@
   \ifcase\svg@ink@mode\relax% false
     \@svg@ink@runfalse%
   \or% true
-    \svg@IfFileNewer{#1}{#2}%
-      {\@svg@ink@runtrue}{\@svg@ink@runfalse}%
+    \svg@IfFileNewer{#1}{#2}{\@svg@ink@runtrue}{\@svg@ink@runfalse}%
     \if@svg@ink@latex%
       \IfFileExists{#2_tex}{%
         \if@svg@ink@run\ifnum\pdf@shellescape=\@ne\relax%
@@ -1332,35 +1335,27 @@
   \or% forced
     \@svg@ink@runtrue%
   \fi%
-  \if@svg@ink@run%
-    \ifnum\pdf@shellescape=\@ne\relax%
-      \ifstr{#3}{png}{%
-        \ifx\svg@ink@dpi\relax%
-          \FamilyOptions{SVG}{inkscapedpi=300}%
-        \fi%
-      }{}%
-      \svg@shell@mkdir{\svg@out@path}%
-      \PackageInfo{svg}{%
-        Exporting `#1'%
-        \ifx\svg@ink@opt\@empty\else\space with added options `\svg@ink@opt'\fi%
+  \if@svg@ink@run\ifnum\pdf@shellescape=\@ne\relax%
+    \ifstr{#3}{png}{%
+      \ifx\svg@ink@dpi\relax%
+        \FamilyOptions{SVG}{inkscapedpi=300}%
+      \fi%
+    }{}%
+    \svg@shell@mkdir{\svg@out@path}%
+    \PackageInfo{svg}{%
+      Exporting `#1'%
+      \ifx\svg@ink@opt\@empty\else\space with added options `\svg@ink@opt'\fi%
+    }%
+    % TODO \pdfmdfivesum{svg-example.svg}
+    \begingroup%
+      \edef\svg@tempa{%
+        \noexpand\svg@quotes@remove[{#1}]{\noexpand\svg@tempa}%
+        \noexpand\svg@quotes@remove[{#2}]{\noexpand\svg@tempb}%
       }%
-      % TODO \pdfmdfivesum{svg-example.svg}
-      \begingroup%
-        \edef\svg@tempa{%
-          \noexpand\svg@quotes@remove[{#1}]{\noexpand\svg@tempa}%
-          \noexpand\svg@quotes@remove[{#2}]{\noexpand\svg@tempb}%
-        }%
-        \svg@tempa%
-        \edef\svg@tempa{%
-          \endgroup%
-          \noexpand\ShellEscape{%
-            \noexpand\svg@ink@cmd{\svg@tempa}{\svg@tempb}{#3}%
-          }%
-        }%
       \svg@tempa%
-      \IfFileExists{#2}{}{\svg@troubleshooting{svg}{Exporting}{#1}{#2}}%
-    \fi%
-  \fi%
+      \ShellEscape{\svg@ink@cmd{\svg@tempa}{\svg@tempb}{#3}}%
+    \endgroup%
+  \fi\fi%
 }
 \newcommand*\svg@normalize@name[3]{%
   \begingroup%
@@ -1405,8 +1400,8 @@
 \newcommand*\svg@ink@ver@detect[3]{%
   \svg@sanitize@dq\svg@tempb{{\svg@ink@ver}{#2}}%
   \@svg@ink@ver@detectfalse%
-  \ifnum\svg@ink@ver=\m@ne\relax%
-    \ifnum\pdf@shellescape=\@ne\relax%
+  \ifnum\pdf@shellescape=\@ne\relax%
+    \ifnum\svg@ink@ver=\m@ne\relax%
       \svg@sanitize@dq\svg@tempa{#2}%
       \ifx\svg@tempa\svg@ink@exe%
         \ifnum#1>\m@ne\relax%
@@ -1707,66 +1702,7 @@
     be used together with package `svg-extract'.%
   }%
 }
-\ifnum\pdf@shellescape=\@ne\relax
-  \svg@RequirePackage{ifplatform}[2010/10/22]
-\fi
-\@ifpackageloaded{ifplatform}{
-\ifwindows
-  \newcommand*\svg@shell@@mkdir[1]{if not exist "#1" mkdir "#1"}
-  \newcommand*\svg@shell@@mv{move}
-  \newcommand*\svg@shell@@rm{del}
-\else
-  \newcommand*\svg@shell@@mkdir[1]{mkdir -p "#1"}
-  \newcommand*\svg@shell@@mv{mv}
-  \newcommand*\svg@shell@@rm{rm}
-\fi
-\newcommand*\svg@shell@mkdir[1]{%
-  \begingroup%
-    \svg@quotes@remove[{#1}]{\svg@tempa}%
-    \svg@normalize@path{\svg@tempa}%
-    \ifx\svg@tempa\@currdir\else%
-      \ShellEscape{\svg@shell@@mkdir{\svg@tempa}}%
-    \fi%
-  \endgroup%
-}
-% TODO check for \@currdir
-\newcommand*\svg@shell@move[2]{%
-  \begingroup%
-    \edef\svg@tempa{%
-      \noexpand\svg@quotes@remove[{#1}]{\noexpand\svg@tempa}%
-      \noexpand\svg@quotes@remove[{#2}]{\noexpand\svg@tempb}%
-    }%
-    \svg@tempa%
-    \begingroup%
-      % TODO use svg@filename@parse instead?!
-      \svg@filename@split@base@ext\svg@tempa{\svg@tempa}{\svg@tempb}%
-      \IfFileExists{"\svg@tempa"\svg@tempb}%
-        {\aftergroup\@firstofone}{\aftergroup\@gobble}%
-    \endgroup%
-    {%
-      \ifx\svg@tempa\svg@tempb\else%
-        \ShellEscape{\svg@shell@@mv\space"\svg@tempa"\space"\svg@tempb"}%
-      \fi%
-    }%
-  \endgroup%
-}
-% TODO check for \@currdir
-\newcommand*\svg@shell@rm[1]{%
-  \begingroup%
-    \svg@quotes@remove[{#1}]{\svg@tempb}%
-    \begingroup%
-      % TODO use svg@filename@parse instead?!
-      \svg@filename@split@base@ext\svg@tempb{\svg@tempa}{\svg@tempb}%
-      \edef\svg@tempa{%
-        \endgroup%
-        \def\noexpand\svg@tempa{"\svg@tempa"\svg@tempb}%
-      }%
-    \svg@tempa%
-    \IfFileExists{\svg@tempa}{%
-      \ShellEscape{\svg@shell@@rm\space"\svg@tempb"}%
-    }{}%
-  \endgroup%
-}
+
 % TODO remove
 \newcommand*\svg@filename@split@base@ext[3]{%
   \begingroup%
@@ -1802,6 +1738,66 @@
     }%
   \svg@tempa%
 }
+\newcommand*\svg@shell@mkdir[1]{%
+  \begingroup%
+    \svg@quotes@remove[{#1}]{\svg@tempa}%
+    \svg@normalize@path{\svg@tempa}%
+    \ifx\svg@tempa\@currdir\else%
+      \ShellEscape{\svg@shell@@mkdir{\svg@tempa}}%
+    \fi%
+  \endgroup%
+}
+% TODO check for \@currdir
+\newcommand*\svg@shell@mv[2]{%
+  \begingroup%
+    \edef\svg@tempa{%
+      \noexpand\svg@quotes@remove[{#1}]{\noexpand\svg@tempa}%
+      \noexpand\svg@quotes@remove[{#2}]{\noexpand\svg@tempb}%
+    }%
+    \svg@tempa%
+    \begingroup%
+      % TODO use svg@filename@parse instead?! Quotes!!!
+      \svg@filename@split@base@ext\svg@tempa{\svg@tempa}{\svg@tempb}%
+      \IfFileExists{"\svg@tempa"\svg@tempb}%
+        {\aftergroup\@firstofone}{\aftergroup\@gobble}%
+    \endgroup%
+    {%
+      \ifx\svg@tempa\svg@tempb\else%
+        \ShellEscape{\svg@shell@@mv\space"\svg@tempa"\space"\svg@tempb"}%
+      \fi%
+    }%
+  \endgroup%
+}
+% TODO check for \@currdir
+\newcommand*\svg@shell@rm[1]{%
+  \begingroup%
+    \svg@quotes@remove[{#1}]{\svg@tempb}%
+    \begingroup%
+      % TODO use svg@filename@parse instead?!
+      \svg@filename@split@base@ext\svg@tempb{\svg@tempa}{\svg@tempb}%
+      \edef\svg@tempa{%
+        \endgroup%
+        \def\noexpand\svg@tempa{"\svg@tempa"\svg@tempb}%
+      }%
+    \svg@tempa%
+    \IfFileExists{\svg@tempa}{%
+      \ShellEscape{\svg@shell@@rm\space"\svg@tempb"}%
+    }{}%
+  \endgroup%
+}
+\ifnum\pdf@shellescape=\@ne\relax
+  \svg@RequirePackage{ifplatform}[2010/10/22]
+\fi
+\@ifpackageloaded{ifplatform}{
+  \ifwindows
+    \newcommand*\svg@shell@@mkdir[1]{if not exist "#1" mkdir "#1"}
+    \newcommand*\svg@shell@@mv{move}
+    \newcommand*\svg@shell@@rm{del}
+  \else
+    \newcommand*\svg@shell@@mkdir[1]{mkdir -p "#1"}
+    \newcommand*\svg@shell@@mv{mv}
+    \newcommand*\svg@shell@@rm{rm}
+  \fi
 }{}
 \endinput
 %%
