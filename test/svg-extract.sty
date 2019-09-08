@@ -1619,7 +1619,7 @@
       \edef\svg@tempb{\svgx@out@name.\svg@tempa}%
       \svgx@afterdocument@xaddto{%
         \noexpand\IfFileExists{"\@currdir\svg@tempb"}{%
-          \noexpand\svg@shell@mv{"\@currdir\svg@tempb"}{\svgx@out@path\svg@tempb}%
+          \noexpand\svg@shell@mv{\@currdir\svg@tempb}{\svgx@out@path\svg@tempb}%
         }{%
           \noexpand\svg@troubleshooting{svg-extract}%
             {Extracting}{#1}{\svg@tempb}%
@@ -1652,13 +1652,13 @@
         \def\svgx@cnv@dpi@png{300}%
       \fi%
     \fi%
-    \@for\svg@tempb:=\svgx@cnv@format\do{%
+    \@for\svg@tempa:=\svgx@cnv@format\do{%
       % TODO URGENT remove \svgx@cnv@input@format from \svgx@cnv@format
       % TODO URGENT move out of macro
-      \svgx@ifin@list{\svgx@format}{\svg@tempb}{%
+      \svgx@ifin@list{\svgx@format}{\svg@tempa}{%
         \svgx@afterdocument@xaddto{%
           \noexpand\PackageInfoNoLine{svg-extract}{%
-            Generating file `\svgx@out@name.\svg@tempb'\MessageBreak%
+            Generating file `\svgx@out@name.\svg@tempa'\MessageBreak%
             was specified with `extractformat' (\svgx@format)\MessageBreak%
             as well as with `convertformat' (\svgx@cnv@format)\MessageBreak%
             so the conversion won't be done%
@@ -1666,26 +1666,23 @@
         }%
       }{%
         \svgx@afterdocument@xaddto{%
-          \noexpand\IfFileExists{"\@currdir\svgx@out@name.\svgx@cnv@input@format"}{%
-            \def\noexpand\svg@tempa{\@currdir}%
-          }{%
+          \def\noexpand\svg@tempa{\@currdir}%
+          \def\noexpand\svg@tempb{%
+            \noexpand\svg@tempa\svgx@out@name.\svgx@cnv@input@format%
+          }%
+          \noexpand\IfFileExists{"\noexpand\svg@tempb"}{}{%
             \def\noexpand\svg@tempa{\svgx@out@path}%
           }%
-          \def\noexpand\svg@tempb{\noexpand\svg@tempa\svgx@out@name}%
           \noexpand\PackageInfoNoLine{svg-extract}{%
-            Converting (\svg@tempb) 
-            `\noexpand\svg@tempb.\svgx@cnv@input@format'%
+            Converting (\svg@tempa) `\noexpand\svg@tempb'%
           }%
           \noexpand\ShellEscape{%
-            \svgx@cnv@cmd{\svgx@out@name}%
-              {\noexpand\svg@tempa}{\svgx@cnv@input@format}%
-              {\svgx@out@path}{\svg@tempb}%
+            \svgx@cnv@cmd{\svgx@out@name}{\noexpand\svg@tempa}%
+              {\svgx@cnv@input@format}{\svgx@out@path}{\svg@tempa}%
           }%
-          \noexpand\IfFileExists{"\svgx@out@path\svgx@out@name.\svg@tempb"}{}{%
-            \noexpand\svg@troubleshooting{svg-extract}%
-              {Converting (\svg@tempb)}%
-              {\noexpand\svg@tempb.\svgx@cnv@input@format}%
-              {\svgx@out@path\svgx@out@name.\svg@tempb}%
+          \noexpand\IfFileExists{"\svgx@out@path\svgx@out@name.\svg@tempa"}{}{%
+            \noexpand\svg@troubleshooting{svg-extract}{Converting (\svg@tempa)}%
+              {\noexpand\svg@tempb}{\svgx@out@path\svgx@out@name.\svg@tempa}%
           }%
         }%
       }%

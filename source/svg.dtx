@@ -1,4 +1,4 @@
-% \CheckSum{5081}
+% \CheckSum{5069}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -5871,17 +5871,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \ifnum\svgx@cnv@mode>\z@\relax%
     \svgx@conv@run%
   \fi%
-%    \end{macrocode}
-% As both extraction and conversion are done, all files intended to be 
-% extracted are moved to the desired output folder (\opt{extractpath}), if 
-% existing. Otherwise a warning is given.
-%    \begin{macrocode}
-  \@for\svg@tempa:=\svgx@format\do{%
-    \svgx@afterdocument@xaddto{%
-      \noexpand\svg@shell@mv{\svgx@out@name.\svg@tempa}%
-        {\svgx@out@path\svgx@out@name.\svg@tempa}%
-    }%
-  }%
   \svgx@afterdocument@xaddto{%
     \noexpand\PackageInfoNoLine{svg-extract}{Done for `#1#2.#3'}%
   }%
@@ -6368,15 +6357,16 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \svgx@ifin@list{\svgx@format}{eps}{\svg@tempa{pdftoeps}{pdf}}{}%
       \svgx@ifin@list{\svgx@format}{ps}{\svg@tempa{pdftops}{pdf}}{}%
     \fi%
-    \ifx\svgx@format\@empty%
-      \let\svg@tempa\svgx@cnv@input@format%
-    \else%
-      \let\svg@tempa\svgx@format%
-    \fi%
-    \@for\svg@tempa:=\svg@tempa\do{%
+%    \end{macrocode}
+% All files intended to be extracted are moved to the desired output folder 
+% (\opt{extractpath}), if existing. Otherwise a warning is given.
+%    \begin{macrocode}
+    \@for\svg@tempa:=\svgx@format\do{%
       \edef\svg@tempb{\svgx@out@name.\svg@tempa}%
       \svgx@afterdocument@xaddto{%
-        \noexpand\IfFileExists{"\@currdir\svg@tempb"}{}{%
+        \noexpand\IfFileExists{"\@currdir\svg@tempb"}{%
+          \noexpand\svg@shell@mv{\@currdir\svg@tempb}{\svgx@out@path\svg@tempb}%
+        }{%
           \noexpand\svg@troubleshooting{svg-extract}%
             {Extracting}{#1}{\svg@tempb}%
         }%
@@ -6390,39 +6380,23 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.03}{2019/09/07}{new}^^A
 % \begin{macro}{\svgx@cnv@input@format}
 % \begin{macro}{\svgx@cnv@get@input@format}
-% \changes{v2.03}{2019/07/11}{sets \cs{svgx@format} implicitly if necessary}^^A
-% The macro \cs{svgx@cnv@get@input@format} extracts the first list entry from 
-% \cs{svgx@format}. 
+% The macro \cs{svgx@cnv@get@input@format} extracts the required input format 
+% for conversion from the first list entry of \cs{svgx@format} or---if this is  
+% empty---remains at a format---stored in \cs{svgx@cnv@input@format}---which is 
+% generated anyway.
 %    \begin{macrocode}
-\newcommand*\svgx@cnv@input@format{}
+\newcommand*\svgx@cnv@input@format{pdf}
+\ifxetex\else\ifpdf\else
+  \renewcommand*\svgx@cnv@input@format{ps}
+\fi\fi
 \newcommand*\svgx@cnv@get@input@format{%
-  \begingroup%
-    \def\svg@tempa##1,##2\@nil{%
-      \def\svg@tempa{##1}%
-    }%
+  \ifx\svgx@format\@empty\else%
+    \begingroup%
+      \def\svg@tempa##1,##2\@nil{%
+        \endgroup%
+        \def\svgx@cnv@input@format{##1}%
+      }%
     \expandafter\svg@tempa\svgx@format,\@nil%
-    \edef\svg@tempa{%
-      \endgroup%
-      \def\noexpand\svgx@cnv@input@format{\svg@tempa}%
-    }%
-  \svg@tempa%
-%    \end{macrocode}
-% If \cs{svgx@format} was empty, \cs{svgx@cnv@input@format} is set to the 
-% file type, which is generated anyway\dots
-%    \begin{macrocode}
-  \ifx\svgx@cnv@input@format\@empty%
-    \renewcommand*\svgx@cnv@input@format{pdf}%
-    \ifxetex\else\ifpdf\else%
-      \renewcommand*\svgx@cnv@input@format{ps}%
-    \fi\fi%
-%    \end{macrocode}
-% \dots and if this file type is included in list \cs{svgx@cnv@format} then
-% \cs{svgx@format} will be set to this file type as well in order to skip the
-% unnecessary conversation.
-%    \begin{macrocode}
-    \svgx@ifin@list{\svgx@cnv@format}{\svgx@cnv@input@format}{%
-      \let\svgx@format\svgx@cnv@input@format%
-    }{}%
   \fi%
 }
 %    \end{macrocode}
@@ -6461,20 +6435,29 @@ svg-extract -- Extract independent graphic files from SVG pictures
           }%
         }%
       }{%
-        \edef\svg@tempb{\svgx@out@path\svgx@out@name}%
+%    \end{macrocode}
+% For each file type the conversion is done either for sorce file in the 
+% current directory or---if not present---for the source file in output path.
+% \opt{convertformat}.
+%    \begin{macrocode}
         \svgx@afterdocument@xaddto{%
+          \def\noexpand\svg@tempa{\@currdir}%
+          \def\noexpand\svg@tempb{%
+            \noexpand\svg@tempa\svgx@out@name.\svgx@cnv@input@format%
+          }%
+          \noexpand\IfFileExists{"\noexpand\svg@tempb"}{}{%
+            \def\noexpand\svg@tempa{\svgx@out@path}%
+          }%
           \noexpand\PackageInfoNoLine{svg-extract}{%
-            Converting (\svg@tempa) `\svgx@out@name.\svgx@cnv@input@format'%
+            Converting (\svg@tempa) `\noexpand\svg@tempb'%
           }%
           \noexpand\ShellEscape{%
-            \svgx@cnv@cmd{\svgx@out@name}{\svgx@cnv@input@format}%
-              {\svgx@out@path}{\svg@tempa}%
+            \svgx@cnv@cmd{\svgx@out@name}{\noexpand\svg@tempa}%
+              {\svgx@cnv@input@format}{\svgx@out@path}{\svg@tempa}%
           }%
-          \noexpand\svg@IfFileExists{\svg@tempb.\svg@tempa}{}{%
-            \noexpand\svg@troubleshooting{svg-extract}%
-              {Converting (\svg@tempa)}%
-              {\svgx@out@name.\svgx@cnv@input@format}%
-              {\svg@tempb.\svg@tempa}%
+          \noexpand\IfFileExists{"\svgx@out@path\svgx@out@name.\svg@tempa"}{}{%
+            \noexpand\svg@troubleshooting{svg-extract}{Converting (\svg@tempa)}%
+              {\noexpand\svg@tempb}{\svgx@out@path\svgx@out@name.\svg@tempa}%
           }%
         }%
       }%
