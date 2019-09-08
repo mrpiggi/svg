@@ -36,7 +36,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg-extract}[%
-  2019/09/06 v2.03\space%
+  2019/09/08 v2.03\space%
   (extract independent graphics from SVG pictures)%
 ]
 \RequirePackage{svg}[2017/03/27]
@@ -44,7 +44,7 @@
 \AtEndOfPackage{\svg@catcodes@restore}
 \DefineFamily{SVG}
 \DefineFamilyMember{SVG}
-% TODO svgx@mode>svgx@extr@mode
+% TODO > svgx@extr@mode
 \newcommand*\svgx@mode{1}
 \DefineFamilyKey{SVG}{extract}[true]{%
   \FamilySetNumerical{SVG}{extract}{svg@tempa}{%
@@ -78,7 +78,7 @@
 \DeclareOption{forced}{\AtEndOfPackage{\FamilyOptions{SVG}{extract=forced}}}
 \DeclareOption{auto}{\AtEndOfPackage{\FamilyOptions{SVG}{extract=true}}}
 \DeclareOption{off}{\AtEndOfPackage{\FamilyOptions{SVG}{extract=false}}}
-% TODO svgx@format>svgx@extr@formats
+% TODO > svgx@extr@formats
 \newcommand*\svgx@format{pdf}
 \ifxetex\else\ifpdf\else
   \renewcommand*\svgx@format{eps}
@@ -133,7 +133,7 @@
   \fi%
 }
 % TODO boolean key true default and false empty
-% TODO svgx@preamble>svgx@extr@preamble
+% TODO > svgx@extr@preamble
 \newcommand*\svgx@preamble{\jobname}%
 \DefineFamilyKey{SVG}{extractpreamble}{%
   \renewcommand*\svgx@preamble{#1}%
@@ -153,7 +153,7 @@
 \DefineFamilyKey{SVG}{end}{%
   \svg@deprecated@key[svg-extract]{end=#1}{extractpreambleend=#1}%
 }
-% TODO svgx@iterations>svgx@extr@iterations
+% TODO > svgx@extr@iterations
 \newcounter{svgx@iterations}
 \DefineFamilyKey{SVG}{extractruns}{%
   \FamilySetCounter{SVG}{extractruns}{svgx@iterations}{#1}%
@@ -236,7 +236,7 @@
   }%
   \FamilyKeyStateProcessed%
 }
-% TODO svgx@cnv>svgx@conv
+% TODO > svgx@conv
 \newcommand*\svgx@cnv@mode{0}
 \newcommand*\svgx@cnv@cmd{\svgx@magick@cmd}
 \DefineFamilyKey{SVG}{convert}[true]{%
@@ -345,7 +345,7 @@
     \fi%
   \fi%
 }
-% TODO svgx@cnv@format>svgx@cnv@formats
+% TODO > svgx@cnv@formats
 \newcommand*\svgx@cnv@format{png}
 \DefineFamilyKey{SVG}{convertformat}{%
   \svg@lowercase[{#1}]{\svgx@cnv@format}%
@@ -766,7 +766,7 @@
     }%
   \svg@tempb%
 }
-% TODO >svgx@formatkey@set
+% TODO > svgx@formatkey@set
 \newcommand*\svgx@setformatkey[2]{%
   \svgx@ifkeyandval{#1}{%
     \IfArgIsEmpty{##1}{}{%
@@ -787,7 +787,7 @@
     \FamilyKeyStateProcessed%
   }%
 }
-% TODO svgx@formatkey@use
+% TODO > svgx@formatkey@use
 \newcommand*\svgx@useformatkey[3]{%
   \scr@ifundefinedorrelax{#1@#2}{%
     \scr@ifundefinedorrelax{#1}{}{%
@@ -933,7 +933,7 @@
       \svg@local@param@use%
       \begingroup%
         \svgx@@normalize@list\svgx@params@unknown{#1}%
-% TODO>DOC \ToDo{revise; \opt{@else@} with \cs{FamilyOptions}}[KOMA v3.27]
+% TODO DOC \ToDo{revise; \opt{@else@} with \cs{FamilyOptions}}[KOMA v3.27]
         \RelaxFamilyKey[.svg.sty]{SVG}{lastpage}
         \@for\svg@tempb:={.svg.sty,.svg-extract.sty,.param}\do{%
           \let\svgx@params@pass\svgx@params@unknown%
@@ -945,7 +945,7 @@
           }%
           \expandafter\FamilyExecuteOptions\expandafter[\svg@tempb]{SVG}{#1}%
         }%
-        % TODO>DOC \svgx@params@unknown enthält jetzt alle unbekannten Optionen
+        % TODO DOC \svgx@params@unknown enthält jetzt alle unbekannten Optionen
         \svgx@normalize@list{\svgx@params@unknown}%
         \let\svgx@params@exec\@empty%
         \let\svgx@params@relax\@empty%
@@ -979,7 +979,7 @@
             \fi%
           \fi%
         }%
-        % TODO>DOC preserve right order
+        % TODO DOC preserve right order
         \DefineFamilyKey[.graphicx]{SVG}{@else@}{%
           \expandafter\svgx@@ifin@list\expandafter{\svgx@params@unknown}{####1}%
             {\l@addto@macro\svgx@params@pass{,####1}}%
@@ -1151,6 +1151,19 @@
     \fi%
   \endgroup%
 }
+\newtoks\svgx@afterdocument@toks
+\newcommand*\svgx@afterdocument@xaddto[1]{%
+  \begingroup%
+    \edef\svg@tempa{%
+      \endgroup%
+      \global\noexpand\addto@hook\noexpand\svgx@afterdocument@toks{#1}%
+    }%
+  \svg@tempa%
+}
+\newcommand*\svgx@afterdocument@append{%
+  \expandafter\AfterReadingMainAux\expandafter{\the\svgx@afterdocument@toks}%
+  \global\svgx@afterdocument@toks{}%
+}
 \newif\if@svgx@run
 %\newcommand*\svgx@out@base{}
 \renewcommand*\svg@process[3]{%
@@ -1169,7 +1182,7 @@
     % TODO check quotes (svgx@ifexpired)
     \edef\svg@out@file{#1#2.#3}%
 %    \svg@quotes@remove[\svgx@out@path\svgx@out@name]{\svgx@out@base}%
-    % TODO !!! URGENT handle format comnination
+    % TODO URGENT handle format comnination
     \ifcase\svgx@mode\relax% false
       \@svgx@runfalse%
     \or% true
@@ -1222,7 +1235,7 @@
         \fi%
       \fi%
     \fi%
-    % TODO check in svgx@out@path
+    % TODO check files in svgx@out@path
     \@for\svg@tempa:=\svgx@clean\do{%
       \svgx@ifin@list{\svgx@format,\svgx@cnv@format}{\svg@tempa}{}{%
         \svgx@afterdocument@xaddto{%
@@ -1273,19 +1286,6 @@
       \aftergroup\@secondoftwo%
     \fi%
   \endgroup%
-}
-\newtoks\svgx@afterdocument@toks
-\newcommand*\svgx@afterdocument@xaddto[1]{%
-  \begingroup%
-    \edef\svg@tempa{%
-      \endgroup%
-      \global\noexpand\addto@hook\noexpand\svgx@afterdocument@toks{#1}%
-    }%
-  \svg@tempa%
-}
-\newcommand*\svgx@afterdocument@append{%
-  \expandafter\AfterReadingMainAux\expandafter{\the\svgx@afterdocument@toks}%
-  \global\svgx@afterdocument@toks{}%
 }
 \ifnum\pdf@shellescape=\@ne\relax\else%
   \newcommand*\svgx@run[3]{%
@@ -1644,7 +1644,6 @@
 }
 \newcommand*\svgx@conv@run{%
   \begingroup%
-    % TODO URGENT handle format comnination
     \svgx@cnv@get@input@format%
     \svg@quotes@remove{\svgx@out@path}%
     \svg@quotes@remove{\svgx@out@name}%
@@ -1655,7 +1654,7 @@
     \fi%
     \@for\svg@tempb:=\svgx@cnv@format\do{%
       % TODO URGENT remove \svgx@cnv@input@format from \svgx@cnv@format
-      % TODO URGENT > move out of macro
+      % TODO URGENT move out of macro
       \svgx@ifin@list{\svgx@format}{\svg@tempb}{%
         \svgx@afterdocument@xaddto{%
           \noexpand\PackageInfoNoLine{svg-extract}{%

@@ -36,7 +36,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{svg}[%
-  2019/09/06 v2.03\space%
+  2019/09/08 v2.03\space%
   (include SVG pictures)%
 ]
 \RequirePackage{scrbase}[2016/06/14]
@@ -380,7 +380,7 @@
   \FamilyKeyStateProcessed%
 }
 \DefineFamilyKey{SVG}{svgformat}{\FamilyOptions{SVG}{svgextension=#1}}
-% TODO rename svg@out > svg@ink
+% TODO > svg@ink
 \newcommand*\svg@out@path{}
 \DefineFamilyKey{SVG}{inkscapepath}{%
   \svg@sanitize@dq\svg@tempb{#1}%
@@ -1064,6 +1064,7 @@
     }%
   }%
 }
+% TODO > svg@missing@err
 \newcommand*\svg@file@err[3]{%
   \begingroup%
     \def\svg@tempa##1,##2,##3\@nil{%
@@ -1090,7 +1091,7 @@
     \PackageError{svg}{%
       Inkscape export\IfArgIsEmpty{#3}{}{ for `#3'} is missing%
     }{%
-      % TODO use text from \svg@troubleshooting, remove
+      % TODO use text from \svg@troubleshooting
       \if@svg@ink@run%
         \ifnum\pdf@shellescape=\@ne\else%
           Most likely you should pass `--shell-escape' flag\MessageBreak%
@@ -1384,6 +1385,7 @@
     }%
   \svg@tempb%
 }
+% TODO > svg@missing@msg
 \newcommand*\svg@troubleshooting[4]{%
   \PackageWarning{#1}{%
     #2 from input file\MessageBreak`#3'\MessageBreak%
