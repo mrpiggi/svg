@@ -171,7 +171,6 @@
     \edef\svg@tempa{\endgroup\def\noexpand#1{#2}}%
   \svg@tempa%
 }
-% TODO search for \if@svg@quotes@found and check
 \newif\if@svg@quotes@found
 \newcommand*\svg@quotes@check[1]{%
   \expandafter\svg@@quotes@check#1"\@nil%
@@ -412,41 +411,6 @@
     }
   \fi
 \fi
-% TODO remove
-\newcommand*\svg@filename@split@base@ext[3]{%
-  \begingroup%
-    \svg@quotes@remove[{#1}]{\svg@tempa}%
-    \def\svg@tempb##1.##2\@nil{%
-      \IfArgIsEmpty{##2}{%
-        \edef\svg@tempb{\trim@spaces{##1}}%
-      }{%
-        \edef\svg@tempa{\svg@tempa.##1}%
-        \svg@tempb##2\@nil%
-      }%
-    }%
-    \edef\svg@tempa{%
-      \etex@unexpanded{\let\svg@tempa\@empty}%
-      \noexpand\svg@tempb\svg@tempa.\noexpand\@nil%
-    }%
-    \svg@tempa%
-    \svg@remove@leadingchar.\svg@tempa%
-    \ifx\svg@tempa\@empty\relax%
-      \let\svg@tempa\svg@tempb%
-      \let\svg@tempb\@empty%
-    \fi%
-    \ifx\svg@tempb\@empty\relax\else%
-      \edef\svg@tempb{.\svg@tempb}%
-    \fi%
-    \if@svg@quotes@found%
-      \edef\svg@tempa{"\svg@tempa"}%
-    \fi%
-    \edef\svg@tempa{%
-      \endgroup%
-      \etex@unexpanded{\def#2}{\expandafter\detokenize\expandafter{\svg@tempa}}%
-      \etex@unexpanded{\def#3}{\expandafter\detokenize\expandafter{\svg@tempb}}%
-    }%
-  \svg@tempa%
-}
 \newcommand*\svg@shell@mkdir[1]{%
   \begingroup%
     \svg@quotes@remove[{#1}]{\svg@tempa}%
@@ -456,41 +420,38 @@
     \fi%
   \endgroup%
 }
-% TODO check for \@currdir
 \newcommand*\svg@shell@mv[2]{%
   \begingroup%
     \edef\svg@tempa{%
-      \noexpand\svg@quotes@remove[{#1}]{\noexpand\svg@tempa}%
-      \noexpand\svg@quotes@remove[{#2}]{\noexpand\svg@tempb}%
+      \noexpand\svg@tempb{#1}{\noexpand\svg@tempa}%
+      \noexpand\svg@tempb{#2}{\noexpand\svg@tempb}%
+    }%
+    \def\svg@tempb##1##2{%
+      \svg@filename@parse{##1}%
+      \svg@normalize@path{\filename@area}%
+      \svg@quotes@remove[%
+        \filename@area\filename@base%
+        \ifx\filename@ext\relax\else.\filename@ext\fi%
+      ]{##2}%
     }%
     \svg@tempa%
-    \begingroup%
-      % TODO use svg@filename@parse instead?! Quotes!!!
-      \svg@filename@split@base@ext\svg@tempa{\svg@tempa}{\svg@tempb}%
-      \IfFileExists{"\svg@tempa"\svg@tempb}%
-        {\aftergroup\@firstofone}{\aftergroup\@gobble}%
-    \endgroup%
-    {%
+    \IfFileExists{"\svg@tempa"}{%
       \ifx\svg@tempa\svg@tempb\else%
         \ShellEscape{\svg@shell@@mv\space"\svg@tempa"\space"\svg@tempb"}%
       \fi%
-    }%
+    }{}%
   \endgroup%
 }
-% TODO check for \@currdir
 \newcommand*\svg@shell@rm[1]{%
   \begingroup%
-    \svg@quotes@remove[{#1}]{\svg@tempb}%
-    \begingroup%
-      % TODO use svg@filename@parse instead?!
-      \svg@filename@split@base@ext\svg@tempb{\svg@tempa}{\svg@tempb}%
-      \edef\svg@tempa{%
-        \endgroup%
-        \def\noexpand\svg@tempa{"\svg@tempa"\svg@tempb}%
-      }%
-    \svg@tempa%
-    \IfFileExists{\svg@tempa}{%
-      \ShellEscape{\svg@shell@@rm\space"\svg@tempb"}%
+    \svg@filename@parse{#1}%
+    \svg@normalize@path{\filename@area}%
+    \svg@quotes@remove[%
+      \filename@area\filename@base%
+      \ifx\filename@ext\relax\else.\filename@ext\fi%
+    ]{\svg@tempa}%
+    \IfFileExists{"\svg@tempa"}{%
+      \ShellEscape{\svg@shell@@rm\space"\svg@tempa"}%
     }{}%
   \endgroup%
 }
@@ -1561,59 +1522,6 @@
     }%
   \fi%
 }
-\newcommand*\svg@set@input@path[1][]{%
-  \begingroup%
-    \svg@deactivate@dq%
-    \ifx\svg@file@path\@currdir%
-      \let\svg@file@path\@empty%
-    \fi%
-    \ifx\svg@file@path\@empty\else%
-      \svg@normalize@path{\svg@file@path}%
-      \edef\svg@file@path{{\svg@file@path}}%
-    \fi%
-    \svg@append@input@path{\svg@file@path}{\svg@input@path}%
-    \svg@append@input@path{\svg@file@path}{\Ginput@path}%
-    \IfArgIsEmpty{#1}{}{%
-      \edef\svg@tempa{#1}%
-      \svg@append@input@path{\svg@file@path}{{\svg@tempa}}%
-    }%
-    \svg@append@input@path{\svg@file@path}{\input@path}%
-    \edef\svg@tempa{%
-      \endgroup%
-      \ifx\svg@file@path\@empty\else%
-        \def\noexpand\input@path{\svg@file@path}%
-      \fi%
-    }%
-  \svg@tempa%
-}
-\newcommand*\svg@append@input@path[2]{%
-  \ifx#2\@undefined\else%
-    \begingroup%
-      \edef\svg@tempb{#2}%
-      \expandafter\@tfor\expandafter\svg@tempa\expandafter:\expandafter=%
-          \svg@tempb\do{%
-        \svg@normalize@path{\svg@tempa}%
-        \ifx\svg@tempa\@currdir\else%
-          \@svg@tempswatrue%
-          \expandafter\@tfor\expandafter\svg@tempb\expandafter:\expandafter=%
-              #1\do{%
-            \ifx\svg@tempa\svg@tempb%
-              \@svg@tempswafalse%
-              \@break@tfor%
-            \fi%
-          }%
-          \if@svg@tempswa%
-            \edef#1{#1{\svg@tempa}}%
-          \fi%
-        \fi%
-      }%
-      \edef\svg@tempb{%
-        \endgroup%
-        \def\noexpand#1{#1}%
-      }%
-    \svg@tempb%
-  \fi%
-}
 \newif\if@svg@file@found
 \newcommand*\svg@file@path{}
 \newcommand*\svg@file@name{}
@@ -1747,6 +1655,59 @@
       \fi%
     }%
   \svg@tempa%
+}
+\newcommand*\svg@set@input@path[1][]{%
+  \begingroup%
+    \svg@deactivate@dq%
+    \ifx\svg@file@path\@currdir%
+      \let\svg@file@path\@empty%
+    \fi%
+    \ifx\svg@file@path\@empty\else%
+      \svg@normalize@path{\svg@file@path}%
+      \edef\svg@file@path{{\svg@file@path}}%
+    \fi%
+    \svg@append@input@path{\svg@file@path}{\svg@input@path}%
+    \svg@append@input@path{\svg@file@path}{\Ginput@path}%
+    \IfArgIsEmpty{#1}{}{%
+      \edef\svg@tempa{#1}%
+      \svg@append@input@path{\svg@file@path}{{\svg@tempa}}%
+    }%
+    \svg@append@input@path{\svg@file@path}{\input@path}%
+    \edef\svg@tempa{%
+      \endgroup%
+      \ifx\svg@file@path\@empty\else%
+        \def\noexpand\input@path{\svg@file@path}%
+      \fi%
+    }%
+  \svg@tempa%
+}
+\newcommand*\svg@append@input@path[2]{%
+  \ifx#2\@undefined\else%
+    \begingroup%
+      \edef\svg@tempb{#2}%
+      \expandafter\@tfor\expandafter\svg@tempa\expandafter:\expandafter=%
+          \svg@tempb\do{%
+        \svg@normalize@path{\svg@tempa}%
+        \ifx\svg@tempa\@currdir\else%
+          \@svg@tempswatrue%
+          \expandafter\@tfor\expandafter\svg@tempb\expandafter:\expandafter=%
+              #1\do{%
+            \ifx\svg@tempa\svg@tempb%
+              \@svg@tempswafalse%
+              \@break@tfor%
+            \fi%
+          }%
+          \if@svg@tempswa%
+            \edef#1{#1{\svg@tempa}}%
+          \fi%
+        \fi%
+      }%
+      \edef\svg@tempb{%
+        \endgroup%
+        \def\noexpand#1{#1}%
+      }%
+    \svg@tempb%
+  \fi%
 }
 % TODO > rename to svg@saved@...
 \newcommand*\svg@picture@saved{}

@@ -1,4 +1,4 @@
-% \CheckSum{5049}
+% \CheckSum{5071}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -2071,11 +2071,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % A directory should only be created, if it isn't the current working directory.
 %    \begin{macrocode}
     \svg@quotes@remove[{#1}]{\svg@tempa}%
-    \@svg@tempswatrue%
-    \ifstr{\svg@tempa}{}{\@svg@tempswafalse}{%
-    \ifstr{\svg@tempa}{\@currdir}{\@svg@tempswafalse}{%
-    }}%
-    \if@svg@tempswa%
+    \svg@normalize@path{\svg@tempa}%
+    \ifx\svg@tempa\@currdir\else%
       \ShellEscape{\svg@shell@@mkdir{\svg@tempa}}%
     \fi%
   \endgroup%
@@ -2084,15 +2081,25 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \begingroup%
 %    \end{macrocode}
 % Expand in order to prevent overwriting \cs{svg@tempa} or \cs{svg@tempb} if 
-% given as argument.
-% \ToDo{pass first argument directly to svg@IfFileExists}[v2.03]
+% given as argument. 
 %    \begin{macrocode}
     \edef\svg@tempa{%
-      \noexpand\svg@quotes@remove[{#1}]{\noexpand\svg@tempa}%
-      \noexpand\svg@quotes@remove[{#2}]{\noexpand\svg@tempb}%
+      \noexpand\svg@tempb{#1}{\noexpand\svg@tempa}%
+      \noexpand\svg@tempb{#2}{\noexpand\svg@tempb}%
+    }%
+%    \end{macrocode}
+% Both arguments are prepended with \cs{@currdir} if no directory is included. 
+%    \begin{macrocode}
+    \def\svg@tempb##1##2{%
+      \svg@filename@parse{##1}%
+      \svg@normalize@path{\filename@area}%
+      \svg@quotes@remove[%
+        \filename@area\filename@base%
+        \ifx\filename@ext\relax\else.\filename@ext\fi%
+      ]{##2}%
     }%
     \svg@tempa%
-    \svg@IfFileExists{\svg@tempa}{%
+    \IfFileExists{"\svg@tempa"}{%
       \ifx\svg@tempa\svg@tempb\else%
         \ShellEscape{\svg@shell@@mv\space"\svg@tempa"\space"\svg@tempb"}%
       \fi%
@@ -2101,8 +2108,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 \newcommand*\svg@shell@rm[1]{%
   \begingroup%
-    \svg@quotes@remove[{#1}]{\svg@tempa}%
-    \svg@IfFileExists{\svg@tempa}{%
+    \svg@filename@parse{#1}%
+    \svg@normalize@path{\filename@area}%
+    \svg@quotes@remove[%
+      \filename@area\filename@base%
+      \ifx\filename@ext\relax\else.\filename@ext\fi%
+    ]{\svg@tempa}%
+    \IfFileExists{"\svg@tempa"}{%
       \ShellEscape{\svg@shell@@rm\space"\svg@tempa"}%
     }{}%
   \endgroup%
@@ -4040,96 +4052,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \subsection{Handling path and file names}
 %
-% \begin{macro}{\svg@set@input@path}
-% \changes{v2.01}{2017/11/28}{new}^^A
-% \changes{v2.02}{2018/09/07}{usage of \cs{svg@deactivate@dq}}^^A
-% \begin{macro}{\svg@append@input@path}
-% \changes{v2.01}{2017/11/28}{new}^^A
-% \changes{v2.02}{2018/09/07}{avoid duplicates in \cs{input@path}}^^A
-% In order to import SVG~files from different folders, \cs{svg@set@input@path}
-% evaluates several macros, which are supposed to be used for holding different 
-% search folders. Any given path will be handled by \cs{svg@normalize@path}.
-% The optional argument can be used to append an additional search path.
-%    \begin{macrocode}
-\newcommand*\svg@set@input@path[1][]{%
-  \begingroup%
-    \svg@deactivate@dq%
-%    \end{macrocode}
-% If a path was already found and stored within \cs{svg@file@path}, it is
-% searched first and wrapped in curly braces. This is necessary for using
-% commands like \cs{input}\marg{tex~filename} within SVG~files.
-%    \begin{macrocode}
-    \ifx\svg@file@path\@currdir%
-      \let\svg@file@path\@empty%
-    \fi%
-    \ifx\svg@file@path\@empty\else%
-      \svg@normalize@path{\svg@file@path}%
-      \edef\svg@file@path{{\svg@file@path}}%
-    \fi%
-%    \end{macrocode}
-% Afterwards, several search paths are appended. If \cs{svgpath} was used, it 
-% is searched next. If nothing was found, \cs{graphicspath} is considered if 
-% defined followed by a path given in the third argument. If nothing was found
-% yet, the standard \cs{input@path} is searched last.
-%    \begin{macrocode}
-    \svg@append@input@path{\svg@file@path}{\svg@input@path}%
-    \svg@append@input@path{\svg@file@path}{\Ginput@path}%
-    \IfArgIsEmpty{#1}{}{%
-      \edef\svg@tempa{#1}%
-      \svg@append@input@path{\svg@file@path}{{\svg@tempa}}%
-    }%
-    \svg@append@input@path{\svg@file@path}{\input@path}%
-%    \end{macrocode}
-% Finally, \cs{input@path} is set.
-%    \begin{macrocode}
-    \edef\svg@tempa{%
-      \endgroup%
-      \ifx\svg@file@path\@empty\else%
-        \def\noexpand\input@path{\svg@file@path}%
-      \fi%
-    }%
-  \svg@tempa%
-}
-%    \end{macrocode}
-% Only, if a certain search path is defined, it is added. The paths given in 
-% the first argument are compared to each path in the second argument and only 
-% new ones are added.
-%    \begin{macrocode}
-\newcommand*\svg@append@input@path[2]{%
-  \ifx#2\@undefined\else%
-    \begingroup%
-      \edef\svg@tempb{#2}%
-      \expandafter\@tfor\expandafter\svg@tempa\expandafter:\expandafter=%
-          \svg@tempb\do{%
-%    \end{macrocode}
-% Passing each new path to \cs{svg@normalize@path}. If a path already exists, 
-% switch \cs{if@svg@tempswa} is set to \val{false}.
-%    \begin{macrocode}
-        \svg@normalize@path{\svg@tempa}%
-        \ifx\svg@tempa\@currdir\else%
-          \@svg@tempswatrue%
-          \expandafter\@tfor\expandafter\svg@tempb\expandafter:\expandafter=%
-              #1\do{%
-            \ifx\svg@tempa\svg@tempb%
-              \@svg@tempswafalse%
-              \@break@tfor%
-            \fi%
-          }%
-          \if@svg@tempswa%
-            \edef#1{#1{\svg@tempa}}%
-          \fi%
-        \fi%
-      }%
-      \edef\svg@tempb{%
-        \endgroup%
-        \def\noexpand#1{#1}%
-      }%
-    \svg@tempb%
-  \fi%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svg@append@input@path
-% \end{macro}^^A \svg@set@input@path
 % \begin{macro}{\svg@get@file}
 % \changes{v2.01}{2017/11/28}{using \cs{svg@set@input@path}}^^A
 % \changes{v2.01}{2017/11/28}{using \cs{trim@spaces}}^^A
@@ -4353,6 +4275,96 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 %    \end{macrocode}
 % \end{macro}^^A \svg@IfFileExists
+% \begin{macro}{\svg@set@input@path}
+% \changes{v2.01}{2017/11/28}{new}^^A
+% \changes{v2.02}{2018/09/07}{usage of \cs{svg@deactivate@dq}}^^A
+% \begin{macro}{\svg@append@input@path}
+% \changes{v2.01}{2017/11/28}{new}^^A
+% \changes{v2.02}{2018/09/07}{avoid duplicates in \cs{input@path}}^^A
+% In order to import SVG~files from different folders, \cs{svg@set@input@path}
+% evaluates several macros, which are supposed to be used for holding different 
+% search folders. Any given path will be handled by \cs{svg@normalize@path}.
+% The optional argument can be used to append an additional search path.
+%    \begin{macrocode}
+\newcommand*\svg@set@input@path[1][]{%
+  \begingroup%
+    \svg@deactivate@dq%
+%    \end{macrocode}
+% If a path was already found and stored within \cs{svg@file@path}, it is
+% searched first and wrapped in curly braces. This is necessary for using
+% commands like \cs{input}\marg{tex~filename} within SVG~files.
+%    \begin{macrocode}
+    \ifx\svg@file@path\@currdir%
+      \let\svg@file@path\@empty%
+    \fi%
+    \ifx\svg@file@path\@empty\else%
+      \svg@normalize@path{\svg@file@path}%
+      \edef\svg@file@path{{\svg@file@path}}%
+    \fi%
+%    \end{macrocode}
+% Afterwards, several search paths are appended. If \cs{svgpath} was used, it 
+% is searched next. If nothing was found, \cs{graphicspath} is considered if 
+% defined followed by a path given in the third argument. If nothing was found
+% yet, the standard \cs{input@path} is searched last.
+%    \begin{macrocode}
+    \svg@append@input@path{\svg@file@path}{\svg@input@path}%
+    \svg@append@input@path{\svg@file@path}{\Ginput@path}%
+    \IfArgIsEmpty{#1}{}{%
+      \edef\svg@tempa{#1}%
+      \svg@append@input@path{\svg@file@path}{{\svg@tempa}}%
+    }%
+    \svg@append@input@path{\svg@file@path}{\input@path}%
+%    \end{macrocode}
+% Finally, \cs{input@path} is set.
+%    \begin{macrocode}
+    \edef\svg@tempa{%
+      \endgroup%
+      \ifx\svg@file@path\@empty\else%
+        \def\noexpand\input@path{\svg@file@path}%
+      \fi%
+    }%
+  \svg@tempa%
+}
+%    \end{macrocode}
+% Only, if a certain search path is defined, it is added. The paths given in 
+% the first argument are compared to each path in the second argument and only 
+% new ones are added.
+%    \begin{macrocode}
+\newcommand*\svg@append@input@path[2]{%
+  \ifx#2\@undefined\else%
+    \begingroup%
+      \edef\svg@tempb{#2}%
+      \expandafter\@tfor\expandafter\svg@tempa\expandafter:\expandafter=%
+          \svg@tempb\do{%
+%    \end{macrocode}
+% Passing each new path to \cs{svg@normalize@path}. If a path already exists, 
+% switch \cs{if@svg@tempswa} is set to \val{false}.
+%    \begin{macrocode}
+        \svg@normalize@path{\svg@tempa}%
+        \ifx\svg@tempa\@currdir\else%
+          \@svg@tempswatrue%
+          \expandafter\@tfor\expandafter\svg@tempb\expandafter:\expandafter=%
+              #1\do{%
+            \ifx\svg@tempa\svg@tempb%
+              \@svg@tempswafalse%
+              \@break@tfor%
+            \fi%
+          }%
+          \if@svg@tempswa%
+            \edef#1{#1{\svg@tempa}}%
+          \fi%
+        \fi%
+      }%
+      \edef\svg@tempb{%
+        \endgroup%
+        \def\noexpand#1{#1}%
+      }%
+    \svg@tempb%
+  \fi%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@append@input@path
+% \end{macro}^^A \svg@set@input@path
 %
 %
 %
