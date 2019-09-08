@@ -5,7 +5,9 @@
 %% The original source files were:
 %%
 %% svg.dtx  (with options: `package,identify,extract')
+%% svg.dtx  (with options: `package,base,extract')
 %% svg.dtx  (with options: `package,option,extract')
+%% svg.dtx  (with options: `package,standalone,extract')
 %% svg.dtx  (with options: `package,body,extract')
 %% 
 %% svg-extract -- Extract independent graphic files from SVG pictures
@@ -39,9 +41,129 @@
   2019/09/08 v2.03\space%
   (extract independent graphics from SVG pictures)%
 ]
+% TODO svg@version
 \RequirePackage{svg}[2017/03/27]
 \svg@catcodes@set
 \AtEndOfPackage{\svg@catcodes@restore}
+\newcommand*\svgx@ifvalueisinherit[1]{%
+  \begingroup%
+    \def\svg@tempa{#1}%
+    \def\svg@tempb{inherit}%
+    \ifx\svg@tempa\svg@tempb%
+      \aftergroup\@firstoftwo%
+    \else%
+      \aftergroup\@secondoftwo%
+    \fi%
+  \endgroup%
+}
+% TODO grouping
+\newcommand*\svgx@ifkeyandval[3]{%
+  \def\svg@tempa##1=##2=##3\@nil{\IfArgIsEmpty{##3}{#3}{#2}}%
+  \svg@tempa#1==\@nil%
+}
+\newtoks\svgx@afterdocument@toks
+\newcommand*\svgx@afterdocument@xaddto[1]{%
+  \begingroup%
+    \edef\svg@tempa{%
+      \endgroup%
+      \global\noexpand\addto@hook\noexpand\svgx@afterdocument@toks{#1}%
+    }%
+  \svg@tempa%
+}
+\newcommand*\svgx@afterdocument@append{%
+  \expandafter\AfterReadingMainAux\expandafter{\the\svgx@afterdocument@toks}%
+  \global\svgx@afterdocument@toks{}%
+}
+\newcommand*\svgx@normalize@list[1]{%
+  \begingroup%
+    \edef\svg@tempa{%
+      \endgroup%
+      \etex@unexpanded{\svgx@@normalize@list#1}{%
+        \etex@unexpanded\expandafter{#1}%
+      }%
+    }%
+  \svg@tempa%
+}
+\newcommand*\svgx@@normalize@list[2]{%
+  \begingroup%
+    \let\svg@tempb\@empty%
+    \@for\svg@tempa:={,#2}\do{%
+      \edef\svg@tempa{\expandafter\trim@spaces@noexp\expandafter{\svg@tempa}}%
+      \ifx\svg@tempa\@empty\else%
+        \edef\svg@tempa{%
+          \etex@unexpanded{\l@addto@macro\svg@tempb}%
+            {,\etex@unexpanded\expandafter{\svg@tempa}}%
+        }\svg@tempa%
+      \fi%
+    }%
+    \ifx\svg@tempb\@empty%
+      \def\svg@tempa{%
+        \endgroup%
+        \let#1\@empty%
+      }%
+    \else%
+      \def\svg@tempa,##1\@nil{%
+        \def\svg@tempa{%
+          \endgroup%
+          \def#1{##1}%
+        }%
+      }%
+      \expandafter\svg@tempa\svg@tempb\@nil%
+    \fi%
+  \svg@tempa%
+}
+% TODO > \svgx@ifinlist
+\newcommand*\svgx@ifin@list[2]{%
+  \begingroup%
+    \edef\svg@tempa{%
+      \endgroup%
+      \noexpand\svgx@@ifin@list{#1}{#2}%
+    }%
+  \svg@tempa%
+}
+% TODO > \svgx@@ifinlist
+\newcommand*\svgx@@ifin@list[2]{%
+  \begingroup%
+    \edef\svg@tempa{%
+      \def\noexpand\svg@tempa####1,\detokenize{#2},####2\noexpand\@nil{%
+        \def\noexpand\svg@tempb{####2}%
+      }%
+      \def\noexpand\svg@tempb{%
+        ,\detokenize{#1},\detokenize{#2},%
+      }%
+    }%
+    \svg@tempa%
+    \expandafter\svg@tempa\svg@tempb\@nil%
+    \ifx\svg@tempb\@empty%
+      \aftergroup\@secondoftwo%
+    \else%
+      \aftergroup\@firstoftwo%
+    \fi%
+  \endgroup%
+}
+% TODO > \svgx@remove@key@list
+\newcommand*\svgx@removekey@list[2]{%
+  \begingroup%
+    \let\svg@tempb\@empty%
+    \def\svg@tempa##1,#2##2,##3\@nil{%
+      \l@addto@macro\svg@tempb{##1}%
+      \IfArgIsEmpty{##3}{}{%
+        \@svg@tempswafalse%
+        \IfArgIsEmpty{##2}{}{\ifstrstart{##2}{=}{}{\@svg@tempswatrue}}%
+        \if@svg@tempswa%
+          \l@addto@macro\svg@tempb{,#2##2}%
+        \fi%
+        \svg@tempa,##3\@nil%
+      }%
+    }%
+    \expandafter\svg@tempa\expandafter,#1,#2,\@nil%
+    \svgx@normalize@list{\svg@tempb}%
+    \edef\svg@tempa{%
+      \endgroup%
+      \def\noexpand#1{\etex@unexpanded\expandafter{\svg@tempb}}%
+    }%
+  \svg@tempa%
+}
 \DefineFamily{SVG}
 \DefineFamilyMember{SVG}
 % TODO > svgx@extr@mode
@@ -236,6 +358,91 @@
   }%
   \FamilyKeyStateProcessed%
 }
+% TODO > svgx@formatkey@set
+\newcommand*\svgx@setformatkey[2]{%
+  \svgx@ifkeyandval{#1}{%
+    \IfArgIsEmpty{##1}{}{%
+      \edef\svg@tempa{\trim@spaces{##1}}%
+      \svg@ifvalueisrelax{##2}{%
+        \expandafter\let\csname #2@\svg@tempa\endcsname\relax%
+      }{%
+        \@namedef{#2@\svg@tempa}{##2}%
+      }%
+      \FamilyKeyStateProcessed%
+    }%
+  }{%
+    \svg@ifvalueisrelax{##1}{%
+      \expandafter\let\csname #2\endcsname\relax%
+    }{%
+      \@namedef{#2}{##1}%
+    }%
+    \FamilyKeyStateProcessed%
+  }%
+}
+% TODO > svgx@formatkey@use
+\newcommand*\svgx@useformatkey[3]{%
+  \scr@ifundefinedorrelax{#1@#2}{%
+    \scr@ifundefinedorrelax{#1}{}{%
+      \expandafter\ifx\csname #1\endcsname\@empty\else%
+        #3\@nameuse{#1}\space%
+      \fi%
+    }%
+    \scr@ifundefinedorrelax{#1@#2+}{}{%
+      \expandafter\ifx\csname #1@#2+\endcsname\@empty\else%
+        #3\@nameuse{#1@#2+}\space%
+      \fi%
+    }%
+  }{%
+    \expandafter\ifx\csname #1@#2\endcsname\@empty\else%
+      #3\@nameuse{#1@#2}\space%
+    \fi%
+  }%
+}
+\newcommand*\svgx@magick@exe{}
+\DefineFamilyKey{SVG}{magickexe}{%
+  \renewcommand*\svgx@magick@exe{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@magick@set{}
+\DefineFamilyKey{SVG}{magicksetting}{%
+  \FamilyKeyStateUnknownValue%
+  \svgx@setformatkey{#1}{svgx@magick@set}%
+}
+\newcommand*\svgx@magick@opr{}
+\DefineFamilyKey{SVG}{magickoperator}{%
+  \FamilyKeyStateUnknownValue%
+  \svgx@setformatkey{#1}{svgx@magick@opr}%
+}
+\newcommand*\svgx@magick@cmd[5]{%
+  \svgx@magick@exe\space%
+  \svgx@useformatkey{svgx@cnv@dpi}{#5}{-density }%
+  \svgx@useformatkey{svgx@magick@set}{#5}{}%
+  "#2#1.#3"\space%
+  \svgx@useformatkey{svgx@magick@opr}{#5}{}%
+  "#4#1.#5"%
+}
+\newcommand*\svgx@gs@exe{}
+\DefineFamilyKey{SVG}{gsexe}{%
+  \renewcommand*\svgx@gs@exe{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svgx@gs@opt{}
+\DefineFamilyKey{SVG}{gsopt}{%
+  \FamilyKeyStateUnknownValue%
+  \svgx@setformatkey{#1}{svgx@gs@opt}%
+}
+\newcommand*\svgx@gs@device{}
+\DefineFamilyKey{SVG}{gsdevice}{%
+  \FamilyKeyStateUnknownValue%
+  \svgx@setformatkey{#1}{svgx@gs@device}%
+}
+\newcommand*\svgx@gs@cmd[5]{%
+  \svgx@gs@exe\space-dSAFER -dBATCH -dNOPAUSE\space%
+  \svgx@useformatkey{svgx@gs@device}{#5}{-sDEVICE=}%
+  \svgx@useformatkey{svgx@cnv@dpi}{#5}{-r}%
+  \svgx@useformatkey{svgx@gs@opt}{#5}{}%
+  -sOutputFile="#4#1.#5"\space"#2#1.#3"%
+}
 % TODO > svgx@conv
 \newcommand*\svgx@cnv@mode{0}
 \newcommand*\svgx@cnv@cmd{\svgx@magick@cmd}
@@ -273,7 +480,7 @@
       \fi%
     \or% gs64
       \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
-      \svgx@onlywindows{%
+      \svg@onlywindows{%
         \renewcommand*\svgx@gs@exe{gswin64c}%
       }%
       \ifnum\svgx@cnv@mode=\z@\relax%
@@ -281,7 +488,7 @@
       \fi%
     \or% gs32
       \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
-      \svgx@onlywindows{%
+      \svg@onlywindows{%
         \renewcommand*\svgx@gs@exe{gswin32c}%
       }%
       \ifnum\svgx@cnv@mode=\z@\relax%
@@ -384,35 +591,51 @@
   }%
 }
 \DefineFamilyKey{SVG}{convertdensity}{\FamilyOptions{SVG}{convertdpi=#1}}
-\newcommand*\svgx@magick@exe{}
-\DefineFamilyKey{SVG}{magickexe}{%
-  \renewcommand*\svgx@magick@exe{#1}%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svgx@magick@set{}
-\DefineFamilyKey{SVG}{magicksetting}{%
-  \FamilyKeyStateUnknownValue%
-  \svgx@setformatkey{#1}{svgx@magick@set}%
-}
-\newcommand*\svgx@magick@opr{}
-\DefineFamilyKey{SVG}{magickoperator}{%
-  \FamilyKeyStateUnknownValue%
-  \svgx@setformatkey{#1}{svgx@magick@opr}%
-}
-\newcommand*\svgx@gs@exe{}
-\DefineFamilyKey{SVG}{gsexe}{%
-  \renewcommand*\svgx@gs@exe{#1}%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svgx@gs@opt{}
-\DefineFamilyKey{SVG}{gsopt}{%
-  \FamilyKeyStateUnknownValue%
-  \svgx@setformatkey{#1}{svgx@gs@opt}%
-}
-\newcommand*\svgx@gs@device{}
-\DefineFamilyKey{SVG}{gsdevice}{%
-  \FamilyKeyStateUnknownValue%
-  \svgx@setformatkey{#1}{svgx@gs@device}%
+\newcommand*\svgx@cnv@get@dpi[1]{%
+  \begingroup%
+    \def\svg@tempa##1dpi##2x##3dpi##4\@nil{%
+      \edef\svg@tempa{##1}%
+      \@svg@tempswafalse%
+      \svg@ifnumber{##1}{%
+        \IfArgIsEmpty{##3}{\@svg@tempswatrue}{%
+          \svg@ifnumber{##3}{\edef\svg@tempa{##1x##3}}{}%
+        }%
+      }{}%
+      \if@svg@tempswa\else%
+        \expandafter\svg@tempb\svg@tempa xx\@nil%
+      \fi%
+    }%
+    \def\svg@tempb##1x##2x##3\@nil{%
+      \ifstr{##3}{x}{%
+        \@svg@tempswatrue%
+        \IfArgIsEmpty{##1}{\@svg@tempswafalse}{%
+          \svg@ifnumber{##1}{}{\@svg@tempswafalse}%
+        }%
+        \IfArgIsEmpty{##2}{\@svg@tempswafalse}{%
+          \svg@ifnumber{##2}{}{\@svg@tempswafalse}%
+        }%
+        \if@svg@tempswa%
+          \edef\svg@tempa{##1x##2}%
+        \fi%
+      }{}%
+    }%
+    \IfArgIsEmpty{#1}{%
+      \let\svg@tempa\@empty%
+    }{%
+      \lowercase{\svg@tempa#1dpi#1xdpi\@nil}%
+      \if@svg@tempswa\else%
+        \let\svg@tempa\relax%
+      \fi%
+    }%
+    \edef\svg@tempb{%
+      \endgroup%
+      \ifx\svg@tempa\relax%
+        \let\noexpand\svg@tempa\noexpand\relax%
+      \else%
+        \def\noexpand\svg@tempa{\svg@tempa}%
+      \fi%
+    }%
+  \svg@tempb%
 }
 \newcommand*\svgx@out@path{}
 \DefineFamilyKey{SVG}{extractpath}{%
@@ -615,197 +838,15 @@
 \DefineFamilyKey{SVG}{clear}[true]{\FamilyOptions{SVG}{clean=#1}}
 \newif\if@svgx@exclude
 \FamilyBoolKey{SVG}{exclude}{@svgx@exclude}
-\newcommand*\svgx@normalize@list[1]{%
-  \begingroup%
-    \edef\svg@tempa{%
-      \endgroup%
-      \etex@unexpanded{\svgx@@normalize@list#1}{%
-        \etex@unexpanded\expandafter{#1}%
-      }%
-    }%
-  \svg@tempa%
+\FamilyExecuteOptions{SVG}{%
+  extract=forced,extractpath=basesubdir,%
+  extractruns=2,extractname=filenamenumbered,extractdistort=inherit,%
+  convert=magick,convert=false,%
+  gsdevice={png=png16m},gsdevice={jpeg=jpeg},gsdevice={jpg=jpeg},%
+  gsdevice={tif=tiff48nc},gsdevice={tiff=tiff48nc},%
+  gsdevice={eps=eps2write},gsdevice={ps=ps2write}%
 }
-\newcommand*\svgx@@normalize@list[2]{%
-  \begingroup%
-    \let\svg@tempb\@empty%
-    \@for\svg@tempa:={,#2}\do{%
-      \edef\svg@tempa{\expandafter\trim@spaces@noexp\expandafter{\svg@tempa}}%
-      \ifx\svg@tempa\@empty\else%
-        \edef\svg@tempa{%
-          \etex@unexpanded{\l@addto@macro\svg@tempb}%
-            {,\etex@unexpanded\expandafter{\svg@tempa}}%
-        }\svg@tempa%
-      \fi%
-    }%
-    \ifx\svg@tempb\@empty%
-      \def\svg@tempa{%
-        \endgroup%
-        \let#1\@empty%
-      }%
-    \else%
-      \def\svg@tempa,##1\@nil{%
-        \def\svg@tempa{%
-          \endgroup%
-          \def#1{##1}%
-        }%
-      }%
-      \expandafter\svg@tempa\svg@tempb\@nil%
-    \fi%
-  \svg@tempa%
-}
-\newcommand*\svgx@ifin@list[2]{%
-  \begingroup%
-    \edef\svg@tempa{%
-      \endgroup%
-      \noexpand\svgx@@ifin@list{#1}{#2}%
-    }%
-  \svg@tempa%
-}
-\newcommand*\svgx@@ifin@list[2]{%
-  \begingroup%
-    \edef\svg@tempa{%
-      \def\noexpand\svg@tempa####1,\detokenize{#2},####2\noexpand\@nil{%
-        \def\noexpand\svg@tempb{####2}%
-      }%
-      \def\noexpand\svg@tempb{%
-        ,\detokenize{#1},\detokenize{#2},%
-      }%
-    }%
-    \svg@tempa%
-    \expandafter\svg@tempa\svg@tempb\@nil%
-    \ifx\svg@tempb\@empty%
-      \aftergroup\@secondoftwo%
-    \else%
-      \aftergroup\@firstoftwo%
-    \fi%
-  \endgroup%
-}
-% TODO > \svgx@remove@key@list
-\newcommand*\svgx@removekey@list[2]{%
-  \begingroup%
-    \let\svg@tempb\@empty%
-    \def\svg@tempa##1,#2##2,##3\@nil{%
-      \l@addto@macro\svg@tempb{##1}%
-      \IfArgIsEmpty{##3}{}{%
-        \@svg@tempswafalse%
-        \IfArgIsEmpty{##2}{}{\ifstrstart{##2}{=}{}{\@svg@tempswatrue}}%
-        \if@svg@tempswa%
-          \l@addto@macro\svg@tempb{,#2##2}%
-        \fi%
-        \svg@tempa,##3\@nil%
-      }%
-    }%
-    \expandafter\svg@tempa\expandafter,#1,#2,\@nil%
-    \svgx@normalize@list{\svg@tempb}%
-    \edef\svg@tempa{%
-      \endgroup%
-      \def\noexpand#1{\etex@unexpanded\expandafter{\svg@tempb}}%
-    }%
-  \svg@tempa%
-}
-\newcommand*\svgx@ifvalueisinherit[1]{%
-  \begingroup%
-    \def\svg@tempa{#1}%
-    \def\svg@tempb{inherit}%
-    \ifx\svg@tempa\svg@tempb%
-      \aftergroup\@firstoftwo%
-    \else%
-      \aftergroup\@secondoftwo%
-    \fi%
-  \endgroup%
-}
-\newcommand*\svgx@onlywindows[1]{}
-\AfterPackage*{ifplatform}{\renewcommand*\svgx@onlywindows[1]{\ifwindows#1\fi}}
-\newcommand*\svgx@ifkeyandval[3]{%
-  \def\svg@tempa##1=##2=##3\@nil{\IfArgIsEmpty{##3}{#3}{#2}}%
-  \svg@tempa#1==\@nil%
-}
-\newcommand*\svgx@cnv@get@dpi[1]{%
-  \begingroup%
-    \def\svg@tempa##1dpi##2x##3dpi##4\@nil{%
-      \edef\svg@tempa{##1}%
-      \@svg@tempswafalse%
-      \svg@ifnumber{##1}{%
-        \IfArgIsEmpty{##3}{\@svg@tempswatrue}{%
-          \svg@ifnumber{##3}{\edef\svg@tempa{##1x##3}}{}%
-        }%
-      }{}%
-      \if@svg@tempswa\else%
-        \expandafter\svg@tempb\svg@tempa xx\@nil%
-      \fi%
-    }%
-    \def\svg@tempb##1x##2x##3\@nil{%
-      \ifstr{##3}{x}{%
-        \@svg@tempswatrue%
-        \IfArgIsEmpty{##1}{\@svg@tempswafalse}{%
-          \svg@ifnumber{##1}{}{\@svg@tempswafalse}%
-        }%
-        \IfArgIsEmpty{##2}{\@svg@tempswafalse}{%
-          \svg@ifnumber{##2}{}{\@svg@tempswafalse}%
-        }%
-        \if@svg@tempswa%
-          \edef\svg@tempa{##1x##2}%
-        \fi%
-      }{}%
-    }%
-    \IfArgIsEmpty{#1}{%
-      \let\svg@tempa\@empty%
-    }{%
-      \lowercase{\svg@tempa#1dpi#1xdpi\@nil}%
-      \if@svg@tempswa\else%
-        \let\svg@tempa\relax%
-      \fi%
-    }%
-    \edef\svg@tempb{%
-      \endgroup%
-      \ifx\svg@tempa\relax%
-        \let\noexpand\svg@tempa\noexpand\relax%
-      \else%
-        \def\noexpand\svg@tempa{\svg@tempa}%
-      \fi%
-    }%
-  \svg@tempb%
-}
-% TODO > svgx@formatkey@set
-\newcommand*\svgx@setformatkey[2]{%
-  \svgx@ifkeyandval{#1}{%
-    \IfArgIsEmpty{##1}{}{%
-      \edef\svg@tempa{\trim@spaces{##1}}%
-      \svg@ifvalueisrelax{##2}{%
-        \expandafter\let\csname #2@\svg@tempa\endcsname\relax%
-      }{%
-        \@namedef{#2@\svg@tempa}{##2}%
-      }%
-      \FamilyKeyStateProcessed%
-    }%
-  }{%
-    \svg@ifvalueisrelax{##1}{%
-      \expandafter\let\csname #2\endcsname\relax%
-    }{%
-      \@namedef{#2}{##1}%
-    }%
-    \FamilyKeyStateProcessed%
-  }%
-}
-% TODO > svgx@formatkey@use
-\newcommand*\svgx@useformatkey[3]{%
-  \scr@ifundefinedorrelax{#1@#2}{%
-    \scr@ifundefinedorrelax{#1}{}{%
-      \expandafter\ifx\csname #1\endcsname\@empty\else%
-        #3\@nameuse{#1}\space%
-      \fi%
-    }%
-    \scr@ifundefinedorrelax{#1@#2+}{}{%
-      \expandafter\ifx\csname #1@#2+\endcsname\@empty\else%
-        #3\@nameuse{#1@#2+}\space%
-      \fi%
-    }%
-  }{%
-    \expandafter\ifx\csname #1@#2\endcsname\@empty\else%
-      #3\@nameuse{#1@#2}\space%
-    \fi%
-  }%
-}
+\FamilyProcessOptions{SVG}
 \newif\if@svgx@standalone
 \newcommand*\svgxsetbox[4][]{%
   \@svgx@standalonetrue%
@@ -874,15 +915,6 @@
     \endgraf%
   \endgroup%
 }
-\FamilyExecuteOptions{SVG}{%
-  extract=forced,extractpath=basesubdir,%
-  extractruns=2,extractname=filenamenumbered,extractdistort=inherit,%
-  convert=magick,convert=false,%
-  gsdevice={png=png16m},gsdevice={jpeg=jpeg},gsdevice={jpg=jpeg},%
-  gsdevice={tif=tiff48nc},gsdevice={tiff=tiff48nc},%
-  gsdevice={eps=eps2write},gsdevice={ps=ps2write}%
-}
-\FamilyProcessOptions{SVG}
 \DefineFamilyMember[.param]{SVG}
 \newcommand*\svgx@param@angle{0}
 \svg@local@param@def{%
@@ -1122,48 +1154,6 @@
     \fi%
   \endgroup
 }
-\newcommand*\svgx@param@size@check{%
-  \begingroup%
-    \ifdim\dimexpr\svgx@param@scale\p@\relax=\p@\relax\else%
-      \let\svg@tempb\@empty%
-      \@for\svg@tempa:={scale,width,height}\do{%
-        \begingroup%
-          \edef\svg@tempb{%
-            \expandafter\noexpand\csname svg@param@\svg@tempa\endcsname%
-          }%
-          \expandafter\ifx\csname svgx@param@\svg@tempa\endcsname\svg@tempb%
-            \aftergroup\@svg@tempswatrue%
-          \else%
-            \aftergroup\@svg@tempswafalse%
-          \fi%
-        \endgroup%
-        \edef\svg@tempb{%
-          \etex@unexpanded\expandafter{\svg@tempb}%
-          \if@svg@tempswa%
-            {[inherited]\svg@tempa}%
-          \else%
-            {extract\svg@tempa}%
-          \fi%
-          {\csname svgx@param@\svg@tempa\endcsname}%
-        }%
-      }%
-      \expandafter\svg@param@size@wrn\svg@tempb%
-    \fi%
-  \endgroup%
-}
-\newtoks\svgx@afterdocument@toks
-\newcommand*\svgx@afterdocument@xaddto[1]{%
-  \begingroup%
-    \edef\svg@tempa{%
-      \endgroup%
-      \global\noexpand\addto@hook\noexpand\svgx@afterdocument@toks{#1}%
-    }%
-  \svg@tempa%
-}
-\newcommand*\svgx@afterdocument@append{%
-  \expandafter\AfterReadingMainAux\expandafter{\the\svgx@afterdocument@toks}%
-  \global\svgx@afterdocument@toks{}%
-}
 \newif\if@svgx@run
 %\newcommand*\svgx@out@base{}
 \renewcommand*\svg@process[3]{%
@@ -1265,6 +1255,35 @@
       \fi%
     }%
   \svg@tempb%
+}
+\newcommand*\svgx@param@size@check{%
+  \begingroup%
+    \ifdim\dimexpr\svgx@param@scale\p@\relax=\p@\relax\else%
+      \let\svg@tempb\@empty%
+      \@for\svg@tempa:={scale,width,height}\do{%
+        \begingroup%
+          \edef\svg@tempb{%
+            \expandafter\noexpand\csname svg@param@\svg@tempa\endcsname%
+          }%
+          \expandafter\ifx\csname svgx@param@\svg@tempa\endcsname\svg@tempb%
+            \aftergroup\@svg@tempswatrue%
+          \else%
+            \aftergroup\@svg@tempswafalse%
+          \fi%
+        \endgroup%
+        \edef\svg@tempb{%
+          \etex@unexpanded\expandafter{\svg@tempb}%
+          \if@svg@tempswa%
+            {[inherited]\svg@tempa}%
+          \else%
+            {extract\svg@tempa}%
+          \fi%
+          {\csname svgx@param@\svg@tempa\endcsname}%
+        }%
+      }%
+      \expandafter\svg@param@size@wrn\svg@tempb%
+    \fi%
+  \endgroup%
 }
 % TODO check concerning quotes
 \newcommand*\svgx@ifexpired[3][%
@@ -1676,6 +1695,7 @@
           \noexpand\PackageInfoNoLine{svg-extract}{%
             Converting (\svg@tempa) `\noexpand\svg@tempb'%
           }%
+          % TODO check which command is executed
           \noexpand\ShellEscape{%
             \svgx@cnv@cmd{\svgx@out@name}{\noexpand\svg@tempa}%
               {\svgx@cnv@input@format}{\svgx@out@path}{\svg@tempa}%
@@ -1689,6 +1709,7 @@
     }%
   \endgroup%
 }
+% TODO check when to set, maybe within \svgx@conv@run
 \ifx\svgx@magick@exe\@empty
   \ifwindows
     \renewcommand*\svgx@magick@exe{magick}
@@ -1696,14 +1717,6 @@
     \renewcommand*\svgx@magick@exe{convert}
   \fi
 \fi
-\newcommand*\svgx@magick@cmd[5]{%
-  \svgx@magick@exe\space%
-  \svgx@useformatkey{svgx@cnv@dpi}{#5}{-density }%
-  \svgx@useformatkey{svgx@magick@set}{#5}{}%
-  "#2#1.#3"\space%
-  \svgx@useformatkey{svgx@magick@opr}{#5}{}%
-  "#4#1.#5"%
-}
 \ifx\svgx@gs@exe\@empty
   \ifwindows
     \renewcommand*\svgx@gs@exe{gswin64c}
@@ -1711,13 +1724,6 @@
     \renewcommand*\svgx@gs@exe{gs}
   \fi
 \fi
-\newcommand*\svgx@gs@cmd[5]{%
-  \svgx@gs@exe\space-dSAFER -dBATCH -dNOPAUSE\space%
-  \svgx@useformatkey{svgx@gs@device}{#5}{-sDEVICE=}%
-  \svgx@useformatkey{svgx@cnv@dpi}{#5}{-r}%
-  \svgx@useformatkey{svgx@gs@opt}{#5}{}%
-  -sOutputFile="#4#1.#5"\space"#2#1.#3"%
-}
 \endinput
 %%
 %% End of file `svg-extract.sty'.
