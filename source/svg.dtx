@@ -1,4 +1,4 @@
-% \CheckSum{5075}
+% \CheckSum{5076}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -6546,26 +6546,25 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.03}{2019/07/13}{new}^^A
 % \begin{macro}{\svgx@@normalize@list}
 % \changes{v2.03}{2019/07/13}{new}^^A
-% This macro is used to normalize a comma-separated list given in the second 
-% argument, wherefore empty values and unnecessary spaces are removed. At the 
-% end, the normalized list is expanded to the macro in the first or second
-% argument. Command \cs{svgx@normalize@list} takes a macro in the second 
-% argument and \cs{svgx@@normalize@list} needs a list itself.
+% This macro is used to normalize a comma-separated list given via macro in the
+% mandatory argument, wherefore empty values and unnecessary spaces are
+% removed. At the end, the normalized list is expanded back to the macro from 
+% the given argument, which should provide the list in it's first expansion.
 %    \begin{macrocode}
-\newcommand*\svgx@normalize@list[2][]{%
+\newcommand*\svgx@normalize@list[1]{%
   \begingroup%
     \edef\svg@tempa{%
       \endgroup%
-      \etex@unexpanded{\svgx@@normalize@list#2}{%
-        \IfArgIsEmpty{#1}{%
-          \etex@unexpanded\expandafter{#2}%
-        }{%
-          \etex@unexpanded\expandafter{#1}%
-        }%
+      \etex@unexpanded{\svgx@@normalize@list#1}{%
+        \etex@unexpanded\expandafter{#1}%
       }%
     }%
   \svg@tempa%
 }
+%    \end{macrocode}
+% The macro\cs{svgx@@normalize@list} takes a macro for the result in the 
+% first argument and a list itself in the second one.
+%    \begin{macrocode}
 \newcommand*\svgx@@normalize@list[2]{%
   \begingroup%
     \let\svg@tempb\@empty%
@@ -6640,16 +6639,27 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svgx@ifin@list
 % \begin{macro}{\svgx@removekey@list}
 % \changes{v2.03}{2019/08/01}{new}^^A
-% This macro removes an entry or key (and it's value if existing) from a list.
+% This macro removes an entry or key (and it's value if existing) given with 
+% the second argument from a list in the first one. If a key without a value 
+% was given any occuring key is removed. Specifying a key with a specific value 
+% only removes exact matches.
 %    \begin{macrocode}
 \newcommand*\svgx@removekey@list[2]{%
   \begingroup%
+    \let\svg@tempb\@empty%
     \def\svg@tempa##1,#2##2,##3\@nil{%
-      \IfArgIsEmpty{##3}{\let\svg@tempb#1}{%
-        \def\svg@tempa####1,#2,\@nil{%
-          \l@addto@macro\svg@tempb{,####1}%
-        }%
-        \def\svg@tempb{##1}%
+      \l@addto@macro\svg@tempb{##1}%
+      \IfArgIsEmpty{##3}{}{%
+%    \end{macrocode}
+% If the second argument is empty, the given key (and it's value) is removed. 
+% If the second argument equals \val{=}, the key was given without a value and 
+% it's removed with any value found. Otherwise the matched entry is appended.
+%    \begin{macrocode}
+        \@svg@tempswafalse%
+        \IfArgIsEmpty{##2}{}{\ifstrstart{##2}{=}{}{\@svg@tempswatrue}}%
+        \if@svg@tempswa%
+          \l@addto@macro\svg@tempb{,#2##2}%
+        \fi%
         \svg@tempa,##3\@nil%
       }%
     }%
