@@ -1,4 +1,4 @@
-% \CheckSum{5108}
+% \CheckSum{5129}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -1527,6 +1527,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svg@ifwindowsdetected
 % \begin{macro}{\svg@if@nil}
+% \changes{v2.03}{2019/09/09}{new}^^A
 % Check, if the given argument is defined as \cs{@nil}. This is mainly used to 
 % distinguish between empty and not existing optional arguments.
 %    \begin{macrocode}
@@ -1662,6 +1663,24 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % user-defined input and output paths. As there is the possibility for users to 
 % provide paths with or without quotes to \LaTeX{}, this is taken into account.
 %
+% \begin{macro}{\svg@ifstrblank}
+% \changes{v2.03}{2019/09/09}{new}^^A
+% Check, if the given argument expands to a blank string (only whitespace).
+%    \begin{macrocode}
+\newcommand*\svg@ifstrblank[1]{%
+  \begingroup%
+    \edef\svg@tempa{%
+      \noexpand\IfArgIsEmpty{\expandafter\@gobble#1\relax}%
+    }%
+    \svg@tempa{%
+      \aftergroup\@firstoftwo%
+    }{%
+      \aftergroup\@secondoftwo%
+    }%
+  \endgroup%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@ifstrblank
 % \begin{macro}{\svg@deactivate@dq}
 % \changes{v2.02}{2018/09/07}{new}^^A
 % \changes{v2.02a}{2018/10/17}{bug fix for \pkg{polyglossia}}^^A
@@ -1748,6 +1767,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \edef\svg@tempa{\expandafter#1\expandafter{\svg@tempa}}%
     \expandafter\svg@@@@quotes@remove\svg@tempa"\@nil%
     \edef\svg@tempa{\expandafter#1\expandafter{\svg@tempa}}%
+%    \end{macrocode}
+% If only whitespace is contained, the string is defined as empty.
+%    \begin{macrocode}
+    \svg@ifstrblank{\svg@tempa}{\let\svg@tempa\@empty}{}%
     \edef\svg@tempb{%
       \endgroup%
       \def\noexpand#3{\expandafter\detokenize\expandafter{\svg@tempa}}%

@@ -160,6 +160,18 @@
     \fi%
   \endgroup%
 }
+\newcommand*\svg@ifstrblank[1]{%
+  \begingroup%
+    \edef\svg@tempa{%
+      \noexpand\IfArgIsEmpty{\expandafter\@gobble#1\relax}%
+    }%
+    \svg@tempa{%
+      \aftergroup\@firstoftwo%
+    }{%
+      \aftergroup\@secondoftwo%
+    }%
+  \endgroup%
+}
 \newcommand*\svg@deactivate@dq{}
 \AfterPackage+{babel}{%
   \renewcommand*\svg@deactivate@dq{\bbl@deactivate{"}}%
@@ -243,18 +255,6 @@
       \edef#3{"#3"}%
     \fi%
   \fi%
-}
-\newcommand*\svg@ifstrblank[1]{%
-  \begingroup%
-    \edef\svg@tempa{%
-      \noexpand\IfArgIsEmpty{\expandafter\@gobble#1\relax}%
-    }%
-    \svg@tempa{%
-      \aftergroup\@firstoftwo%
-    }{%
-      \aftergroup\@secondoftwo%
-    }%
-  \endgroup%
 }
 \newcommand*\svg@ifstrnocase[2]{%
   \begingroup%
