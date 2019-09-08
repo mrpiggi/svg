@@ -1,4 +1,4 @@
-% \CheckSum{5076}
+% \CheckSum{5081}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -3173,40 +3173,46 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{parameter}^^A inkscapelatex
 % \end{parameter}^^A inkscapeformat
 % \end{parameter}^^A inkscape
-% Searching all given paths for the relevant SVG~file.
+% Searching all given paths for the relevant SVG~file. Additionally, the 
+% resulting export file name is checked, if it is not empty and a maybe given
+% path is moved to \cs{svg@out@path}.
 %    \begin{macrocode}
     \svg@get@file{#2}{\svg@file@ext}%
+    \svg@normalize@name{svg}{inkscape}{svg@out}%
+    \ifx\svg@out@name\@empty\@svg@file@foundfalse\fi%
+%    \end{macrocode}
+% When a SVG~file was found, the export with \app{Inkscape} (if necessary) is 
+% invoked and the required files for graphic inclusion are checked afterwards.
+%    \begin{macrocode}
     \if@svg@file@found%
-%    \end{macrocode}
-% When a SVG~file was found, the resulting export file name is checked, if it 
-% is not empty and a maybe given path is moved to \cs{svg@out@path}.
-%    \begin{macrocode}
-      \svg@normalize@name{svg}{inkscape}{svg@out}%
-      \ifx\svg@out@name\@empty\else%
-%    \end{macrocode}
-% Running the export with \app{Inkscape} (if necessary) and checking the 
-% required files for graphic inclusion.
-%    \begin{macrocode}
-        \edef\svg@out@file{\svg@out@path\svg@out@name.\svg@ink@format}%
-        \svg@ink@run{\svg@file@base}{\svg@out@file}{\svg@ink@format}%
-        \IfFileExists{\svg@out@file}{}{%
+      \edef\svg@out@file{\svg@out@path\svg@out@name.\svg@ink@format}%
+      \svg@ink@run{\svg@file@base}{\svg@out@file}{\svg@ink@format}%
+      \IfFileExists{\svg@out@file}{}{%
+        \svg@file@missing[\svg@file@base]{\svg@out@file}%
+        \@svg@file@foundfalse%
+      }%
+      \if@svg@ink@latex%
+        \IfFileExists{\svg@out@file_tex}{}{%
+          \svg@file@missing[\svg@file@base]{\svg@out@file_tex}%
           \@svg@file@foundfalse%
-          \svg@file@missing[\svg@file@base]{\svg@out@file}%
         }%
-        \if@svg@ink@latex%
-          \IfFileExists{\svg@out@file_tex}{}{%
-            \@svg@file@foundfalse%
-            \svg@file@missing[\svg@file@base]{\svg@out@file_tex}%
-          }%
-        \fi%
+      \fi%
 %    \end{macrocode}
-% Include the resulting graphic file and maybe extract independent files.
+% Include the resulting graphic file and maybe extract independent files. If
+% \file{-{}-shell-escape} wasn't enabled but an update for export is necessary, 
+% a warning is issued.
 %    \begin{macrocode}
-        \if@svg@file@found%
-          \begingroup%
-            \svg@process{\svg@out@path}{\svg@out@name}{\svg@ink@format}%
-          \endgroup%
-        \fi%
+      \if@svg@file@found%
+        \if@svg@ink@run\ifnum\pdf@shellescape=\@ne\relax\else%
+          \PackageWarning{svg}{%
+            You didn't pass `--shell-escape' flag so it was\MessageBreak%
+            not possible to (re)launch the Inkscape export for\MessageBreak%
+            `\svg@file@base'%
+          }%
+        \fi\fi%
+        \begingroup%
+          \svg@process{\svg@out@path}{\svg@out@name}{\svg@ink@format}%
+        \endgroup%
       \fi%
     \fi%
   \endgroup%
@@ -3546,8 +3552,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % is the case when the SVG~file is newer than the corresponding exported file,
 % or if the latter isn't present at all.
 %    \begin{macrocode}
-    \svg@IfFileNewer{#1}{#2}%
-      {\@svg@ink@runtrue}{\@svg@ink@runfalse}%
+    \svg@IfFileNewer{#1}{#2}{\@svg@ink@runtrue}{\@svg@ink@runfalse}%
 %    \end{macrocode}
 % The same is true, when the associated \LaTeX~file is missing. But when this 
 % file already exists, maybe the user did some changes to this file. In this 
@@ -3584,55 +3589,39 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % If all checks were positive, the export with \app{Inkscape} can be done in 
 % case \file{-{}-shell-escape} is enabled.
 %    \begin{macrocode}
-  \if@svg@ink@run%
-    \ifnum\pdf@shellescape=\@ne\relax%
+  \if@svg@ink@run\ifnum\pdf@shellescape=\@ne\relax%
 %    \end{macrocode}
 % For exporting PNG~files, the used density ist set to \val{300dpi}, if no
 % value was given.
 %    \begin{macrocode}
-      \ifstr{#3}{png}{%
-        \ifx\svg@ink@dpi\relax%
-          \FamilyOptions{SVG}{inkscapedpi=300}%
-        \fi%
-      }{}%
+    \ifstr{#3}{png}{%
+      \ifx\svg@ink@dpi\relax%
+        \FamilyOptions{SVG}{inkscapedpi=300}%
+      \fi%
+    }{}%
 %    \end{macrocode}
 % Executing \app{Inkscape} on command line. Afterwards, the export results are 
 % moved into the given output path.
 %    \begin{macrocode}
-      \svg@shell@mkdir{\svg@out@path}%
-      \PackageInfo{svg}{%
-        Exporting `#1'%
-        \ifx\svg@ink@opt\@empty\else\space with added options `\svg@ink@opt'\fi%
-      }%
+    \svg@shell@mkdir{\svg@out@path}%
+    \PackageInfo{svg}{%
+      Exporting `#1'%
+      \ifx\svg@ink@opt\@empty\else\space with added options `\svg@ink@opt'\fi%
+    }%
 %    \end{macrocode}
 % Expanded definition in order to prevent overwriting of \cs{svg@tempa} or 
 % \cs{svg@tempb} if given as argument.
 %    \begin{macrocode}
-      \begingroup%
-        \edef\svg@tempa{%
-          \noexpand\svg@quotes@remove[{#1}]{\noexpand\svg@tempa}%
-          \noexpand\svg@quotes@remove[{#2}]{\noexpand\svg@tempb}%
-        }%
-        \svg@tempa%
-        \edef\svg@tempa{%
-          \endgroup%
-          \noexpand\ShellEscape{%
-            \noexpand\svg@ink@cmd{\svg@tempa}{\svg@tempb}{#3}%
-          }%
-        }%
-      \svg@tempa%
-      \IfFileExists{#2}{}{\svg@troubleshooting{svg}{Exporting}{#1}{#2}}%
-%    \end{macrocode}
-% If \file{-{}-shell-escape} wasn't enabled, a warning is issued.
-%    \begin{macrocode}
-    \else%
-      \PackageWarning{svg}{%
-        You didn't enable `--shell-escape' option so it\MessageBreak%
-        wasn't possible to launch the Inkscape export for\MessageBreak%
-        `#1'%
+    \begingroup%
+      \edef\svg@tempa{%
+        \noexpand\svg@quotes@remove[{#1}]{\noexpand\svg@tempa}%
+        \noexpand\svg@quotes@remove[{#2}]{\noexpand\svg@tempb}%
       }%
-    \fi%
-  \fi%
+      \svg@tempa%
+      \ShellEscape{\svg@ink@cmd{\svg@tempa}{\svg@tempb}{#3}}%
+    \endgroup%
+    \IfFileExists{#2}{}{\svg@troubleshooting{svg}{Exporting}{#1}{#2}}%
+  \fi\fi%
 }
 %    \end{macrocode}
 % \end{macro}^^A \if@svg@ink@run
@@ -3734,8 +3723,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
   \svg@sanitize@dq\svg@tempb{{\svg@ink@ver}{#2}}%
   \@svg@ink@ver@detectfalse%
-  \ifnum\svg@ink@ver=\m@ne\relax%
-    \ifnum\pdf@shellescape=\@ne\relax%
+  \ifnum\pdf@shellescape=\@ne\relax%
+    \ifnum\svg@ink@ver=\m@ne\relax%
 %    \end{macrocode}
 % If \opt{inkscapeexe} was not changed\dots
 %    \begin{macrocode}
@@ -5751,8 +5740,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
       \ifnum\svgx@cnv@mode>\z@\relax%
         \PackageWarning{svg-extract}{%
-          Image `\svg@out@file'\MessageBreak%
-          could not be converted as `extract=false' was set%
+          The conversion could not be done for image\MessageBreak%
+          `\svg@out@file'\MessageBreak%
+          as `extract=false' was set%
         }%
       \fi%
 %    \end{macrocode}
@@ -5763,8 +5753,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
           {\svg@out@file}{\@svg@tempswatrue}{\@svg@tempswafalse}%
         \if@svg@tempswa%
           \PackageWarning{svg-extract}{%
-            Image `\svg@out@file'\MessageBreak%
-            was neither extracted/converted nor included%
+            Neither extraction/conversion nor including of image\MessageBreak%
+            `\svg@out@file'\MessageBreak%
+            was done%
           }%
         \fi%
       \fi%
@@ -5851,8 +5842,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \ifnum\pdf@shellescape=\@ne\relax\else%
   \newcommand*\svgx@run[3]{%
     \PackageWarning{svg-extract}{%
-      You didn't enable `--shell-escape' option so it\MessageBreak%
-      wasn't possible to run extraction/conversion for\MessageBreak%
+      You didn't pass `--shell-escape' flag so it was\MessageBreak%
+      not possible to run extraction/conversion for\MessageBreak%
       `#1#2.#3'\MessageBreak%
     }%
   }%
