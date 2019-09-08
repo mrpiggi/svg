@@ -256,8 +256,7 @@
     }%
   \endgroup%
 }
-% TODO > svg@ifstrnocase
-\newcommand*\svg@ifstr@nocase[2]{%
+\newcommand*\svg@ifstrnocase[2]{%
   \begingroup%
     \edef\svg@tempa{%
       \noexpand\svg@quotes@remove[{#1}]{\noexpand\svg@tempa}%
@@ -336,13 +335,13 @@
           \edef\filename@ext{"\filename@ext"}%
         \fi%
       \fi%
-      \svg@ifstr@nocase{#1}{\filename@ext}{}{%
+      \svg@ifstrnocase{#1}{\filename@ext}{}{%
         \def\svg@tempa##1.##2\@nil##3\@nil{%
           \IfArgIsEmpty{##2}{%
             \edef\filename@ext{##1}%
           }{%
             \edef\filename@base{\filename@base.##1}%
-            \svg@ifstr@nocase{##2}{##3.}{%
+            \svg@ifstrnocase{##2}{##3.}{%
               \def\svg@tempb####1.\@nil{\edef\filename@ext{####1}}%
               \svg@tempb##2\@nil%
             }{%
@@ -355,7 +354,7 @@
         }%
         \svg@tempb%
       }%
-      \svg@ifstr@nocase{#1}{\filename@ext}{}{%
+      \svg@ifstrnocase{#1}{\filename@ext}{}{%
         \IfArgIsEmpty{#1}{}{%
           \ifx\filename@ext\@empty\else%
             \edef\filename@base{\filename@base.\filename@ext}%
@@ -416,7 +415,7 @@
     \svg@quotes@remove[{#1}]{\svg@tempa}%
     \svg@normalize@path{\svg@tempa}%
     \ifx\svg@tempa\@currdir\else%
-      \ShellEscape{\svg@shell@@mkdir{\svg@tempa}}%
+      \ShellEscape{\svg@@shell@mkdir{\svg@tempa}}%
     \fi%
   \endgroup%
 }
@@ -437,7 +436,7 @@
     \svg@tempa%
     \IfFileExists{"\svg@tempa"}{%
       \ifx\svg@tempa\svg@tempb\else%
-        \ShellEscape{\svg@shell@@mv\space"\svg@tempa"\space"\svg@tempb"}%
+        \ShellEscape{\svg@@shell@mv\space"\svg@tempa"\space"\svg@tempb"}%
       \fi%
     }{}%
   \endgroup%
@@ -451,24 +450,24 @@
       \ifx\filename@ext\relax\else.\filename@ext\fi%
     ]{\svg@tempa}%
     \IfFileExists{"\svg@tempa"}{%
-      \ShellEscape{\svg@shell@@rm\space"\svg@tempa"}%
+      \ShellEscape{\svg@@shell@rm\space"\svg@tempa"}%
     }{}%
   \endgroup%
 }
 \svg@ifwindowsdetected{%
-  \newcommand*\svg@shell@@mkdir[1]{if not exist "#1" mkdir "#1"}%
-  \newcommand*\svg@shell@@mv{move}%
-  \newcommand*\svg@shell@@rm{del}%
+  \newcommand*\svg@@shell@mkdir[1]{if not exist "#1" mkdir "#1"}%
+  \newcommand*\svg@@shell@mv{move}%
+  \newcommand*\svg@@shell@rm{del}%
 }{%
-  \newcommand*\svg@shell@@mkdir[1]{mkdir -p "#1"}%
-  \newcommand*\svg@shell@@mv{mv}%
-  \newcommand*\svg@shell@@rm{rm}%
+  \newcommand*\svg@@shell@mkdir[1]{mkdir -p "#1"}%
+  \newcommand*\svg@@shell@mv{mv}%
+  \newcommand*\svg@@shell@rm{rm}%
 }
 \newcommand*\svg@normalize@path[2][\@currdir]{%
   \begingroup%
     \svg@quotes@remove*[{#2}]{\svg@tempa}%
     \ifstr{\svg@tempa}{/}{\let\svg@tempa\@currdir}{}%
-    \expandafter\svg@normalize@@path\svg@tempa//\@nil%
+    \expandafter\svg@@normalize@path\svg@tempa//\@nil%
     \ifx\svg@tempa\@empty%
       \edef\svg@tempa{#1}%
       \@svg@quotes@foundfalse%
@@ -487,13 +486,13 @@
     }%
   \svg@tempb%
 }
-\newcommand*\svg@normalize@@path{}
-\def\svg@normalize@@path#1/#2/\@nil{%
+\newcommand*\svg@@normalize@path{}
+\def\svg@@normalize@path#1/#2/\@nil{%
   \IfArgIsEmpty{#2}{%
     \let\svg@tempa\@empty%
     \IfArgIsEmpty{#1}{}{\edef\svg@tempa{\trim@spaces{#1}/}}%
   }{%
-    \svg@normalize@@path#2/\@nil%
+    \svg@@normalize@path#2/\@nil%
     \edef\svg@tempa{\trim@spaces{#1}/\svg@tempa}%
   }%
 }
@@ -764,8 +763,7 @@
   \FamilyKeyStateProcessed%
 }
 \DefineFamilyKey{SVG}{svgformat}{\FamilyOptions{SVG}{svgextension=#1}}
-% TODO > svg@ink
-\newcommand*\svg@out@path{}
+\newcommand*\svg@ink@path{}
 \DefineFamilyKey{SVG}{inkscapepath}{%
   \svg@sanitize@dq\svg@tempb{#1}%
   \FamilySetNumerical{SVG}{inkscapepath}{svg@tempa}{%
@@ -776,30 +774,30 @@
   }{\svg@tempb}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \ifcase\svg@tempa\relax% svgpath
-      \renewcommand*\svg@out@path{\svg@file@path}%
+      \renewcommand*\svg@ink@path{\svg@file@path}%
     \or% svgsubpath
-      \renewcommand*\svg@out@path{\svg@file@path svg-inkscape/}%
+      \renewcommand*\svg@ink@path{\svg@file@path svg-inkscape/}%
     \or% basepath
-      \renewcommand*\svg@out@path{\@currdir}%
+      \renewcommand*\svg@ink@path{\@currdir}%
     \or% basesubpath
-      \renewcommand*\svg@out@path{\@currdir svg-inkscape/}%
+      \renewcommand*\svg@ink@path{\@currdir svg-inkscape/}%
     \fi%
   \else%
-    \edef\svg@out@path{\svg@tempb}%
-    \svg@normalize@path{\svg@out@path}%
+    \edef\svg@ink@path{\svg@tempb}%
+    \svg@normalize@path{\svg@ink@path}%
     \FamilyKeyStateProcessed%
   \fi%
 }
-\newcommand*\svg@out@name{%
+\newcommand*\svg@ink@name{%
   \svg@file@name\string_\svg@file@ext\if@svg@ink@latex-latex\fi%
 }
 \DefineFamilyKey{SVG}{inkscapename}{%
   \svg@ifvalueisrelax{#1}{%
-    \renewcommand*\svg@out@name{%
+    \renewcommand*\svg@ink@name{%
       \svg@file@name\string_\svg@file@ext\if@svg@ink@latex-latex\fi%
     }%
   }{%
-    \renewcommand*\svg@out@name{#1}%
+    \renewcommand*\svg@ink@name{#1}%
   }%
   \FamilyKeyStateProcessed%
 }
@@ -945,17 +943,17 @@
 \svg@dummy@key{pdftoepsopt}
 \svg@dummy@key{pdftopsopt}
 \svg@dummy@key{pdftops}
+\svg@dummy@key[true]{convert}
+\svg@dummy@key{convertformat}
+\svg@dummy@key[true]{png}
+\svg@dummy@key{convertdpi}
+\svg@dummy@key{convertdensity}
 \svg@dummy@key{magickexe}
 \svg@dummy@key{magicksetting}
 \svg@dummy@key{magickoperator}
 \svg@dummy@key{gsexe}
 \svg@dummy@key{gsopt}
 \svg@dummy@key{gsdevice}
-\svg@dummy@key[true]{convert}
-\svg@dummy@key{convertformat}
-\svg@dummy@key[true]{png}
-\svg@dummy@key{convertdpi}
-\svg@dummy@key{convertdensity}
 \svg@dummy@key{extractpath}
 \svg@dummy@key{path}
 \svg@dummy@key{extractname}
@@ -1045,26 +1043,26 @@
   }%
   \futurelet\svg@tempb\svg@tempa#1\@nil%
 }
-\newcommand*\svg@out@file{}
+\newcommand*\svg@ink@file{}
 \newcommand*\includesvg[2][]{%
   \begingroup%
     \svg@local@param@set{#1}%
     \svg@get@file{#2}{\svg@file@ext}%
-    \svg@normalize@name{svg}{inkscape}{svg@out}%
-    \ifx\svg@out@name\@empty\@svg@file@foundfalse\fi%
+    \svg@normalize@name{svg}{inkscape}{svg@ink}%
+    \ifx\svg@ink@name\@empty\@svg@file@foundfalse\fi%
     \if@svg@file@found%
-      \edef\svg@out@file{\svg@out@path\svg@out@name.\svg@ink@format}%
-      \svg@ink@run{\svg@file@base}{\svg@out@file}{\svg@ink@format}%
-      \IfFileExists{\svg@out@file}{}{%
-        \def\svg@tempa{\svg@file@err{\svg@out@file}{}}%
+      \edef\svg@ink@file{\svg@ink@path\svg@ink@name.\svg@ink@format}%
+      \svg@ink@run{\svg@file@base}{\svg@ink@file}{\svg@ink@format}%
+      \IfFileExists{\svg@ink@file}{}{%
+        \def\svg@tempa{\svg@ink@error{\svg@ink@file}{}}%
         \@svg@file@foundfalse%
       }%
       \if@svg@ink@latex%
-        \IfFileExists{\svg@out@file_tex}{}{%
+        \IfFileExists{\svg@ink@file_tex}{}{%
           \if@svg@file@found%
-            \def\svg@tempa{\svg@file@err{\svg@out@file_tex}{\svg@out@file}}%
+            \def\svg@tempa{\svg@ink@error{\svg@ink@file_tex}{\svg@ink@file}}%
           \else%
-            \def\svg@tempa{\svg@file@err{\svg@out@file,\svg@out@file_tex}{}}%
+            \def\svg@tempa{\svg@ink@error{\svg@ink@file,\svg@ink@file_tex}{}}%
           \fi%
           \@svg@file@foundfalse%
         }%
@@ -1078,7 +1076,7 @@
           }%
         \fi\fi%
         \begingroup%
-          \svg@process{\svg@out@path}{\svg@out@name}{\svg@ink@format}%
+          \svg@process{\svg@ink@path}{\svg@ink@name}{\svg@ink@format}%
         \endgroup%
       \else%
         \l@addto@macro\svg@tempa{{\svg@file@base}}%
@@ -1131,14 +1129,14 @@
       \@svg@tempswafalse%
       \def\svg@tempb{\svg@filename@parse[\relax]{#2}}%
       \@tfor\svg@tempa:={pdf}{eps}{ps}{png}\do{%
-        \svg@ifstr@nocase{\svg@tempa}{\filename@ext}{%
+        \svg@ifstrnocase{\svg@tempa}{\filename@ext}{%
           \edef\svg@tempb{%
             \noexpand\FamilyOptions{SVG}{inkscapeformat=\svg@tempa}%
             \def\noexpand\filename@base{\filename@base.\filename@ext}%
           }%
           \@svg@tempswatrue%
         }{%
-          \svg@ifstr@nocase{\svg@tempa_tex}{\filename@ext}{%
+          \svg@ifstrnocase{\svg@tempa_tex}{\filename@ext}{%
             \def\svg@tempb##1_##2\@nil{\def\svg@tempb{##1}}%
             \expandafter\svg@tempb\filename@ext\@nil%
             \edef\svg@tempb{%
@@ -1156,12 +1154,12 @@
       \svg@tempb%
     \fi%
     \svg@local@param@set{#1}%
-    \svg@get@file[\svg@out@path]{\filename@area\filename@base}{\svg@ink@format}%
+    \svg@get@file[\svg@ink@path]{\filename@area\filename@base}{\svg@ink@format}%
     \if@svg@file@found%
       \if@svg@ink@latex%
         \IfFileExists{\svg@file@base_tex}{}{%
           \@svg@file@foundfalse%
-          \svg@file@err{\svg@file@base_tex}{\svg@file@base}{}%
+          \svg@ink@error{\svg@file@base_tex}{\svg@file@base}{}%
         }%
       \fi%
       \if@svg@file@found%
@@ -1207,7 +1205,7 @@
         \FamilyOptions{SVG}{inkscapedpi=300}%
       \fi%
     }{}%
-    \svg@shell@mkdir{\svg@out@path}%
+    \svg@shell@mkdir{\svg@ink@path}%
     \PackageInfo{svg}{%
       Exporting `#1'%
       \ifx\svg@ink@opt\@empty\else\space with added options `\svg@ink@opt'\fi%
@@ -1397,8 +1395,7 @@
     }%
   \svg@tempa%
 }
-% TODO > svg@missing@err
-\newcommand*\svg@file@err[3]{%
+\newcommand*\svg@ink@error[3]{%
   \begingroup%
     \def\svg@tempa##1,##2,##3\@nil{%
       \edef\svg@tempb{%
@@ -1446,7 +1443,7 @@
     }%
   \endgroup%
 }
-% TODO > svg@missing@msg
+% TODO macro svg@missing@msg
 \newcommand*\svg@troubleshooting[4]{%
   \PackageWarning{#1}{%
     #2 from input file\MessageBreak`#3'\MessageBreak%
@@ -1481,7 +1478,7 @@
     \fi%
   \fi%
   \if@svg@ink@ver@detect%
-    \svg@ink@ver@@detect%
+    \svg@@ink@ver@detect%
     \edef\svg@ink@ver@settings{\svg@tempb{\svg@ink@ver}}%
     \svg@ifnumber{\svg@ink@ver}{}{%
       \PackageErrorNoLine{svg}{Inkscape version not found}{%
@@ -1497,7 +1494,7 @@
     \edef\svg@ink@ver@settings{\svg@tempb{#3}}%
   \fi%
 }
-\newcommand*\svg@ink@ver@@detect{%
+\newcommand*\svg@@ink@ver@detect{%
   \begingroup%
     \endlinechar=\m@ne%
     \everyeof{\noexpand}%
@@ -1526,17 +1523,29 @@
 \newcommand*\svg@file@path{}
 \newcommand*\svg@file@name{}
 \newcommand*\svg@file@base{}
-\newcommand*\svg@@@@get@file{}
+\newcommand*\svg@@get@file{}
 \newcommand*\svg@get@file{%
   \kernel@ifstar%
-    {\let\svg@@@@get@file\@gobble\svg@@get@file}%
-    {\let\svg@@@@get@file\@firstofone\svg@@get@file}%
+    {\let\svg@@get@file\@gobble\svg@@@get@file}%
+    {\let\svg@@get@file\@firstofone\svg@@@get@file}%
 }
-\newcommand*\svg@@get@file[3][]{%
+\newcommand*\svg@@@get@file[3][]{%
   \begingroup%
     \svg@set@input@path[{#1}]%
-    \@svg@file@foundfalse%
-    \svg@@@get@file{#2}{#3}%
+    \svg@filename@parse[{#3}]{#2}%
+    \ifx\filename@ext\relax%
+      \edef\filename@ext{#3}%
+    \fi%
+    \svg@@@@get@file{\filename@area\filename@base.\filename@ext}%
+    \if@svg@file@found\else%
+      \svg@quotes@normalize*[\filename@base]{\svg@tempa}%
+      \svg@@@@get@file{\filename@area\svg@tempa.\filename@ext}%
+      \if@svg@file@found\else%
+        \ifx\filename@ext\@empty%
+          \let\filename@ext\relax%
+        \fi%
+      \fi%
+    \fi%
     \if@svg@file@found%
       \svg@filename@parse[\filename@ext]{\@filef@und}%
       \edef\svg@file@path{%
@@ -1551,7 +1560,7 @@
     }%
     \svg@quotes@normalize{\svg@file@base}%
     \if@svg@file@found\else%
-      \svg@@@@get@file{%
+      \svg@@get@file{%
         \edef\svg@tempb{\svg@file@name.#3}%
         \edef\svg@tempa{%
           There's no file `\svg@tempb'\MessageBreak%
@@ -1593,26 +1602,7 @@
     }%
   \svg@tempa%
 }
-\newcommand*\svg@@@get@file[2]{%
-  \svg@filename@parse[{#2}]{#1}%
-  \ifx\filename@ext\relax%
-    \edef\filename@ext{#2}%
-  \fi%
-  \svg@IfFileExists{\filename@area\filename@base.\filename@ext}{%
-    \@svg@file@foundtrue%
-  }{%
-    \svg@quotes@normalize*[\filename@base]{\svg@tempa}%
-    \svg@IfFileExists{\filename@area\svg@tempa.\filename@ext}{%
-      \@svg@file@foundtrue%
-    }{%
-      \ifx\filename@ext\@empty%
-        \let\filename@ext\relax%
-      \fi%
-    }%
-  }%
-}
-% TODO rename > ?
-\newcommand*\svg@IfFileExists[1]{%
+\newcommand*\svg@@@@get@file[1]{%
   \begingroup%
     \@svg@tempswafalse%
     \edef\svg@tempa{%
@@ -1649,9 +1639,9 @@
       \endgroup%
       \if@svg@tempswa%
         \def\noexpand\@filef@und{\svg@tempb}%
-        \noexpand\@firstoftwo%
+        \noexpand\@svg@file@foundtrue%
       \else%
-        \noexpand\@secondoftwo%
+        \noexpand\@svg@file@foundfalse%
       \fi%
     }%
   \svg@tempa%
@@ -1709,7 +1699,6 @@
     \svg@tempb%
   \fi%
 }
-% TODO > rename to svg@saved@...
 \newcommand*\svg@picture@saved{}
 \let\svg@picture@saved\picture
 \newcommand*\svg@includegraphics@saved{}
@@ -1721,6 +1710,7 @@
 }
 \newcommand*\svg@picture@patched{}
 \newcommand*\svg@pictur@patched{}
+% TODO URGENT include transparent patch
 \long\def\svg@picture@patched#1{\svg@pictur@patched@#1}
 \def\svg@pictur@patched@(#1,#2){%
   \ifdim\svg@param@height>\z@\relax%
