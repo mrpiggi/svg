@@ -398,7 +398,12 @@
     \fi%
   }%
 }
-\newcommand*\svgx@magick@exe{}
+% TODO \svg@ifvalueisrelax{#1}{%
+\svg@ifwindowsdetected{%
+  \newcommand*\svgx@magick@exe{magick}%
+}{%
+  \newcommand*\svgx@magick@exe{convert}%
+}
 \DefineFamilyKey{SVG}{magickexe}{%
   \renewcommand*\svgx@magick@exe{#1}%
   \FamilyKeyStateProcessed%
@@ -421,7 +426,11 @@
   \svgx@useformatkey{svgx@magick@opr}{#5}{}%
   "#4#1.#5"%
 }
-\newcommand*\svgx@gs@exe{}
+\svg@ifwindowsdetected{%
+  \newcommand*\svgx@gs@exe{gswin64c}%
+}{%
+  \newcommand*\svgx@gs@exe{gs}%
+}
 \DefineFamilyKey{SVG}{gsexe}{%
   \renewcommand*\svgx@gs@exe{#1}%
   \FamilyKeyStateProcessed%
@@ -480,17 +489,17 @@
       \fi%
     \or% gs64
       \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
-      \svg@onlywindows{%
+      \svg@ifwindowsdetected{%
         \renewcommand*\svgx@gs@exe{gswin64c}%
-      }%
+      }{}%
       \ifnum\svgx@cnv@mode=\z@\relax%
         \def\svgx@cnv@mode{1}%
       \fi%
     \or% gs32
       \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
-      \svg@onlywindows{%
+      \svg@ifwindowsdetected{%
         \renewcommand*\svgx@gs@exe{gswin32c}%
-      }%
+      }{}%
       \ifnum\svgx@cnv@mode=\z@\relax%
         \def\svgx@cnv@mode{1}%
       \fi%
@@ -1709,21 +1718,6 @@
     }%
   \endgroup%
 }
-% TODO check when to set, maybe within \svgx@conv@run
-\ifx\svgx@magick@exe\@empty
-  \ifwindows
-    \renewcommand*\svgx@magick@exe{magick}
-  \else
-    \renewcommand*\svgx@magick@exe{convert}
-  \fi
-\fi
-\ifx\svgx@gs@exe\@empty
-  \ifwindows
-    \renewcommand*\svgx@gs@exe{gswin64c}
-  \else
-    \renewcommand*\svgx@gs@exe{gs}
-  \fi
-\fi
 \endinput
 %%
 %% End of file `svg-extract.sty'.

@@ -73,10 +73,9 @@
 \RequirePackage{ifxetex}[2010/09/12]
 \RequirePackage{etexcmds}[2016/05/16]
 \RequirePackage{pdftexcmds}[2016/05/21]
-% TODO check, if not in shell-escape mode
-\RequirePackage{shellesc}[2016/06/07]
 \RequirePackage{trimspaces}[2009/09/17]
 \RequirePackage{graphicx}[1999/02/16]
+\RequirePackage{shellesc}[2016/06/07]
 \ifnum\pdf@shellescape=\@ne\relax
   \RequirePackage{ifplatform}[2010/10/22]
 \fi
@@ -100,6 +99,16 @@
 \newcommand*\svg@tempa{}
 \newcommand*\svg@tempb{}
 \newif\if@svg@tempswa
+\newcommand*\svg@ifwindowsdetected{\@secondoftwo}
+\AfterPackage*{ifplatform}{%
+  \renewcommand*\svg@ifwindowsdetected{%
+    \ifwindows%
+      \expandafter\@firstoftwo%
+    \else%
+      \expandafter\@secondoftwo%
+    \fi%
+  }%
+}
 \newcommand*\svg@if@nil[1]{%
   \begingroup%
     \def\svg@tempa{#1}%
@@ -485,20 +494,15 @@
     }{}%
   \endgroup%
 }
-\@ifpackageloaded{ifplatform}{
-  \ifwindows
-    \newcommand*\svg@shell@@mkdir[1]{if not exist "#1" mkdir "#1"}
-    \newcommand*\svg@shell@@mv{move}
-    \newcommand*\svg@shell@@rm{del}
-  \else
-    \newcommand*\svg@shell@@mkdir[1]{mkdir -p "#1"}
-    \newcommand*\svg@shell@@mv{mv}
-    \newcommand*\svg@shell@@rm{rm}
-  \fi
-}{}
-% TODO use \svg@onlywindows instead of \ifwindows
-\newcommand*\svg@onlywindows[1]{}
-\AfterPackage*{ifplatform}{\renewcommand*\svg@onlywindows[1]{\ifwindows#1\fi}}
+\svg@ifwindowsdetected{%
+  \newcommand*\svg@shell@@mkdir[1]{if not exist "#1" mkdir "#1"}%
+  \newcommand*\svg@shell@@mv{move}%
+  \newcommand*\svg@shell@@rm{del}%
+}{%
+  \newcommand*\svg@shell@@mkdir[1]{mkdir -p "#1"}%
+  \newcommand*\svg@shell@@mv{mv}%
+  \newcommand*\svg@shell@@rm{rm}%
+}
 \newcommand*\svg@normalize@path[2][\@currdir]{%
   \begingroup%
     \svg@quotes@remove*[{#2}]{\svg@tempa}%

@@ -1,4 +1,4 @@
-% \CheckSum{5069}
+% \CheckSum{5049}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -122,7 +122,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 
 \usepackage{xpatch}
 \xpretocmd{\svg@process}{\MakePercentComment}{}{%
-  \GenericError{}{Patching \string\svg@process not successful}{%
+  \GenericError{}{Patching \string\svg@process{} not successful}{%
     see `\jobname.dtx' on input line \the\numexpr\inputlineno-4\relax%
   }{}%
 }
@@ -1406,15 +1406,16 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \section{Initialization}
 % \subsection{Packages}
 %
-% The package \pkg{svg} requires \pkg{scrbase} for options processing, the
-% packages \pkg{ifluatex}, \pkg{ifpdf} and \pkg{ifxetex} for detecting the 
-% used \LaTeX~engine, \pkg{etexcmds} $\varepsilon$-\TeX{} primitives and 
-% \pkg{pdftexcmds} for pdf\TeX{} primitives independent of the used 
-% \LaTeX~engine, \pkg{shellesc} and \pkg{ifplatform} for engine independent
-% access to systems commands and files as well as \pkg{graphicx} for the
-% inclusion of PDF~files. The usage of the two packages \pkg{xcolor} and 
-% \pkg{transparent} can be switched of with the corresponding options. 
-% The package \pkg{svg-extract} only needs package \pkg{svg} itself.
+% The package \pkg{svg} mainly requires \pkg{scrbase} for options processing 
+% and \pkg{graphicx} for the inclusion of the exported graphic~files. 
+%
+% The additional packages \pkg{ifpdf}, \pkg{ifluatex} and \pkg{ifxetex} are 
+% needed to detect the used \LaTeX~engine, \pkg{etexcmds} $\varepsilon$-\TeX{}
+% primitives and \pkg{pdftexcmds} for pdf\TeX{} primitives independent of the 
+% used \LaTeX~engine as well as \pkg{trimspaces} for string manipulation. Both
+% packages \pkg{shellesc} and \pkg{ifplatform} are used for engine independent
+% access to systems commands and files. The package \pkg{svg-extract} only
+% needs package \pkg{svg} itself.
 %    \begin{macrocode}
 %<*main>
 \RequirePackage{scrbase}[2016/06/14]
@@ -1423,9 +1424,16 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \RequirePackage{ifxetex}[2010/09/12]
 \RequirePackage{etexcmds}[2016/05/16]
 \RequirePackage{pdftexcmds}[2016/05/21]
-\RequirePackage{shellesc}[2016/06/07]
 \RequirePackage{trimspaces}[2009/09/17]
 \RequirePackage{graphicx}[1999/02/16]
+\RequirePackage{shellesc}[2016/06/07]
+%    \end{macrocode}
+% In order to do not raise a warning, package \pkg{ifplatform} is only used if
+% \file{-{}-shell-escape} flag is enabled.
+%    \begin{macrocode}
+\ifnum\pdf@shellescape=\@ne\relax
+  \RequirePackage{ifplatform}[2010/10/22]
+\fi
 %</main>
 %<*extract>
 \RequirePackage{svg}[2017/03/27]
@@ -1504,6 +1512,21 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \subsubsection{Control sequences}
 %
+% \begin{macro}{\svg@ifwindowsdetected}
+% Do some Windows specific stuff if it was detected.
+%    \begin{macrocode}
+\newcommand*\svg@ifwindowsdetected{\@secondoftwo}
+\AfterPackage*{ifplatform}{%
+  \renewcommand*\svg@ifwindowsdetected{%
+    \ifwindows%
+      \expandafter\@firstoftwo%
+    \else%
+      \expandafter\@secondoftwo%
+    \fi%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@ifwindowsdetected
 % \begin{macro}{\svg@ifvalueisrelax}
 % \changes{v2.03}{2019/08/01}{also accepts string \val{relax}}^^A
 % For some keys the usage of \val{\cs{relax}} as a value should lead to a 
@@ -1993,20 +2016,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 %    \end{macrocode}
 % \end{macro}^^A \svg@extension@parse
-% \begin{macro}{\svg@RequirePackage}
-% \changes{v2.03}{2019/08/30}{new}^^A
-% In order to load other packages within these two and not interferring the 
-% catcodes, this macro is defined, where catcodes are restored before and reset
-% after loading.
-%    \begin{macrocode}
-\newcommand*\svg@RequirePackage{}
-\def\svg@RequirePackage#1[#2]{%
-  \svg@catcodes@restore%
-  \RequirePackage{#1}[#2]%
-  \svg@catcodes@set%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svg@RequirePackage
 % \begin{macro}{\svg@IfFileNewer}
 % \changes{v2.03}{2019/07/18}{Xe\TeX{} provides \cs{filemoddate}}^^A
 % The macro \cs{svg@IfFileNewer} is used to decide, whether the export with 
@@ -2099,24 +2108,17 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \endgroup%
 }
 %    \end{macrocode}
-% The platform dependent commands for file access. In order to do not raise a 
-% warning, package \pkg{ifplatform} is only used if \file{-{}-shell-escape} 
-% flag is enabled.
+% The platform dependent commands for file access. 
 %    \begin{macrocode}
-\ifnum\pdf@shellescape=\@ne\relax
-  \svg@RequirePackage{ifplatform}[2010/10/22]
-\fi
-\@ifpackageloaded{ifplatform}{
-  \ifwindows
-    \newcommand*\svg@shell@@mkdir[1]{if not exist "#1" mkdir "#1"}
-    \newcommand*\svg@shell@@mv{move}
-    \newcommand*\svg@shell@@rm{del}
-  \else
-    \newcommand*\svg@shell@@mkdir[1]{mkdir -p "#1"}
-    \newcommand*\svg@shell@@mv{mv}
-    \newcommand*\svg@shell@@rm{rm}
-  \fi
-}{}
+\svg@ifwindowsdetected{%
+  \newcommand*\svg@shell@@mkdir[1]{if not exist "#1" mkdir "#1"}%
+  \newcommand*\svg@shell@@mv{move}%
+  \newcommand*\svg@shell@@rm{del}%
+}{%
+  \newcommand*\svg@shell@@mkdir[1]{mkdir -p "#1"}%
+  \newcommand*\svg@shell@@mv{mv}%
+  \newcommand*\svg@shell@@rm{rm}%
+}
 %    \end{macrocode}
 % \end{macro}^^A \svg@shell@@rm
 % \end{macro}^^A \svg@shell@rm
@@ -2124,13 +2126,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@shell@mv
 % \end{macro}^^A \svg@shell@@mkdir
 % \end{macro}^^A \svg@shell@mkdir
-% \begin{macro}{\svg@onlywindows}
-% Do some stuff only if Windows was detected.
-%    \begin{macrocode}
-\newcommand*\svg@onlywindows[1]{}
-\AfterPackage*{ifplatform}{\renewcommand*\svg@onlywindows[1]{\ifwindows#1\fi}}
-%    \end{macrocode}
-% \end{macro}^^A \svg@onlywindows
 % \begin{macro}{\svg@normalize@path}
 % \changes{v2.02}{2018/09/07}{usage of \cs{svg@deactivate@dq}}^^A
 % \begin{macro}{\svg@normalize@@path}
@@ -5043,7 +5038,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \svg@dummy@key{magickoperator}
 %</main>
 %<*extract>
-\newcommand*\svgx@magick@exe{}
+\svg@ifwindowsdetected{%
+  \newcommand*\svgx@magick@exe{magick}%
+}{%
+  \newcommand*\svgx@magick@exe{convert}%
+}
 \DefineFamilyKey{SVG}{magickexe}{%
   \renewcommand*\svgx@magick@exe{#1}%
   \FamilyKeyStateProcessed%
@@ -5098,7 +5097,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \svg@dummy@key{gsdevice}
 %</main>
 %<*extract>
-\newcommand*\svgx@gs@exe{}
+\svg@ifwindowsdetected{%
+  \newcommand*\svgx@gs@exe{gswin64c}%
+}{%
+  \newcommand*\svgx@gs@exe{gs}%
+}
 \DefineFamilyKey{SVG}{gsexe}{%
   \renewcommand*\svgx@gs@exe{#1}%
   \FamilyKeyStateProcessed%
@@ -5177,17 +5180,17 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \fi%
     \or% gs64
       \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
-      \svg@onlywindows{%
+      \svg@ifwindowsdetected{%
         \renewcommand*\svgx@gs@exe{gswin64c}%
-      }%
+      }{}%
       \ifnum\svgx@cnv@mode=\z@\relax%
         \def\svgx@cnv@mode{1}%
       \fi%
     \or% gs32
       \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
-      \svg@onlywindows{%
+      \svg@ifwindowsdetected{%
         \renewcommand*\svgx@gs@exe{gswin32c}%
-      }%
+      }{}%
       \ifnum\svgx@cnv@mode=\z@\relax%
         \def\svgx@cnv@mode{1}%
       \fi%
@@ -6899,24 +6902,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
     }%
   \endgroup%
 }
-%    \end{macrocode}
-% For invoking the conversion process, the platform-dependent executable is
-% set, if nothing was set by a package option.
-%    \begin{macrocode}
-\ifx\svgx@magick@exe\@empty
-  \ifwindows
-    \renewcommand*\svgx@magick@exe{magick}
-  \else
-    \renewcommand*\svgx@magick@exe{convert}
-  \fi
-\fi
-\ifx\svgx@gs@exe\@empty
-  \ifwindows
-    \renewcommand*\svgx@gs@exe{gswin64c}
-  \else
-    \renewcommand*\svgx@gs@exe{gs}
-  \fi
-\fi
 %    \end{macrocode}
 % \end{macro}^^A \svgx@cnv@get@input@format
 % \end{macro}^^A \svgx@cnv@input@format
