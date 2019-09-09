@@ -1270,8 +1270,10 @@
     \else%
       \ifnum\value{svg@param@lastpage}=\z@\relax%
         \svg@ifdvimode{}{%
-          \edef\svg@tempb{\noexpand\svg@get@lastpage{"\svg@tempa"}}%
-          \svg@tempb%
+          \ifstr{#3}{pdf}{%
+            \edef\svg@tempb{\noexpand\svg@get@lastpage{"\svg@tempa"}}%
+            \svg@tempb%
+          }{}%
         }%
       \fi%
     \fi%
@@ -1388,7 +1390,7 @@
         It wasn't possible to detect the last page\MessageBreak%
         of `#1'%
       }%
-      \def\svg@tempa{\relax}%
+      \let\svg@tempa\@empty%
     \fi%
     \edef\svg@tempa{%
       \endgroup%

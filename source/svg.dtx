@@ -1,4 +1,4 @@
-% \CheckSum{5122}
+% \CheckSum{5130}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -3125,6 +3125,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \fi%
   \fi%
 }
+\svg@ifdvimode{
+  \FamilyExecuteOptions{SVG}{lastpage=false}
+}{
+  \FamilyExecuteOptions{SVG}{lastpage=true}
+}
 %    \end{macrocode}
 % \end{counter}^^A svg@param@lastpage
 % \end{option}^^A lastpage
@@ -3761,12 +3766,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \ifGin@draft%
       \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{1}%
     \else%
-      \ifstr{#3}{pdf}{%
-        \ifnum\value{svg@param@lastpage}=\z@\relax%
-          \edef\svg@tempb{\noexpand\svg@get@lastpage{"\svg@tempa"}}%
-          \svg@tempb%
-        \fi%
-      }{}%
+      \ifnum\value{svg@param@lastpage}=\z@\relax%
+        \svg@ifdvimode{}{%
+          \ifstr{#3}{pdf}{%
+            \edef\svg@tempb{\noexpand\svg@get@lastpage{"\svg@tempa"}}%
+            \svg@tempb%
+          }{}%
+        }%
+      \fi%
     \fi%
     \edef\svg@tempa{%
       \ifx\svg@param@pretex\relax\else%
@@ -3895,31 +3902,33 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \begingroup%
     \@tempcnta=\m@ne\relax%
     \ifx\XeTeXpdfpagecount\@undefined%
-      \ifpdf%
-        \ifx\pdfximage\@undefined%
-          \ifx\saveimageresource\@undefined\else%
-            \saveimageresource{#1}%
-            \@tempcnta=\lastsavedimageresourcepages\relax%
-          \fi%
-        \else%
-          \pdfximage{#1}%
-          \@tempcnta=\pdflastximagepages\relax%
+      \ifx\pdfximage\@undefined%
+        \ifx\saveimageresource\@undefined\else%
+          \saveimageresource{#1}%
+          \@tempcnta=\lastsavedimageresourcepages\relax%
         \fi%
+      \else%
+        \pdfximage{#1}%
+        \@tempcnta=\pdflastximagepages\relax%
       \fi%
     \else%
       \@tempcnta=\XeTeXpdfpagecount#1\relax%
     \fi%
-    \ifnum\@tempcnta=\m@ne\relax%
+    \ifnum\@tempcnta>\z@\relax%
+      \PackageInfo{svg}{Last page of `#1'\MessageBreak is `\the\@tempcnta'}%
+      \def\svg@tempa{%
+        \noexpand\FamilyExecuteOptions[.param]{SVG}{lastpage=\the\@tempcnta}%
+      }%
+    \else%
       \PackageWarning{svg}{%
         It wasn't possible to detect the last page\MessageBreak%
         of `#1'%
       }%
-    \else%
-      \PackageInfo{svg}{Last page of `#1'\MessageBreak is `\the\@tempcnta'}%
+      \let\svg@tempa\@empty%
     \fi%
     \edef\svg@tempa{%
       \endgroup%
-      \noexpand\FamilyExecuteOptions[.param]{SVG}{lastpage=\the\@tempcnta}%
+      \svg@tempa%
     }%
   \svg@tempa%
 }
