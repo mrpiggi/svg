@@ -29,6 +29,26 @@
 %% ----------------------------------------------------------------------------
 %%
 %</identify>
+% \fi
+%
+%
+% \CharacterTable
+%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%   Digits        \0\1\2\3\4\5\6\7\8\9
+%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%   Dollar        \$     Percent       \%     Ampersand     \&
+%   Acute accent  \'     Left paren    \(     Right paren   \)
+%   Asterisk      \*     Plus          \+     Comma         \,
+%   Minus         \-     Point         \.     Solidus       \/
+%   Colon         \:     Semicolon     \;     Less than     \<
+%   Equals        \=     Greater than  \>     Question mark \?
+%   Commercial at \@     Left bracket  \[     Backslash     \\
+%   Right bracket \]     Circumflex    \^     Underscore    \_
+%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%   Right brace   \}     Tilde         \~}
+%
+% \iffalse
 %<*dtx>
 \ifx\documentclass\undefined
 \input docstrip.tex
@@ -72,39 +92,53 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \fi
 \endbatchfile
 %</dtx>
-%
 % \fi
 %
-% \CharacterTable
-%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
-%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
-%   Digits        \0\1\2\3\4\5\6\7\8\9
-%   Exclamation   \!     Double quote  \"     Hash (number) \#
-%   Dollar        \$     Percent       \%     Ampersand     \&
-%   Acute accent  \'     Left paren    \(     Right paren   \)
-%   Asterisk      \*     Plus          \+     Comma         \,
-%   Minus         \-     Point         \.     Solidus       \/
-%   Colon         \:     Semicolon     \;     Less than     \<
-%   Equals        \=     Greater than  \>     Question mark \?
-%   Commercial at \@     Left bracket  \[     Backslash     \\
-%   Right bracket \]     Circumflex    \^     Underscore    \_
-%   Grave accent  \`     Left brace    \{     Vertical bar  \|
-%   Right brace   \}     Tilde         \~}
-%
 % \iffalse
+%<*dtx|package&identify>
+\NeedsTeXFormat{LaTeX2e}
 %<*dtx>
 \ifx\ProvidesFile\undefined\def\ProvidesFile#1[#2]{}\fi
-\ProvidesFile{svg.dtx}[%
 %</dtx>
-%<package&identify>\NeedsTeXFormat{LaTeX2e}
-%<package&identify&main>\ProvidesPackage{svg}[%
-%<package&identify&extract>\ProvidesPackage{svg-extract}[%
-%<*dtx|package&identify>
-  2019/09/08 v2.03\space%
-%<package&identify&main>  (include SVG pictures)%
-%<package&identify&extract>  (extract independent graphics from SVG pictures)%
-]
+\begingroup
+  \catcode`\@11\relax%
+  \def\svg@Provides#1#2[#3]{%
+    \def\@tempa{\def\svg@version{#3}}%
+    \ifx\svg@version\@undefined\else%
+      \def\@tempb{#3}%
+      \ifx\svg@version\@tempb\else%
+        \def\@tempa{%
+          \@latex@warning@no@line{%
+            The version of package `#1' is `#3',\MessageBreak%
+            but `\svg@version' was expected!\MessageBreak%
+            You should update the svg bundle%
+          }%
+        }%
+      \fi%
+    \fi%
+    \edef\@tempb{%
+      \endgroup%
+%<*dtx>
+      \noexpand\ProvidesFile%
+%</dtx>
+%<package&identify>      \noexpand\ProvidesPackage%
+      {#1}[#3\space(#2)]%
+%<package&identify&extract>      \noexpand\RequirePackage{svg}[#3]%
+      \unexpanded\expandafter{\@tempa}%
+    }%
+  }%
+  \svg@Provides%
+%<*dtx>
+  {svg.dtx}{source}%
+%</dtx>
+%<package&identify&main>  {svg}{include SVG pictures}%
+%<package&identify&extract>  {svg-extract}{extract graphics from SVG pictures}%
+  [2019/09/10 v2.03]%
+\@tempb
 %</dtx|package&identify>
+% \fi
+%
+% \iffalse
 %<*dtx>
 \documentclass[english,xindy]{tudscrdoc}[2017/03/27]
 \ifpdftex{
@@ -204,6 +238,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \app{Ghostscript} can be invoked.
   \end{abstract}
   \tableofcontents
+  \ToDo{replace \cs{svg@@...} with \cs{svg@...@}}[v2.03]
   \ToDo{use \cs{@tempa} instead of \cs{svg@tempa} in FamilyKeys!}[v2.03]
   \ToDo{call makefile from .bat}[v2.03]
   \ToDo{%
@@ -1413,8 +1448,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % primitives and \pkg{pdftexcmds} for pdf\TeX{} primitives independent of the 
 % used \LaTeX~engine as well as \pkg{trimspaces} for string manipulation. Both
 % packages \pkg{shellesc} and \pkg{ifplatform} are used for engine independent
-% access to systems commands and files. The package \pkg{svg-extract} only
-% needs package \pkg{svg} itself.
+% access to systems commands and files. The package \pkg{svg-extract} only 
+% needs package \pkg{svg} itself, which is loaded during initialization.
 %    \begin{macrocode}
 %<*main>
 \RequirePackage{scrbase}[2016/06/14]
@@ -1434,9 +1469,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \RequirePackage{ifplatform}[2010/10/22]
 \fi
 %</main>
-%<*extract>
-\RequirePackage{svg}[2017/03/27]
-%</extract>
 %    \end{macrocode}
 %
 %
@@ -2102,7 +2134,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
             \aftergroup\@secondoftwo%
           \fi%
         \endgroup%
-      }
+      }%
     \fi
   \fi
 \else
@@ -2117,7 +2149,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
           \aftergroup\@secondoftwo%
         \fi%
       \endgroup%
-    }
+    }%
   \fi
 \fi
 %    \end{macrocode}
@@ -3484,7 +3516,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Within macro \cs{svg@tempb} the setup for a known extension will be stored. 
 % If no extentsion will be found, the parsing of the file name will be done 
 % again and any found extension will be considered to be part of the file name 
-% itself (cs{\filename@base}).
+% itself (\cs{filename@base}).
 %    \begin{macrocode}
       \def\svg@tempb{\svg@filename@parse[\relax]{#2}}%
       \@tfor\svg@tempa:={pdf}{eps}{ps}{png}\do{%
@@ -6511,7 +6543,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
         No specific preamble is used for the generation of\MessageBreak%
         the auxiliary file `\svgx@out@name'%
         \if@svg@ink@latex%
-          \MessageBreak so the result of extraction/conversion will probably
+          \MessageBreak so the result of extraction/conversion will probably%
           \MessageBreak look different from the appearance in this file%
         \fi%
       }%
