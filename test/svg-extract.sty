@@ -196,10 +196,11 @@
 \DeclareOption{forced}{\AtEndOfPackage{\FamilyOptions{SVG}{extract=forced}}}
 \DeclareOption{auto}{\AtEndOfPackage{\FamilyOptions{SVG}{extract=true}}}
 \DeclareOption{off}{\AtEndOfPackage{\FamilyOptions{SVG}{extract=false}}}
-\newcommand*\svgx@extr@format{pdf}
-\ifxetex\else\ifpdf\else
-  \renewcommand*\svgx@extr@format{eps}
-\fi\fi
+\svg@ifdvimode{
+  \newcommand*\svgx@extr@format{eps}
+}{
+  \newcommand*\svgx@extr@format{pdf}
+}
 \DefineFamilyKey{SVG}{extractformat}{%
   \svg@lowercase[{#1}]{\svgx@extr@format}%
   \svgx@normalize@list{\svgx@extr@format}%
@@ -1458,15 +1459,16 @@
       \svg@tempb It's intended to be compiled with\space%
       `\svgx@latex@exe\ifx\svgx@latex@opt\@empty\else\space\svgx@latex@opt\fi'%
     }%
+    \svg@ifdvimode{\@svg@tempswatrue}{\@svg@tempswafalse}%
     \immediate\write\svgx@stream@out{%
       \string\AtBeginDocument{\@percentchar^^J%
         \space\space\string\svgxsetpapersize\@percentchar^^J%
-        \ifxetex\else\ifpdf\else%
+        \if@svg@tempswa%
           \space\space\string\AtBeginDvi{\string\special{%
               papersize=\string\the\string\paperwidth,%
                 \string\the\string\paperheight%
           }}\@percentchar^^J%
-        \fi\fi%
+        \fi%
       }^^J%
       \string\PassOptionsToPackage{hidelinks}{hyperref}%
     }%
@@ -1631,18 +1633,14 @@
         }%
       }%
     }%
-    \@svg@tempswafalse%
-    \ifxetex\else\ifpdf\else%
-      \@svg@tempswatrue%
-    \fi\fi%
-    \if@svg@tempswa%
+    \svg@ifdvimode{%
       \svg@tempa{dvips}{dvi}%
       \svgx@ifinlist{\svgx@extr@format}{eps}{\svg@tempa{pstoeps}{ps}}{}%
       \svgx@ifinlist{\svgx@extr@format}{pdf}{\svg@tempa{pstopdf}{ps}}{}%
-    \else%
+    }{%
       \svgx@ifinlist{\svgx@extr@format}{eps}{\svg@tempa{pdftoeps}{pdf}}{}%
       \svgx@ifinlist{\svgx@extr@format}{ps}{\svg@tempa{pdftops}{pdf}}{}%
-    \fi%
+    }%
     \@for\svg@tempa:=\svgx@extr@format\do{%
       \edef\svg@tempb{\svgx@out@name.\svg@tempa}%
       \svgx@afterdocument@xaddto{%
@@ -1656,10 +1654,11 @@
     }%
   \endgroup%
 }
-\newcommand*\svgx@conv@input@format{pdf}
-\ifxetex\else\ifpdf\else
-  \renewcommand*\svgx@conv@input@format{ps}
-\fi\fi
+\svg@ifdvimode{
+  \newcommand*\svgx@conv@input@format{ps}
+}{
+  \newcommand*\svgx@conv@input@format{pdf}
+}
 \newcommand*\svgx@conv@get@input@format{%
   \ifx\svgx@extr@format\@empty\else%
     \begingroup%

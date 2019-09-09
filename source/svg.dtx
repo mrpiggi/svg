@@ -1,4 +1,4 @@
-% \CheckSum{5129}
+% \CheckSum{5122}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -1512,6 +1512,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \subsubsection{Control sequences}
 %
 % \begin{macro}{\svg@ifwindowsdetected}
+% \changes{v2.03}{2019/09/09}{new}^^A
 % Do some Windows specific stuff if it was detected.
 %    \begin{macrocode}
 \newcommand*\svg@ifwindowsdetected{\@secondoftwo}
@@ -1526,6 +1527,25 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 %    \end{macrocode}
 % \end{macro}^^A \svg@ifwindowsdetected
+% \begin{macro}{\svg@ifdvimode}
+% \changes{v2.03}{2019/09/09}{new}^^A
+% Check, if classic DVI~output is active or not.
+%    \begin{macrocode}
+\newcommand*\svg@ifdvimode{%
+  \begingroup%
+    \@svg@tempswafalse%
+    \ifxetex\else\ifpdf\else%
+      \@svg@tempswatrue%
+    \fi\fi%
+    \if@svg@tempswa%
+      \aftergroup\@firstoftwo%
+    \else%
+      \aftergroup\@secondoftwo%
+    \fi%
+  \endgroup%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@ifdvimode
 % \begin{macro}{\svg@if@nil}
 % \changes{v2.03}{2019/09/09}{new}^^A
 % Check, if the given argument is defined as \cs{@nil}. This is mainly used to 
@@ -2720,10 +2740,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % It is set to \val{pdf} or, if dvi output could be detected, to \val{eps} 
 % during initialization.
 %    \begin{macrocode}
-\newcommand*\svg@ink@format{pdf}
-\ifxetex\else\ifpdf\else
-  \renewcommand*\svg@ink@format{eps}
-\fi\fi
+\svg@ifdvimode{
+  \newcommand*\svg@ink@format{eps}
+}{
+  \newcommand*\svg@ink@format{pdf}
+}
 \DefineFamilyKey{SVG}{inkscapeformat}{%
   \svg@lowercase[{#1}]{\svg@tempa}%
   \FamilySetNumerical{SVG}{inkscapeformat}{svg@tempa}{%
@@ -4685,10 +4706,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \svg@dummy@key[true]{eps}
 %</main>
 %<*extract>
-\newcommand*\svgx@extr@format{pdf}
-\ifxetex\else\ifpdf\else
-  \renewcommand*\svgx@extr@format{eps}
-\fi\fi
+\svg@ifdvimode{
+  \newcommand*\svgx@extr@format{eps}
+}{
+  \newcommand*\svgx@extr@format{pdf}
+}
 \DefineFamilyKey{SVG}{extractformat}{%
   \svg@lowercase[{#1}]{\svgx@extr@format}%
   \svgx@normalize@list{\svgx@extr@format}%
@@ -6582,15 +6604,16 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % command is definitely used with the correct paper size, when creating a 
 % DVI~file.
 %    \begin{macrocode}
+    \svg@ifdvimode{\@svg@tempswatrue}{\@svg@tempswafalse}%
     \immediate\write\svgx@stream@out{%
       \string\AtBeginDocument{\@percentchar^^J%
         \space\space\string\svgxsetpapersize\@percentchar^^J%
-        \ifxetex\else\ifpdf\else%
+        \if@svg@tempswa%
           \space\space\string\AtBeginDvi{\string\special{%
               papersize=\string\the\string\paperwidth,%
                 \string\the\string\paperheight%
           }}\@percentchar^^J%
-        \fi\fi%
+        \fi%
       }^^J%
       \string\PassOptionsToPackage{hidelinks}{hyperref}%
     }%
@@ -6846,18 +6869,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
         }%
       }%
     }%
-    \@svg@tempswafalse%
-    \ifxetex\else\ifpdf\else%
-      \@svg@tempswatrue%
-    \fi\fi%
-    \if@svg@tempswa%
+    \svg@ifdvimode{%
       \svg@tempa{dvips}{dvi}%
       \svgx@ifinlist{\svgx@extr@format}{eps}{\svg@tempa{pstoeps}{ps}}{}%
       \svgx@ifinlist{\svgx@extr@format}{pdf}{\svg@tempa{pstopdf}{ps}}{}%
-    \else%
+    }{%
       \svgx@ifinlist{\svgx@extr@format}{eps}{\svg@tempa{pdftoeps}{pdf}}{}%
       \svgx@ifinlist{\svgx@extr@format}{ps}{\svg@tempa{pdftops}{pdf}}{}%
-    \fi%
+    }%
 %    \end{macrocode}
 % All files intended to be extracted are moved to the desired output folder 
 % (\opt{extractpath}), if existing. Otherwise a warning is given.
@@ -6886,10 +6905,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % empty---remains at a format---stored in \cs{svgx@conv@input@format}---which 
 % is generated anyway.
 %    \begin{macrocode}
-\newcommand*\svgx@conv@input@format{pdf}
-\ifxetex\else\ifpdf\else
-  \renewcommand*\svgx@conv@input@format{ps}
-\fi\fi
+\svg@ifdvimode{
+  \newcommand*\svgx@conv@input@format{ps}
+}{
+  \newcommand*\svgx@conv@input@format{pdf}
+}
 \newcommand*\svgx@conv@get@input@format{%
   \ifx\svgx@extr@format\@empty\else%
     \begingroup%

@@ -109,6 +109,19 @@
     \fi%
   }%
 }
+\newcommand*\svg@ifdvimode{%
+  \begingroup%
+    \@svg@tempswafalse%
+    \ifxetex\else\ifpdf\else%
+      \@svg@tempswatrue%
+    \fi\fi%
+    \if@svg@tempswa%
+      \aftergroup\@firstoftwo%
+    \else%
+      \aftergroup\@secondoftwo%
+    \fi%
+  \endgroup%
+}
 \newcommand*\svg@if@nil[1]{%
   \begingroup%
     \def\svg@tempa{#1}%
@@ -145,19 +158,6 @@
       }{}%
     }{}%
     \svg@tempb%
-  \endgroup%
-}
-\newcommand*\svg@ifdvimode{%
-  \begingroup%
-    \@svg@tempswafalse%
-    \ifxetex\else\ifpdf\else%
-      \@svg@tempswatrue%
-    \fi\fi%
-    \if@svg@tempswa%
-      \aftergroup\@firstoftwo%
-    \else%
-      \aftergroup\@secondoftwo%
-    \fi%
   \endgroup%
 }
 \newcommand*\svg@ifstrblank[1]{%
@@ -675,10 +675,11 @@
 }
 \svg@tempa{inkscapeexe}
 \svg@tempa{inkscapeversion}
-\newcommand*\svg@ink@format{pdf}
-\ifxetex\else\ifpdf\else
-  \renewcommand*\svg@ink@format{eps}
-\fi\fi
+\svg@ifdvimode{
+  \newcommand*\svg@ink@format{eps}
+}{
+  \newcommand*\svg@ink@format{pdf}
+}
 \DefineFamilyKey{SVG}{inkscapeformat}{%
   \FamilySetNumerical{SVG}{inkscapeformat}{svg@tempa}{%
     {pdf}{0},{PDF}{0},{eps}{1},{EPS}{1},{ps}{2},{PS}{2},{png}{3},{PNG}{3}%
@@ -1267,12 +1268,12 @@
     \ifGin@draft%
       \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{1}%
     \else%
-      \ifstr{#3}{pdf}{%
-        \ifnum\value{svg@param@lastpage}=\z@\relax%
+      \ifnum\value{svg@param@lastpage}=\z@\relax%
+        \svg@ifdvimode{}{%
           \edef\svg@tempb{\noexpand\svg@get@lastpage{"\svg@tempa"}}%
           \svg@tempb%
-        \fi%
-      }{}%
+        }%
+      \fi%
     \fi%
     \edef\svg@tempa{%
       \ifx\svg@param@pretex\relax\else%
@@ -1365,33 +1366,33 @@
   \begingroup%
     \@tempcnta=\m@ne\relax%
     \ifx\XeTeXpdfpagecount\@undefined%
-      \ifpdf%
-        \ifx\pdfximage\@undefined%
-          \ifx\saveimageresource\@undefined\else%
-            \saveimageresource{#1}%
-            \@tempcnta=\lastsavedimageresourcepages\relax%
-          \fi%
-        \else%
-          \pdfximage{#1}%
-          \@tempcnta=\pdflastximagepages\relax%
+      \ifx\pdfximage\@undefined%
+        \ifx\saveimageresource\@undefined\else%
+          \saveimageresource{#1}%
+          \@tempcnta=\lastsavedimageresourcepages\relax%
         \fi%
+      \else%
+        \pdfximage{#1}%
+        \@tempcnta=\pdflastximagepages\relax%
       \fi%
     \else%
       \@tempcnta=\XeTeXpdfpagecount#1\relax%
     \fi%
-    \ifnum\@tempcnta=\m@ne\relax%
+    \ifnum\@tempcnta>\z@\relax%
+      \PackageInfo{svg}{Last page of `#1'\MessageBreak is `\the\@tempcnta'}%
+      \def\svg@tempa{%
+        \noexpand\FamilyExecuteOptions[.param]{SVG}{lastpage=\the\@tempcnta}%
+      }%
+    \else%
       \PackageWarning{svg}{%
         It wasn't possible to detect the last page\MessageBreak%
         of `#1'%
       }%
-    \else%
-      \PackageInfo{svg}{Last page of `#1'\MessageBreak is `\the\@tempcnta'}%
+      \def\svg@tempa{\relax}%
     \fi%
     \edef\svg@tempa{%
       \endgroup%
-      \ifnum\@tempcnta>\z@\relax%
-        \noexpand\FamilyExecuteOptions[.param]{SVG}{lastpage=\the\@tempcnta}%
-      \fi%
+      \svg@tempa%
     }%
   \svg@tempa%
 }
