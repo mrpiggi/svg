@@ -1,4 +1,4 @@
-% \CheckSum{5130}
+% \CheckSum{5134}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -1630,14 +1630,17 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svgx@ifvalueisinherit
 % \begin{macro}{\svgx@ifkeyandval}
+% \begin{macro}{\svgx@@ifkeyandval}
 % It is checked whether a key was given as \val{\meta{key}=\meta{value}} or 
 % like \val{\meta{key}=\{\meta{format}=\meta{value}\}}.
 %    \begin{macrocode}
+\newcommand*\svgx@@ifkeyandval{}
 \newcommand*\svgx@ifkeyandval[3]{%
-  \def\svg@tempa##1=##2=##3\@nil{\IfArgIsEmpty{##3}{#3}{#2}}%
-  \svg@tempa#1==\@nil%
+  \def\svgx@@ifkeyandval##1=##2=##3\@nil{\IfArgIsEmpty{##3}{#3}{#2}}%
+  \svgx@@ifkeyandval#1==\@nil%
 }
 %    \end{macrocode}
+% \end{macro}^^A \svgx@@ifkeyandval
 % \end{macro}^^A \svgx@ifkeyandval
 % \begin{macro}{\svgx@afterdocument@toks}
 % \changes{v2.03}{2019/07/10}{new}^^A
@@ -3797,10 +3800,16 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Additionally, the workaround for the maybe missing macro \cs{transparent} is 
 % applied.
 %    \begin{macrocode}
-    \global\let\svg@transparent@saved\transparent%
-    \providecommand*\transparent[1]{\svg@transparent{##1}}%
+    \ifx\transparent\@undefined%
+      \@svg@tempswatrue%
+      \let\transparent\svg@transparent%
+    \else%
+      \@svg@tempswafalse%
+    \fi%
     \sbox\svg@box{\svg@tempb{\svg@tempa}}%
-    \global\let\transparent\svg@transparent@saved%
+    \if@svg@tempswa%
+      \let\transparent\@undefined%
+    \fi%
 %    \end{macrocode}
 % If a rotation angle was given, the input is done within \cs{rotatebox}.
 %    \begin{macrocode}
@@ -4551,15 +4560,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@includegraphics@patched
 % \begin{macro}{\svg@transparent}
 % \changes{v2.03}{2019/07/10}{new}^^A
-% \begin{macro}{\svg@transparent@saved}
-% \changes{v2.03}{2019/07/10}{new}^^A
 % If package \pkg{transparent} was not or could not be loaded---currently 
 % Xe\TeX{} isn't supported---and macro \cs{transparent} is used anyway within 
 % an associated \LaTeX~file, normally an error is raised. This workaround fixes 
 % this issue and creates a warning, for every included file only once. As the 
 % associated \LaTeX~file uses a group, the redefintions have to be global.
 %    \begin{macrocode}
-\newcommand*\svg@transparent@saved{}
 \newcommand*\svg@transparent[1]{%
   \PackageWarning{svg}{%
     The command \string\transparent\space does not exist yet,\MessageBreak%
@@ -4569,7 +4575,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \global\let\transparent\@gobble%
 }
 %    \end{macrocode}
-% \end{macro}^^A \svg@transparent@saved
 % \end{macro}^^A \svg@transparent
 %
 % \iffalse
