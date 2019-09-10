@@ -37,12 +37,34 @@
 %% ----------------------------------------------------------------------------
 %%
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{svg-extract}[%
-  2019/09/08 v2.03\space%
-  (extract independent graphics from SVG pictures)%
-]
-% TODO svg@version
-\RequirePackage{svg}[2017/03/27]
+\begingroup
+  \catcode`\@11\relax%
+  \def\svg@Provides#1#2[#3]{%
+    \def\@tempa{\def\svg@version{#3}}%
+    \ifx\svg@version\@undefined\else%
+      \def\@tempb{#3}%
+      \ifx\svg@version\@tempb\else%
+        \def\@tempa{%
+          \@latex@warning@no@line{%
+            The version of package `#1' is `#3',\MessageBreak%
+            but `\svg@version' was expected!\MessageBreak%
+            You should update the svg bundle%
+          }%
+        }%
+      \fi%
+    \fi%
+    \edef\@tempb{%
+      \endgroup%
+      \noexpand\ProvidesPackage%
+      {#1}[#3\space(#2)]%
+      \noexpand\RequirePackage{svg}[#3]%
+      \unexpanded\expandafter{\@tempa}%
+    }%
+  }%
+  \svg@Provides%
+  {svg-extract}{extract graphics from SVG pictures}%
+  [2019/09/10 v2.03]%
+\@tempb
 \svg@catcodes@set
 \AtEndOfPackage{\svg@catcodes@restore}
 \newcommand*\svgx@ifvalueisinherit[1]{%
@@ -56,10 +78,10 @@
     \fi%
   \endgroup%
 }
-% TODO grouping
+\newcommand*\svgx@@ifkeyandval{}
 \newcommand*\svgx@ifkeyandval[3]{%
-  \def\svg@tempa##1=##2=##3\@nil{\IfArgIsEmpty{##3}{#3}{#2}}%
-  \svg@tempa#1==\@nil%
+  \def\svgx@@ifkeyandval##1=##2=##3\@nil{\IfArgIsEmpty{##3}{#3}{#2}}%
+  \svgx@@ifkeyandval#1==\@nil%
 }
 \newtoks\svgx@afterdocument@toks
 \newcommand*\svgx@afterdocument@xaddto[1]{%
@@ -1396,7 +1418,7 @@
         No specific preamble is used for the generation of\MessageBreak%
         the auxiliary file `\svgx@out@name'%
         \if@svg@ink@latex%
-          \MessageBreak so the result of extraction/conversion will probably
+          \MessageBreak so the result of extraction/conversion will probably%
           \MessageBreak look different from the appearance in this file%
         \fi%
       }%

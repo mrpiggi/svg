@@ -6,47 +6,42 @@
   \usepackage{fontspec}
 }
 \usepackage{lmodern}
-%\usepackage[utf8]{inputenc}
-%\usepackage{babel}
-\usepackage[draft]{graphicx}
+\usepackage{babel}
+\usepackage[]{graphicx}
 \usepackage[inkscape=forced,draft=false]{svg}
 \usepackage[extract=forced,clean=false,convert=forced]{svg-extract}
-
 %\usepackage[space]{grffile}
-
-%\RequirePackage{ifplatform}[2010/10/22]
 
 %\svgsetup{inkscapeexe="C:/Program Files/Inkscape1/inkscape.exe"}
 %\svgsetup{inkscapeversion=detect}
 %\svgsetup{inkscapeversion=0.94.2}
-
 %\svgsetup{inkscapepath=}
 \svgpath{{"test ink"/}{foo}}
-
 %\graphicspath{{C:/Users/Hanisch/}}
-
-%\usepackage{grffile}
 
 \begin{document}
 \makeatletter
-
-\svg@shell@mv{"blubb"}{./bla.blubb}
-
 
 % TODO extractformat=eps,convertformat=eps > move?
 % TODO extractformat={pdf,eps},convertformat=eps
 % TODO extractformat=eps,convertformat=pdf > clean?!
 % TODO extractformat=,convertformat=pdf
-%\includesvg[%
-%%  inkscapename="aaa bbb",
-%  extractname="foo bar",
-%%  extractpreamble="aaa/bbb",
-%  extractformat={ps},%pdf,eps,ps},
-%  convertformat={png},%
-%  latexext=".ltx"
-%]{"svg-example"}
+\includesvg[%
+%  inkscapename="aaa bbb",
+  extract=false,
+  extractname="foo bar",
+%  inkscapeformat=eps,
+%  extractpreamble="aaa/bbb",
+  extractformat={ps},%pdf,eps,ps},
+  convertformat={png},%
+  latexext=".ltx"
+]{"svg-example"}
 
-%\includesvg[]{mwe bla/MWE}
+%\includesvg[]{MWE}
+%
+%\includesvg[pretex={\catcode`\_11},width=\textwidth]{pipeline-test}
+
+%\meaning\transparent
 %
 %\includesvg[inkscapelatex=false]{mwe bla/MWE}
 
@@ -55,8 +50,6 @@
 %\includeinkscape[]{MWE_svg-latex}
 %
 %\includeinkscape[extractpreamble="bbb"]{svg-example_svg-tex.pDf_TEX}
-
-aaa
 
 %\def\bla{ aaa " bbb " ccc }
 %\svg@quotes@normalize{\bla}
