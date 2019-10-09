@@ -133,7 +133,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %</dtx>
 %<package&identify&main>  {svg}{include SVG pictures}%
 %<package&identify&extract>  {svg-extract}{extract graphics from SVG pictures}%
-  [2019/09/10 v2.03]%
+  [2019/10/10 v2.03]%
 \@tempb
 %</dtx|package&identify>
 % \fi
@@ -147,7 +147,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \usepackage{fontspec}
 }
 \usepackage{babel}
-\KOMAoptions{parskip=half-}
 
 \usepackage{svg}
 \usepackage{svg-extract}
@@ -201,22 +200,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \usepackage{bookmark}
 \usepackage[babel]{microtype}
 
-\newcommand*\default[1]{\val{\textit{#1}}}
-
-%\EnableCrossrefs
-\CodelineIndex
-\RecordChanges
-\GetFileInfo{svg.dtx}
-\title{The packages \pkg{svg} and \pkg{svg-extract}}
-\author{%
-  Philip Ilten (2012--2016)\\%
-  Falk Hanisch (2017--)\\%
-  \url{https://github.com/mrpiggi/svg}\\%
-  \mailto{hanisch.latex@outlook.com}%
-}
-\date{\fileversion\nobreakspace(\filedate)}
-
 \begin{document}
+  \title{The packages \pkg{svg} and \pkg{svg-extract}}
+  \author{%
+    Philip Ilten (2012--2016)\\%
+    Falk Hanisch (2017--)\\%
+    \url{https://github.com/mrpiggi/svg}\\%
+    \mailto{hanisch.latex@outlook.com}%
+  }
   \maketitle%
   \begin{abstract}
     \noindent
@@ -1717,10 +1708,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Both packages \pkg{svg} and \pkg{svg-extract} should be able to handle 
 % user-defined input and output paths. As there is the possibility for users to 
 % provide paths with or without quotes to \LaTeX{}, this is taken into account.
+% \ToDo{check, if all the quoting stuff is necessary with latest kernel}[v2.03]
 %
 % \begin{macro}{\svg@ifstrblank}
 % \changes{v2.03}{2019/09/09}{new}^^A
 % Check, if the given argument expands to a blank string (only whitespace).
+% \ToDo{use package \pkg{etoolbox} \cs{ifblank}}[v2.03]
 %    \begin{macrocode}
 \newcommand*\svg@ifstrblank[1]{%
   \begingroup%
@@ -1895,6 +1888,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Compares two string like \cs{ifstr} from \pkg {scrbase} but case-insensitive 
 % and ignoring any quotes. The arguments are expanded in a macro in order to 
 % prevent overwriting of \cs{svg@tempa} or \cs{svg@tempb} if used in argument.
+% \ToDo{use package \pkg{etoolbox} \cs{ifstrequal}}[v2.03]
 %    \begin{macrocode}
 \newcommand*\svg@ifstrnocase[2]{%
   \begingroup%
@@ -1920,11 +1914,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svg@lowercase[2][\@nil]{%
   \begingroup%
     \svg@if@nil{#1}{%
-      \edef\svg@tempa{#2}%
+      \protected@edef\svg@tempa{#2}%
     }{%
-      \edef\svg@tempa{#1}%
+      \protected@edef\svg@tempa{#1}%
     }%
-    \edef\svg@tempa{%
+    \protected@edef\svg@tempa{%
       \endgroup%
       \lowercase{\noexpand\def\noexpand#2{\svg@tempa}}%
     }%
@@ -1969,6 +1963,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % resolve this problem. The optional argument can be used to give a specific 
 % file extension, which should be searched within \cs{filename@ext}. If found 
 % at the very end, the previous part is appended to \cs{filename@base}.
+% \ToDo{NeedsTeXFormat to 2019/10/??, use kernel \cs{filename@parse}}[v2.03]
 %    \begin{macrocode}
 \newcommand*\svg@filename@parse[2][]{%
   \begingroup%
@@ -2049,7 +2044,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % stored in \cs{filename@ext}. Otherwise, something inbetween two dots was 
 % found and is appended to \cs{filename@base}.
 %    \begin{macrocode}
-          \IfArgIsEmpty{##2}{%
+          \svg@ifstrblank{##2}{%
             \edef\filename@ext{##1}%
           }{%
             \edef\filename@base{\filename@base.##1}%
@@ -2087,7 +2082,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % the last dot, is appended to \cs{filename@base} as well.
 %    \begin{macrocode}
       \svg@ifstrnocase{#1}{\filename@ext}{}{%
-        \IfArgIsEmpty{#1}{}{%
+        \svg@ifstrblank{#1}{}{%
           \ifx\filename@ext\@empty\else%
             \edef\filename@base{\filename@base.\filename@ext}%
             \let\filename@ext\@empty%
@@ -3979,14 +3974,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.02}{2018/09/07}{notify svg file when missing exported files}^^A
 % The error message, which is raised, if a file derived is missing.
 %    \begin{macrocode}
-\newcommand*\svg@file@missing[2][]{%
+\newcommand*\svg@file@missing[2][\@nil]{%
   \begingroup%
     \svg@quotes@normalize[{#2}]{\svg@tempa}%
     \PackageError{svg}{File `\svg@tempa' is missing}{%
       Did you run the Inkscape export%
       \if@svg@ink@latex\space with latex output\fi?\MessageBreak%
       There's no file `\svg@tempa'%
-      \IfArgIsEmpty{#1}{}{\MessageBreak although `#1' was found}.%
+      \svg@if@nil{#1}{}{\MessageBreak although `#1' was found}.%
       \if@svg@ink@latex%
         \space Maybe\MessageBreak%
         you should use optional parameter `inkscapelatex=false'.%
@@ -4415,7 +4410,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
     \svg@append@input@path{\svg@file@path}{\svg@input@path}%
     \svg@append@input@path{\svg@file@path}{\Ginput@path}%
-    \IfArgIsEmpty{#1}{}{%
+    \svg@ifstrblank{#1}{}{%
       \edef\svg@tempa{#1}%
       \svg@append@input@path{\svg@file@path}{{\svg@tempa}}%
     }%
@@ -5325,7 +5320,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \fi%
       }{}%
     }%
-    \IfArgIsEmpty{#1}{%
+    \svg@ifstrblank{#1}{%
       \let\svg@tempa\@empty%
     }{%
       \lowercase{\svg@tempa#1dpi#1xdpi\@nil}%
@@ -5369,7 +5364,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % within the arguments of \cs{svgx@ifkeyandval}.
 %    \begin{macrocode}
   \svgx@ifkeyandval{#1}{%
-    \IfArgIsEmpty{##1}{}{%
+    \svg@ifstrblank{##1}{}{%
       \edef\svg@tempa{\trim@spaces{##1}}%
       \svg@ifvalueisrelax{##2}{%
         \expandafter\let\csname #2@\svg@tempa\endcsname\relax%
@@ -6181,7 +6176,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 %
 % \subsection{Auxiliary macros}
-% \ToDo{move general macros up to "Helper macros"}[v2.03]
 %
 % \begin{macro}{\svg@process}
 % \changes{v2.03}{2019/07/12}{new}^^A
@@ -6686,6 +6680,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % Package \pkg{xr} is used to evaluate possible labels within the included
 % \app{Inkscape}~\LaTeX~file.
+% \ToDo{use package \pkg{xr-hyper} if necessary}[v2.03]
 %    \begin{macrocode}
     \if@svg@ink@latex%
       \IfFileExists{xr.sty}{%

@@ -110,6 +110,7 @@
   \begingroup%
     \let\svg@tempb\@empty%
     \@for\svg@tempa:={,#2}\do{%
+      % TODO use trim@spaces@in?
       \edef\svg@tempa{\expandafter\trim@spaces@noexp\expandafter{\svg@tempa}}%
       \ifx\svg@tempa\@empty\else%
         \edef\svg@tempa{%
