@@ -5,7 +5,7 @@
  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
 
- svg 2018/11/12 v2.02b
+ svg 2019/10/10 v2.02c
 
 ----------------------------------------------------------------------------
 
@@ -33,6 +33,9 @@ it is rendered within the LaTeX document using either ***ImageMagick*** or
 
 Versions
 --------
+
+**v2.02c** (2019/10/10)
++ fix bugs with current kernel (2019/10/01) regarding file name parsing
 
 **v2.02b** (2018/11/12)
 + fix bug for package **tikzscale** which changes `includgraphics` globally
