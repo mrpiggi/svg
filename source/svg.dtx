@@ -1,4 +1,4 @@
-% \CheckSum{3811}
+% \CheckSum{3838}
 % \iffalse meta-comment
 %
 %  svg and svg-extract -- Include and extract SVG pictures in LaTeX documents
@@ -115,7 +115,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<package&option&base>\ProvidesPackage{svg}[%
 %<package&option&extract>\ProvidesPackage{svg-extract}[%
 %<*driver|package&option>
-  2018/11/12 v2.02b\space%
+  2019/10/10 v2.02c\space%
 %<package&option&base>  (include SVG pictures)%
 %<package&option&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -256,6 +256,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.02b}{2018/11/12}{%
 %   fix bug for package \pkg{tikzscale} which changes \cs{includegraphics} 
 %   globally%
+% }^^A
+% \changes{v2.02c}{2019/10/10}{%
+%   fix bugs with current kernel (2019/10/01) regarding file name parsing
 % }^^A
 % \ToDo{Workaround for missing \cs{transparent} (Lua\TeX lacks support)}[v2.03]
 %
@@ -2383,7 +2386,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 \newcommand*\svg@extension@parse[1]{%
   \IfArgIsEmpty{#1}{}{%
-    \ifstr{#1}{\filename@ext}{}{%
+    \@expandtwoargs\ifstr%
+      {\detokenize\expandafter{\filename@ext}}{\detokenize\expandafter{#1}}{}{%
       \begingroup%
 %    \end{macrocode}
 % Macro \cs{svg@tempa} is used to temporarily store anything before the 
@@ -2422,7 +2426,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \def\svg@extension@@parse#1.#2\@nil#3\@nil{%
   \edef\svg@tempa{\svg@tempa.#1}%
   \IfArgIsEmpty{#2}{}{%
-    \ifstr{#2}{#3.}{%
+    \ifstr{\detokenize{#2}}{\detokenize{#3.}}{%
 %    \end{macrocode}
 % If the trailing extension is found, \cs{svg@tempb} is definied.
 %    \begin{macrocode}
@@ -3143,12 +3147,23 @@ svg-extract -- Extract independent graphic files from SVG pictures
   }%
   \svg@tempa%
 %    \end{macrocode}
-% Afterwards \cs{svg@tempa} is defined with the file name itself within 
-% enclosing braces followed by the extension and \cs{svg@tempb} holds the 
-% original file name plus extension without enclosing braces.
+% Afterwards \cs{svg@tempa} is defined with the file name within enclosing 
+% braces followed by the extension---only if the file name itself contains any 
+% dots--- and \cs{svg@tempb} holds the original file name plus extension
+% without enclosing braces.
 %    \begin{macrocode}
   \svg@remove@leadingchar.\svg@tempa%
-  \edef\svg@tempa{{\svg@tempa}.\svg@tempb}%
+  \begingroup%
+    \expandafter\filename@parse\expandafter{\svg@tempa}%
+    \edef\svg@tempa{%
+      \endgroup%
+      \ifx\filename@ext\relax%
+        \edef\noexpand\svg@tempa{\svg@tempa.\svg@tempb}%
+      \else%
+        \edef\noexpand\svg@tempa{{\svg@tempa}.\svg@tempb}%
+      \fi%
+    }%
+  \svg@tempa%
   \edef\svg@tempb{#2}%
 %    \end{macrocode}
 % If the export with \app{Inkscape} was done with \LaTeX~support enabled, the 
