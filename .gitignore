@@ -5,8 +5,6 @@ temp/
 ## auxiliary files
 *.aux
 *.bak
-*.bbl
-*.blg
 *.cls
 *.dvi
 *.glg
@@ -21,7 +19,6 @@ temp/
 *.ps
 *.run.xml
 *.sty
-*.synctex(busy)
 *.synctex.gz*
 *.tdo
 *.toc
