@@ -1,4 +1,4 @@
-% \CheckSum{5134}
+% \CheckSum{5154}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -3779,9 +3779,21 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \fi%
 %    \end{macrocode}
 % In order to support file names with multiple dots, \cs{svg@tempa} is defined 
-% with the file name itself within enclosing braces followed by the extension.
+% with the file name within enclosing braces---only if the file name itself 
+% contains any dots--- followed by the extension.
 %    \begin{macrocode}
-  \edef\svg@tempa{{#1#2}.#3}%
+  \begingroup%
+    \edef\svg@tempa{#1#2}%
+    \expandafter\filename@parse\expandafter{\svg@tempa}%
+    \edef\svg@tempa{%
+      \endgroup%
+      \ifx\filename@ext\relax%
+        \edef\noexpand\svg@tempa{#1#2.#3}%
+      \else%
+        \edef\noexpand\svg@tempa{{#1#2}.#3}%
+      \fi%
+    }%
+  \svg@tempa%
   \if@svg@tempswa%
     \svg@patches{\svg@tempa}%
 %    \end{macrocode}
