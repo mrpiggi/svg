@@ -53,6 +53,9 @@ Versions
   ***Inkscape***
 + option `clean=nolatex` to preserve auxiliary LaTeX&nbsp;files used during the 
   extraction process
+  
+**v2.02c** (2019/10/10)
++ fix bugs with current kernel (2019/10/01) regarding file name parsing
 
 **v2.02b** (2018/11/12)
 + fix bug for package **tikzscale** which changes the definition of
