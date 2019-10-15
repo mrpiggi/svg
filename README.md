@@ -2,14 +2,14 @@
  svg and svg-extract &ndash; Handling SVG pictures in LaTeX documents 
 ----------------------------------------------------------------------------
 
- Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
+ Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016<br>
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
 
  svg 2019/xx/xx v2.03
 
 ----------------------------------------------------------------------------
 
- This material is subject to the LaTeX Project Public License version 1.3c 
+ This material is subject to the LaTeX Project Public License version 1.3c
  or later. See http://www.latex-project.org/lppl.txt for details.
 
 ----------------------------------------------------------------------------
@@ -53,7 +53,7 @@ Versions
   ***Inkscape***
 + option `clean=nolatex` to preserve auxiliary LaTeX&nbsp;files used during the 
   extraction process
-  
+
 **v2.02c** (2019/10/10)
 + fix bugs with current kernel (2019/10/01) regarding file name parsing
 

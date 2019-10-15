@@ -133,7 +133,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %</dtx>
 %<package&identify&main>  {svg}{include SVG pictures}%
 %<package&identify&extract>  {svg-extract}{extract graphics from SVG pictures}%
-  [2019/10/10 v2.03]%
+  [2019/10/16 v2.03]%
 \@tempb
 %</dtx|package&identify>
 % \fi
@@ -169,7 +169,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
   literate=%
     {ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1
     {Ä}{{\"A}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1
-    {~}{{\textasciitilde}}1 {ß}{{\ss}}1
+    {ß}{{\ss}}1 {~}{{\textasciitilde}}1
+    {»}{{\guillemetright}}1 {«}{{\guillemetleft}}1
 }
 \newcommand*\svglstbelowskip{\medskipamount}
 \AtBeginDocument{%
@@ -365,13 +366,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \section{Usage of package \pkg{svg}}\label{sec:inkscape}
 %
-% The purpose of this package is to include SVG~graphics into a \LaTeX~document.
-% The command \cs{includesvg} is defined which does all necessary steps for
-% this task. It first launches the export of a SVG~file to a supported 
-% file~format with Inkscape, if necessary, and includes the exported 
-% graphic~file afterwards. The usage and the syntax is quite similiar to the
-% command \cs{includegraphics} from the \pkg{graphicx} package. In fact, the
-% inclusion of the exported graphic~file is done with \cs{includegraphics}.
+% The purpose of this package is to include standalone SVG~graphics into a 
+% \LaTeX~document. The command \cs{includesvg} is defined which does all 
+% necessary steps for this task. It first launches the export of a SVG~file 
+% to a supported file~format with Inkscape, if necessary, and includes the 
+% exported graphic~file afterwards. The usage and the syntax is quite similiar 
+% to the command \cs{includegraphics} from the \pkg{graphicx} package. In fact, 
+% the inclusion of the exported graphic~file is done with \cs{includegraphics}.
 %
 % \DescribeOptions{usexcolor,usetransparent,noxcolor,notransparent}^^A
 % The packages \pkg{xcolor} and \pkg{transparent} are loaded by default at the 
@@ -716,7 +717,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % In order to extract to PDF, EPS, or PS~files the programs \file{pstoeps}, 
 % \file{pstopdf} and \file{pdftops} are used which are usually provided by most 
-% of the \LaTeXe~distributions. In additon, the command line tools of 
+% of the \LaTeX~distributions. In additon, the command line tools of 
 % \app{ImageMagick} and \app{Ghostscript} can be invoked for converting images 
 % in formats like PNG, JPG, TIF or something else. It's also possible to create 
 % PDF, EPS or PS~files with one of the two programs. Therefor the desired 
@@ -1000,7 +1001,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Depending on the used \LaTeX~processor, the file~type of the extracted 
 % graphic differs. In order to create all formats, requested with option
 % \opt{extractformat}, several converting tools provided by most of the 
-% \LaTeXe~distributions are maybe invoked. These are \file{dvips},
+% \LaTeX~distributions are maybe invoked. These are \file{dvips},
 % \file{ps2eps}, \file{ps2pdf} and/or \file{pdftops} and can't be changed. It's
 % only possible to specify additional switches for every single tool with
 % \opt{dvipsopt}, \opt{pstoepsopt}, \opt{pstopdfopt}, \opt{pdftoepsopt} and
@@ -1958,7 +1959,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.02}{2018/09/07}{usage of \cs{svg@sanitize@dq}}^^A
 % \changes{v2.02}{2018/09/07}{usage of \cs{svg@remove@leadingchar}}^^A
 % \changes{v2.02}{2018/09/07}{usage of \cs{svg@extension@parse}}^^A
-% As the internal \LaTeXe{} command \cs{filename@parse} is not able to split a 
+% As the internal \LaTeX{} command \cs{filename@parse} is not able to split a 
 % given file name containing quotes, \cs{svg@filename@parse} is defined to 
 % resolve this problem. The optional argument can be used to give a specific 
 % file extension, which should be searched within \cs{filename@ext}. If found 
@@ -4993,7 +4994,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{option}{pdftops}
 % \changes{v2.00}{2017/02/24}{deprecated}^^A
 % Options and macros for calling convert commands, which are supplied by most
-% \LaTeXe~distributions. These are used to generate all files, which are 
+% \LaTeX~distributions. These are used to generate all files, which are 
 % supported by option \opt{extractformat}, as they don't need an additional
 % application.
 %    \begin{macrocode}
@@ -5068,8 +5069,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \subsubsection{Invoking external application for graphic conversion}
 %
-% Besides the use of a conversion tool supplied by \LaTeXe{}, the applications 
-% \app{ImageMagick} and \app{Ghostscript} can be used for converting graphics.
+% Besides the use of a conversion tool supplied by the \LaTeX~distribution, 
+% the applications \app{ImageMagick} and \app{Ghostscript} can be used for 
+% converting graphics.
 %
 % \begin{option}{convert}
 % \changes{v2.00}{2017/02/24}{changed/extended}^^A
@@ -6908,7 +6910,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \repeat%
 %    \end{macrocode}
 % All files requested with option \opt{extractformat} are created with internal 
-% conversion tools supplied by most \LaTeXe~distributions if necessary.
+% conversion tools supplied by most \LaTeX~distributions if necessary.
 %    \begin{macrocode}
     \def\svg@tempa##1##2{%
       \svgx@afterdocument@xaddto{%

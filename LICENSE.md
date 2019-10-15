@@ -2,7 +2,7 @@
  svg and svg-extract &ndash; Handling SVG pictures in LaTeX documents 
 ----------------------------------------------------------------------------
 
- Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
+ Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016<br>
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
 
 ----------------------------------------------------------------------------
