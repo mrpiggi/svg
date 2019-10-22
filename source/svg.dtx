@@ -1,4 +1,4 @@
-% \CheckSum{3847}
+% \CheckSum{3884}
 % \iffalse meta-comment
 %
 %  svg and svg-extract -- Include and extract SVG pictures in LaTeX documents
@@ -410,9 +410,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   graphic~file either does not exist or the file~modification date of the
 %   SVG~file is newer than that of the exported graphic~file. Thus the
 %   compilation time of the \LaTeX~document can be reduced to the necessary
-%   minimum. Unfortunately a primitive like \cs{pdffilemoddate} is missing for
-%   XeTeX, so with this engine, the behaviour will be the same as
-%   \opt{inkscape}|=|\val{forced}.
+%   minimum.
 % \item[forced/force/overwrite]
 %   The \app{Inkscape}~export will definitely be done, any already existing 
 %   exported file will overwritten regardlessly.
@@ -601,13 +599,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % PDF/EPS/PS/PNG~file (see~\opt{inkscapeformat}) and perhaps a correlating
 % \LaTeX~file (see~\opt{inkscapelatex}). The export with \app{Inkscape} is only
 % invoked, if the SVG~file is newer than the exported graphic~file or latter 
-% doesn't exist at all.\footnote{\ignorespaces%
-%  Due to the lack of XeTeX to compare file~modification dates, using this 
-%  \LaTeX~engine leads to \app{Inkscape}~exports with every run unless 
-%  \opt{inkscape}|=|\val{false} is used.%
-% }%
-% Once the export has been done, the graphic~file and maybe the \LaTeX~file are
-% included.
+% doesn't exist at all. Once the export has been done, the graphic~file and
+% maybe the \LaTeX~file are included.
 % 
 % All previously described options can also be used as optional parameters to 
 % \cs{includesvg} and do have the same effect as described before. However, the 
@@ -2505,23 +2498,39 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svg@iffilenewer}
 % The macro \cs{svg@iffilenewer} is used to decide, whether the export with 
 % \app{Inkscape} is necessary due to an updated SVG~file. This can only be
-% done, if \cs{pdf@filemoddate} is definied. Unfortunately this functionality
-% isn't provided by Xe\TeX.
+% done, if \cs{pdf@filemoddate} is definied.
 %    \begin{macrocode}
+\newcommand*\svg@iffilenewer[2]{\@gobbletwo}
 \ifx\pdf@filemoddate\@undefined
-  \newcommand*\svg@iffilenewer[2]{\@gobbletwo}
+  \ifx\filemoddate\@undefined\else
+    \ifx\strcmp\@undefined\else
+      \renewcommand*\svg@iffilenewer[2]{%
+        \begingroup%
+          \edef\svg@tempa{\filemoddate{#1}}%
+          \edef\svg@tempb{\filemoddate{#2}}%
+          \ifnum\strcmp{\svg@tempa}{\svg@tempb}>\z@\relax%
+            \aftergroup\@firstoftwo%
+          \else%
+            \aftergroup\@secondoftwo%
+          \fi%
+        \endgroup%
+      }%
+    \fi
+  \fi
 \else
-  \newcommand*\svg@iffilenewer[2]{%
-    \begingroup%
-      \edef\svg@tempa{\pdf@filemoddate{#1}}%
-      \edef\svg@tempb{\pdf@filemoddate{#2}}%
-      \ifnum\pdf@strcmp{\svg@tempa}{\svg@tempb}>\z@\relax%
-        \aftergroup\@firstoftwo%
-      \else%
-        \aftergroup\@secondoftwo%
-      \fi%
-    \endgroup%
-  }
+  \ifx\pdf@strcmp\@undefined\else
+    \renewcommand*\svg@iffilenewer[2]{%
+      \begingroup%
+        \edef\svg@tempa{\pdf@filemoddate{#1}}%
+        \edef\svg@tempb{\pdf@filemoddate{#2}}%
+        \ifnum\pdf@strcmp{\svg@tempa}{\svg@tempb}>\z@\relax%
+          \aftergroup\@firstoftwo%
+        \else%
+          \aftergroup\@secondoftwo%
+        \fi%
+      \endgroup%
+    }%
+  \fi
 \fi
 %    \end{macrocode}
 % \end{macro}^^A \svg@iffilenewer
