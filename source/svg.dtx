@@ -1,4 +1,4 @@
-% \CheckSum{5154}
+% \CheckSum{5156}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -133,7 +133,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %</dtx>
 %<package&identify&main>  {svg}{include SVG pictures}%
 %<package&identify&extract>  {svg-extract}{extract graphics from SVG pictures}%
-  [2019/10/16 v2.03]%
+  [2019/10/22 v2.03]%
 \@tempb
 %</dtx|package&identify>
 % \fi
@@ -4132,13 +4132,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 \newcommand*\svg@@ink@ver@detect{%
   \begingroup%
+    \@makeother\|%
     \endlinechar=\m@ne%
     \everyeof{\noexpand}%
     \svg@quotes@remove{\svg@ink@exe}%
     \edef\svg@tempa{%
-      \edef\noexpand\svg@tempa{%
-        \noexpand\@@input|"'\svg@ink@exe'\space-V" %
-      }%
+      \edef\noexpand\svg@tempa{\noexpand\@@input|"'\svg@ink@exe'\space-V" }%
     }%
     \svg@tempa%
 %    \end{macrocode}
