@@ -96,7 +96,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \iffalse
 %<*dtx|package&identify>
-\NeedsTeXFormat{LaTeX2e}
+\NeedsTeXFormat{LaTeX2e}[2019-10-01]
 %<*dtx>
 \ifx\ProvidesFile\undefined\def\ProvidesFile#1[#2]{}\fi
 %</dtx>
@@ -272,6 +272,17 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   fix bug for package \pkg{tikzscale} which changes \cs{includegraphics} 
 %   globally%
 % }^^A
+% \changes{v2.02c}{2019/10/10}{%
+%   fix bugs with current kernel (2019/10/01) regarding file name parsing
+% }^^A
+% \changes{v2.02d}{2019/10/22}{%
+%   fix bugs with current kernel (2019/10/01) regarding file name parsing, see
+%   \url{https://github.com/mrpiggi/svg/issues/16}
+% }^^A
+% \changes{v2.02d}{2019/10/22}{%
+%   conditional invocation of \app{Inkscape} export based on file modification
+%   date implemented for Xe\TeX{}%
+% }^^A
 % \changes{v2.03}{2019/06/28}{%
 %   command line format of \app{Inkscape~1.0} and later is supported%
 % }^^A
@@ -283,10 +294,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   files converted with \app{ImageMagick} or \app{Ghostscript} are not moved 
 %   from root directory but created directly in the path given with
 %   \opt{extractpath}%
-% }^^A
-% \changes{v2.03}{2019/07/18}{%
-%   conditional invocation of export/extraction/conversion based on file 
-%   modification date implemented for Xe\TeX{}%
 % }^^A
 %
 %
@@ -2111,7 +2118,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svg@extension@parse
 % \begin{macro}{\svg@IfFileNewer}
-% \changes{v2.03}{2019/07/18}{Xe\TeX{} provides \cs{filemoddate}}^^A
+% \changes{v2.02d}{2019/10/22}{%
+%   use \cs{filemoddate} with Xe\LaTeX, see
+%   \url{https://github.com/mrpiggi/svg/issues/12}
+% }^^A
 % The macro \cs{svg@IfFileNewer} is used to decide, whether the export with 
 % \app{Inkscape} is necessary due to an updated SVG~file. This is checked with 
 % either \cs{pdf@filemoddate} (pdf\TeX{} and Lua\TeX{}) or \cs{filemoddate} 
