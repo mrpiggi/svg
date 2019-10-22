@@ -260,6 +260,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.02c}{2019/10/10}{%
 %   fix bugs with current kernel (2019/10/01) regarding file name parsing
 % }^^A
+% \changes{v2.02d}{2019/10/22}{%
+%   fix bugs with current kernel (2019/10/01) regarding file name parsing, see
+%   \url{https://github.com/mrpiggi/svg/issues/16}
+% }^^A
 % \ToDo{Workaround for missing \cs{transparent} (Lua\TeX lacks support)}[v2.03]
 %
 %
@@ -2496,9 +2500,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svg@file@missing
 % \begin{macro}{\svg@iffilenewer}
+% \changes{v2.02d}{2019/10/22}{%
+%   use \cs{filemoddate} with Xe\LaTeX, see
+%   \url{https://github.com/mrpiggi/svg/issues/12}
+% }^^A
 % The macro \cs{svg@iffilenewer} is used to decide, whether the export with 
 % \app{Inkscape} is necessary due to an updated SVG~file. This can only be
-% done, if \cs{pdf@filemoddate} is definied.
+% done, if \cs{pdf@filemoddate} or \cs{filemoddate} is definied.
 %    \begin{macrocode}
 \newcommand*\svg@iffilenewer[2]{\@gobbletwo}
 \ifx\pdf@filemoddate\@undefined
