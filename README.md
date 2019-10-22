@@ -34,6 +34,11 @@ it is rendered within the LaTeX document using either ***ImageMagick*** or
 Versions
 --------
 
+**v2.02d** (2019/10/22)
++ fix bugs with current kernel (2019/10/01) regarding file name parsing, see
+  https://github.com/mrpiggi/svg/issues/16
++ use `\filemoddate` with XeLaTeX, see https://github.com/mrpiggi/svg/issues/12
+
 **v2.02c** (2019/10/10)
 + fix bugs with current kernel (2019/10/01) regarding file name parsing
 
