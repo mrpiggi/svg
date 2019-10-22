@@ -1,4 +1,4 @@
-% \CheckSum{3838}
+% \CheckSum{3847}
 % \iffalse meta-comment
 %
 %  svg and svg-extract -- Include and extract SVG pictures in LaTeX documents
@@ -111,11 +111,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \ifx\ProvidesFile\@undefined\def\ProvidesFile#1[#2]{}\fi
 \ProvidesFile{svg.dtx}[%
 %</driver>
-%<package&option>\NeedsTeXFormat{LaTeX2e}
+%<package&option>\NeedsTeXFormat{LaTeX2e}[2019-10-01]
 %<package&option&base>\ProvidesPackage{svg}[%
 %<package&option&extract>\ProvidesPackage{svg-extract}[%
 %<*driver|package&option>
-  2019/10/10 v2.02c\space%
+  2019/10/22 v2.02d\space%
 %<package&option&base>  (include SVG pictures)%
 %<package&option&extract>  (extract independent graphics from SVG pictures)%
 ]
@@ -2283,6 +2283,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
     \@svg@tempswafalse%
     \expandafter\IfFileExists\expandafter{\svg@tempa}{%
+      \expandafter\svg@quotes@check\expandafter{\svg@tempa}%
+      \if@svg@quotes@found\else%
+        \svg@quotes@remove{\@filef@und}%
+      \fi%
       \@svg@tempswatrue%
       \edef\@filef@und{\expandafter\trim@spaces\expandafter{\@filef@und}}%
       \svg@filename@parse[{#1}]{\@filef@und}%
