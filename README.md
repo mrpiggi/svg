@@ -1,11 +1,11 @@
 
- svg and svg-extract &ndash; Handling SVG pictures in LaTeX documents 
+ svg and svg-extract &ndash; Handling SVG pictures in LaTeX documents
 ----------------------------------------------------------------------------
 
  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016<br>
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
 
- svg 2019/xx/xx v2.03
+ **svg 2019/xx/xx v2.03**
 
 ----------------------------------------------------------------------------
 
@@ -18,20 +18,21 @@
 Summary
 -------
 
-The **svg** package is intended for the automated integration of 
-SVG&nbsp;graphics into LaTeX&nbsp;documents. Therefor the capabilities provided
-by ***Inkscape***&mdash;or more precisely its command line tool&mdash;are used 
-to export the text within a SVG&nbsp;graphic to a separate file, which is then 
-rendered by LaTeX. The two commands `\includesvg` and `\includeinkscape` are 
-provided as central user&#8209;interface, which are very similar to the 
-`\includegraphics` command of the **graphicx** package.
+The **svg** package provides an user&#8209;interface for automated integration
+of SVG&nbsp;graphics created with ***Inkscape*** into LaTeX&nbsp;documents.
+Therefor the capabilities provided by ***Inkscape***&mdash;and its command line
+tool&mdash;are used to export the text within a SVG&nbsp;graphic to a separate
+file, which is then rendered by LaTeX. The two commands `\includesvg` and
+`\includeinkscape` are provided as central user&#8209;interface, which are very
+similar to the `\includegraphics` command of the **graphicx** package.
 
-In addition, the package **svg-extract** allows the extraction and of these 
-graphics into independent files in different graphic formats, exactly as it is
-rendered within the LaTeX&nbsp;document. For the creation of these graphics in
-the well&#8209;known formats PDF, EPS and&nbsp;PS, LaTeX and possibly
-conversion tools shipped with the distribution are used. If the graphics are 
-required in other file formats, either ***ImageMagick*** or ***Ghostscript*** 
+In addition, the package **svg-extract** extends the user&#8209;interface of
+package **svg** in order to support the extraction of these graphics into
+independent files in different graphic formats, exactly as they are rendered
+within the LaTeX&nbsp;document. For the creation of these graphics in the
+well&#8209;known formats PDF, EPS and&nbsp;PS, LaTeX and possibly conversion
+tools shipped with the most LaTeX distributions are used. If the graphics are
+required in other file formats, either ***ImageMagick*** or ***Ghostscript***
 can be invoked.
 
 
@@ -40,18 +41,18 @@ Versions
 
 **v2.03** (2019/xx/xx)
 + command line format of ***Inkscape&nbsp;1.0*** and later is supported
-+ extraction/conversion of independent graphic&nbsp;files can be invoked only 
++ extraction/conversion of independent graphic&nbsp;files can be invoked only
   if necessary (based on file modification date) with `extract/convert=true`;
   options `extract/convert=forced` to invoke process with every LaTeX&nbsp;run
 + files exported with ***Inkscape*** or extracted as well as converted with
   ***ImageMagick*** or ***Ghostscript*** are not moved from root directory but
   created directly in the path given with `inkscapepath` or `extractpath`
-+ conditional invocation of export/extraction/conversion based on file 
++ conditional invocation of export/extraction/conversion based on file
   modification date implemented for XeTeX
-+ option `extractpath=inkscapepath` and `extractpath=inkscapesubpath` to create 
-  extracted/converted files in the same directory as the exported files of 
++ option `extractpath=inkscapepath` and `extractpath=inkscapesubpath` to create
+  extracted/converted files in the same directory as the exported files of
   ***Inkscape***
-+ option `clean=nolatex` to preserve auxiliary LaTeX&nbsp;files used during the 
++ option `clean=nolatex` to preserve auxiliary LaTeX&nbsp;files used during the
   extraction process
 
 **v2.02d** (2019/10/22)
@@ -70,8 +71,8 @@ Versions
 + fix bug for package **polyglossia** which fakes **babel** poorly
 
 **v2.02** (2018/09/08)
-+ distortion of included and extracted graphics supported with options `distort` 
-  (or `keepaspectratio`) and `extractdistort` as well as rotation for 
++ distortion of included and extracted graphics supported with options `distort`
+  (or `keepaspectratio`) and `extractdistort` as well as rotation for
   extractions (`extractangle`)
 + fixed errors with active double qoutes from **babel** in path arguments
 + multiple dots within file names possible
@@ -98,8 +99,8 @@ Versions
 + **svg-extract**: enhanced support for ***ImageMagick***
 + **svg-extract**: support for ***Ghostscript*** added
 + package **subfig** not required anymore
-+ support of subfigures stopped due to the huge number of packages which deal 
-  with this topic and the large variety of implementing this functionality; 
++ support of subfigures stopped due to the huge number of packages which deal
+  with this topic and the large variety of implementing this functionality;
   naming exported graphics after their consecutive numbering can't be ensured
   for all variants of subfigures, so it's neglected
 
