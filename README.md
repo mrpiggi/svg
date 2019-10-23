@@ -1,15 +1,15 @@
 
- svg and svg-extract -- Include and extract SVG pictures in LaTeX documents 
+ svg and svg-extract &ndash; Handling SVG pictures in LaTeX documents
 ----------------------------------------------------------------------------
 
- Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
+ Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016<br>
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
 
- svg 2019/10/10 v2.02c
+ svg 2019/10/22 v2.02d
 
 ----------------------------------------------------------------------------
 
- This material is subject to the LaTeX Project Public License version 1.3c 
+ This material is subject to the LaTeX Project Public License version 1.3c
  or later. See http://www.latex-project.org/lppl.txt for details.
 
 ----------------------------------------------------------------------------
@@ -18,17 +18,22 @@
 Summary
 -------
 
-The **svg** package is intended for the automated integration of SVG graphics 
-into LaTeX documents. Therefor the capabilities provided by ***Inkscape***---or 
-more precisely its command line tool---are used to export the text within a SVG 
-graphic to a separate file, which is then rendered by LaTeX. For this purpose 
-the two commands `\includesvg` and `\includeinkscape` are provided which are 
-very similar to the `\includegraphics` command of the **graphicx** package.
+The **svg** package provides an user&#8209;interface for automated integration
+of SVG&nbsp;graphics created with ***Inkscape*** into LaTeX&nbsp;documents.
+Therefor the capabilities provided by ***Inkscape***&mdash;and its command line
+tool&mdash;are used to export the text within a SVG&nbsp;graphic to a separate
+file, which is then rendered by LaTeX. The two commands `\includesvg` and
+`\includeinkscape` are provided as central user&#8209;interface, which are very
+similar to the `\includegraphics` command of the **graphicx** package.
 
-In addition, the package **svg-extract** allows the extraction of these 
-graphics into independent files in different graphic formats, exactly as 
-it is rendered within the LaTeX document using either ***ImageMagick*** or 
-***Ghostscript***
+In addition, the package **svg-extract** extends the user&#8209;interface of
+package **svg** in order to support the extraction of these graphics into
+independent files in different graphic formats, exactly as they are rendered
+within the LaTeX&nbsp;document. For the creation of these graphics in the
+well&#8209;known formats PDF, EPS and&nbsp;PS, LaTeX and possibly conversion
+tools shipped with the most LaTeX distributions are used. If the graphics are
+required in other file formats, either ***ImageMagick*** or ***Ghostscript***
+can be invoked.
 
 
 Versions
@@ -43,14 +48,15 @@ Versions
 + fix bugs with current kernel (2019/10/01) regarding file name parsing
 
 **v2.02b** (2018/11/12)
-+ fix bug for package **tikzscale** which changes `includgraphics` globally
++ fix bug for package **tikzscale** which changes the definition of
+  `\includegraphics`
 
 **v2.02a** (2018/10/17)
 + fix bug for package **polyglossia** which fakes **babel** poorly
 
 **v2.02** (2018/09/08)
-+ distortion of included and extracted graphics supported with options `distort` 
-  (or `keepaspectratio`) and `extractdistort` as well as rotation for 
++ distortion of included and extracted graphics supported with options `distort`
+  (or `keepaspectratio`) and `extractdistort` as well as rotation for
   extractions (`extractangle`)
 + fixed errors with active double qoutes from **babel** in path arguments
 + multiple dots within file names possible
@@ -77,8 +83,8 @@ Versions
 + **svg-extract**: enhanced support for ***ImageMagick***
 + **svg-extract**: support for ***Ghostscript*** added
 + package **subfig** not required anymore
-+ support of subfigures stopped due to the huge number of packages which deal 
-  with this topic and the large variety of implementing this functionality; 
++ support of subfigures stopped due to the huge number of packages which deal
+  with this topic and the large variety of implementing this functionality;
   naming exported graphics after their consecutive numbering can't be ensured
   for all variants of subfigures, so it's neglected
 
