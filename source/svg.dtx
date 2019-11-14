@@ -177,7 +177,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \edef\svglstbelowskip{\the\glueexpr\medskipamount-\parskip\relax}%
 }
 \lstdefinestyle{svg}{%
-%  language=[LaTeX]TeX,%
   basicstyle=\small\ttfamily,%
   columns=flexible,%
   frame=single,%
@@ -231,6 +230,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \end{abstract}
   \tableofcontents
   \ToDo{replace \cs{svg@@...} with \cs{svg@...@}}[v2.03]
+  \ToDo{%
+    replace \cs{ifisdimension} with \cs{svg@if@number} or \cs{svg@set@number}?
+    use \cs{ifdimen}, commas are valid!
+  }[v2.03]
   \ToDo{use \cs{@tempa} instead of \cs{svg@tempa} in FamilyKeys!}[v2.03]
   \ToDo{call makefile from .bat}[v2.03]
   \ToDo{%
@@ -241,6 +244,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % as any spaces and/or quotes respectively \cs{dq} both in paths and file~names,
 % especially when DVI~output is active.
   \ToDo{Hint for cropped text}[v2.03]
+  \ToDo{Use \cs{GitHub...} from \cls{tudscrdoc} for related links}[v2.03]
   \DocInput{\filename}
 \end{document}
 %</dtx>
@@ -250,51 +254,35 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.00}{2016/09/23}{new maintainer: Falk Hanisch}^^A
 % \changes{v2.00}{2017/03/27}{re-implementation from scratch}^^A
 % \changes{v2.00}{2017/03/27}{package \pkg{subfig} not required anymore}^^A
-% \changes{v2.00}{2017/03/27}{%
-%   support of subfigures stopped due to the huge number of packages which deal 
-%   with this topic and the large variety of implementing this functionality; 
-%   naming exported graphics after their consecutive numbering can't be ensured
-%   for all variants of subfigures, so it's neglected%
-% }^^A
-% \changes{v2.01}{2017/11/28}{%
-%   usage of \cs{input}\marg{tex~filename} within \app{Inkscape}~graphics
-%   locates files in all declared searched folders
-% }^^A
+% \changes{v2.00}{2017/03/27}{support of subfigures stopped due to the huge
+%   number of packages which deal with this topic and the large variety of
+%   implementing this functionality; naming exported graphics after their
+%   consecutive numbering can't be ensured for all variants of subfigures, so
+%   it's neglected}^^A
+% \changes{v2.01}{2017/11/28}{usage of \cs{input}\marg{tex~filename} within
+%   \app{Inkscape}~graphics locates files in all declared searched folders}^^A
 % \changes{v2.02}{2018/09/07}{package \pkg{trimspaces} required}^^A
 % \changes{v2.02}{2018/09/07}{multiple dots within file names possible}^^A
-% \changes{v2.02}{2018/09/07}{%
-%   fixed errors with active double quotes from \pkg{babel} in path arguments%
-% }^^A
-% \changes{v2.02a}{2018/10/17}{%
-%   fix bug for package \pkg{polyglossia} which fakes \pkg{babel} poorly%
-% }^^A
-% \changes{v2.02b}{2018/11/12}{%
-%   fix bug for package \pkg{tikzscale} which changes \cs{includegraphics} 
-%   globally%
-% }^^A
-% \changes{v2.02c}{2019/10/10}{%
-%   fix bugs with current kernel (2019/10/01) regarding file name parsing
-% }^^A
-% \changes{v2.02d}{2019/10/22}{%
-%   fix bugs with current kernel (2019/10/01) regarding file name parsing, see
-%   \url{https://github.com/mrpiggi/svg/issues/16}
-% }^^A
-% \changes{v2.02d}{2019/10/22}{%
-%   conditional invocation of \app{Inkscape} export based on file modification
-%   date implemented for Xe\TeX{}%
-% }^^A
-% \changes{v2.03}{2019/06/28}{%
-%   command line format of \app{Inkscape~1.0} and later is supported%
-% }^^A
-% \changes{v2.03}{2019/06/25}{%
-%   files exported with \app{Inkscape} are not moved from root directory but 
-%   created directly in the path given with \opt{inkscapepath}%
-% }^^A
-% \changes{v2.03}{2019/07/11}{%
-%   files converted with \app{ImageMagick} or \app{Ghostscript} are not moved 
+% \changes{v2.02}{2018/09/07}{fixed errors with active double quotes from
+%   \pkg{babel} in path arguments}^^A
+% \changes{v2.02a}{2018/10/17}{fix bug for package \pkg{polyglossia} which
+%   fakes \pkg{babel} poorly}^^A
+% \changes{v2.02b}{2018/11/12}{fix bug for package \pkg{tikzscale} which
+%   changes \cs{includegraphics} globally}^^A
+% \changes{v2.02c}{2019/10/10}{fix bugs with kernel (2019/10/01) regarding file
+%   name parsing}^^A
+% \changes{v2.02d}{2019/10/22}{fix bugs with kernel (2019/10/01) regarding file
+%   name parsing, see \url{https://github.com/mrpiggi/svg/issues/16}}^^A
+% \changes{v2.02d}{2019/10/22}{conditional invocation of \app{Inkscape} export
+%   based on file modification date implemented for Xe\TeX{}}^^A
+% \changes{v2.03}{2019/06/28}{command line format of \app{Inkscape~1.0} and
+%   later is supported}^^A
+% \changes{v2.03}{2019/06/25}{files exported with \app{Inkscape} are not moved
 %   from root directory but created directly in the path given with
-%   \opt{extractpath}%
-% }^^A
+%   \opt{inkscapepath}}^^A
+% \changes{v2.03}{2019/07/11}{files converted with \app{ImageMagick} or
+%   \app{Ghostscript} are not moved from root directory but created directly in
+%   the path given with \opt{extractpath}}^^A
 %
 %
 %
@@ -563,10 +551,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \hrfn{https://inkscape.org/de/doc/inkscape-man.html}{\app{Inkscape}}.
 %
 % \DescribeOption{svgextension}^^A
-% \changes{v2.01}{2017/11/27}{%
-%   option \opt{svgextension} added in order to change the format of files 
-%   exported by \app{Inkscape} from \file{svg} to a custom one
-% }^^A
+% \changes{v2.01}{2017/11/27}{option \opt{svgextension} added in order to
+%   change the format of files exported by \app{Inkscape} from \file{svg} to a
+%   custom one}^^A
 % The package assumes SVG~files with \file{.svg} extension as source for the 
 % \app{Inkscape} export. This option can be used to change this behaviour. 
 % For example, in order to process \file{.dia} files instead of \file{.svg} you 
@@ -580,20 +567,17 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \subsection{Options for the graphic inclusion}
 %
 % \DescribeOptions{width,height,distort,scale}^^A
-% \changes{v2.02}{2018/09/07}{%
-%   option \opt{distort} (or \opt{keepaspectratio}) added for distortion of
-%   included graphics%
-% }^^A
+% \changes{v2.02}{2018/09/07}{option \opt{distort} (or \opt{keepaspectratio}) 
+%   added for distortion of included graphics}^^A
 % The width of the included graphic~file can be specified via the \opt{width} 
 % option and the height by the \opt{height} option. If both the width and
 % height are specified, the figure will be scaled such that neither of the
 % specified dimensions is exceeded, unless option \opt{distort}|=|\val{true} is 
-% given.\footnote{\ignorespaces%
-%   to provide compatibility for package \pkg{graphicx}, it's possible to use
-%   \prm{keepaspectratio}|=|\val{true} as alias for \opt{distort}|=|\val{false}
-%   and the other way round
-% } If \opt{width} and/or \opt{height} once have been set, this can be undone
-% by setting them to \val{0pt} or \cs{relax}. If neither \opt{width} nor 
+% given.\footnote{to provide compatibility for package \pkg{graphicx}, it's
+%   possible to use \prm{keepaspectratio}|=|\val{true} as alias for
+%   \opt{distort}|=|\val{false} and the other way round}
+% If \opt{width} and/or \opt{height} once have been set, this can be undone by
+% setting them to \val{0pt} or \cs{relax}. If neither \opt{width} nor
 % \opt{height} are set, the included graphic~file can also be scaled by setting 
 % \opt{scale} to a positive real number.
 %
@@ -640,10 +624,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{svgexample}
 %
 % \begin{DescribeParameterParent}{Macro}{\includesvg}^^A
-% \DescribeParameters{%
-%   inkscape,inkscapeformat,inkscapelatex,inkscapearea,inkscapedpi,inkscapeopt,%
-%   svgextension,width,height,distort,scale,pretex,apptex,draft,%
-% }^^A
+% \DescribeParameters{inkscape,inkscapeformat,inkscapelatex,inkscapearea,^^A
+%   inkscapedpi,inkscapeopt,svgextension,width,height,distort,scale,^^A
+%   pretex,apptex,draft}^^A
 % It is used right in the same way but where \meta{svg~filename} is the 
 % file~name of the SVG~file, where any given file~extension will be replaced
 % with \file{.svg} ruthlessly. In order to change the source file format for 
@@ -698,10 +681,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{svgexample}
 %
 % \begin{DescribeParameterParent}{Macro}{\includeinkscape}^^A
-% \DescribeParameters{%
-%   inkscapeformat,inkscapelatex,%
-%   width,height,distort,scale,pretex,apptex,draft,lastpage,angle,origin,%
-% }^^A
+% \DescribeParameters{inkscapeformat,inkscapelatex,width,height,distort,^^A
+%   scale,pretex,apptex,draft,lastpage,angle,origin}^^A
 % You can use it similar to \cs{includesvg} but \meta{graphic~filename} has to 
 % be the filename of the already exported graphic file. If a valid 
 % file~extension (\file{.pdf/.eps/.ps/.png}) is given, the current setting for 
@@ -837,9 +818,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \subsection{Extract independent grahic files}\label{sec:extract}
 %
 % \DescribeOption{extract}^^A
-% \changes{v2.03}{2019/07/14}{%
-%   option \opt{extract} has new value \val{forced}%
-% }^^A
+% \changes{v2.03}{2019/07/14}{option \opt{extract=\val{forced}} new}^^A
 % This option controls the functionality for both extracting and---if option 
 % \opt{convert} is active---converting and is \default{forced} by default.
 % \begin{DescribeValues}^^A
@@ -864,11 +843,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{DescribeValues}
 %
 % \DescribeOption{extractpath}^^A
-% \changes{v2.03}{2019/07/11}{%
-%   option \opt{extractpath} provides values \val{inkscapepath} and 
-%   \val{inkscapesubpath} for creating extracted/converted graphics in the same 
-%   folder as the resulting files of the \app{Inkscape}~export%
-% }^^A
+% \changes{v2.03}{2019/07/11}{option \opt{extractpath} provides values
+%   \val{inkscapepath} and \val{inkscapesubpath} for creating
+%   extracted/converted graphics in the same folder as the resulting files of
+%   the \app{Inkscape}~export}^^A
 % The path where the extracted and converted files are located can be specified 
 % with option \opt{extractpath}, whereas \default{basesubdir} is set by default.
 % \begin{DescribeValues}^^A
@@ -928,13 +906,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % unless DVI~output was detected. In this case \opt{extractformat}|=|\val{eps} 
 % is the default setting.
 %
-% \DescribeOptions{%
-%   extractwidth,extractheight,extractdistort,extractscale,
-%   extractpretex,extractapptex,%
-% }^^A
-% \changes{v2.02}{2018/09/07}{%
-%   option \opt{extractdistort} added for distortion of extracted graphics%
-% }^^A
+% \DescribeOptions{extractwidth,extractheight,extractdistort,extractscale,^^A
+%   extractpretex,extractapptex}^^A
+% \changes{v2.02}{2018/09/07}{option \opt{extractdistort} added for distortion
+%   of extracted graphics}^^A
 % These options can be used to overwrite the settings given for the appearance 
 % of a SVG~file within the document. For example, a SVG~file should cover the 
 % entire text width within the document but be extracted to a fixed width. This 
@@ -1015,10 +990,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \opt{pdftopsopt}.
 %
 % \DescribeOption{clean}^^A
-% \changes{v2.03}{2019/07/11}{%
-%   option \opt{clean} provides value \val{nolatex} for preserving auxiliary 
-%   \LaTeX~files used for extraction to be deleted%
-% }^^A
+% \changes{v2.03}{2019/07/11}{option \opt{clean} provides value \val{nolatex}
+%   for preserving auxiliary \LaTeX~files used for extraction to be deleted}^^A
 % During the extraction process many files are generated for each SVG~file 
 % extraction. So it's oftentimes desirable to automatically remove these 
 % temporary files. Using the option \opt{clean}|=|\val{true} will remove any 
@@ -1047,10 +1020,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{DescribeParameterParent}{Macro}{\includeinkscape}^^A
 % \renewcommand*\marginpar[2][]{}^^A
 % \DescribeParameter{extractangle}^^A
-% \changes{v2.02}{2018/09/07}{%
-%   parameter \prm{extractangle} for \cs{includesvg} and \cs{includeinkscape}
-%   implemented in order to rotate graphics during extractions%
-% }^^A
+% \changes{v2.02}{2018/09/07}{parameter \prm{extractangle} for \cs{includesvg}
+%   and \cs{includeinkscape} implemented in order to rotate graphics during 
+%   extractions}^^A
 % With this additional parameter the graphic is rotated during the extraction
 % process. The value is not inherited from \prm{angle} if it was given by
 % default. This can be achieved by setting:
@@ -1070,9 +1042,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % set by default---or \app{Ghostscript}.
 %
 % \DescribeOption{convert}^^A
-% \changes{v2.03}{2019/07/14}{%
-%   option \opt{convert} has new value \val{forced}%
-% }^^A
+% \changes{v2.03}{2019/07/14}{option \opt{convert=\val{forced}} new}^^A
 % This option can be used to control the invocation of the conversion process. 
 % By default, \opt{convert}|=|\val{false} is set. For Windows, there exist two 
 % different versions of \app{Ghostscript}, either 64\,bit or 32\,bit. If 
@@ -1177,7 +1147,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \opt{magickoperator} can be set for all output formats or a \emph{specific}
 % one either resetting or extending the general settings. For further 
 % information see the documentation of 
-% \hrfn{http://www.imagemagick.org/script/command-line-processing.php}%
+% \hrfn{http://www.imagemagick.org/script/command-line-processing.php}^^A
 % {\app{ImageMagick} command-line tool}.
 %
 %
@@ -1208,12 +1178,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \cleardoublepage
 % \section{Example}
 %
-% As an minimal example\footnote{\ignorespaces%
-%   The image used here is a slightly modified version of the image used in the
-%   initial documentation on how to include a SVG~file in \LaTeX{} by 
-%   Johan\,B.\,C.~Engelen available as package 
-%   \href{http://www.ctan.org/pkg/svg-inkscape}{\pkg{svg-inkscape} on CTAN}.
-% } take the following lines of code:
+% As an minimal example\footnote{The image used here is a slightly modified
+%   version of the image used in the initial documentation on how to include a
+%   SVG~file in \LaTeX{} by Johan\,B.\,C.~Engelen available as package 
+%   \href{http://www.ctan.org/pkg/svg-inkscape}{\pkg{svg-inkscape} on CTAN}.}
+% take the following lines of code:
 % \begin{svgexample}
 %   \documentclass{article}
 %   \usepackage[T1]{fontenc}
@@ -1227,11 +1196,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   \begin{figure}
 %     \begin{minipage}{.5\linewidth}
 %       \includesvg[width=\linewidth]{svg-example}%
-%       \subcaption{This text is too large!}
+%       \subcaption{This text is too large!}%
 %     \end{minipage}%
 %     \begin{minipage}{.5\linewidth}
 %       \includesvg[width=\linewidth,pretex=\relscale{0.6}]{svg-example}%
-%       \subcaption{This text fits better.}
+%       \subcaption{This text fits better.}%
 %     \end{minipage}
 %   \caption{An example figure with \LaTeX~support}\label{fig:example}
 %   \end{figure}
@@ -1239,28 +1208,29 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %     \includesvg[%
 %       width=.5\linewidth,inkscapelatex=false,extractformat={pdf,eps}%
 %     ]{svg-example}%
-%     \caption{The same example figure without \LaTeX~support}
+%     \caption{The same example figure without \LaTeX~support}%
 %   \end{figure}
 %   \end{document}
 % \end{svgexample}
 % \begin{figure}[tb]
-%   \null\hfill\ignorespaces%
+%   \null\hfill^^A
 %   \begin{minipage}{.45\linewidth}
-%     \includesvg[width=\linewidth]{svg-example}%
-%     \subcaption{This text is too large!}\label{fig:example-tex-a}
-%   \end{minipage}\hfill\ignorespaces%
+%     \includesvg[width=\linewidth]{svg-example}^^A
+%     \subcaption{This text is too large!}\label{fig:example-tex-a}^^A
+%   \end{minipage}\hfill^^A
 %   \begin{minipage}{.45\linewidth}
-%     \includesvg[width=\linewidth,pretex=\relscale{0.6}]{svg-example}%
-%     \subcaption{This text fits better.}\label{fig:example-tex-b}
+%     \includesvg[width=\linewidth,pretex=\relscale{0.6}]{svg-example}^^A
+%     \subcaption{This text fits better.}\label{fig:example-tex-b}^^A
 %   \end{minipage}
-%   \hfill\null\ignorespaces%
-%   \caption{An example figure with \LaTeX~support}\label{fig:example-tex}
+%   \hfill\null^^A
+%   \caption{An example figure with \LaTeX~support}\label{fig:example-tex}^^A
 % \end{figure}
 % \begin{figure}[tb]\centering
-%   \includesvg[%
-%     width=.5\linewidth,inkscapelatex=false,extractformat={pdf,eps}%
-%   ]{svg-example}%
-%   \caption{The same example figure without \LaTeX~support}\label{fig:example}
+%   \includesvg[^^A
+%     width=.5\linewidth,inkscapelatex=false,extractformat={pdf,eps}^^A
+%   ]{svg-example}^^A
+%   \caption{The same example figure without \LaTeX~support}^^A
+%   \label{fig:example}^^A
 % \end{figure}
 %
 % The output is shown in \autoref{fig:example-tex} and \autoref{fig:example}. 
@@ -1268,9 +1238,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % using the \cs{includesvg} command.
 % If you are willing to compile the example, there are two aspects to consider. 
 % First, the included SVG~file \file{svg-example.svg} has to be located in the 
-% current folder and is located in \file{\meta{texmf}/doc/latex/svg/}. 
-% Second, you have to run the desired \LaTeX~engine with 
-% \file{-{}-shell-escape} option enabled. 
+% current folder and is located in \file{\meta{texmf}/doc/latex/svg/}. Second,
+% you have to run the desired \LaTeX~engine with flag \file{-{}-shell-escape}. 
 % 
 % As you can see, \autoref{fig:example-tex-a} is created with default settings, 
 % except the width specification. The \app{Inkscape}~export with \LaTeX~support
@@ -1322,9 +1291,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \minisec{When using pdf\LaTeX{} there are a lot of warnings}
 %
 % It may happen that several warnings like
-% \begin{quote}\ttfamily\raggedright%
+% \begin{quote}\ttfamily\raggedright^^A
 % pdfTeX warning:\,pdflatex.exe(file \meta{filename}.pdf):\,PDF inclusion:
-% multiple pdfs with page group included in a single page
+% multiple pdfs with page group included in a single page^^A
 % \end{quote}
 % occur when including the PDF~graphics exported with \app{Inkscape}. This is 
 % related to the handling of transparency effects within PDF~files. Since
@@ -1409,22 +1378,22 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   \end{figure}
 % \end{svgexample}
 % \begin{figure}
-%   \centering%
-%     \includesvg[%
-%       inkscapearea=page,height=6cm,pretex=\tiny,convertformat=png%
-%     ]{root}%
-%   \caption{Rendering of a \app{ROOT} plot---no more \emph{Comic CERNs}}%
-%   \label{fig:root}%
+%   \centering^^A
+%     \includesvg[^^A
+%       inkscapearea=page,height=6cm,pretex=\tiny,convertformat=png^^A
+%     ]{root}^^A
+%   \caption{Rendering of a \app{ROOT} plot---no more \emph{Comic CERNs}}^^A
+%   \label{fig:root}^^A
 % \end{figure}
 % which includes the graphic as well as the \LaTeX~file exported by 
 % \app{Inkscape}, produces the extracted PDF~image~(\file{root.pdf}) and 
 % converts this to a PNG~image~(\file{root.png}) by using \app{ImageMagick}.
 % Enjoy plots from \app{ROOT} with natively rendered \LaTeX{}!
 %
-% \StopEventually{%
-%   \cleardoublepage\PrintIndex%
-%   \cleardoublepage\PrintChanges%
-%   \cleardoublepage\PrintToDos%
+% \StopEventually{^^A
+%   \cleardoublepage\PrintIndex^^A
+%   \cleardoublepage\PrintChanges^^A
+%   \cleardoublepage\PrintToDos^^A
 % }
 %
 % \iffalse
@@ -1449,6 +1418,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % packages \pkg{shellesc} and \pkg{ifplatform} are used for engine independent
 % access to systems commands and files. The package \pkg{svg-extract} only 
 % needs package \pkg{svg} itself, which is loaded during initialization.
+% \ToDo{use \pkg{iftex}}[v2.03]
 %    \begin{macrocode}
 %<*main>
 \RequirePackage{scrbase}[2016/06/14]
@@ -2118,10 +2088,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svg@extension@parse
 % \begin{macro}{\svg@IfFileNewer}
-% \changes{v2.02d}{2019/10/22}{%
-%   use \cs{filemoddate} with Xe\LaTeX, see
-%   \url{https://github.com/mrpiggi/svg/issues/12}
-% }^^A
+% \changes{v2.02d}{2019/10/22}{use \cs{filemoddate} with Xe\LaTeX, see
+%   \url{https://github.com/mrpiggi/svg/issues/12}}^^A
 % The macro \cs{svg@IfFileNewer} is used to decide, whether the export with 
 % \app{Inkscape} is necessary due to an updated SVG~file. This is checked with 
 % either \cs{pdf@filemoddate} (pdf\TeX{} and Lua\TeX{}) or \cs{filemoddate} 
@@ -2714,7 +2682,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.03}{2019/06/28}{new}^^A
 % \begin{option}{inkscapeexe}
 % \changes{v2.00}{2017/02/17}{new}^^A
-% \changes{v2.03}{2019/06/28}{only usable in preamble}%
+% \changes{v2.03}{2019/06/28}{only usable in preamble}^^A
 % \begin{macro}{\svg@ink@exe}
 % \begin{option}{inkscapeopt}
 % \changes{v2.00}{2017/02/17}{new}^^A
@@ -3031,8 +2999,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % These options determine the size of the included graphics. The usage of
 % \val{\cs{relax}} as value resets the respective option to the default 
 % behavior.
-% \ToDo{%
-%   implement key \opt{size} in order to use it as master key like%
+% \ToDo{
+%   implement key \opt{size} in order to use it as master key like
 %   \opt{size=1.5} (scale), \opt{size=5cm} (width) or even \opt{size=5cm:6cm}
 %   (width and height) \opt{size=:6cm} (only height) and {size=5cm!6cm} 
 %   (distort) as well as \opt{size=5cm:*}, \opt{size=*:6cm}, \opt{size=5cm!*},
@@ -3312,9 +3280,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svgsetup
 % \begin{macro}{\svgpath}
 % \changes{v2.00}{2017/02/12}{new}^^A
-% \changes{v2.02}{2018/09/07}{%
-%   parse argument for enclosing braces and provide if necessary%
-% }^^A
+% \changes{v2.02}{2018/09/07}{parse argument for enclosing braces and provide
+%   if necessary}^^A
 % \begin{macro}{\svg@input@path}
 % With \cs{svgpath} the user can give several root paths to SVG~files in the
 % same way as \cs{graphicspath} is used. The only difference is that a missing
@@ -3423,8 +3390,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \fi%
 %    \end{macrocode}
 % Include the resulting graphic file and maybe extract independent files. If
-% \file{-{}-shell-escape} wasn't enabled but an update for export is necessary, 
-% a warning is issued.
+% flag \file{-{}-shell-escape} wasn't given but an update for export is
+% necessary, a warning is issued.
 %    \begin{macrocode}
       \if@svg@file@found%
         \if@svg@ink@run\ifnum\pdf@shellescape=\@ne\relax\else%
@@ -3447,8 +3414,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.03}{2019/07/25}{revised}^^A
 % In addition to the automatic finding of the last page, which is included, it 
 % can also be given directly as parameter.
-% \ToDo{%
-%   remove duplicated part of key \val{[.svg.sty]\{SVG\}\{lastpage\}}%
+% \ToDo{
+%   remove duplicated part of key \val{[.svg.sty]\{SVG\}\{lastpage\}}
 % }[KOMA 3.27]
 %    \begin{macrocode}
 \svg@local@param@def{%
@@ -3628,9 +3595,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \subsection{Auxiliary macros}
 %
 % \begin{macro}{\svg@ink@run}
-% \changes{v2.03}{2019/06/25}{%
-%   exported files are not moved but created directly in \cs{svg@ink@path}
-% }^^A
+% \changes{v2.03}{2019/06/25}{exported files are not moved but created directly
+%   in \cs{svg@ink@path}}^^A
 % \begin{macro}{\if@svg@ink@run}
 % The command, which performs the call of \app{Inkscape} via \cs{ShellEscape}.
 %    \begin{macrocode}
@@ -3680,7 +3646,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \fi%
 %    \end{macrocode}
 % If all checks were positive, the export with \app{Inkscape} can be done in 
-% case \file{-{}-shell-escape} is enabled.
+% case flag \file{-{}-shell-escape} is used.
 %    \begin{macrocode}
   \if@svg@ink@run\ifnum\pdf@shellescape=\@ne\relax%
 %    \end{macrocode}
@@ -4135,8 +4101,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % call of \app{Inkscape} stored in \cs{svg@ink@exe} is done with 
 % \cs{@@input\textbar"'\dots'" -V} in order to read the result from
 % \val{stdout}.
-% \ToDo{%
-%   \url{https://tex.stackexchange.com/questions/9792}%
+% \ToDo{
+%   \url{https://tex.stackexchange.com/questions/9792}
 %   \val{-enable-pipes} in MikTeX?!
 % }[v2.03]
 %    \begin{macrocode}
@@ -4494,10 +4460,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \subsection{Patches}
 %
 % \begin{macro}{\svg@patches}
-% \changes{v2.02b}{2018/11/12}{%
-%   fix bug for package \pkg{tikzscale}: store original definitions of 
-%   \cs{picture} and \cs{includegraphics} right after loading package \pkg{svg}
-% }^^A
+% \changes{v2.02b}{2018/11/12}{fix bug for package \pkg{tikzscale}: store
+%   original definitions of \cs{picture} and \cs{includegraphics} right after
+%   loading \pkg{svg}}^^A
 % \begin{macro}{\svg@picture@saved}
 % \begin{macro}{\svg@includegraphics@saved}
 % For including the export results from \app{Inkscape} with \LaTeX~support 
@@ -5570,9 +5535,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{option}{extractpath}
 % \changes{v2.00}{2017/02/24}{new}^^A
 % \changes{v2.02}{2018/09/07}{usage of \cs{svg@sanitize@dq}}^^A
-% \changes{v2.03}{2019/07/10}{%
-%   \val{inkscapepath} and \val{inkscapesubpath} added%
-% }^^A
+% \changes{v2.03}{2019/07/10}{\val{inkscapepath} and \val{inkscapesubpath}
+%   added}^^A
 % \begin{option}{path}
 % \changes{v2.00}{2017/02/24}{deprecated}^^A
 % \begin{macro}{\svgx@out@path}
@@ -5910,9 +5874,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{option}^^A clear
 % \end{option}^^A clean
 % \begin{option}{exclude}
-% \changes{v2.03}{2019/07/12}{%
-%   revised and simplified, moved functionality to \cs{svg@process}%
-% }^^A
+% \changes{v2.03}{2019/07/12}{revised and simplified, moved functionality to
+%   \cs{svg@process}}^^A
 % \begin{macro}{\if@svgx@exclude}
 % \changes{v2.03}{2019/07/12}{new}^^A
 % If it is desired not to include but only extract graphics with package 
@@ -5952,14 +5915,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{parameter}{extractpretex}
 % \begin{parameter}{extractapptex}
 % \begin{parameter}{extractruns}
-% \begin{parameter}{latexexe}%
-% \begin{parameter}{latexopt}%
-% \begin{parameter}{latexext}%
-% \begin{parameter}{dvipsopt}%
-% \begin{parameter}{pstoepsopt}%
-% \begin{parameter}{pstopdfopt}%
-% \begin{parameter}{pdftoepsopt}%
-% \begin{parameter}{pdftopsopt}%
+% \begin{parameter}{latexexe}
+% \begin{parameter}{latexopt}
+% \begin{parameter}{latexext}
+% \begin{parameter}{dvipsopt}
+% \begin{parameter}{pstoepsopt}
+% \begin{parameter}{pstopdfopt}
+% \begin{parameter}{pdftoepsopt}
+% \begin{parameter}{pdftopsopt}
 % \begin{parameter}{convert}
 % \begin{parameter}{convertformat}
 % \begin{parameter}{convertdpi}
@@ -5983,14 +5946,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{parameter}{extractpretex}
 % \begin{parameter}{extractapptex}
 % \begin{parameter}{extractruns}
-% \begin{parameter}{latexexe}%
-% \begin{parameter}{latexopt}%
-% \begin{parameter}{latexext}%
-% \begin{parameter}{dvipsopt}%
-% \begin{parameter}{pstoepsopt}%
-% \begin{parameter}{pstopdfopt}%
-% \begin{parameter}{pdftoepsopt}%
-% \begin{parameter}{pdftopsopt}%
+% \begin{parameter}{latexexe}
+% \begin{parameter}{latexopt}
+% \begin{parameter}{latexext}
+% \begin{parameter}{dvipsopt}
+% \begin{parameter}{pstoepsopt}
+% \begin{parameter}{pstopdfopt}
+% \begin{parameter}{pdftoepsopt}
+% \begin{parameter}{pdftopsopt}
 % \begin{parameter}{convert}
 % \begin{parameter}{convertformat}
 % \begin{parameter}{convertdpi}
@@ -6421,7 +6384,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svgx@ifexpired
 % \begin{macro}{\svgx@run}
-% Since it's necessary to enable option \file{-{}-shell-escape} for extraction, 
+% Since it's necessary to enable flag \file{-{}-shell-escape} for extraction, 
 % the command raises a warning if it is not activated. Afterwards, the package 
 % is finished.
 %    \begin{macrocode}
@@ -6436,7 +6399,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \expandafter\endinput%
 \fi
 %    \end{macrocode}
-% If \file{-{}-shell-escape} is enabled, the command is defined with its
+% If flag \file{-{}-shell-escape} is enabled, the command is defined with its
 % intended functionality. It runs all necessary processes to extract and
 % convert grahic files.
 %    \begin{macrocode}
