@@ -1,4 +1,4 @@
-% \CheckSum{5156}
+% \CheckSum{5155}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -133,7 +133,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %</dtx>
 %<package&identify&main>  {svg}{include SVG pictures}%
 %<package&identify&extract>  {svg-extract}{extract graphics from SVG pictures}%
-  [2019/10/22 v2.03]%
+  [2019/11/15 v2.03]%
 \@tempb
 %</dtx|package&identify>
 % \fi
@@ -323,7 +323,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   for the definition and handling of options in key-value-syntax
 % \item[\pkg{ifpdf}, \pkg{ifluatex}, \pkg{ifxetex}]
 %   for flow control depending on the used \LaTeX~engine
-% \item[\pkg{etexcmds}, \pkg{pdftexcmds}, \pkg{shellesc}]
+% \item[\pkg{pdftexcmds}, \pkg{shellesc}]
 %   to allocate the same primitives independent of the used \LaTeX~engine
 % \item[\pkg{ifplatform}]
 %   to control the file~access depending on the operating system
@@ -1412,12 +1412,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % and \pkg{graphicx} for the inclusion of the exported graphic~files. 
 %
 % The additional packages \pkg{ifpdf}, \pkg{ifluatex} and \pkg{ifxetex} are 
-% needed to detect the used \LaTeX~engine, \pkg{etexcmds} $\varepsilon$-\TeX{}
-% primitives and \pkg{pdftexcmds} for pdf\TeX{} primitives independent of the 
-% used \LaTeX~engine as well as \pkg{trimspaces} for string manipulation. Both
-% packages \pkg{shellesc} and \pkg{ifplatform} are used for engine independent
-% access to systems commands and files. The package \pkg{svg-extract} only 
-% needs package \pkg{svg} itself, which is loaded during initialization.
+% needed to detect the used \LaTeX~engine and \pkg{pdftexcmds} for pdf\TeX{} 
+% primitives independent of the used \LaTeX~engine as well as \pkg{trimspaces}
+% for string manipulation. Both packages \pkg{shellesc} and \pkg{ifplatform}
+% are used for engine independent access to systems commands and files. The
+% package \pkg{svg-extract} only needs package \pkg{svg} itself, which is
+% loaded during initialization.
 % \ToDo{use \pkg{iftex}}[v2.03]
 %    \begin{macrocode}
 %<*main>
@@ -1425,7 +1425,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \RequirePackage{ifpdf}[2016/05/14]
 \RequirePackage{ifluatex}[2016/05/16]
 \RequirePackage{ifxetex}[2010/09/12]
-\RequirePackage{etexcmds}[2016/05/16]
 \RequirePackage{pdftexcmds}[2016/05/21]
 \RequirePackage{trimspaces}[2009/09/17]
 \RequirePackage{graphicx}[1999/02/16]
@@ -1470,7 +1469,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 \newcommand*\svg@@catcodes@set[1]{%
   \edef\svg@catcodes@restore{%
-    \etex@unexpanded\expandafter{\svg@catcodes@restore}%
+    \unexpanded\expandafter{\svg@catcodes@restore}%
     \catcode`\noexpand#1\the\catcode`#1\relax%
   }%
   \@makeother#1%
@@ -2285,9 +2284,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \begingroup%
     \edef\svg@tempa{%
       \endgroup%
-      \etex@unexpanded{\svgx@@normalize@list#1}{%
-        \etex@unexpanded\expandafter{#1}%
-      }%
+      \unexpanded{\svgx@@normalize@list#1}{\unexpanded\expandafter{#1}}%
     }%
   \svg@tempa%
 }
@@ -2302,8 +2299,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \edef\svg@tempa{\expandafter\trim@spaces@noexp\expandafter{\svg@tempa}}%
       \ifx\svg@tempa\@empty\else%
         \edef\svg@tempa{%
-          \etex@unexpanded{\l@addto@macro\svg@tempb}%
-            {,\etex@unexpanded\expandafter{\svg@tempa}}%
+          \unexpanded{\l@addto@macro\svg@tempb}{%
+            ,\unexpanded\expandafter{\svg@tempa}%
+          }%
         }\svg@tempa%
       \fi%
     }%
@@ -2397,7 +2395,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \svgx@normalize@list{\svg@tempb}%
     \edef\svg@tempa{%
       \endgroup%
-      \def\noexpand#1{\etex@unexpanded\expandafter{\svg@tempb}}%
+      \def\noexpand#1{\unexpanded\expandafter{\svg@tempb}}%
     }%
   \svg@tempa%
 }
@@ -3884,7 +3882,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \let\svg@tempb\@empty%
       \@for\svg@tempa:={scale,width,height}\do{%
         \edef\svg@tempb{%
-          \etex@unexpanded\expandafter{\svg@tempb}%
+          \unexpanded\expandafter{\svg@tempb}%
           {\svg@tempa}{\csname svg@param@\svg@tempa\endcsname}%
         }%
       }%
@@ -4752,7 +4750,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \svgx@ifinlist{pdf,ps,eps}{\svg@tempa}{}{%
       \edef\svg@tempb{\svg@tempb,\svg@tempa}%
       \edef\svg@tempa{%
-        \etex@unexpanded{\svgx@remove@key@list{\svgx@extr@format}}{\svg@tempa}%
+        \unexpanded{\svgx@remove@key@list{\svgx@extr@format}}{\svg@tempa}%
       }%
       \svg@tempa%
     }%
@@ -6338,7 +6336,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
           \fi%
         \endgroup%
         \edef\svg@tempb{%
-          \etex@unexpanded\expandafter{\svg@tempb}%
+          \unexpanded\expandafter{\svg@tempb}%
           \if@svg@tempswa%
             {[inherited]\svg@tempa}%
           \else%
@@ -6489,7 +6487,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \let\svg@tempa\@empty%
         \@for\svg@tempb:=\svg@tempb\do{%
           \edef\svg@tempa{%
-            \etex@unexpanded\expandafter{\svg@tempa}%
+            \unexpanded\expandafter{\svg@tempa}%
             \noexpand\MessageBreak`\svg@tempb'%
           }%
         }%
@@ -6580,7 +6578,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
             \ifx\svgx@read@line\@empty\else%
               \immediate\write\svgx@stream@out{%
-                \etex@unexpanded\expandafter{\svgx@read@line}%
+                \unexpanded\expandafter{\svgx@read@line}%
               }%
             \fi%
           \fi%
@@ -6602,8 +6600,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \readline\svgx@stream@in to\svgx@read@line%
         \ifx\svgx@read@line\@empty\else%
           \edef\svg@tempa{%
-            \etex@unexpanded\expandafter{\svg@tempa}%
-            \etex@unexpanded\expandafter{\svgx@read@line}^^J%
+            \unexpanded\expandafter{\svg@tempa}%
+            \unexpanded\expandafter{\svgx@read@line}^^J%
           }%
         \fi%
       \repeat%
@@ -6655,7 +6653,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
     \ifx\svg@tempa\@empty\else%
       \immediate\write\svgx@stream@out{%
-        \etex@unexpanded\expandafter{\svg@tempa}%
+        \unexpanded\expandafter{\svg@tempa}%
       }%
     \fi%
 %    \end{macrocode}
@@ -6702,14 +6700,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \let\svgx@param@pretex\svg@param@pretex%
     \fi%
     \ifx\svgx@param@pretex\relax\else%
-      \svg@tempa{pretex=\etex@unexpanded\expandafter{\svgx@param@pretex}}%
+      \svg@tempa{pretex=\unexpanded\expandafter{\svgx@param@pretex}}%
     \fi%
     \def\svg@tempb{\svg@param@apptex}%
     \ifx\svgx@param@apptex\svg@tempb%
       \let\svgx@param@apptex\svg@param@apptex%
     \fi%
     \ifx\svgx@param@apptex\relax\else%
-      \svg@tempa{apptex=\etex@unexpanded\expandafter{\svgx@param@apptex}}%
+      \svg@tempa{apptex=\unexpanded\expandafter{\svgx@param@apptex}}%
     \fi%
 %    \end{macrocode}
 % Parameter \prm{lastpage} is only considered for including PDF~files with 
