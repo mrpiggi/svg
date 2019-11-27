@@ -1,4 +1,4 @@
-% \CheckSum{5155}
+% \CheckSum{5187}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -8,24 +8,24 @@
 %%
 %% Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
 %% Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
-%% 
+%%
 %% ----------------------------------------------------------------------------
-%% 
+%%
 %% This work may be distributed and/or modified under the conditions
 %% of the LaTeX Project Public License, version 1.3c of the license.
 %% The latest version of this license is in
 %%     http://www.latex-project.org/lppl.txt
 %% and version 1.3c or later is part of all distributions of
 %% LaTeX 2005/12/01 or later and of this work.
-%% 
+%%
 %% This work has the LPPL maintenance status "author-maintained".
-%% 
+%%
 %% The current maintainer and author of this work is Falk Hanisch.
 %%
 %% This work consists of the main source file README.md, LICENSE.md, svg.dtx 
 %% and the derived documentation svg.pdf as well as the example files
 %% svg-example.svg, svg-preamble.tex and root.C (with derived file root.svg).
-%% 
+%%
 %% ----------------------------------------------------------------------------
 %%
 %</identify>
@@ -174,7 +174,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 \newcommand*\svglstbelowskip{\medskipamount}
 \AtBeginDocument{%
-  \edef\svglstbelowskip{\the\glueexpr\medskipamount-\parskip\relax}%
+  \renewcommand*\svglstbelowskip{\glueexpr\medskipamount-\parskip\relax}%
 }
 \lstdefinestyle{svg}{%
   basicstyle=\small\ttfamily,%
@@ -232,8 +232,18 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \ToDo{replace \cs{svg@@...} with \cs{svg@...@}}[v2.03]
   \ToDo{%
     replace \cs{ifisdimension} with \cs{svg@if@number} or \cs{svg@set@number}?
-    use \cs{ifdimen}, commas are valid!
+    use \cs{ifdimen}, commas are valid! macro for scale and angle
   }[v2.03]
+%^^A\def\footest#1{
+%^^A  \ifisdimension{#1\p@}{%
+%^^A    \ifdim\dimexpr#1\p@\relax>\z@\relax%
+%^^A      \setlength\@tempdima{#1\p@}%
+%^^A      \edef\foo{\strip@pt\@tempdima}%
+%^^A      \meaning\foo
+%^^A    \fi%
+%^^A  }{}%
+%^^A}
+%^^A\footest{1a5}
   \ToDo{use \cs{@tempa} instead of \cs{svg@tempa} in FamilyKeys!}[v2.03]
   \ToDo{call makefile from .bat}[v2.03]
   \ToDo{%
@@ -299,7 +309,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The procedure described therein is taken up and consistently expanded. Thus, 
 % it is now possible to include a SVG~file into a \LaTeX~document where the
 % text within the SVG~graphic will be rendered natively by \LaTeX{}.
-% 
+%
 % Both packages \pkg{svg} and \pkg{svg-extract} rely heavily upon executing 
 % commands from the shell using the \cs{ShellEscape} command---or respectively 
 % the old known \cs{write18}---for executing a variety of commands directly to 
@@ -318,7 +328,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \file{inkscape -V}. Moreover, there are some required packages which are 
 % loaded by packages \pkg{svg} and \pkg{svg-extract} to provide the 
 % functionallity. These are:
-% \begin{description}[parsep=.5\smallskipamount]
+% \begin{description}[parsep=\glueexpr\smallskipamount/2\relax]
 % \item[\pkg{scrbase}]
 %   for the definition and handling of options in key-value-syntax
 % \item[\pkg{ifpdf}, \pkg{ifluatex}, \pkg{ifxetex}]
@@ -439,7 +449,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   The \app{Inkscape}~export will definitely be done, any already existing 
 %   exported file will overwritten regardlessly.
 % \end{DescribeValues}
-% 
+%
 % In addition to controlling the export behavior, the option \opt{inkscape} can 
 % also be used to make additional settings, which then acts as a wrapper for 
 % the options described below.
@@ -510,7 +520,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \opt{inkscapename}|=|\file{\meta{filename}}. It's possible to use counters for
 % specifying the name of the exported file. Repeatedly specifying the same file 
 % name will overwrite previously created files. 
-% 
+%
 % \DescribeOption{inkscapeformat}^^A
 % With this option, the \app{Inkscape}~export~format can be controlled. Valid 
 % values are \val{pdf}, \val{eps}, \val{ps} and \val{png}, where a \LaTeX~export
@@ -646,7 +656,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % invoked, if the SVG~file is newer than the exported graphic~file or latter 
 % doesn't exist at all. Once the export has been done, the graphic~file and
 % maybe the \LaTeX~file are included.
-% 
+%
 % All previously described options can also be used as optional parameters to 
 % \cs{includesvg} and do have the same effect as described before. However, the 
 % optional parameters specified have an effect only once when \cs{includesvg}
@@ -931,7 +941,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % auxiliary \LaTeX~file all used packages and commands have to be known within 
 % this file. Consequently, the preamble of the current \LaTeX~document is used 
 % for the extraction of the SVG~file by default.
-% 
+%
 % However, it is possible to specify a different \emph{preamble~file} with the 
 % option \opt{extractpreamble} where the file to use as the preamble is given
 % as the argument---including maybe path, but file~name and file~extension in 
@@ -1035,7 +1045,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 %
 % \subsection{Convert extracted grahic files}\label{sec:convert}
-% 
+%
 % Based on the extraction of independent graphic~files, the \pkg{svg-extract} 
 % packages also provides the possibility to convert these extracted graphics in 
 % another format than PDF, EPS or PS with either \app{ImageMagick}---which is 
@@ -1070,7 +1080,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   The same as for the latter case applies, only option
 %  \opt{gsexe}|=|\val{gswin32c} is set on Windows.
 % \end{DescribeValues}
-% 
+%
 % \DescribeOption{convertformat}^^A
 % With this option, the desired output format(s) can be given. Multiple graphic 
 % formats can be specified in a list, for example something like 
@@ -1194,11 +1204,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   \usepackage{subcaption}
 %   \begin{document}
 %   \begin{figure}
-%     \begin{minipage}{.5\linewidth}
+%     \begin{minipage}{\dimexpr\linewidth/2\relax}
 %       \includesvg[width=\linewidth]{svg-example}%
 %       \subcaption{This text is too large!}%
 %     \end{minipage}%
-%     \begin{minipage}{.5\linewidth}
+%     \begin{minipage}{\dimexpr\linewidth/2\relax}
 %       \includesvg[width=\linewidth,pretex=\relscale{0.6}]{svg-example}%
 %       \subcaption{This text fits better.}%
 %     \end{minipage}
@@ -1214,11 +1224,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{svgexample}
 % \begin{figure}[tb]
 %   \null\hfill^^A
-%   \begin{minipage}{.45\linewidth}
+%   \begin{minipage}{\dimexpr\linewidth*9/20\relax}
 %     \includesvg[width=\linewidth]{svg-example}^^A
 %     \subcaption{This text is too large!}\label{fig:example-tex-a}^^A
 %   \end{minipage}\hfill^^A
-%   \begin{minipage}{.45\linewidth}
+%   \begin{minipage}{\dimexpr\linewidth*9/20\relax}
 %     \includesvg[width=\linewidth,pretex=\relscale{0.6}]{svg-example}^^A
 %     \subcaption{This text fits better.}\label{fig:example-tex-b}^^A
 %   \end{minipage}
@@ -1240,7 +1250,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % First, the included SVG~file \file{svg-example.svg} has to be located in the 
 % current folder and is located in \file{\meta{texmf}/doc/latex/svg/}. Second,
 % you have to run the desired \LaTeX~engine with flag \file{-{}-shell-escape}. 
-% 
+%
 % As you can see, \autoref{fig:example-tex-a} is created with default settings, 
 % except the width specification. The \app{Inkscape}~export with \LaTeX~support
 % is done and the extraction of an independent graphic~file in PDF~format as
@@ -3011,10 +3021,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \renewcommand*\svg@param@width{\z@}%
     \FamilyKeyStateProcessed%
   }{%
-    \FamilySetUseLengthMacro{SVG}{width}{\svg@param@width}{#1}%
+    \FamilySetUseLengthMacro{SVG}{width}{\@tempa}{#1}%
     \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-      \ifdim\svg@param@width<\z@\relax%
+      \ifdim\@tempa<\z@\relax%
         \FamilyKeyStateUnknownValue%
+      \else%
+        \def\svg@param@width{\dimexpr\glueexpr#1\relax\relax}%
       \fi%
     \fi%
   }%
@@ -3025,10 +3037,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \renewcommand*\svg@param@height{\z@}%
     \FamilyKeyStateProcessed%
   }{%
-    \FamilySetUseLengthMacro{SVG}{height}{\svg@param@height}{#1}%
+    \FamilySetUseLengthMacro{SVG}{height}{\@tempa}{#1}%
     \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-      \ifdim\svg@param@height<\z@\relax%
+      \ifdim\@tempa<\z@\relax%
         \FamilyKeyStateUnknownValue%
+      \else%
+        \def\svg@param@height{\dimexpr\glueexpr#1\relax\relax}%
       \fi%
     \fi%
   }%
@@ -4080,10 +4094,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % If no version was found, an error message is shown.
 %    \begin{macrocode}
     \svg@ifnumber{\svg@ink@ver}{}{%
-      \PackageErrorNoLine{svg}{Inkscape version not found}{%
+      \PackageError{svg}{Inkscape version not found}{%
         It was tried to invoke `\svg@ink@exe\space-V'\MessageBreak%
         but no version info for Inkscape could gathered. Please\MessageBreak%
-        set it up manually with `inkscapeversion=<version>'%
+        use `inkscapeversion=<version>' to set it up manually.%
       }%
     }%
   \else%
@@ -4248,7 +4262,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
           \else%
             folder `\svg@file@path'%
           \fi%
-          \space nor any other\MessageBreak searched path given by\space% 
+          \space nor any other\MessageBreak searched path given by\space%
           \string\svgpath\space or \string\graphicspath. \MessageBreak%
         }%
 %    \end{macrocode}
@@ -4266,6 +4280,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
             \svg@normalize@path{\input@path}%
             \edef\svg@tempa{\svg@tempa\MessageBreak\input@path}%
           }%
+          \edef\svg@tempa{\svg@tempa\MessageBreak No file was found.}%
         \fi%
         \PackageError{svg}{File `\svg@tempb' is missing}{\svg@tempa}%
       }%
@@ -5143,7 +5158,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \ifx\svg@tempb\@empty\else%
           \space associated options%
         \fi%
-        \MessageBreak% 
+        \MessageBreak%
         for ImageMagick should be done with%
         \ifx\svg@tempa\@empty\else%
           \MessageBreak%
@@ -5154,7 +5169,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
           \ifx\svg@tempa\@empty\else and \fi\space%
           `magicksetting' and/or `magickoperator'%
         \fi%
-        \MessageBreak% 
+        \MessageBreak%
         Nevertheless, this was done by now anyway%
         \ifx\svg@tempb\@empty\else%
           , whereby \MessageBreak `magicksetting=\svg@tempb' was used%
@@ -5692,10 +5707,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \renewcommand*\svgx@param@width{\svg@param@width}%
       \FamilyKeyStateProcessed%
     }{%
-      \FamilySetUseLengthMacro{SVG}{extractwidth}{\svgx@param@width}{#1}%
+      \FamilySetUseLengthMacro{SVG}{extractwidth}{\@tempa}{#1}%
       \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-        \ifdim\svgx@param@width<\z@\relax%
+        \ifdim\@tempa<\z@\relax%
           \FamilyKeyStateUnknownValue%
+        \else%
+          \def\svgx@param@width{\dimexpr\glueexpr#1\relax\relax}%
         \fi%
       \fi%
     }%
@@ -5711,10 +5728,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \renewcommand*\svgx@param@height{\svg@param@height}%
       \FamilyKeyStateProcessed%
     }{%
-      \FamilySetUseLengthMacro{SVG}{extractheight}{\svgx@param@height}{#1}%
+      \FamilySetUseLengthMacro{SVG}{extractheight}{\@tempa}{#1}%
       \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-        \ifdim\svgx@param@height<\z@\relax%
+        \ifdim\@tempa<\z@\relax%
           \FamilyKeyStateUnknownValue%
+        \else%
+          \def\svgx@param@height{\dimexpr\glueexpr#1\relax\relax}%
         \fi%
       \fi%
     }%
@@ -6528,7 +6547,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \else%
       \PackageInfo{svg-extract}{%
         The preamble of file `\svgx@extr@preamble'\MessageBreak%
-        is used for the generation of the auxiliary file\MessageBreak% 
+        is used for the generation of the auxiliary file\MessageBreak%
         `\svgx@out@name'%
       }%
 %    \end{macrocode}
@@ -6779,20 +6798,20 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svgx@documentclass
 % \begin{macro}{\svgx@read@preamble@till}
 % \begin{macro}{\svgx@read@preamble@from}
-% \begin{macro}{\svgx@read@preamble@skip}
-% These macros are used to skip some parts of a read in preamble file.
+% \begin{macro}{\svgx@read@preamble@omit}
+% These macros are used to omit some parts of a read in preamble file.
 %    \begin{macrocode}
 \newcommand*\svgx@read@preamble@till[2]{%
-  \svgx@read@preamble@skip#1\@nil{till}{#2}%
+  \svgx@read@preamble@omit#1\@nil{till}{#2}%
 }
 \newcommand*\svgx@read@preamble@from[2]{%
-  \svgx@read@preamble@skip#1\@nil{from}{#2}%
+  \svgx@read@preamble@omit#1\@nil{from}{#2}%
 }
 %    \end{macrocode}
 % In principle, the functionality is the same as for \cs{svgx@documentclass}.
 %    \begin{macrocode}
-\newcommand*\svgx@read@preamble@skip{}
-\def\svgx@read@preamble@skip#1\@nil#2#3{%
+\newcommand*\svgx@read@preamble@omit{}
+\def\svgx@read@preamble@omit#1\@nil#2#3{%
 %    \end{macrocode}
 % A given token is used to create the macro \cs{svg@tempa} delimited by the 
 % token itself which is used twice to get any stuff right before or after the
@@ -6845,7 +6864,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \expandafter\svg@tempa\svg@tempb\@nil%
 }
 %    \end{macrocode}
-% \end{macro}^^A \svgx@read@preamble@skip
+% \end{macro}^^A \svgx@read@preamble@omit
 % \end{macro}^^A \svgx@read@preamble@from
 % \end{macro}^^A \svgx@read@preamble@till
 % \begin{macro}{\svgx@extr@run}
@@ -7062,7 +7081,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \Gin@draftfalse%
     \svg@ink@include{#2}{#3}{#4}%
   }%
-  \svgxsetpapersize% 
+  \svgxsetpapersize%
 }
 %    \end{macrocode}
 % \end{macro}^^A \if@svgx@standalone
