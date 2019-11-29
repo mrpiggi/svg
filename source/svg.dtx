@@ -1,4 +1,4 @@
-% \CheckSum{5187}
+% \CheckSum{5211}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -1502,6 +1502,38 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 %
 %
+% \subsubsection{Secure initialization of \TeX-primitives}
+%
+% \begin{macro}{\svg@newif}
+% \changes{v2.03}{2019/11/29}{new}^^A
+% \begin{macro}{\svg@newdimen}
+% \changes{v2.03}{2019/11/29}{new}^^A
+% \begin{macro}{\svg@newcount}
+% \changes{v2.03}{2019/11/29}{new}^^A
+% \begin{macro}{\svg@newtoks}
+% \changes{v2.03}{2019/11/29}{new}^^A
+% \begin{macro}{\svg@newread}
+% \changes{v2.03}{2019/11/29}{new}^^A
+% \begin{macro}{\svg@newwrite}
+% \changes{v2.03}{2019/11/29}{new}^^A
+% Prevent overwriting of existing primitives.
+%    \begin{macrocode}
+\newcommand*\svg@newif[#1]{\@ifdefinable{#1}{\newif#1}}
+\newcommand*\svg@newdimen[1]{\@ifdefinable#1{\newdimen#1}}
+\newcommand*\svg@newcount[1]{\@ifdefinable#1{\newcount#1}}
+\newcommand*\svg@newtoks[1]{\@ifdefinable#1{\newtoks#1}}
+\newcommand*\svg@newread[1]{\@ifdefinable#1{\newread#1}}
+\newcommand*\svg@newwrite[1]{\@ifdefinable#1{\newwrite#1}}
+%    \end{macrocode}
+% \end{macro}^^A \svg@newwrite
+% \end{macro}^^A \svg@newread
+% \end{macro}^^A \svg@newtoks
+% \end{macro}^^A \svg@newcount
+% \end{macro}^^A \svg@newdimen
+% \end{macro}^^A \svg@newif
+%
+%
+%
 % \subsection{General macros}
 %
 % \begin{macro}{\svg@tempa}
@@ -1511,11 +1543,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 \newcommand*\svg@tempa{}
 \newcommand*\svg@tempb{}
-\newif\if@svg@tempswa
+\svg@newif\if@svg@tempswa
 %    \end{macrocode}
 % \end{macro}^^A \if@svg@tempswa
 % \end{macro}^^A \svg@tempb
 % \end{macro}^^A \svg@tempa
+%
 %
 %
 %
@@ -1665,7 +1698,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % purpose, infos as well as all shell commands are stored within the token
 % register \cs{svgx@afterdocument@toks}.
 %    \begin{macrocode}
-\newtoks\svgx@afterdocument@toks
+\svg@newtoks\svgx@afterdocument@toks
 \newcommand*\svgx@afterdocument@xaddto[1]{%
   \begingroup%
     \edef\svg@tempa{%
@@ -1751,7 +1784,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \cs{svg@@quotes@check}, which controls the switch, are defined. As before, 
 % the string is passed in a macro to \cs{svg@quotes@check}.
 %    \begin{macrocode}
-\newif\if@svg@quotes@found
+\svg@newif\if@svg@quotes@found
 \newcommand*\svg@quotes@check[1]{%
   \expandafter\svg@@quotes@check#1"\@nil%
 }
@@ -2472,10 +2505,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Options for preventing packages \pkg{xcolor} and \pkg{transparent} to be 
 % loaded.
 %    \begin{macrocode}
-\newif\if@svg@use@xcolor
+\svg@newif\if@svg@use@xcolor
 \FamilyBoolKey{SVG}{usexcolor}{@svg@use@xcolor}
 \DeclareOption{noxcolor}{\FamilyOptions{SVG}{usexcolor=false}}
-\newif\if@svg@use@transparent
+\svg@newif\if@svg@use@transparent
 \FamilyBoolKey{SVG}{usetransparent}{@svg@use@transparent}
 \DeclareOption{notransparent}{\FamilyOptions{SVG}{usetransparent=false}}
 %    \end{macrocode}
@@ -2792,7 +2825,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % This option controls whether the \app{Inkscape} export will be invoked with 
 % or without the generation of a seperate \LaTeX~file.
 %    \begin{macrocode}
-\newif\if@svg@ink@latex
+\svg@newif\if@svg@ink@latex
 \FamilyBoolKey{SVG}{inkscapelatex}{@svg@ink@latex}
 \FamilyBoolKey{SVG}{latex}{@svg@ink@latex}
 \FamilyBoolKey{SVG}{tex}{@svg@ink@latex}
@@ -3047,7 +3080,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \fi%
   }%
 }
-\newif\if@svg@param@distort
+\svg@newif\if@svg@param@distort
 \FamilyBoolKey{SVG}{distort}{@svg@param@distort}
 \DefineFamilyKey{SVG}{keepaspectratio}[true]{%
   \FamilySetBool{SVG}{keepaspectratio}{@svg@tempswa}{#1}%
@@ -3160,7 +3193,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The option \opt{draft} has the same effect as the eponymous option of package
 % \pkg{graphicx}.
 %    \begin{macrocode}
-\newif\if@svg@draft
+\svg@newif\if@svg@draft
 \FamilyBoolKey{SVG}{draft}{@svg@draft}
 \AfterPackage*{graphicx}{\ifGin@draft\@svg@drafttrue\fi}
 %    \end{macrocode}
@@ -3612,7 +3645,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\if@svg@ink@run}
 % The command, which performs the call of \app{Inkscape} via \cs{ShellEscape}.
 %    \begin{macrocode}
-\newif\if@svg@ink@run
+\svg@newif\if@svg@ink@run
 \newcommand*\svg@ink@run[3]{%
   \ifcase\svg@ink@mode\relax% false
     \@svg@ink@runfalse%
@@ -3749,7 +3782,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % included. The macro \cs{svg@set@input@path} is called to support input
 % commands like \cs{input}\marg{tex~filename} within SVG~files.
 %    \begin{macrocode}
-\newbox\svg@box
+\newsavebox\svg@box
 \newcommand*\svg@ink@include[3]{%
   \svg@param@size@check%
   \svg@set@input@path%
@@ -4037,7 +4070,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % one is the detected version itself.
 %    \begin{macrocode}
 \newcommand*\svg@ink@ver@settings{{\svg@ink@ver}{\svg@ink@exe}{\m@ne}}
-\newif\if@svg@ink@ver@detect
+\svg@newif\if@svg@ink@ver@detect
 %    \end{macrocode}
 % In order to run the check for \app{Inkscape} version at the beginning of the 
 % document only if needed, the version stored in \cs{svg@ink@ver} is written to 
@@ -4183,7 +4216,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % and \cs{svg@file@name} as well as the compound of both in \cs{svg@file@base}.
 % The star version does not raise an error, if no file was found.
 %    \begin{macrocode}
-\newif\if@svg@file@found
+\svg@newif\if@svg@file@found
 \newcommand*\svg@file@path{}
 \newcommand*\svg@file@name{}
 \newcommand*\svg@file@base{}
@@ -5622,7 +5655,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %</main>
 %<*extract>
 \newcommand*\svgx@out@name{\the\value{svgx@out@count}-\svg@ink@name}
-\newif\if@svgx@out@sec
+\svg@newif\if@svgx@out@sec
 \newcounter{svgx@out@count}
 \newcommand*\svgx@out@sec{unknown}
 \DefineFamilyKey{SVG}{extractname}{%
@@ -5739,7 +5772,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     }%
   }%
 }
-\newif\if@svgx@param@distort
+\svg@newif\if@svgx@param@distort
 \DefineFamilyKey{SVG}{extractdistort}[true]{%
   \svgx@ifvalueisinherit{#1}{%
     \renewcommand*\if@svgx@param@distort{\if@svg@param@distort}%
@@ -5902,7 +5935,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \svg@dummy@key[true]{exclude}
 %</main>
 %<*extract>
-\newif\if@svgx@exclude
+\svg@newif\if@svgx@exclude
 \FamilyBoolKey{SVG}{exclude}{@svgx@exclude}
 %</extract>
 %    \end{macrocode}
@@ -6193,7 +6226,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % (\cs{svg@ink@include}) and doing all necessary for extraction and conversion 
 % of independent graphic files afterwards.
 %    \begin{macrocode}
-\newif\if@svgx@run
+\svg@newif\if@svgx@run
 \newcommand*\svgx@out@base{}
 \renewcommand*\svg@process[3]{%
   \if@svgx@exclude\else%
@@ -6451,10 +6484,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % token register, which is used to store all commands which should be executed
 % from shell.
 %    \begin{macrocode}
-\newread\svgx@stream@in
+\svg@newread\svgx@stream@in
 \newcommand*\svgx@read@line{}
-\newwrite\svgx@stream@out
-\newif\if@svgx@write@preamble
+\svg@newwrite\svgx@stream@out
+\svg@newif\if@svgx@write@preamble
 %    \end{macrocode}
 % \end{macro}^^A \if@svgx@write@preamble
 % \end{macro}^^A \svgx@stream@out
@@ -6788,7 +6821,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % order to ignore the possible occurrence of white space or anything else right
 % before \cs{documentclass}.
 %    \begin{macrocode}
-\newif\if@svgx@classfound
+\svg@newif\if@svgx@classfound
 \newcommand*\svgx@documentclass{}
 \def\svgx@documentclass#1\documentclass#2\documentclass#3\@nil{%
   \IfArgIsEmpty{#2}{}{\@svgx@classfoundtrue}%
@@ -7064,7 +7097,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % implement a different behavoiur for \pkg{svg-extract} in standalone mode.
 % for example, \TUDScript-classes are using this switch.
 %    \begin{macrocode}
-\newif\if@svgx@standalone
+\svg@newif\if@svgx@standalone
 \newcommand*\svgxsetbox[4][]{%
   \@svgx@standalonetrue%
   \svgx@setbox{#1}{#2}{#3}{#4}%
@@ -7137,7 +7170,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\if@svgx@beamer}
 % With \cs{svgxoutputbox} the created box is displayed.
 %    \begin{macrocode}
-\newif\if@svgx@beamer
+\svg@newif\if@svgx@beamer
 \@ifclassloaded{beamer}{\@svgx@beamertrue}{}%
 \newcommand*\svgxoutputbox{%
   \begingroup%
