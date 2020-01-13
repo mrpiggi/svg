@@ -17,9 +17,9 @@ void root() {
   // Draw additional text.
   TText *t = new TText(); t->SetTextAlign(31);
   t->DrawText(0.7, 0.9, "\\larger[2]$z(x,y) =  \\frac{1}{\\sigma_x\\sigma_y"
-	      "\\sqrt{4\\pi^2}}\\exp\\left(- \\left(\\frac{(x-\\mu_x)^2}"
-	      "{2\\sigma_x^2} + \\frac{(y-\\mu_y)^2}{2\\sigma_y^2} \\right)"
-	      "\\right)$");
+		"\\sqrt{4\\pi^2}}\\exp\\left(- \\left(\\frac{(x-\\mu_x)^2}"
+		"{2\\sigma_x^2} + \\frac{(y-\\mu_y)^2}{2\\sigma_y^2} \\right)"
+		"\\right)$");
 
   // Print the plot.
   gPad->Print("root.svg");

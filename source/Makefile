@@ -49,19 +49,24 @@ TMP_FILES := $(wildcard *.* $(TMP_FILES))
 TMP_FILES += $(foreach DIR,$(SRC_DIRS),$(wildcard $(DIR)*.*))
 TMP_FILES := $(filter-out $(SRC_FILES) $(EXM_FILES) $(AUX_FILES) $(OUT_FILES) $(DOC_FILES), $(TMP_FILES))
 
-.PHONY: all $(PACKAGE) pdf mostlyclean clean dist distclean release releaseclean install uninstall
+.PHONY: $(PACKAGE) pdf all doc mostlyclean clean dist distclean release releaseclean install uninstall
 
 # creates package files only
-all: $(PACKAGE)
-
 $(PACKAGE): $(OUT_FILES)
 
 %.sty: $(SRC__FILE)
 	$(TEX) $<
-
-# creates documentation only
-pdf: $(DOC__FILE)
 	
+# run pdflatex once for updating documentation
+pdf: $(SRC__FILE) $(PACKAGE)
+	$(LATEX) --shell-escape "\input{$<}"
+
+# creating package files and update documentation
+all: $(PACKAGE) pdf
+
+# creates complete documentation
+doc: $(DOC__FILE)
+
 %.pdf: $(SRC__FILE) $(SRC_FILES)
 	$(MAKE) mostlyclean
 	$(LATEX) --shell-escape "\def\tudfinalflag{}\input{$<}"
@@ -72,7 +77,7 @@ pdf: $(DOC__FILE)
 	$(LATEX) --shell-escape "\def\tudfinalflag{}\input{$<}"
 
 # removes all temporary files created with all or doc
-mostlyclean:	
+mostlyclean:
 	$(call rm_dirs,$(TMP_DIRS))
 	$(call rm_files,$(TMP_FILES))
 
@@ -80,12 +85,12 @@ mostlyclean:
 clean: mostlyclean
 	$(call rm_files,$(OUT_FILES))
 	$(call rm_files,$(DOC_FILES))
-	
+
 # creates TDS folder structure with generated files
-dist: $(PACKAGE) pdf
+dist: $(PACKAGE) doc
 	$(call rm_dirs,$(RLS_DIR))
 	$(call copy_tds,$(RLS_DIR))
-	
+
 # removes TDS folder structure
 distclean: 
 	$(call rm_tds,$(RLS_DIR))
@@ -93,7 +98,7 @@ distclean:
 	$(call rm_dirs,$(CTAN_DIR)$(PACKAGE)/)
 
 # creates zip files for CTAN and GitHub from TDS folder structure
-release: $(PACKAGE) pdf
+release: $(PACKAGE) doc
 	$(call rm_dirs,$(GIT_DIR))
 	$(call copy_tds,$(GIT_DIR))
 	$(call rm_dirs,$(CTAN_DIR))
@@ -108,7 +113,7 @@ releaseclean:
 	$(call rm_dirs,$(RLS_DIR))
 
 # installs all files in TDS folder structur in TEXMF_HOME
-install: $(PACKAGE) pdf
+install: $(PACKAGE) doc
 	$(call copy_tds,$(TEXMF_HOME))
 	texhash
 
