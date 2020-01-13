@@ -5,7 +5,7 @@
  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016<br>
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
 
- svg 2019/10/22 v2.02d
+ **svg 2020/01/13 v2.02e**
 
 ----------------------------------------------------------------------------
 
@@ -38,6 +38,9 @@ can be invoked.
 
 Versions
 --------
+
+**v2.02e** (2020/01/13)
++ fixes for new version of package **scrbase**
 
 **v2.02d** (2019/10/22)
 + fix bugs with current kernel (2019/10/01) regarding file name parsing, see
