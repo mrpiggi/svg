@@ -1,0 +1,252 @@
+%\RequirePackage[2015/01/01]{latexrelease}
+\documentclass[ngerman]{scrartcl}
+\ifpdftex{
+  \usepackage[T1]{fontenc}
+}{
+  \usepackage{fontspec}
+}
+\usepackage{lmodern}
+%\usepackage{babel}
+\usepackage[]{graphicx}
+\usepackage[inkscape=forced,draft=false]{svg}
+\usepackage[extract=forced,clean=false,convert=forced]{svg-extract}
+%\usepackage[space]{grffile}
+
+%\svgsetup{inkscapeexe="C:/Program Files/Inkscape1/inkscape.exe"}
+%\svgsetup{inkscapeversion=detect}
+%\svgsetup{inkscapeversion=0.94.2}
+%\svgsetup{inkscapepath=}
+\svgpath{{"test ink"/}{foo}}
+%\graphicspath{{C:/Users/Hanisch/}}
+
+\begin{document}
+\makeatletter
+
+% TODO extractformat=eps,convertformat=eps > move?
+% TODO extractformat={pdf,eps},convertformat=eps
+% TODO extractformat=eps,convertformat=pdf > clean?!
+% TODO extractformat=,convertformat=pdf
+% \includesvg[%
+% %  inkscapename="aaa bbb",
+  % extract=false,
+  % extractname="foo bar",
+% %  inkscapeformat=eps,
+% %  extractpreamble="aaa/bbb",
+  % extractformat={ps},%pdf,eps,ps},
+  % convertformat={png},%
+  % latexext=".ltx"
+% ]{svg-example}
+
+\includegraphics{svg-example_svg-latex.pdf}
+
+\makeatletter
+\meaning\input@path
+
+\meaning\Ginput@path
+
+\IfFileExists{svg-example_svg-latex.pdf}{then}{else}
+\meaning\@filef@und
+
+\IfFileExists{svg-example.svg}{then}{else}
+\meaning\@filef@und
+
+\openin\@inputcheck"svg-example.svg" %
+\ifeof\@inputcheck
+nope
+\else
+jepp
+\fi
+
+%\includesvg[]{MWE}
+%
+%\includesvg[pretex={\catcode`\_11},width=\textwidth]{pipeline-test}
+
+%\meaning\transparent
+%
+%\includesvg[inkscapelatex=false]{mwe bla/MWE}
+
+%\includeinkscape[]{"svg-example_svg"-tex.PdF}
+%
+%\includeinkscape[]{MWE_svg-latex}
+%
+%\includeinkscape[extractpreamble="bbb"]{svg-example_svg-tex.pDf_TEX}
+
+%\def\bla{ aaa " bbb " ccc }
+%\svg@quotes@normalize{\bla}
+%\meaning\bla
+%
+%\def\bla{ aaa " bbb " ccc }
+%\svg@quotes@normalize[" vvv "]{\bla}
+%\meaning\bla
+
+\end{document}
+
+
+\includesvg[
+%  lastpage=1,
+  inkscapepath=basesubpath,inkscape=forced,
+%  extract=false,
+  %extractformat={bar,baar,bla,eps,ps},
+  convertformat={png,jpg},%inkscapepath=,
+%  inkscapename=  "      aaa ",%vvv,
+%  width=6cm,
+%  height=5cm,% 
+%  scale=1.5,
+%%  extractwidth=\relax,
+%%  extractheight=8cm ,
+%  extractscale=2.5,
+%  extract=force
+]{svg example .foo.svg}
+\end{document}
+
+\includesvg[
+  lastpage=1,
+  convertformat={png,jpg},
+  inkscapepath=svgpath,
+%  width=6cm,
+%  height=5cm,%
+%  scale=1.5,
+%%  extractwidth=\relax,
+%%  extractheight=8cm ,
+%  extractscale=2.5,
+%  extract=force
+]{svg.example}
+%
+%\includeinkscape[%
+%  extractpreamble=aaa bbb.bla,
+%  lastpage=1,extract=force,
+%  convertformat={png,jpg},
+%  extractname=./bla/testfile,
+%%  inkscapepath=,
+%%  width=6cm,
+%%  height=5cm,%
+%%  scale=1.5,
+%%%  extractwidth=\relax,
+%%%  extractheight=8cm ,
+%%  extractscale=2.5,
+%%  extract=force
+%]{svgexample.foo_svg-tex}
+
+%\includeinkscapex[
+%  lastpage=1,
+%  extractwidth=7cm ,
+%  extractheight=8cm ,
+%  extractscale=2.5
+%]{"svg-example_svg-tex.PDF_TEX"}
+\end{document}
+
+\begin{figure}
+%\centering
+%\def\svgwidth{12cm}
+%\svgsetup{width=5cm}
+
+%\let\svgwidth\relax
+%\def\svgwidth{3cm}
+%\fbox{%
+\includesvg[%
+%  clean=true,
+%  inkscapepath="aaa bbb",
+%  extractpath="hi hh",
+%  extractname=,
+%  convert,
+%  inkscapearea=crop,
+%  pretex={\footnote{aaa}},%
+%  height=\relax,
+%  width=5cm,
+%  command=test,
+%  width=relax,
+%  width=.6\textwidth,
+%%  extractangle=2,
+%%  extractheight=-3cm,
+%  scale=1.5,%
+%  inkscapelatex=false,
+%][
+%  distort, 
+%  keepaspectratio,
+%%  draft,
+%  extractheight=3cm,
+%  extractscale=0.5,
+%  angle=15,
+%  origin=r,
+%  lastpage=3,
+%%  distort,
+%  extractdistort,
+%][
+%  width=5cm,
+%  draft
+]{svg-example}%
+%}
+%\fbox{}%
+%\includesvgx[foo=blubb,angle=15]{svg-example}
+%\includesvg[scale=0.7,inkscape=true,extract=false,exclude=false,convert=false]{svg-example}
+%\fbox{\includesvg[extractformat={,pdf},convertformat={png,}]{svg-example}}
+%\includesvg[pretex={\catcode`\_11},width=\textwidth]{pipeline-test}
+\end{figure}
+
+%\fbox{\includegraphics[scale=2,height=5cm]{./svg-inkscape/svg-example_svg-tex.pdf}}
+
+\end{document}
+
+\listfiles
+\documentclass{scrartcl}
+\ifpdftex{
+  \usepackage[T1]{fontenc}
+}{
+  \usepackage{fontspec}
+}
+
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{svg}
+\usepackage{svg-extract}
+
+%\svgpath{{C:/texlive/2019/texmf-dist/doc/latex/svg/}}
+\svgsetup{%
+%  inkscapeexe="C:/Program Files/Inkscape1/inkscape",
+%  gsexe="C:/Program Files/gs/gs9.20/bin/gswin64",
+}
+
+\begin{document}
+\begin{figure}
+\centering
+\svgsetup{clean=true}
+\fbox{\includesvg[extractformat=,convertformat={png}]{svg-example}}
+\caption{text}\label{fig:example-tex}
+\end{figure}
+\end{document}
+
+\listfiles
+\documentclass[parskip=full,ngerman]{scrreprt}% Test
+\usepackage[T1]{fontenc}
+\usepackage{babel}
+\usepackage{etoolbox}
+\usepackage{svg}
+%\usepackage{svg-extract}
+%\svgsetup{clean=true}
+\providecommand{\transparent}[1]{}
+
+%\pdfsuppresswarningpagegroup=1
+
+\svgpath{{../source/examples/}}
+
+\begin{document}
+\includesvg[%
+  width=20cm,height=8cm,%inkscapelatex=false
+%  inkscapeformat=pdf,
+%  inkscapelatex=false,
+%  distort=true,
+  angle=-12.5,
+%  extractdistort=false,
+%  extractangle=inherit,
+]{svg-example}%
+
+
+\includeinkscape[%
+  width=20cm,height=8cm,%inkscapelatex=false
+%  inkscapeformat=pdf,
+%  distort=true,
+  angle=12.5,
+%  extractdistort=false,
+%  extractangle=inherit,
+]{svg-example_svg-tex.pdf}%
+\end{document}

@@ -1,4 +1,4 @@
-% \CheckSum{5211}
+% \CheckSum{5212}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -141,11 +141,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \iffalse
 %<*dtx>
 \documentclass[english,xindy]{tudscrdoc}[2017/03/27]
-\ifpdftex{
-  \usepackage[T1]{fontenc}
-}{
+\usepackage{iftex}[2019/11/07]
+\iftutex
   \usepackage{fontspec}
-}
+\else
+  \usepackage[T1]{fontenc}
+\fi
 \usepackage{babel}
 
 \usepackage{svg}
@@ -1453,8 +1454,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \subsection{Dealing with catcodes}
 %
-% The catcodes for |"| and |_| have to be of type \val{other}. They current 
-% setting are saved and restored at the end of the package.
+% The catcodes for |"| and |_| have to be of type \val{other}. The current 
+% settings are saved and restored at the end of the package.
 % \begin{macro}{\svg@catcodes@restore}
 % \changes{v2.03}{2019/08/30}{new}^^A
 % \begin{macro}{\svg@catcodes@set}
@@ -1518,7 +1519,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.03}{2019/11/29}{new}^^A
 % Prevent overwriting of existing primitives.
 %    \begin{macrocode}
-\newcommand*\svg@newif[#1]{\@ifdefinable{#1}{\newif#1}}
+\newcommand*\svg@newif[1]{\@ifdefinable{#1}{\newif#1}}
 \newcommand*\svg@newdimen[1]{\@ifdefinable#1{\newdimen#1}}
 \newcommand*\svg@newcount[1]{\@ifdefinable#1{\newcount#1}}
 \newcommand*\svg@newtoks[1]{\@ifdefinable#1{\newtoks#1}}
@@ -6169,18 +6170,20 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \renewcommand*\includesvgx{%
   \def\svgx@include@cmd{\includesvg}%
   \kernel@ifnextchar[%]
-  {\svgx@include}{\svgx@@@include{}{}}%
+    {\svgx@include}%
+    {\svgx@@@include{}{}}%
 }
 \renewcommand*\includeinkscapex{%
   \def\svgx@include@cmd{\includeinkscape}%
   \kernel@ifnextchar[%]
-  {\svgx@include}{\svgx@@@include{}{}}%
+    {\svgx@include}%
+    {\svgx@@@include{}{}}%
 }
 \newcommand*\svgx@include{}
 \def\svgx@include[#1]{%
   \kernel@ifnextchar[%]
-  {\svgx@@include{#1}}{%
-  }%
+    {\svgx@@include{#1}}%
+    {\svgx@@include{#1}[]}%
 }
 \newcommand*\svgx@@include{}
 \def\svgx@@include#1[#2]{%
@@ -6438,7 +6441,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % the command raises a warning if it is not activated. Afterwards, the package 
 % is finished.
 %    \begin{macrocode}
-\ifnum\pdf@shellescape=\@ne\relax\else%
+\ifnum\pdf@shellescape=\@ne\relax\else
   \newcommand*\svgx@run[3]{%
     \PackageWarning{svg-extract}{%
       You didn't pass `--shell-escape' flag so it was\MessageBreak%
@@ -7370,7 +7373,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 \newread\SVG@in@file%
 \newwrite\SVG@out@file%
-\def\includesvg{\@ifnextchar[\@includesvg{\@includesvg[]}}%
+\def\includesvg{%
+  \kernel@ifnextchar[%]
+    {\@includesvg}%
+    {\@includesvg[]}%
+}%
 \def\@includesvg[#1]#2{%
   \setkeys[SVG]{svg.sty}{#1}%
   \SVG@out@extractfalse%
