@@ -5,7 +5,7 @@
  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016<br>
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
 
- **svg 2019/xx/xx v2.03**
+ **svg 2020/xx/xx v2.03**
 
 ----------------------------------------------------------------------------
 
@@ -39,7 +39,7 @@ can be invoked.
 Versions
 --------
 
-**v2.03** (2019/xx/xx)
+**v2.03** (2020/xx/xx)
 + command line format of ***Inkscape&nbsp;1.0*** and later is supported
 + extraction/conversion of independent graphic&nbsp;files can be invoked only
   if necessary (based on file modification date) with `extract/convert=true`;
@@ -54,6 +54,9 @@ Versions
   ***Inkscape***
 + option `clean=nolatex` to preserve auxiliary LaTeX&nbsp;files used during the
   extraction process
+
+**v2.02e** (2020/01/13)
++ fixes for new version of package **scrbase**
 
 **v2.02d** (2019/10/22)
 + fix bugs with current kernel (2019/10/01) regarding file name parsing, see

@@ -1,4 +1,4 @@
-% \CheckSum{5212}
+% \CheckSum{5210}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -330,10 +330,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % loaded by packages \pkg{svg} and \pkg{svg-extract} to provide the 
 % functionallity. These are:
 % \begin{description}[parsep=\glueexpr\smallskipamount/2\relax]
+% \item[\pkg{iftex}]
+%   for flow control depending on the used \LaTeX~engine
 % \item[\pkg{scrbase}]
 %   for the definition and handling of options in key-value-syntax
-% \item[\pkg{ifpdf}, \pkg{ifluatex}, \pkg{ifxetex}]
-%   for flow control depending on the used \LaTeX~engine
 % \item[\pkg{pdftexcmds}, \pkg{shellesc}]
 %   to allocate the same primitives independent of the used \LaTeX~engine
 % \item[\pkg{ifplatform}]
@@ -342,7 +342,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   to remove unwanted spaces in file paths
 % \item[\pkg{graphicx}]
 %   for including the graphic~files after the \app{Inkscape}~export
-% \item[\pkg{xcolor},\pkg{transparent}]
+% \item[\pkg{xcolor}, \pkg{transparent}]
 %   are possibly needed by the separate \LaTeX~files created by \app{Inkscape}
 % \item[\pkg{xr}]
 %   is used by \pkg{svg-extract} in order to include labels within the 
@@ -1422,20 +1422,17 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The package \pkg{svg} mainly requires \pkg{scrbase} for options processing 
 % and \pkg{graphicx} for the inclusion of the exported graphic~files. 
 %
-% The additional packages \pkg{ifpdf}, \pkg{ifluatex} and \pkg{ifxetex} are 
-% needed to detect the used \LaTeX~engine and \pkg{pdftexcmds} for pdf\TeX{} 
-% primitives independent of the used \LaTeX~engine as well as \pkg{trimspaces}
-% for string manipulation. Both packages \pkg{shellesc} and \pkg{ifplatform}
-% are used for engine independent access to systems commands and files. The
-% package \pkg{svg-extract} only needs package \pkg{svg} itself, which is
-% loaded during initialization.
-% \ToDo{use \pkg{iftex}}[v2.03]
+% The packages \pkg{iftex} and \pkg{pdftexcmds} are needed to detect the used
+% \LaTeX~engine on the one hand and enabling pdf\TeX{} primitives independent 
+% of the used \LaTeX~engine on the other hand. Additionally, \pkg{trimspaces} 
+% is responsible for string manipulation. Both packages \pkg{shellesc} and
+% \pkg{ifplatform} are used for engine independent access to systems commands
+% and files. The package \pkg{svg-extract} only needs package \pkg{svg} itself,
+% which is loaded during initialization.
 %    \begin{macrocode}
 %<*main>
-\RequirePackage{scrbase}[2016/06/14]
-\RequirePackage{ifpdf}[2016/05/14]
-\RequirePackage{ifluatex}[2016/05/16]
-\RequirePackage{ifxetex}[2010/09/12]
+\RequirePackage{iftex}[2019/11/07]
+\RequirePackage{scrbase}[2019/12/23]
 \RequirePackage{pdftexcmds}[2016/05/21]
 \RequirePackage{trimspaces}[2009/09/17]
 \RequirePackage{graphicx}[1999/02/16]
