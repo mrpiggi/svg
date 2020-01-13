@@ -10,4 +10,5 @@
 *.sh           text eol=lf
 *.sty          text eol=lf
 *.tex          text eol=lf
+*.pdf_tex      text eol=lf
 *.zip          binary

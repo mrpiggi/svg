@@ -3,13 +3,17 @@ PACKAGE = svg
 
 MAKESOURCE = $(MAKE) -C source
 
-.PHONY: all $(PACKAGE) pdf mostlyclean clean dist distclean release releaseclean install uninstall
+.PHONY: $(PACKAGE) pdf all doc mostlyclean clean dist distclean release releaseclean install uninstall
 
-all:
-	$(MAKESOURCE) all
+$(PACKAGE):
+	$(MAKESOURCE) $(PACKAGE)
 pdf: 
 	$(MAKESOURCE) pdf
-mostlyclean:	
+all:
+	$(MAKESOURCE) all
+doc:
+	$(MAKESOURCE) doc
+mostlyclean:
 	$(MAKESOURCE) mostlyclean
 clean:
 	$(MAKESOURCE) clean
@@ -25,4 +29,3 @@ install:
 	$(MAKESOURCE) install
 uninstall:
 	$(MAKESOURCE) uninstall
-
