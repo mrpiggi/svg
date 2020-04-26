@@ -35,7 +35,7 @@
 %%
 %% ----------------------------------------------------------------------------
 %%
-\NeedsTeXFormat{LaTeX2e}
+\NeedsTeXFormat{LaTeX2e}[2019-10-01]
 \begingroup
   \catcode`\@11\relax%
   \def\svg@Provides#1#2[#3]{%
@@ -61,13 +61,10 @@
   }%
   \svg@Provides%
   {svg}{include SVG pictures}%
-  [2019/09/10 v2.03]%
+  [2020/01/13 v2.03]%
 \@tempb
-\RequirePackage{scrbase}[2016/06/14]
-\RequirePackage{ifpdf}[2016/05/14]
-\RequirePackage{ifluatex}[2016/05/16]
-\RequirePackage{ifxetex}[2010/09/12]
-\RequirePackage{etexcmds}[2016/05/16]
+\RequirePackage{iftex}[2019/11/07]
+\RequirePackage{scrbase}[2019/12/23]
 \RequirePackage{pdftexcmds}[2016/05/21]
 \RequirePackage{trimspaces}[2009/09/17]
 \RequirePackage{graphicx}[1999/02/16]
@@ -85,16 +82,22 @@
 }
 \newcommand*\svg@@catcodes@set[1]{%
   \edef\svg@catcodes@restore{%
-    \etex@unexpanded\expandafter{\svg@catcodes@restore}%
+    \unexpanded\expandafter{\svg@catcodes@restore}%
     \catcode`\noexpand#1\the\catcode`#1\relax%
   }%
   \@makeother#1%
 }
 \svg@catcodes@set
 \AtEndOfPackage{\svg@catcodes@restore}
+\newcommand*\svg@newif[1]{\@ifdefinable{#1}{\newif#1}}
+\newcommand*\svg@newdimen[1]{\@ifdefinable#1{\newdimen#1}}
+\newcommand*\svg@newcount[1]{\@ifdefinable#1{\newcount#1}}
+\newcommand*\svg@newtoks[1]{\@ifdefinable#1{\newtoks#1}}
+\newcommand*\svg@newread[1]{\@ifdefinable#1{\newread#1}}
+\newcommand*\svg@newwrite[1]{\@ifdefinable#1{\newwrite#1}}
 \newcommand*\svg@tempa{}
 \newcommand*\svg@tempb{}
-\newif\if@svg@tempswa
+\svg@newif\if@svg@tempswa
 \newcommand*\svg@ifwindowsdetected{\@secondoftwo}
 \AfterPackage*{ifplatform}{%
   \renewcommand*\svg@ifwindowsdetected{%
@@ -179,7 +182,7 @@
     \edef\svg@tempa{\endgroup\def\noexpand#1{#2}}%
   \svg@tempa%
 }
-\newif\if@svg@quotes@found
+\svg@newif\if@svg@quotes@found
 \newcommand*\svg@quotes@check[1]{%
   \expandafter\svg@@quotes@check#1"\@nil%
 }
@@ -268,11 +271,11 @@
 \newcommand*\svg@lowercase[2][\@nil]{%
   \begingroup%
     \svg@if@nil{#1}{%
-      \edef\svg@tempa{#2}%
+      \protected@edef\svg@tempa{#2}%
     }{%
-      \edef\svg@tempa{#1}%
+      \protected@edef\svg@tempa{#1}%
     }%
-    \edef\svg@tempa{%
+    \protected@edef\svg@tempa{%
       \endgroup%
       \lowercase{\noexpand\def\noexpand#2{\svg@tempa}}%
     }%
@@ -334,7 +337,7 @@
       \fi%
       \svg@ifstrnocase{#1}{\filename@ext}{}{%
         \def\svg@tempa##1.##2\@nil##3\@nil{%
-          \IfArgIsEmpty{##2}{%
+          \svg@ifstrblank{##2}{%
             \edef\filename@ext{##1}%
           }{%
             \edef\filename@base{\filename@base.##1}%
@@ -352,7 +355,7 @@
         \svg@tempb%
       }%
       \svg@ifstrnocase{#1}{\filename@ext}{}{%
-        \IfArgIsEmpty{#1}{}{%
+        \svg@ifstrblank{#1}{}{%
           \ifx\filename@ext\@empty\else%
             \edef\filename@base{\filename@base.\filename@ext}%
             \let\filename@ext\@empty%
@@ -503,10 +506,10 @@
   }%
   \FamilyOptions{SVG}{#3}%
 }
-\newif\if@svg@use@xcolor
+\svg@newif\if@svg@use@xcolor
 \FamilyBoolKey{SVG}{usexcolor}{@svg@use@xcolor}
 \DeclareOption{noxcolor}{\FamilyOptions{SVG}{usexcolor=false}}
-\newif\if@svg@use@transparent
+\svg@newif\if@svg@use@transparent
 \FamilyBoolKey{SVG}{usetransparent}{@svg@use@transparent}
 \DeclareOption{notransparent}{\FamilyOptions{SVG}{usetransparent=false}}
 \AtEndOfPackage{%
@@ -632,6 +635,7 @@
 \DeclareOption{forced}{\AtEndOfPackage{\FamilyOptions{SVG}{inkscape=forced}}}
 \DeclareOption{auto}{\AtEndOfPackage{\FamilyOptions{SVG}{inkscape=true}}}
 \DeclareOption{off}{\AtEndOfPackage{\FamilyOptions{SVG}{inkscape=false}}}
+% TODO use counter
 \newcommand*\svg@ink@ver{\m@ne}
 \DefineFamilyKey{SVG}{inkscapeversion}[true]{%
   \FamilySetNumerical{SVG}{inkscape}{svg@tempa}{%
@@ -693,7 +697,7 @@
     \fi%
   \fi%
 }
-\newif\if@svg@ink@latex
+\svg@newif\if@svg@ink@latex
 \FamilyBoolKey{SVG}{inkscapelatex}{@svg@ink@latex}
 \FamilyBoolKey{SVG}{latex}{@svg@ink@latex}
 \FamilyBoolKey{SVG}{tex}{@svg@ink@latex}
@@ -805,10 +809,12 @@
     \renewcommand*\svg@param@width{\z@}%
     \FamilyKeyStateProcessed%
   }{%
-    \FamilySetUseLengthMacro{SVG}{width}{\svg@param@width}{#1}%
+    \FamilySetUseLengthMacro{SVG}{width}{\@tempa}{#1}%
     \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-      \ifdim\svg@param@width<\z@\relax%
+      \ifdim\@tempa<\z@\relax%
         \FamilyKeyStateUnknownValue%
+      \else%
+        \def\svg@param@width{\dimexpr\glueexpr#1\relax\relax}%
       \fi%
     \fi%
   }%
@@ -819,15 +825,17 @@
     \renewcommand*\svg@param@height{\z@}%
     \FamilyKeyStateProcessed%
   }{%
-    \FamilySetUseLengthMacro{SVG}{height}{\svg@param@height}{#1}%
+    \FamilySetUseLengthMacro{SVG}{height}{\@tempa}{#1}%
     \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-      \ifdim\svg@param@height<\z@\relax%
+      \ifdim\@tempa<\z@\relax%
         \FamilyKeyStateUnknownValue%
+      \else%
+        \def\svg@param@height{\dimexpr\glueexpr#1\relax\relax}%
       \fi%
     \fi%
   }%
 }
-\newif\if@svg@param@distort
+\svg@newif\if@svg@param@distort
 \FamilyBoolKey{SVG}{distort}{@svg@param@distort}
 \DefineFamilyKey{SVG}{keepaspectratio}[true]{%
   \FamilySetBool{SVG}{keepaspectratio}{@svg@tempswa}{#1}%
@@ -896,7 +904,7 @@
 }{
   \FamilyExecuteOptions{SVG}{lastpage=true}
 }
-\newif\if@svg@draft
+\svg@newif\if@svg@draft
 \FamilyBoolKey{SVG}{draft}{@svg@draft}
 \AfterPackage*{graphicx}{\ifGin@draft\@svg@drafttrue\fi}
 \DefineFamilyMember[.dummy]{SVG}
@@ -1077,8 +1085,7 @@
           \svg@process{\svg@ink@path}{\svg@ink@name}{\svg@ink@format}%
         \endgroup%
       \else%
-        \l@addto@macro\svg@tempa{{\svg@file@base}}%
-        \svg@tempa%
+        \svg@tempa{\svg@file@base}%
       \fi%
     \fi%
   \endgroup%
@@ -1168,7 +1175,7 @@
     \fi%
   \endgroup%
 }
-\newif\if@svg@ink@run
+\svg@newif\if@svg@ink@run
 \newcommand*\svg@ink@run[3]{%
   \ifcase\svg@ink@mode\relax% false
     \@svg@ink@runfalse%
@@ -1247,7 +1254,7 @@
   \svg@tempb%
 }
 \newcommand*\svg@process[3]{\svg@ink@include{#1}{#2}{#3}}
-\newbox\svg@box
+\newsavebox\svg@box
 \newcommand*\svg@ink@include[3]{%
   \svg@param@size@check%
   \svg@set@input@path%
@@ -1335,7 +1342,7 @@
       \let\svg@tempb\@empty%
       \@for\svg@tempa:={scale,width,height}\do{%
         \edef\svg@tempb{%
-          \etex@unexpanded\expandafter{\svg@tempb}%
+          \unexpanded\expandafter{\svg@tempb}%
           {\svg@tempa}{\csname svg@param@\svg@tempa\endcsname}%
         }%
       }%
@@ -1462,7 +1469,7 @@
   }%
 }
 \newcommand*\svg@ink@ver@settings{{\svg@ink@ver}{\svg@ink@exe}{\m@ne}}
-\newif\if@svg@ink@ver@detect
+\svg@newif\if@svg@ink@ver@detect
 \newcommand*\svg@ink@ver@detect[3]{%
   \svg@sanitize@dq\svg@tempb{{\svg@ink@ver}{#2}}%
   \@svg@ink@ver@detectfalse%
@@ -1487,10 +1494,10 @@
     \svg@@ink@ver@detect%
     \edef\svg@ink@ver@settings{\svg@tempb{\svg@ink@ver}}%
     \svg@ifnumber{\svg@ink@ver}{}{%
-      \PackageErrorNoLine{svg}{Inkscape version not found}{%
+      \PackageError{svg}{Inkscape version not found}{%
         It was tried to invoke `\svg@ink@exe\space-V'\MessageBreak%
         but no version info for Inkscape could gathered. Please\MessageBreak%
-        set it up manually with `inkscapeversion=<version>'%
+        use `inkscapeversion=<version>' to set it up manually.%
       }%
     }%
   \else%
@@ -1502,13 +1509,12 @@
 }
 \newcommand*\svg@@ink@ver@detect{%
   \begingroup%
+    \@makeother\|%
     \endlinechar=\m@ne%
     \everyeof{\noexpand}%
     \svg@quotes@remove{\svg@ink@exe}%
     \edef\svg@tempa{%
-      \edef\noexpand\svg@tempa{%
-        \noexpand\@@input|"'\svg@ink@exe'\space-V" %
-      }%
+      \edef\noexpand\svg@tempa{\noexpand\@@input|"'\svg@ink@exe'\space-V" }%
     }%
     \svg@tempa%
     \def\svg@tempb Inkscape ##1.##2\@nil{%
@@ -1525,7 +1531,7 @@
     }%
   \fi%
 }
-\newif\if@svg@file@found
+\svg@newif\if@svg@file@found
 \newcommand*\svg@file@path{}
 \newcommand*\svg@file@name{}
 \newcommand*\svg@file@base{}
@@ -1591,6 +1597,7 @@
             \svg@normalize@path{\input@path}%
             \edef\svg@tempa{\svg@tempa\MessageBreak\input@path}%
           }%
+          \edef\svg@tempa{\svg@tempa\MessageBreak No file was found.}%
         \fi%
         \PackageError{svg}{File `\svg@tempb' is missing}{\svg@tempa}%
       }%
@@ -1664,7 +1671,7 @@
     \fi%
     \svg@append@input@path{\svg@file@path}{\svg@input@path}%
     \svg@append@input@path{\svg@file@path}{\Ginput@path}%
-    \IfArgIsEmpty{#1}{}{%
+    \svg@ifstrblank{#1}{}{%
       \edef\svg@tempa{#1}%
       \svg@append@input@path{\svg@file@path}{{\svg@tempa}}%
     }%

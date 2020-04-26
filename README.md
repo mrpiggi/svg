@@ -3,9 +3,11 @@
 ----------------------------------------------------------------------------
 
  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016<br>
- Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
+ Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-2020
 
  **svg 2020/xx/xx v2.03**
+ 
+ The current release is shiped via CTAN: https://www.ctan.org/pkg/svg
 
 ----------------------------------------------------------------------------
 

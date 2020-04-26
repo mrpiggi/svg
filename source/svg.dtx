@@ -1,4 +1,4 @@
-% \CheckSum{5210}
+% \CheckSum{5160}
 % \iffalse meta-comment
 %<*identify>
 %
@@ -6,8 +6,8 @@
 %
 %% ----------------------------------------------------------------------------
 %%
-%% Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
-%% Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
+%% Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016
+%% Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-2020
 %%
 %% ----------------------------------------------------------------------------
 %%
@@ -133,7 +133,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %</dtx>
 %<package&identify&main>  {svg}{include SVG pictures}%
 %<package&identify&extract>  {svg-extract}{extract graphics from SVG pictures}%
-  [2019/11/15 v2.03]%
+  [2020/01/13 v2.03]%
 \@tempb
 %</dtx|package&identify>
 % \fi
@@ -230,13 +230,17 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \app{Ghostscript} can be invoked.
   \end{abstract}
   \tableofcontents
+  \ToDo{use Travis CI (https://github.com/latex3/latex2e .travis.yml)}[v2.04]
+  \ToDo{add filter to .gitattributes to update revision}[v2.03]
+  \ToDo{use \cs{GitHubRepo}}[v2.03]
   \ToDo{replace \cs{svg@@...} with \cs{svg@...@}}[v2.03]
+  \ToDo{replace \cs{scr@ifundefinedorrelax} with etex command}[v2.03]
   \ToDo{%
-    replace \cs{ifisdimension} with \cs{svg@if@number} or \cs{svg@set@number}?
-    use \cs{ifdimen}, commas are valid! macro for scale and angle
+    replace \cs{Ifisdimension} with \cs{svg@if@number} or \cs{svg@set@number}?
+    use \cs{Ifdimen}, commas are valid! macro for scale and angle
   }[v2.03]
 %^^A\def\footest#1{
-%^^A  \ifisdimension{#1\p@}{%
+%^^A  \Ifisdimension{#1\p@}{%
 %^^A    \ifdim\dimexpr#1\p@\relax>\z@\relax%
 %^^A      \setlength\@tempdima{#1\p@}%
 %^^A      \edef\foo{\strip@pt\@tempdima}%
@@ -246,6 +250,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %^^A}
 %^^A\footest{1a5}
   \ToDo{use \cs{@tempa} instead of \cs{svg@tempa} in FamilyKeys!}[v2.03]
+  \ToDo{use \cs{svg@ifvalueisrelax} for every FamilyKey}[v2.03]
   \ToDo{call makefile from .bat}[v2.03]
   \ToDo{%
     general note to path and file names (umlauts or any other non-ascii) at the 
@@ -370,7 +375,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 %
 %
-% \section{Usage of package \pkg{svg}}\label{sec:inkscape}
+% \section{Usage of package \pkg{svg}\label{sec:inkscape}}
 %
 % The purpose of this package is to include standalone SVG~graphics into a 
 % \LaTeX~document. The command \cs{includesvg} is defined which does all 
@@ -826,7 +831,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 %
 %
-% \subsection{Extract independent grahic files}\label{sec:extract}
+% \subsection{Extract independent grahic files\label{sec:extract}}
 %
 % \DescribeOption{extract}^^A
 % \changes{v2.03}{2019/07/14}{option \opt{extract=\val{forced}} new}^^A
@@ -1045,7 +1050,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 %
 %
-% \subsection{Convert extracted grahic files}\label{sec:convert}
+% \subsection{Convert extracted grahic files\label{sec:convert}}
 %
 % Based on the extraction of independent graphic~files, the \pkg{svg-extract} 
 % packages also provides the possibility to convert these extracted graphics in 
@@ -1213,7 +1218,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %       \includesvg[width=\linewidth,pretex=\relscale{0.6}]{svg-example}%
 %       \subcaption{This text fits better.}%
 %     \end{minipage}
-%   \caption{An example figure with \LaTeX~support}\label{fig:example}
+%   \caption{An example figure with \LaTeX~support\label{fig:example}}%
 %   \end{figure}
 %   \begin{figure}\centering
 %     \includesvg[%
@@ -1227,21 +1232,22 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   \null\hfill^^A
 %   \begin{minipage}{\dimexpr\linewidth*9/20\relax}
 %     \includesvg[width=\linewidth]{svg-example}^^A
-%     \subcaption{This text is too large!}\label{fig:example-tex-a}^^A
+%     \subcaption{This text is too large!\label{fig:example-tex-a}}^^A
 %   \end{minipage}\hfill^^A
 %   \begin{minipage}{\dimexpr\linewidth*9/20\relax}
 %     \includesvg[width=\linewidth,pretex=\relscale{0.6}]{svg-example}^^A
-%     \subcaption{This text fits better.}\label{fig:example-tex-b}^^A
+%     \subcaption{This text fits better.\label{fig:example-tex-b}}^^A
 %   \end{minipage}
 %   \hfill\null^^A
-%   \caption{An example figure with \LaTeX~support}\label{fig:example-tex}^^A
+%   \caption{An example figure with \LaTeX~support\label{fig:example-tex}}^^A
 % \end{figure}
 % \begin{figure}[tb]\centering
 %   \includesvg[^^A
 %     width=.5\linewidth,inkscapelatex=false,extractformat={pdf,eps}^^A
 %   ]{svg-example}^^A
-%   \caption{The same example figure without \LaTeX~support}^^A
-%   \label{fig:example}^^A
+%   \caption{^^A
+%     The same example figure without \LaTeX~support\label{fig:example}^^A
+%   }^^A
 % \end{figure}
 %
 % The output is shown in \autoref{fig:example-tex} and \autoref{fig:example}. 
@@ -1384,8 +1390,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %     \includesvg[%
 %       inkscapearea=page,height=6cm,pretex=\tiny,convertformat=png%
 %     ]{root}%
-%     \caption{Rendering of a \app{ROOT} plot---no more \emph{Comic CERNs}}%
-%     \label{fig:root}%
+%     \caption{%
+%       Rendering of a \app{ROOT} plot---no more \emph{Comic CERNs}%
+%       \label{fig:root}%
+%     }%
 %   \end{figure}
 % \end{svgexample}
 % \begin{figure}
@@ -1393,8 +1401,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %     \includesvg[^^A
 %       inkscapearea=page,height=6cm,pretex=\tiny,convertformat=png^^A
 %     ]{root}^^A
-%   \caption{Rendering of a \app{ROOT} plot---no more \emph{Comic CERNs}}^^A
-%   \label{fig:root}^^A
+%   \caption{^^A
+%     Rendering of a \app{ROOT} plot---no more \emph{Comic CERNs}
+%     \label{fig:root}^^A
+%   }^^A
 % \end{figure}
 % which includes the graphic as well as the \LaTeX~file exported by 
 % \app{Inkscape}, produces the extracted PDF~image~(\file{root.pdf}) and 
@@ -1632,14 +1642,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svg@ifnumber}
 % \changes{v2.03}{2019/08/20}{new}^^A
 % Checks for a positive integer in the expanded argument.
-% \ToDo{should work with \cs{ifnumber} only, replace it}[KOMA 3.27]
+% \ToDo{should work with \cs{Ifnumber} only, replace it}[KOMA 3.27]
 %    \begin{macrocode}
 \newcommand*\svg@ifnumber[1]{%
   \begingroup%
     \edef\svg@tempa{#1}%
     \def\svg@tempb{\aftergroup\@secondoftwo}%
-    \ifisinteger{\svg@tempa}{%
-      \ifnumber{\svg@tempa}{%
+    \Ifisinteger{\svg@tempa}{%
+      \Ifnumber{\svg@tempa}{%
         \def\svg@tempb{\aftergroup\@firstoftwo}%
       }{}%
     }{}%
@@ -1731,19 +1741,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svg@ifstrblank}
 % \changes{v2.03}{2019/09/09}{new}^^A
 % Check, if the given argument expands to a blank string (only whitespace).
-% \ToDo{use package \pkg{etoolbox} \cs{ifblank}}[v2.03]
 %    \begin{macrocode}
 \newcommand*\svg@ifstrblank[1]{%
   \begingroup%
-    \edef\svg@tempa{%
+    \protected@edef\svg@tempa{%
+      \endgroup%
       \noexpand\IfArgIsEmpty{\expandafter\@gobble#1\relax}%
     }%
-    \svg@tempa{%
-      \aftergroup\@firstoftwo%
-    }{%
-      \aftergroup\@secondoftwo%
-    }%
-  \endgroup%
+  \svg@tempa%
 }
 %    \end{macrocode}
 % \end{macro}^^A \svg@ifstrblank
@@ -1752,6 +1757,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.02a}{2018/10/17}{bug fix for \pkg{polyglossia}}^^A
 % In order to avoid errors concerning file names with package \pkg{babel} and 
 % it's active double quotes, this command is defined. 
+% \ToDo{still necessary (\cs{bbl@deactivate} for \pkg{polyglossia})?}[v2.03]
 %    \begin{macrocode}
 \newcommand*\svg@deactivate@dq{}
 \AfterPackage+{babel}{%
@@ -1889,8 +1895,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \svg@if@nil{#2}{%
     \svg@quotes@remove#1{#3}%
   }{%
-    \svg@quotes@remove#1[#2]{#3}%
+    \svg@quotes@remove#1[{#2}]{#3}%
   }%
+%    \end{macrocode}
+% \ToDo{check for blank?}[v2.03]
+%    \begin{macrocode}
   \if@svg@quotes@found%
     \ifx#3\@empty\else%
       \edef#3{"#3"}%
@@ -1903,10 +1912,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@quotes@normalize
 % \begin{macro}{\svg@ifstrnocase}
 % \changes{v2.03}{2019/08/29}{new}^^A
-% Compares two string like \cs{ifstr} from \pkg {scrbase} but case-insensitive 
+% Compares two string like \cs{Ifstr} from \pkg {scrbase} but case-insensitive 
 % and ignoring any quotes. The arguments are expanded in a macro in order to 
 % prevent overwriting of \cs{svg@tempa} or \cs{svg@tempb} if used in argument.
-% \ToDo{use package \pkg{etoolbox} \cs{ifstrequal}}[v2.03]
 %    \begin{macrocode}
 \newcommand*\svg@ifstrnocase[2]{%
   \begingroup%
@@ -1917,7 +1925,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \svg@tempa%
     \edef\svg@tempa{%
       \endgroup%
-      \lowercase{\noexpand\ifstr{\svg@tempa}{\svg@tempb}}%
+      \lowercase{\noexpand\Ifstr{\svg@tempa}{\svg@tempb}}%
     }%
   \svg@tempa%
 }
@@ -2262,7 +2270,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svg@normalize@path[2][\@currdir]{%
   \begingroup%
     \svg@quotes@remove*[{#2}]{\svg@tempa}%
-    \ifstr{\svg@tempa}{/}{\let\svg@tempa\@currdir}{}%
+    \Ifstr{\svg@tempa}{/}{\let\svg@tempa\@currdir}{}%
     \expandafter\svg@@normalize@path\svg@tempa//\@nil%
 %    \end{macrocode}
 % The optional argument is to be considered as normalized and no action is 
@@ -2425,7 +2433,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % it's removed with any value found. Otherwise the matched entry is appended.
 %    \begin{macrocode}
         \@svg@tempswafalse%
-        \IfArgIsEmpty{##2}{}{\ifstrstart{##2}{=}{}{\@svg@tempswatrue}}%
+        \IfArgIsEmpty{##2}{}{\Ifstrstart{##2}{=}{}{\@svg@tempswatrue}}%
         \if@svg@tempswa%
           \l@addto@macro\svg@tempb{,#2##2}%
         \fi%
@@ -2572,12 +2580,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svg@ink@mode{}
 \DefineFamilyKey{SVG}{inkscape}[true]{%
   \svg@sanitize@dq\svg@tempb{#1}%
-  \svg@lowercase{\svg@tempb}%
   \FamilySetNumerical{SVG}{inkscape}{svg@tempa}{%
     {false}{0},{off}{0},{no}{0},%
     {true}{1},{on}{1},{yes}{1},{auto}{1},{onlynewer}{1},{newer}{1},%
     {forced}{2},{force}{2},{overwrite}{2},%
-    {pdf}{3},{eps}{4},{ps}{5},{png}{6},%
+    {pdf}{3},{PDF}{3},{eps}{4},{EPS}{4},{ps}{5},{PS}{5},{png}{6},{PNG}{6},%
     {drawing}{7},{crop}{7},%
     {page}{8},{nocrop}{8},%
     {tex}{9},{latex}{9},{exportlatex}{9},{latexexport}{9},%
@@ -2625,10 +2632,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % followed by \val{dpi} like \opt{inkscape}|=|\val{300dpi}.
 %    \begin{macrocode}
   \else% dpi
-    \def\svg@tempa##1dpi##2\@nil{%
-      \ifstr{##2}{dpi}{\FamilyOptions{SVG}{inkscapedpi=##1}}{}%
-    }%
-    \expandafter\svg@tempa\svg@tempb dpi\@nil%
+    \FamilyOptions{SVG}{inkscapedpi=#1}%
 %    \end{macrocode}
 % In version~v1.0 the option \opt{inkscape} was used to set both the executable 
 % and options for \app{Inkscape}. This is taken into account here.
@@ -2794,10 +2798,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \newcommand*\svg@ink@format{pdf}
 }
 \DefineFamilyKey{SVG}{inkscapeformat}{%
-  \svg@lowercase[{#1}]{\svg@tempa}%
   \FamilySetNumerical{SVG}{inkscapeformat}{svg@tempa}{%
-    {pdf}{0},{eps}{1},{ps}{2},{png}{3}%
-  }{\svg@tempa}%
+    {pdf}{0},{PDF}{0},{eps}{1},{EPS}{1},{ps}{2},{PS}{2},{png}{3},{PNG}{3}%
+  }{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \ifcase\svg@tempa\relax% latex
       \renewcommand*\svg@ink@format{pdf}%
@@ -2942,7 +2945,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % lower case letters.
 %    \begin{macrocode}
   \svg@quotes@remove*[{#1}]{\svg@file@ext}%
-  \svg@lowercase{\svg@file@ext}%
   \svg@remove@leadingchar.\svg@file@ext%
   \FamilyKeyStateProcessed%
 }
@@ -2999,12 +3001,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \ToDo{\opt{inkscapename}\val{=hash/checksum/md5}}[v2.03]
 %    \begin{macrocode}
 \newcommand*\svg@ink@name{%
-  \svg@file@name\string_\svg@file@ext\if@svg@ink@latex-tex\else-raw\fi%
+  \svg@file@name\string_\svg@file@ext\if@svg@ink@latex-latex\fi%
 }
 \DefineFamilyKey{SVG}{inkscapename}{%
   \svg@ifvalueisrelax{#1}{%
     \renewcommand*\svg@ink@name{%
-      \svg@file@name\string_\svg@file@ext\if@svg@ink@latex-tex\else-raw\fi%
+      \svg@file@name\string_\svg@file@ext\if@svg@ink@latex-latex\fi%
     }%
   }{%
     \renewcommand*\svg@ink@name{#1}%
@@ -3097,7 +3099,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \renewcommand*\svg@param@scale{1}%
     \FamilyKeyStateProcessed%
   }{%
-    \ifisdimension{#1\p@}{%
+    \Ifisdimension{#1\p@}{%
       \ifdim\dimexpr#1\p@\relax>\z@\relax%
         \renewcommand*\svg@param@scale{#1}%
         \FamilyKeyStateProcessed%
@@ -3240,7 +3242,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % to set \opt{inkscapelatex} to \val{false}, if the output format was set to 
 % \val{png} with option \opt{inkscapeformat}.
 %    \begin{macrocode}
-  \ifstr{\svg@ink@format}{png}{\FamilyOptions{SVG}{inkscapelatex=false}}{}%
+  \Ifstr{\svg@ink@format}{png}{\FamilyOptions{SVG}{inkscapelatex=false}}{}%
 %    \end{macrocode}
 % Using \opt{distort=true} is only reasonable, if \opt{height} and \opt{width} 
 % are given.
@@ -3495,7 +3497,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \svg@local@param@def{%
   \DefineFamilyKey[.param]{SVG}{angle}{%
     \FamilyKeyStateUnknownValue%
-    \ifisdimension{#1\p@}{%
+    \Ifisdimension{#1\p@}{%
       \renewcommand*\svg@param@angle{#1}%
       \FamilyKeyStateProcessed%
     }{}%
@@ -3696,7 +3698,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % For exporting PNG~files, the used density ist set to \val{300dpi}, if no
 % value was given.
 %    \begin{macrocode}
-    \ifstr{#3}{png}{%
+    \Ifstr{#3}{png}{%
       \ifx\svg@ink@dpi\relax%
         \FamilyOptions{SVG}{inkscapedpi=300}%
       \fi%
@@ -3797,30 +3799,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \if@svg@ink@latex\else%
     \@svg@tempswafalse%
   \fi%
-%    \end{macrocode}
-% In order to support file names with multiple dots, \cs{svg@tempa} is defined 
-% with the file name within enclosing braces---only if the file name itself 
-% contains any dots--- followed by the extension.
-%    \begin{macrocode}
-  \begingroup%
-    \edef\svg@tempa{#1#2}%
-    \expandafter\filename@parse\expandafter{\svg@tempa}%
-    \edef\svg@tempa{%
-      \endgroup%
-      \ifx\filename@ext\relax%
-        \edef\noexpand\svg@tempa{#1#2.#3}%
-      \else%
-        \edef\noexpand\svg@tempa{{#1#2}.#3}%
-      \fi%
-    }%
-  \svg@tempa%
+  \edef\svg@tempa{#1#2.#3}%
   \if@svg@tempswa%
     \svg@patches{\svg@tempa}%
 %    \end{macrocode}
 % After setting the file name for \cs{includegraphics}, it is stored without 
-% enclosing braces and quotes in \cs{svg@tempa} .
+% quotes in \cs{svg@tempa} .
 %    \begin{macrocode}
-    \svg@quotes@remove[\expandafter\@firstofone\svg@tempa]{\svg@tempa}%
+    \svg@quotes@remove{\svg@tempa}%
 %    \end{macrocode}
 % If \pkg{graphicx} is in draft mode, the first page is sufficient. Otherwise, 
 % the last page is detected if set so.
@@ -3830,7 +3816,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \else%
       \ifnum\value{svg@param@lastpage}=\z@\relax%
         \svg@ifdvimode{}{%
-          \ifstr{#3}{pdf}{%
+          \Ifstr{#3}{pdf}{%
             \edef\svg@tempb{\noexpand\svg@get@lastpage{"\svg@tempa"}}%
             \svg@tempb%
           }{}%
@@ -4706,13 +4692,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<*extract>
 \newcommand*\svgx@extr@mode{1}
 \DefineFamilyKey{SVG}{extract}[true]{%
-  \svg@lowercase[{#1}]{\svg@tempa}%
   \FamilySetNumerical{SVG}{extract}{svg@tempa}{%
     {false}{0},{off}{0},{no}{0},%
     {true}{1},{on}{1},{yes}{1},{auto}{1},{onlynewer}{1},{newer}{1},%
     {forced}{2},{force}{2},{overwrite}{2},%
-    {pdf}{3},{eps}{4},{ps}{5}%
-  }{\svg@tempa}%
+    {pdf}{3},{PDF}{3},{eps}{4},{EPS}{4},{ps}{5},{PS}{5}%
+  }{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \ifcase\svg@tempa\relax% false
       \def\svgx@extr@mode{0}%
@@ -4972,7 +4957,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 \newcommand*\svgx@latex@ext{tex}
 \DefineFamilyKey{SVG}{latexext}{%
-  \renewcommand*\svgx@latex@ext{#1}%
+  \svg@quotes@remove*[{#1}]{\svgx@latex@ext}%
+  \svg@remove@leadingchar.\svgx@latex@ext%
   \FamilyKeyStateProcessed%
 }
 \newcommand*\svgx@latex@opt{}
@@ -5339,7 +5325,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \val{300x400} was given. If true, the value is stored in \cs{svg@tempa}.
 %    \begin{macrocode}
     \def\svg@tempb##1x##2x##3\@nil{%
-      \ifstr{##3}{x}{%
+      \Ifstr{##3}{x}{%
         \@svg@tempswatrue%
         \IfArgIsEmpty{##1}{\@svg@tempswafalse}{%
           \svg@ifnumber{##1}{}{\@svg@tempswafalse}%
@@ -5439,7 +5425,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     }%
   }{%
 %    \end{macrocode}
-% If this a format specific key was definded, it is used.
+% If a format specific key was definded, it is used.
 %    \begin{macrocode}
     \expandafter\ifx\csname #1@#2\endcsname\@empty\else%
       #3\@nameuse{#1@#2}\space%
@@ -5658,8 +5644,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svgx@out@sec{unknown}
 \DefineFamilyKey{SVG}{extractname}{%
   \svg@ifvalueisrelax{#1}{%
-    \renewcommand*\svgx@out@name{\the\value{svgx@out@count}-\svg@ink@name}%
-    \FamilyKeyStateProcessed%
+    \FamilyOptions{SVG}{extractname=filenamenumbered}%
   }{%
     \svg@sanitize@dq\svg@tempb{#1}%
     \FamilySetNumerical{SVG}{extractname}{svg@tempa}{%
@@ -5802,7 +5787,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \renewcommand*\svgx@param@scale{\svg@param@scale}%
       \FamilyKeyStateProcessed%
     }{%
-      \ifisdimension{#1\p@}{%
+      \Ifisdimension{#1\p@}{%
         \ifdim\dimexpr#1\p@\relax>\z@\relax%
           \renewcommand*\svgx@param@scale{#1}%
           \FamilyKeyStateProcessed%
@@ -6027,7 +6012,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \renewcommand*\svgx@param@angle{\svg@param@angle}%
         \FamilyKeyStateProcessed%
       }{%
-        \ifisdimension{#1\p@}{%
+        \Ifisdimension{#1\p@}{%
           \renewcommand*\svgx@param@angle{#1}%
           \FamilyKeyStateProcessed%
         }{}%
@@ -6279,7 +6264,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The process of extraction and conversion is only done, if at least one
 % extraction or conversion format was defined.
 %    \begin{macrocode}
-    \ifstr{\svgx@extr@format\svgx@conv@format}{}{%
+    \Ifstr{\svgx@extr@format\svgx@conv@format}{}{%
       \PackageWarning{svg-extract}{%
         Both keys `extractformat' and `convertformat' are\MessageBreak%
         empty, so nothing to do so far%
@@ -6528,7 +6513,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % extension is appended.
 %    \begin{macrocode}
       \if@svg@file@found%
-        \ifstr{\svg@file@base}{\@currdir\jobname}{%
+        \Ifstr{\svg@file@base}{\@currdir\jobname}{%
           \edef\svg@file@base{\svg@file@base.tex}%
         }{}%
 %    \end{macrocode}
@@ -6766,7 +6751,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \LaTeX~support.
 %    \begin{macrocode}
     \let\svg@tempa\@empty%
-    \ifstr{#3}{pdf}{%
+    \Ifstr{#3}{pdf}{%
       \if@svg@ink@latex%
         \ifnum\value{svg@param@lastpage}>\z@\relax%
           \edef\svg@tempa{lastpage=\the\value{svg@param@lastpage}}%
@@ -6857,7 +6842,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Write everything which was found right before the macro which starts hiding 
 % area to the output stream and stop writing with \cs{if@svgx@write@preamble}.
 %    \begin{macrocode}
-        \ifstr{#2}{till}{%
+        \Ifstr{#2}{till}{%
           \IfArgIsEmpty{####1}{}{%
             \immediate\write\svgx@stream@out{####1}%
           }%
@@ -6867,7 +6852,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Write everything which was found right after the macro which ends the hiding 
 % area and start writing again with \cs{if@svgx@write@preamble}.
 %    \begin{macrocode}
-          \ifstr{#2}{from}{%
+          \Ifstr{#2}{from}{%
             \IfArgIsEmpty{####2}{%
               \let\svgx@read@line\@empty%
             }{%
@@ -7214,7 +7199,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %<*extract>
 \FamilyExecuteOptions{SVG}{%
   extract=forced,extractpath=basesubdir,%
-  extractruns=2,extractname=namenumbered,extractdistort=inherit,%
+  extractruns=2,extractname=filenamenumbered,extractdistort=inherit,%
   convert=magick,convert=false,%
   gsdevice={png=png16m},gsdevice={jpeg=jpeg},gsdevice={jpg=jpeg},%
   gsdevice={tif=tiff48nc},gsdevice={tiff=tiff48nc},%

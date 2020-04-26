@@ -1,0 +1,34 @@
+% latexmk -lualatex -latexoption="-shell-escape" issue19
+\listfiles
+\documentclass{article}
+\usepackage{iftex}
+\iftutex
+  \usepackage{fontspec}
+\else
+  \usepackage[T1]{fontenc}
+  \usepackage[ngerman=ngerman-x-latest]{hyphsubst}
+\fi
+\usepackage{svg}
+\makeatletter
+\ifdefined\svg@ink@ver\else
+  \def\svg@ink@ver{0}% change version to 0 is necessary
+  \renewcommand*\svg@ink@cmd[2]{%
+    \svg@ink@exe\space"#1.\svg@file@ext"\space%
+    --without-gui\space\svg@ink@area\space%
+    \ifx\svg@ink@dpi\relax\else--export-dpi=\svg@ink@dpi\space\fi%
+    \if@svg@ink@latex--export-latex\space\fi%
+    \ifx\svg@ink@opt\@empty\else\svg@ink@opt\space\fi%
+    \ifnum\svg@ink@ver<\@ne%
+      --export-\svg@ink@format="#2.\svg@ink@format"\space%
+    \else%
+      --export-type=\svg@ink@format\space%
+      --export-file="#2.\svg@ink@format"\space%
+    \fi%
+  }%
+\fi
+\makeatother
+
+
+\begin{document}
+\includesvg{svg-example.svg}
+\end{document}
