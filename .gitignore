@@ -3,6 +3,7 @@ development/
 release*/
 temp/
 ## auxiliary files
+**/svg-*/
 *.aux
 *.bak
 *.bbl
@@ -31,7 +32,6 @@ source/svg-*/
 ## include test files
 !test/*.cls
 !test/*.sty
-!test/*.pdf
 !test/*.svg
 !test/texmf/*.*
 ## include temporary files
