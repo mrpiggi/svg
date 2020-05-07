@@ -5,7 +5,7 @@
  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016<br>
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
 
- **svg 2020/01/13 v2.02e**
+ **svg 2020/05/07 v2.02f**
 
 ----------------------------------------------------------------------------
 
@@ -38,6 +38,9 @@ can be invoked.
 
 Versions
 --------
+
+**v2.02f** (2020/05/07)
++ support for ***Inkscape*** 1.0
 
 **v2.02e** (2020/01/13)
 + fixes for new version of package **scrbase**
