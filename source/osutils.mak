@@ -1,4 +1,10 @@
+win_utils = 
 ifeq ($(OS),Windows_NT)
+	ifneq ($(shell uname -o),Cygwin)
+		win_utils = yes
+	endif
+endif
+ifdef win_utils
 RM = del /Q /F
 RD = rmdir /Q /S
 MD = mkdir
