@@ -1,108 +1,127 @@
 % \iffalse meta-comment
+%<*identify>
 %
 %  svg and svg-extract -- Handling SVG pictures in LaTeX documents
-% ----------------------------------------------------------------------------
 %
-%  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
-%  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-2020
+%% ----------------------------------------------------------------------------
+%%
+%% Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016
+%% Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-2020
+%%
+%% ----------------------------------------------------------------------------
+%%
+%% This work may be distributed and/or modified under the conditions
+%% of the LaTeX Project Public License, version 1.3c of the license.
+%% The latest version of this license is in
+%%     http://www.latex-project.org/lppl.txt
+%% and version 1.3c or later is part of all distributions of
+%% LaTeX 2005/12/01 or later and of this work.
+%%
+%% This work has the LPPL maintenance status "author-maintained".
+%%
+%% The current maintainer and author of this work is Falk Hanisch.
+%%
+%% This work consists of the main source file README.md, LICENSE.md, svg.dtx 
+%% and the derived documentation svg.pdf as well as the example files
+%% svg-example.svg, svg-preamble.tex and root.C (with derived file root.svg).
+%%
+%% ----------------------------------------------------------------------------
+%%
+%</identify>
+% \fi
 %
-% ----------------------------------------------------------------------------
-%
-%  This work may be distributed and/or modified under the conditions of the
-%  LaTeX Project Public License, version 1.3c of the license. The latest
-%  version of this license is in http://www.latex-project.org/lppl.txt and
-%  version 1.3c or later is part of all distributions of LaTeX 2005/12/01
-%  or later and of this work. This work has the LPPL maintenance status
-%  "author-maintained". The current maintainer and author of this work
-%  is Falk Hanisch.
-%
-% ----------------------------------------------------------------------------
-%
-%<*batchfile>
+% \iffalse
+%<*dtx>
 \ifx\documentclass\undefined
 \input docstrip.tex
 \keepsilent
 
-\begingroup
-\catcode`\^^M=13 \catcode`\ =12 %
-\gdef\svgpreamble{%
-Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016  
-Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
-
-This file was generated from file svg.dtx.
-----------------------------------------------------------------------------
-
-This work may be distributed and/or modified under the conditions
-of the LaTeX Project Public License, version 1.3c of the license.
-The latest version of this license is in
-    http://www.latex-project.org/lppl.txt
-and version 1.3c or later is part of all distributions of
-LaTeX 2005/12/01 or later and of this work.
-
-This work has the LPPL maintenance status "author-maintained".
-
-The current maintainer and author of this work is Falk Hanisch.
-
-This work consists of the main source file README.md, LICENSE.md, svg.dtx 
-and the derived documentation svg.pdf as well as the example files
-svg-example.svg, svg-preamble.tex and root.C (with derived file root.svg).
-}
-\endgroup
-
-\declarepreamble\svgbasepreamble
+\declarepreamble\svgmainpreamble
 
 svg -- Include SVG pictures in LaTeX documents using Inkscape
-
-\svgpreamble
 
 \endpreamble
 \declarepreamble\svgextractpreamble
 
 svg-extract -- Extract independent graphic files from SVG pictures
 
-\svgpreamble
-
 \endpreamble
 \askforoverwritefalse
 \usedir{tex/latex/svg}
 \generate{%
-  \usepreamble\svgbasepreamble
-  \file{svg.sty}{%
-    \from{svg.dtx}{package,option,base}%
-    \from{svg.dtx}{package,body,base}%
+  \usepreamble\svgmainpreamble
+  \file{svg.sty}{
+    \from{svg.dtx}{package,identify,main}
+    \from{svg.dtx}{package,base,main}
+    \from{svg.dtx}{package,option,main}
+    \from{svg.dtx}{package,body,main}
   }
   \usepreamble\svgextractpreamble
-  \file{svg-extract.sty}{%
-    \from{svg.dtx}{package,option,extract}%
-    \from{svg.dtx}{package,body,extract}%
+  \file{svg-extract.sty}{
+    \from{svg.dtx}{package,identify,extract}
+    \from{svg.dtx}{package,base,extract}
+    \from{svg.dtx}{package,option,extract}
+    \from{svg.dtx}{package,standalone,extract}
+    \from{svg.dtx}{package,body,extract}
   }
 %  \usepreamble\defaultpreamble
-%  \file{svg-old.sty}{%
-%    \from{svg.dtx}{package,old}%
+%  \file{svg-old.sty}{
+%    \from{svg.dtx}{package,old}
 %  }
 }
 \else
 \let\endbatchfile\relax
 \fi
 \endbatchfile
-%</batchfile>
+%</dtx>
 % \fi
 %
 % \iffalse
-%<package&option>\NeedsTeXFormat{LaTeX2e}[2020-02-02]
-%<*driver>
+%<*dtx|package&identify>
+\NeedsTeXFormat{LaTeX2e}[2020-02-02]
+%<*dtx>
 \ifx\ProvidesFile\undefined\def\ProvidesFile#1[#2]{}\fi
-\ProvidesFile{svg.dtx}[%
-%</driver>
-%<package&option&base>\ProvidesPackage{svg}[%
-%<package&option&extract>\ProvidesPackage{svg-extract}[%
-%<*driver|package&option>
-  2020/05/07 v2.02f\space%
-%<package&option&base>  (include SVG pictures)%
-%<package&option&extract>  (extract independent graphics from SVG pictures)%
-]
-%</driver|package&option>
-%<*driver>
+%</dtx>
+\begingroup
+  \catcode`\@11\relax%
+  \def\svg@Provides#1#2[#3]{%
+    \def\@tempa{\def\svg@version{#3}}%
+    \ifx\svg@version\@undefined\else%
+      \def\@tempb{#3}%
+      \ifx\svg@version\@tempb\else%
+        \def\@tempa{%
+          \@latex@warning@no@line{%
+            The version of package `#1' is `#3',\MessageBreak%
+            but `\svg@version' was expected!\MessageBreak%
+            You should update the svg bundle%
+          }%
+        }%
+      \fi%
+    \fi%
+    \edef\@tempb{%
+      \endgroup%
+%<*dtx>
+      \noexpand\ProvidesFile%
+%</dtx>
+%<package&identify>      \noexpand\ProvidesPackage%
+      {#1}[#3\space(#2)]%
+%<package&identify&extract>      \noexpand\RequirePackage{svg}[#3]%
+      \unexpanded\expandafter{\@tempa}%
+    }%
+  }%
+  \svg@Provides%
+%<*dtx>
+  {svg.dtx}{source}%
+%</dtx>
+%<package&identify&main>  {svg}{include SVG pictures}%
+%<package&identify&extract>  {svg-extract}{extract graphics from SVG pictures}%
+  [2020/05/08 v2.02g]%
+\@tempb
+%</dtx|package&identify>
+% \fi
+%
+% \iffalse
+%<*dtx>
 \documentclass[english,xindy]{tudscrdoc}[2017/03/27]
 \usepackage{iftex}[2020/03/06]
 \iftutex
@@ -218,7 +237,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \tableofcontents
   \DocInput{\filename}
 \end{document}
-%</driver>
+%</dtx>
 % \fi
 %
 % \changes{v1.0}{2004/11/05}{initial version by Philip Ilten}^^A
@@ -700,7 +719,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % In contrast to package \pkg{svg}, the console commands for graphic extraction 
 % are executed with each LaTeX run by package \pkg{svg-extract} when 
-% \file{-{}-shell-escape} mode is activated. This behaviour can be switched of 
+% \file{-{}-shell-escape} mode is activated. This behaviour can be switched off 
 % with option \opt{extract}|=|\val{false}.
 %
 % \minisec{Important changes}
@@ -742,47 +761,47 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   \includeinkscape§\oarg{parameters}\marg{graphic~filename}§
 % \end{svgexample}
 % These have an effect only once, when the specific command is executed.
-%^^A \begingroup\ignorespaces%
-%^^A \newcommand*\parameterlist{}\ignorespaces%
-%^^A \listadd\parameterlist{extract}\ignorespaces%
-%^^A \listadd\parameterlist{extractpreamble}\ignorespaces%
-%^^A \listadd\parameterlist{extractformat}\ignorespaces%
-%^^A \listadd\parameterlist{extractwidth}\ignorespaces%
-%^^A \listadd\parameterlist{extractheight}\ignorespaces%
-%^^A \listadd\parameterlist{extractdistort}\ignorespaces%
-%^^A \listadd\parameterlist{extractscale}\ignorespaces%
-%^^A \listadd\parameterlist{extractangle}\ignorespaces%
-%^^A \listadd\parameterlist{extractpretex}\ignorespaces%
-%^^A \listadd\parameterlist{extractapptex}\ignorespaces%
-%^^A \listadd\parameterlist{extractruns}\ignorespaces%
-%^^A \listadd\parameterlist{latexexe}\ignorespaces%
-%^^A \listadd\parameterlist{latexopt}\ignorespaces%
-%^^A \listadd\parameterlist{latexext}\ignorespaces%
-%^^A \listadd\parameterlist{dvipsopt}\ignorespaces%
-%^^A \listadd\parameterlist{pstoepsopt}\ignorespaces%
-%^^A \listadd\parameterlist{pstopdfopt}\ignorespaces%
-%^^A \listadd\parameterlist{pdftoepsopt}\ignorespaces%
-%^^A \listadd\parameterlist{pdftopsopt}\ignorespaces%
-%^^A \listadd\parameterlist{convert}\ignorespaces%
-%^^A \listadd\parameterlist{convertformat}\ignorespaces%
-%^^A \listadd\parameterlist{convertdpi}\ignorespaces%
-%^^A \listadd\parameterlist{magicksetting}\ignorespaces%
-%^^A \listadd\parameterlist{magickoperator}\ignorespaces%
-%^^A \listadd\parameterlist{gsopt}\ignorespaces%
-%^^A \listadd\parameterlist{gsdevice}\ignorespaces%
-%^^A \listadd\parameterlist{clean}\ignorespaces%
-%^^A \listadd\parameterlist{exclude}\ignorespaces%
-%^^A \def\buffer{}\def\do#1{\buffer\prm{#1}\def\buffer{, }}\ignorespaces%
+%^^A \begingroup^^A
+%^^A \newcommand*\parameterlist{}^^A
+%^^A \listadd\parameterlist{extract}^^A
+%^^A \listadd\parameterlist{extractpreamble}^^A
+%^^A \listadd\parameterlist{extractformat}^^A
+%^^A \listadd\parameterlist{extractwidth}^^A
+%^^A \listadd\parameterlist{extractheight}^^A
+%^^A \listadd\parameterlist{extractdistort}^^A
+%^^A \listadd\parameterlist{extractscale}^^A
+%^^A \listadd\parameterlist{extractangle}^^A
+%^^A \listadd\parameterlist{extractpretex}^^A
+%^^A \listadd\parameterlist{extractapptex}^^A
+%^^A \listadd\parameterlist{extractruns}^^A
+%^^A \listadd\parameterlist{latexexe}^^A
+%^^A \listadd\parameterlist{latexopt}^^A
+%^^A \listadd\parameterlist{latexext}^^A
+%^^A \listadd\parameterlist{dvipsopt}^^A
+%^^A \listadd\parameterlist{pstoepsopt}^^A
+%^^A \listadd\parameterlist{pstopdfopt}^^A
+%^^A \listadd\parameterlist{pdftoepsopt}^^A
+%^^A \listadd\parameterlist{pdftopsopt}^^A
+%^^A \listadd\parameterlist{convert}^^A
+%^^A \listadd\parameterlist{convertformat}^^A
+%^^A \listadd\parameterlist{convertdpi}^^A
+%^^A \listadd\parameterlist{magicksetting}^^A
+%^^A \listadd\parameterlist{magickoperator}^^A
+%^^A \listadd\parameterlist{gsopt}^^A
+%^^A \listadd\parameterlist{gsdevice}^^A
+%^^A \listadd\parameterlist{clean}^^A
+%^^A \listadd\parameterlist{exclude}^^A
+%^^A \def\buffer{}\def\do#1{\buffer\prm{#1}\def\buffer{, }}^^A
 %^^A These parameters are: \dolistloop{\parameterlist}.
-%^^A \renewcommand*\marginpar[2][]{}\ignorespaces%
-%^^A \def\do#1{\DescribeParameter{#1}}\ignorespaces%
-%^^A \begin{DescribeParameterParent}{Macro}{\includesvg}%
-%^^A \dolistloop{\parameterlist}%
-%^^A \end{DescribeParameterParent}%
-%^^A \begin{DescribeParameterParent}{Macro}{\includeinkscape}%
-%^^A \dolistloop{\parameterlist}%
-%^^A \end{DescribeParameterParent}%
-%^^A \endgroup%
+%^^A \renewcommand*\marginpar[2][]{}^^A
+%^^A \def\do#1{\DescribeParameter{#1}}^^A
+%^^A \begin{DescribeParameterParent}{Macro}{\includesvg}^^A
+%^^A \dolistloop{\parameterlist}^^A
+%^^A \end{DescribeParameterParent}^^A
+%^^A \begin{DescribeParameterParent}{Macro}{\includeinkscape}^^A
+%^^A \dolistloop{\parameterlist}^^A
+%^^A \end{DescribeParameterParent}^^A
+%^^A \endgroup^^A
 %
 %
 %
@@ -1333,7 +1352,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % }
 %
 % \iffalse
-%<*package&option>
+%<*package&base>
 % \fi
 %
 %
@@ -1344,752 +1363,139 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \section{Initialization}
 % \subsection{Packages}
 %
-% The package \pkg{svg} requires package \pkg{iftex} for detecting the used 
-% \LaTeX~engine, \pkg{scrbase} for options processing, \pkg{pdftexcmds} for 
-% pdf\TeX{} primitives when using Lua\TeX, \pkg{shellesc} and \pkg{ifplatform}
-% for engine independent access to systems commands and files as well as
-% \pkg{graphicx} for the inclusion of PDF~files. The usage of packages
-% \pkg{xcolor} and \pkg{transparent} can be switched of with the corresponding
-% options. Package \pkg{svg-extract} only needs package \pkg{svg} itself.
+% The package \pkg{svg} mainly requires \pkg{scrbase} for options processing 
+% and \pkg{graphicx} for the inclusion of the exported graphic~files. 
+%
+% The packages \pkg{iftex} and \pkg{pdftexcmds} are needed to detect the used 
+% \LaTeX~engine on the one hand and enabling pdf\TeX{} primitives independent 
+% of the used \LaTeX~engine on the other hand. Additionally, \pkg{trimspaces} 
+% is responsible for string manipulation. Both packages \pkg{shellesc} and 
+% \pkg{ifplatform} are used for engine independent access to systems commands 
+% and files. The package \pkg{svg-extract} only needs package \pkg{svg} itself, 
+% which is loaded during initialization.
 %    \begin{macrocode}
-%<*base>
+%<*main>
 \RequirePackage{iftex}[2020/03/06]
 \RequirePackage{scrbase}[2020/04/19]
 \RequirePackage{pdftexcmds}[2019/11/24]
-\RequirePackage{shellesc}[2019/11/08]
 \RequirePackage{trimspaces}[2009/09/17]
 \RequirePackage{graphicx}[2019/11/30]
-%</base>
-%<*extract>
-\RequirePackage{svg}[2020/05/07]
-%</extract>
+\RequirePackage{shellesc}[2019/11/08]
+%    \end{macrocode}
+% In order to do not raise a warning, package \pkg{ifplatform} is only used if
+% \file{-{}-shell-escape} flag is enabled.
+%    \begin{macrocode}
+\ifnum\pdf@shellescape=\@ne\relax
+  \RequirePackage{ifplatform}[2017/10/13]
+\fi
+%</main>
 %    \end{macrocode}
 %
-% \iffalse
-%<*base>
-% \fi
 %
-% \subsection{Helper macros}
 %
-% \begin{macro}{\svg@tempa}
-% \begin{macro}{\svg@tempb}
-% \begin{macro}{\svg@box}
-% \begin{macro}{\if@svg@tempswa}
-% Internal temporary macros. The catcode for double quotes are also temporarily 
-% changed.
+% \subsection{Dealing with catcodes}
+%
+% The catcode for double quotes are temporarily changed and restored at the 
+% very end of both packages.
 %    \begin{macrocode}
-\newcommand*\svg@tempa{}
-\newcommand*\svg@tempb{}
-\newbox\svg@box
-\newif\if@svg@tempswa
 \edef\svg@catcodecodes@restore{%
   \catcode`\noexpand\"\the\catcode`\"\relax%
 }
 \@makeother\"%
+\AtEndOfPackage{\svg@catcodecodes@restore}
+%    \end{macrocode}
+%
+% \iffalse
+%<*main>
+% \fi
+%
+%
+%
+% \subsection{General macros}
+%
+% \begin{macro}{\svg@tempa}
+% \begin{macro}{\svg@tempb}
+% \begin{macro}{\if@svg@tempswa}
+% Internal temporary macros.
+%    \begin{macrocode}
+\newcommand*\svg@tempa{}
+\newcommand*\svg@tempb{}
+\newif\if@svg@tempswa
 %    \end{macrocode}
 % \end{macro}^^A \if@svg@tempswa
-% \end{macro}^^A \svg@box
 % \end{macro}^^A \svg@tempb
 % \end{macro}^^A \svg@tempa
 %
-% \iffalse
-%</base>
-% \fi
 %
 %
-% \section{Including SVG files with package \pkg{svg}}
-% \subsection{Options}
+% \subsubsection{Macros for process control}
 %
-% All options, which can be set either as package options or with 
-% \cs{svgsetup}, as well as the optional parameters for both user commands 
-% \cs{includesvg}\oarg{parameters}\marg{svg filename} and
-% \cs{includeinkscape}\oarg{parameters}\marg{graphic filename} are defined with
-% the interface provided by package \pkg{scrbase}.
+% \begin{macro}{\svg@ifwindowsdetected}
+% Do some Windows specific stuff if it was detected.
 %    \begin{macrocode}
-\DefineFamily{SVG}
-\DefineFamilyMember{SVG}
-%    \end{macrocode}
-%
-% \iffalse
-%</package&option>
-%<*package&base>
-%<*option>
-% \fi
-%
-% \begin{macro}{\svg@deprecated@key}
-% With version v2.00 the whole user\hbox{-}interface was renewed. For reasons
-% of compatibility, outdated options and parameters from version~v1.0 are also 
-% provided. If an old key was given, a warning is issued and the valid key is
-% used.
-%    \begin{macrocode}
-\newcommand*\svg@deprecated@key[3][svg]{%
-  \PackageWarning{#1}{%
-    The option key `#2' is deprecated.\MessageBreak%
-    It's recommended to use `#3'\MessageBreak%
-    instead%
-  }%
-  \FamilyOptions{SVG}{#3}%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svg@deprecated@key
-%
-% Within the exported \LaTeX~files of \app{Inkscape}, some commands are used 
-% out of additional packages. But maybe the user doesn't want to load this 
-% packages anyways.
-%
-% \begin{option}{usexcolor}
-% \changes{v2.00}{2017/02/17}{new}^^A
-% \begin{option}{noxcolor}
-% \changes{v2.00}{2017/02/17}{new}^^A
-% \begin{macro}{\if@svg@use@xcolor}
-% \begin{option}{usetransparent}
-% \changes{v2.00}{2017/02/17}{new}^^A
-% \begin{option}{notransparent}
-% \changes{v2.00}{2017/02/17}{new}^^A
-% \begin{macro}{\if@svg@use@transparent}
-% Options for preventing packages \pkg{xcolor} and \pkg{transparent} to be 
-% loaded.
-%    \begin{macrocode}
-\newif\if@svg@use@xcolor
-\FamilyBoolKey{SVG}{usexcolor}{@svg@use@xcolor}
-\DeclareOption{noxcolor}{\FamilyOptions{SVG}{usexcolor=false}}
-\newif\if@svg@use@transparent
-\FamilyBoolKey{SVG}{usetransparent}{@svg@use@transparent}
-\DeclareOption{notransparent}{\FamilyOptions{SVG}{usetransparent=false}}
-%    \end{macrocode}
-% They are only available during the loading process of package \pkg{svg}.
-%    \begin{macrocode}
-\AtEndOfPackage{%
-  \RelaxFamilyKey{SVG}{usexcolor}%
-  \RelaxFamilyKey{SVG}{usetransparent}%
-  \if@svg@use@xcolor%
-    \RequirePackage{xcolor}[2016/05/11]%
-  \else%
-    \AfterPackage*{xcolor}{%
-      \PackageWarning{svg}{Package `xcolor' was loaded anyway}%
-    }%
-  \fi%
-  \if@svg@use@transparent%
-    \RequirePackage{transparent}[2019/11/29]%
-  \else%
-    \AfterPackage*{transparent}{%
-      \PackageWarning{svg}{Package `transparent' was loaded anyway}%
-    }%
-  \fi%
-}
-%    \end{macrocode}
-% \end{macro}^^A \if@svg@use@transparent
-% \end{option}^^A notransparent
-% \end{option}^^A usetransparent
-% \end{macro}^^A \if@svg@use@xcolor
-% \end{option}^^A noxcolor
-% \end{option}^^A usexcolor
-%
-%
-%
-% \subsubsection{The invocation of \app{Inkscape}}
-%
-% The Application \app{Inkscape} is used to create includable graphic files in 
-% a desired format (PDF/EPS/PS/PNG) out of files in SVG~format, whereas the
-% support of \LaTeX{} can optionally be used.
-%
-% \begin{option}{inkscape}
-% \changes{v2.00}{2017/02/17}{changed/extended}^^A
-% \changes{v2.02}{2018/09/07}{usage of \cs{svg@sanitize@dq}}^^A
-% \changes{v2.01}{2017/11/28}{using \cs{trim@spaces}}^^A
-% \begin{macro}{\svg@ink@mode}
-% The intension of option \opt{inkscape} is to control the running behaviour of 
-% \app{Inkscape}. It can be switched off at all (\opt{inkscape}|=|\val{false}) 
-% or invoked only if necessary (\opt{inkscape}|=|\val{true}) and even be forced
-% with every \LaTeX~run (\opt{inkscape}|=|\val{forced}). Additionally, option
-% \opt{inkscape} can be used as wrapper for options \opt{inkscapeformat},
-% \opt{inkscapelatex}, \opt{inkscapearea} and \opt{inkscapedpi}, which are
-% declared later.
-%    \begin{macrocode}
-\newcommand*\svg@ink@mode{}
-\DefineFamilyKey{SVG}{inkscape}[true]{%
-  \lowercase{\svg@sanitize@dq\svg@tempb{#1}}%
-  \FamilySetNumerical{SVG}{inkscape}{svg@tempa}{%
-    {false}{0},{off}{0},{no}{0},%
-    {true}{1},{on}{1},{yes}{1},{onlynewer}{1},{newer}{1},%
-    {force}{2},{forced}{2},{overwrite}{2},%
-    {pdf}{3},{eps}{4},{ps}{5},{png}{6},%
-    {drawing}{7},{crop}{7},%
-    {page}{8},{nocrop}{8},%
-    {tex}{9},{latex}{9},{exportlatex}{9},{latexexport}{9},%
-    {notex}{10},{nolatex}{10},{noexportlatex}{10},{nolatexexport}{10},%
-    {latexnoexport}{10},{raw}{10},{plain}{10},{simple}{10}%
-  }{\svg@tempb}%
-  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-%    \end{macrocode}
-% Setting the mode for invoking \app{Inkscape}\dots
-%    \begin{macrocode}
-    \ifnum\svg@tempa<\thr@@\relax%
-      \let\svg@ink@mode\svg@tempa%
+\newcommand*\svg@ifwindowsdetected{\@secondoftwo}
+\AfterPackage*{ifplatform}{%
+  \renewcommand*\svg@ifwindowsdetected{%
+    \ifwindows%
+      \expandafter\@firstoftwo%
     \else%
-%    \end{macrocode}
-% \dots and the part as wrapper for different options.
-%    \begin{macrocode}
-      \ifcase\svg@tempa\relax\or\or\or% pdf
-        \FamilyOptions{SVG}{inkscapeformat=pdf}%
-      \or% eps
-        \FamilyOptions{SVG}{inkscapeformat=eps}%
-      \or% ps
-        \FamilyOptions{SVG}{inkscapeformat=ps}%
-      \or% png
-        \FamilyOptions{SVG}{inkscapeformat=png}%
-      \or% drawing
-        \FamilyOptions{SVG}{inkscapearea=drawing}%
-      \or% page
-        \FamilyOptions{SVG}{inkscapearea=page}%
-      \or% tex
-        \FamilyOptions{SVG}{inkscapelatex=true}%
-      \or% notex
-        \FamilyOptions{SVG}{inkscapelatex=false}%
-      \fi%
-    \fi%
-%    \end{macrocode}
-% It's also possible to set the option \opt{inkscapedpi} by passing a number 
-% followed by \val{dpi} like \opt{inkscape}|=|\val{300dpi}.
-%    \begin{macrocode}
-  \else% dpi
-    \def\svg@tempa##1dpi##2\@nil{%
-      \Ifstr{##2}{dpi}{\FamilyOptions{SVG}{inkscapedpi=##1}}{}%
-    }%
-    \lowercase{\expandafter\svg@tempa\svg@tempb dpi\@nil}%
-%    \end{macrocode}
-% In version~v1.0 the option \opt{inkscape} was used to set both the executable 
-% and options for \app{Inkscape}. This is taken into account here.
-%    \begin{macrocode}
-    \ifx\FamilyKeyState\FamilyKeyStateProcessed\else%
-%    \end{macrocode}
-% Splitting executable from options with delimitted macros. After calling 
-% \cs{svg@tempa} with the given value, the part for the executable is stored in 
-% \cs{svg@tempa} and the option part---which is recognized by the first |-| 
-% character--- in \cs{svg@tempb}.
-%    \begin{macrocode}
-      \svg@quotes@remove[{#1}]{\svg@tempb}%
-      \def\svg@tempa##1-##2\@nil{%
-        \IfArgIsEmpty{##2}{\def\svg@tempb{}}{%
-          \def\svg@tempa####1-\@nil{\def\svg@tempb{-####1}}%
-          \svg@tempa##2\@nil%
-        }%
-        \edef\svg@tempa{\trim@spaces{##1}}%
-      }%
-      \edef\svg@tempb{%
-        \noexpand\svg@tempa\svg@tempb-\noexpand\@nil%
-      }%
-      \svg@tempb%
-      \if@svg@quotes@found%
-        \edef\svg@tempa{"\svg@tempa"}%
-      \fi%
-      \PackageWarning{svg}{%
-        Setting the executable%
-        \ifx\svg@tempb\@empty\else%
-          \space and associated options%
-        \fi%
-        \MessageBreak%
-        for Inkscape should be done with options\MessageBreak%
-        `inkscapeexe=\svg@tempa'%
-        \ifx\svg@tempb\@empty\else%
-          \MessageBreak and `inkscapeopt=\svg@tempb'%
-        \fi.\MessageBreak% 
-        Nevertheless, this was done by now anyway%
-      }%
-      \edef\svg@tempa{%
-        \noexpand\FamilyOptions{SVG}{inkscapeexe=\svg@tempa}%
-        \ifx\svg@tempb\@empty\else%
-          \noexpand\FamilyOptions{SVG}{inkscapeopt=\svg@tempb}%
-        \fi%
-      }%
-      \svg@tempa%
-    \fi%
-  \fi%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svg@ink@mode
-% \end{option}^^A inkscape
-% \begin{option}{on}
-% \changes{v2.00}{2017/02/24}{new}^^A
-% \begin{option}{off}
-% \changes{v2.00}{2017/02/24}{new}^^A
-% Package options which can be used to switch functionality on or off during 
-% the loading of package \pkg{svg}.
-%    \begin{macrocode}
-\DeclareOption{on}{\FamilyOptions{SVG}{inkscape=true}}
-\DeclareOption{off}{\FamilyOptions{SVG}{inkscape=false}}
-%    \end{macrocode}
-% \end{option}^^A off
-% \end{option}^^A on
-% \begin{option}{inkscapeversion}
-% \changes{v2.02f}{2020/05/06}{new}^^A
-% \begin{macro}{\svg@ink@ver}
-% \changes{v2.02f}{2020/05/06}{new}^^A
-% \begin{option}{inkscapeexe}
-% \changes{v2.00}{2017/02/17}{new}^^A
-% \changes{v2.02f}{2020/05/06}{only usable in preamble}^^A
-% \begin{macro}{\svg@ink@exe}
-% \begin{option}{inkscapeopt}
-% \changes{v2.00}{2017/02/17}{new}^^A
-% \begin{macro}{\svg@ink@opt}
-% With these options, the terminal command for invoking \app{Inkscape} as well 
-% as additional options can be defined.
-% \ToDo{rename \cs{svg@ink@ver} > \cs{svg@ink@ver@val} (keep former cs)?}[v2.03]
-%    \begin{macrocode}
-\newcommand*\svg@ink@ver{\m@ne}
-\DefineFamilyKey{SVG}{inkscapeversion}[true]{%
-  \FamilySetNumerical{SVG}{inkscape}{svg@tempa}{%
-    {true}{0},{on}{0},{yes}{0},{auto}{0},{detect}{0},{determine}{0},{fetch}{0},%
-    {enquire}{0},{identify}{0},{request}{0},{retrieve}{0},{obtain}{0}%
-  }{#1}%
-  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \renewcommand*\svg@ink@ver{\m@ne}%
-  \else%
-    \def\svg@tempa##1.##2\@nil{%
-      \Ifnumber{##1}{%
-        \renewcommand*\svg@ink@ver{##1}%
-        \FamilyKeyStateProcessed%
-      }{}%
-    }%
-    \svg@tempa#1.\@nil%
-  \fi%
-}
-\newcommand*\svg@ink@exe{inkscape}
-\DefineFamilyKey{SVG}{inkscapeexe}{%
-  \svg@sanitize@dq\svg@ink@exe{#1}%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svg@ink@opt{}
-\DefineFamilyKey{SVG}{inkscapeopt}{%
-  \renewcommand*\svg@ink@opt{#1}%
-  \FamilyKeyStateProcessed%
-}
-%    \end{macrocode}
-% The two options \opt{inkscapeversion} and \opt{inkscapeexe} can only be used 
-% within the preamble.
-%    \begin{macrocode}
-\def\svg@tempa#1{%
-  \AtBeginDocument{%
-    \DefineFamilyKey[]{SVG}{#1}[]{%
-      \PackageError{svg}{Option `#1' too late}{%
-        Option `#1' can only be set within\MessageBreak%
-        the preamble but you have tried to set it up later.%
-      }%
-      \FamilyKeyStateProcessed%
-    }%
-  }%
-}
-\svg@tempa{inkscapeexe}
-\svg@tempa{inkscapeversion}
-%    \end{macrocode}
-% \end{macro}^^A \svg@ink@opt
-% \end{option}^^A inkscapeopt
-% \end{macro}^^A \svg@ink@exe
-% \end{option}^^A inkscapeexe
-% \end{macro}^^A \svg@ink@ver
-% \end{option}^^A inkscapeversion
-% \begin{option}{inkscapeformat}
-% \changes{v2.00}{2017/02/17}{new}^^A
-% \begin{macro}{\svg@ink@format}
-% With option \opt{inkscapeformat} the output format of the \app{Inkscape} 
-% export function, which is called via \cs{ShellEscape}, can be configured.
-% It is set to \val{pdf} or, if dvi output could be detected, to \val{eps} 
-% during initialization.
-%    \begin{macrocode}
-\newcommand*\svg@ink@format{pdf}
-\ifxetex\else\ifpdf\else
-  \renewcommand*\svg@ink@format{eps}
-\fi\fi
-\DefineFamilyKey{SVG}{inkscapeformat}{%
-  \lowercase{\def\svg@tempa{#1}}%
-  \FamilySetNumerical{SVG}{inkscapeformat}{svg@tempa}{%
-    {pdf}{0},{eps}{1},{ps}{2},{png}{3}%
-  }{\svg@tempa}%
-  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \ifcase\svg@tempa\relax% latex
-      \renewcommand*\svg@ink@format{pdf}%
-    \or% eps
-      \renewcommand*\svg@ink@format{eps}%
-    \or% ps
-      \renewcommand*\svg@ink@format{ps}%
-    \or% png
-      \renewcommand*\svg@ink@format{png}%
-    \fi%
-  \fi%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svg@ink@format
-% \end{option}^^A inkscapeformat
-% \begin{option}{inkscapelatex}
-% \changes{v2.00}{2017/02/17}{new}^^A
-% \begin{option}{latex}
-% \changes{v2.00b}{2017/02/28}{new, alternative key for \opt{inkscapelatex}}^^A
-% \begin{option}{tex}
-% \changes{v2.00b}{2017/03/28}{new, alternative key for \opt{inkscapelatex}}^^A
-% \begin{macro}{\svg@ink@latex}
-% This option controls whether the \app{Inkscape} export will be invoked with 
-% or without the generation of a seperate \LaTeX~file.
-%    \begin{macrocode}
-\newif\if@svg@ink@latex
-\FamilyBoolKey{SVG}{inkscapelatex}{@svg@ink@latex}
-\FamilyBoolKey{SVG}{latex}{@svg@ink@latex}
-\FamilyBoolKey{SVG}{tex}{@svg@ink@latex}
-%    \end{macrocode}
-% \end{macro}^^A \svg@ink@latex
-% \end{option}^^A tex
-% \end{option}^^A latex
-% \end{option}^^A inkscapelatex
-% \begin{option}{inkscapearea}
-% \changes{v2.00}{2017/02/17}{new}^^A
-% \begin{macro}{\svg@ink@area}
-% The exported area for an \app{Inkscape} graphic can be set with this option.
-%    \begin{macrocode}
-\newcommand*\svg@ink@area{}
-\DefineFamilyKey{SVG}{inkscapearea}{%
-  \FamilySetNumerical{SVG}{inkscapearea}{svg@tempa}{%
-    {drawing}{0},{crop}{0},%
-    {page}{1},{nocrop}{1}%
-  }{#1}%
-  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \ifcase\svg@tempa\relax% drawing
-      \renewcommand*\svg@ink@area{-D}%
-    \else% page
-      \renewcommand*\svg@ink@area{-C}%
-    \fi%
-  \fi%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svg@ink@area
-% \end{option}^^A inkscapearea
-% \begin{option}{inkscapedpi}
-% \changes{v2.00}{2017/02/17}{new}^^A
-% \begin{option}{inkscapedensity}
-% \begin{macro}{\svg@ink@dpi}
-% A density can be chosen, which is used during export with \app{Inkscape} for 
-% bitmaps and rasterization of filters.
-%    \begin{macrocode}
-\newcommand*\svg@ink@dpi{}
-\let\svg@ink@dpi\relax
-\DefineFamilyKey{SVG}{inkscapedpi}{%
-  \FamilyKeyStateUnknownValue%
-  \svg@ifvalueisrelax{#1}{%
-    \let\svg@ink@dpi\relax%
-    \FamilyKeyStateProcessed%
-  }{%
-    \def\svg@tempa##1dpi##2\@nil{\def\svg@tempa{##1}}%
-    \lowercase{\svg@tempa#1dpi\@nil}%
-    \Ifnumber{\svg@tempa}{%
-      \edef\svg@ink@dpi{\svg@tempa}%
-      \FamilyKeyStateProcessed%
-    }{}%
-  }%
-}
-\DefineFamilyKey{SVG}{inkscapedensity}{\FamilyOptions{SVG}{inkscapedpi=#1}}
-%    \end{macrocode}
-% \end{macro}^^A \svg@ink@dpi
-% \end{option}^^A inkscapedensity
-% \end{option}^^A inkscapedpi
-% \begin{macro}{\svg@ink@cmd}
-% \changes{v2.02f}{2020/05/06}{distinguish \app{Inkscape}~CLI versions}^^A
-% The actual call of the \app{Inkscape} command~line~interface.
-%    \begin{macrocode}
-\newcommand*\svg@ink@cmd[2]{%
-  \svg@ink@exe\space"#1.\svg@file@ext"\space\svg@ink@area\space%
-  \ifx\svg@ink@dpi\relax\else--export-dpi=\svg@ink@dpi\space\fi%
-  \if@svg@ink@latex--export-latex\space\fi%
-  \ifx\svg@ink@opt\@empty\else\svg@ink@opt\space\fi%
-  \ifnum\svg@ink@ver=\z@%
-    --without-gui\space%
-    --export-\svg@ink@format="#2.\svg@ink@format"%
-  \else%
-    --export-filename="#2.\svg@ink@format"%
-  \fi%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svg@ink@cmd
-%
-%
-%
-% \subsubsection{Setting input folder and file}
-%
-% \begin{option}{svgpath}
-% \changes{v2.00}{2017/02/12}{deprecated}^^A
-% In version~v1.0 setting the path to SVG~files was done via option. So 
-% this method is provided as well.
-%    \begin{macrocode}
-\DefineFamilyKey{SVG}{svgpath}{%
-  \PackageWarning{svg}{%
-    The key `svgpath' is deprecated. It's recommended\MessageBreak%
-    to use `\string\svgpath' instead%
-  }%
-  \ifx\svgpath\@undefined%
-    \AtEndOfPackage{\svgpath{{#1}}}%
-  \else%
-    \svgpath{{#1}}%
-  \fi%
-  \FamilyKeyStateProcessed%
-}
-%    \end{macrocode}
-% \end{option}^^A svgpath
-% \begin{option}{svgextension}
-% \changes{v2.01}{2017/11/27}{new due to user request}^^A
-% \changes{v2.02}{2018/09/07}{usage of \cs{svg@quotes@remove}}^^A
-% \changes{v2.02}{2018/09/07}{usage of \cs{svg@remove@leadingchar}}^^A
-% \begin{option}{extension}
-% \begin{option}{ext}
-% \begin{macro}{\svg@file@ext}
-% This option modifies the expected extension for the input file which is 
-% exported with \app{Inkscape}. It is set to \file{svg} by default.
-%    \begin{macrocode}
-\newcommand*\svg@file@ext{svg}
-\DefineFamilyKey{SVG}{svgextension}{%
-%    \end{macrocode}
-% The extension should be in lower case letters.
-%    \begin{macrocode}
-  \lowercase{\svg@quotes@remove[{#1}]{\svg@file@ext}}%
-%    \end{macrocode}
-% Remove leading dots from the extension.
-%    \begin{macrocode}
-  \svg@remove@leadingchar.\svg@file@ext%
-}
-\DefineFamilyKey{SVG}{extension}{\FamilyOptions{SVG}{svgextension=#1}}
-\DefineFamilyKey{SVG}{ext}{\FamilyOptions{SVG}{svgextension=#1}}
-%    \end{macrocode}
-% \end{macro}^^A \svg@file@ext
-% \end{option}^^A ext
-% \end{option}^^A extension
-% \end{option}^^A svgextension
-%
-%
-%
-% \subsubsection{Setting output folder}
-%
-% \begin{option}{inkscapepath}
-% \changes{v2.00}{2017/02/17}{new}^^A
-% \changes{v2.02}{2018/09/07}{usage of \cs{svg@sanitize@dq}}^^A
-% \begin{option}{inkscapename}
-% \changes{v2.00}{2017/02/17}{new}^^A
-% \begin{macro}{\svg@out@path}
-% \begin{macro}{\svg@out@name}
-% \begin{macro}{\svg@out@base}
-% The option \opt{inkscapepath} controls, in which folder the results of the
-% \app{Inkscape} export will be located. With option \opt{inkscapename} the 
-% name of the exported file itself can be changed.
-%    \begin{macrocode}
-\newcommand*\svg@out@path{}
-\newcommand*\svg@out@name{\svg@file@name\svg@file@suffix}
-\newcommand*\svg@out@base{\svg@out@path\svg@out@name.\svg@ink@format}
-\DefineFamilyKey{SVG}{inkscapepath}{%
-  \svg@sanitize@dq\svg@tempb{#1}%
-  \FamilySetNumerical{SVG}{inkscapepath}{svg@tempa}{%
-    {svgpath}{0},{svgdir}{0},%
-    {svgsubpath}{1},{svgsubdir}{1},%
-    {basepath}{2},{basedir}{2},{jobpath}{2},{jobdir}{2},%
-    {basesubpath}{3},{basesubdir}{3},{jobsubpath}{3},{jobsubdir}{3}%
-  }{\svg@tempb}%
-  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \ifcase\svg@tempa\relax% svgpath
-      \renewcommand*\svg@out@path{\svg@file@path}%
-    \or% svgsubpath
-      \renewcommand*\svg@out@path{\svg@file@path svg-inkscape/}%
-    \or% basepath
-      \renewcommand*\svg@out@path{./}%
-    \or% basesubpath
-      \renewcommand*\svg@out@path{./svg-inkscape/}%
-    \fi%
-  \else%
-    \edef\svg@out@path{\svg@tempb}%
-    \svg@normalize@path{\svg@out@path}%
-    \FamilyKeyStateProcessed%
-  \fi%
-}
-\DefineFamilyKey{SVG}{inkscapename}{%
-  \renewcommand*\svg@out@name{#1\svg@file@suffix}%
-  \FamilyKeyStateProcessed%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svg@out@base
-% \end{macro}^^A \svg@out@name
-% \end{macro}^^A \svg@out@path
-% \end{option}^^A inkscapename
-% \end{option}^^A inkscapepath
-%
-%
-%
-% \subsubsection{Options for the inclusion of graphics}
-%
-% After the graphic export with \app{Inkscape}, the inclusion of those graphics 
-% can be controlled with the following options.
-%
-% \begin{option}{width}
-% \begin{macro}{\svg@param@width}
-% \begin{option}{height}
-% \changes{v2.00}{2017/02/17}{new}^^A
-% \begin{macro}{\svg@param@width}
-% \begin{option}{distort}
-% \changes{v2.02}{2018/09/07}{new}^^A
-% \begin{option}{keepaspectratio}
-% \changes{v2.02}{2018/09/07}{new}^^A
-% \begin{macro}{\if@svg@param@distort}
-% \begin{option}{scale}
-% \changes{v2.00}{2017/02/17}{new}^^A
-% \begin{macro}{\svg@param@scale}
-% These options determine the size of the included graphics. The usage of
-% \val{\cs{relax}} as value resets the respective option to the default 
-% behavior.
-%    \begin{macrocode}
-\newcommand*\svg@param@width{\z@}
-\DefineFamilyKey{SVG}{width}{%
-  \FamilyKeyStateUnknownValue%
-  \svg@ifvalueisrelax{#1}{%
-    \renewcommand*\svg@param@width{\z@}%
-    \FamilyKeyStateProcessed%
-  }{%
-    \FamilySetLengthMacro{SVG}{width}{\svg@param@width}{#1}%
-    \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-      \ifdim\svg@param@width<\z@\relax%
-        \FamilyKeyStateUnknownValue%
-      \fi%
+      \expandafter\@secondoftwo%
     \fi%
   }%
 }
-\newcommand*\svg@param@height{\z@}
-\DefineFamilyKey{SVG}{height}{%
-  \FamilyKeyStateUnknownValue%
-  \svg@ifvalueisrelax{#1}{%
-    \renewcommand*\svg@param@height{\z@}%
-    \FamilyKeyStateProcessed%
-  }{%
-    \FamilySetLengthMacro{SVG}{height}{\svg@param@height}{#1}%
-    \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-      \ifdim\svg@param@height<\z@\relax%
-        \FamilyKeyStateUnknownValue%
-      \fi%
-    \fi%
-  }%
-}
-\newif\if@svg@param@distort
-\FamilyBoolKey{SVG}{distort}{@svg@param@distort}
-\DefineFamilyKey{SVG}{keepaspectratio}[true]{%
-  \FamilySetBool{SVG}{keepaspectratio}{@svg@tempswa}{#1}%
-  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \if@svg@tempswa%
-      \FamilyOptions{SVG}{distort=false}%
-    \else
-      \FamilyOptions{SVG}{distort=true}%
-    \fi%
-  \fi%
-}
-\newcommand*\svg@param@scale{1}
-\DefineFamilyKey{SVG}{scale}{%
-  \FamilyKeyStateUnknownValue%
-  \svg@ifvalueisrelax{#1}{%
-    \renewcommand*\svg@param@scale{1}%
-    \FamilyKeyStateProcessed%
-  }{%
-    \Ifisdimension{#1\p@}{%
-      \ifdim\dimexpr#1\p@\relax>\z@\relax%
-        \renewcommand*\svg@param@scale{#1}%
-        \FamilyKeyStateProcessed%
-      \fi%
-    }{}%
-  }%
-}
 %    \end{macrocode}
-% \end{macro}^^A \svg@param@scale
-% \end{option}^^A scale
-% \end{macro}^^A \if@svg@param@distort
-% \end{option}^^A keepaspectratio
-% \end{option}^^A distort
-% \end{macro}^^A \svg@param@height
-% \end{option}^^A height
-% \end{macro}^^A \svg@param@width
-% \end{option}^^A width
-% \begin{option}{pretex}
-% \begin{macro}{\svg@param@pretex}
-% \begin{option}{apptex}
-% \begin{macro}{\svg@param@apptex}
-% \begin{option}{postex}
-% \changes{v2.00}{2017/03/02}{deprecated}^^A
-% For executing code right before or after the graphic inclusion, two hooks are 
-% defined.
+% \end{macro}^^A \svg@ifwindowsdetected
+% \begin{macro}{\svg@ifvalueisrelax}
+% For some keys the usage of \val{\cs{relax}} as a value should lead to a 
+% special reaction, such as restoring to default behavior or reseting the key.
+% Therefore, \cs{svg@ifvalueisrelax} checks, whether \val{\cs{relax}} was used
+% as value or not.
 %    \begin{macrocode}
-\newcommand*\svg@param@pretex{}
-\let\svg@param@pretex\relax
-\DefineFamilyKey{SVG}{pretex}{%
-  \svg@ifvalueisrelax{#1}{%
-    \let\svg@param@pretex\relax%
-  }{%
-    \def\svg@param@pretex{#1}%
-  }%
-  \FamilyKeyStateProcessed%
-}
-\newcommand*\svg@param@apptex{}
-\let\svg@param@apptex\relax
-\DefineFamilyKey{SVG}{apptex}{%
-  \svg@ifvalueisrelax{#1}{%
-    \let\svg@param@apptex\relax%
-  }{%
-    \def\svg@param@apptex{#1}%
-  }%
-  \FamilyKeyStateProcessed%
-}
-\DefineFamilyKey{SVG}{postex}{%
-  \svg@deprecated@key{postex=#1}{apptex=#1}%
-}
-%    \end{macrocode}
-% \end{option}^^A postex
-% \end{macro}^^A \svg@param@apptex
-% \end{option}^^A apptex
-% \end{macro}^^A \svg@param@pretex
-% \end{option}^^A pretex
-% \begin{option}{lastpage}
-% \changes{v2.00}{2017/02/20}{new}^^A
-% \begin{counter}{svg@param@lastpage}
-% For \app{Inkscape}\,0.91 a bug concerning the \LaTeX~export has been reported
-% (\url{https://bugs.launchpad.net/ubuntu/+source/inkscape/+bug/1417470}). 
-% Sometimes the \LaTeX~file created by \app{Inkscape} tries to include more
-% pages than actually are present in the PDF~file. To work around this 
-% problem, a patch is provided. For this purpose, the total page number is read 
-% from the PDF~file. 
-%    \begin{macrocode}
-\newcounter{svg@param@lastpage}
-\DefineFamilyKey{SVG}{lastpage}{%
-  \FamilySetNumerical{SVG}{lastpage}{svg@tempa}{%
-    {false}{0},{off}{0},{no}{0},{ignore}{0},%
-    {true}{1},{on}{1},{yes}{1},{auto}{1}%
-  }{#1}%
-  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-    \ifcase\svg@tempa\relax% false
-      \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{\m@ne}%
-    \or% true
-      \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{\z@}%
+\newcommand*\svg@ifvalueisrelax[1]{%
+  \begingroup%
+    \def\svg@tempa{#1}%
+    \def\svg@tempb{\relax}%
+    \ifx\svg@tempa\svg@tempb%
+      \aftergroup\@firstoftwo%
+    \else%
+      \aftergroup\@secondoftwo%
     \fi%
-  \fi%
+  \endgroup%
 }
 %    \end{macrocode}
-% \end{counter}^^A svg@param@lastpage
-% \end{option}^^A lastpage
-% \begin{option}{draft}
-% \changes{v2.00}{2017/02/17}{new}^^A
-% \begin{macro}{\if@svg@draft}
-% The option \opt{draft} has the same effect as the eponymous option of package
-% \pkg{graphicx}.
+% \end{macro}^^A \svg@ifvalueisrelax
+%
+% \iffalse
+%</main>
+%<*extract>
+% \fi
+%
+% \begin{macro}{\svgx@ifkeyandval}
+% \begin{macro}{\svgx@@ifkeyandval}
+% It is checked whether a key was given as \val{\meta{key}=\meta{value}} or 
+% like \val{\meta{key}=\{\meta{format}=\meta{value}\}}.
 %    \begin{macrocode}
-\newif\if@svg@draft
-\FamilyBoolKey{SVG}{draft}{@svg@draft}
-\AtBeginDocument{\if@svg@draft\else\ifGin@draft\@svg@drafttrue\fi\fi}
+\newcommand*\svgx@@ifkeyandval{}
+\newcommand*\svgx@ifkeyandval[3]{%
+  \def\svgx@@ifkeyandval##1=##2=##3\@nil{\IfArgIsEmpty{##3}{#3}{#2}}%
+  \svgx@@ifkeyandval#1==\@nil%
+}
 %    \end{macrocode}
-% \end{macro}^^A \if@svg@draft
-% \end{option}^^A draft
+% \end{macro}^^A \svgx@@ifkeyandval
+% \end{macro}^^A \svgx@ifkeyandval
+%
+% \iffalse
+%</extract>
+%<*main>
+% \fi
 %
 %
 %
-% \subsection{Handling path information}
+% \subsubsection{String manipulation}
 %
 % Both packages \pkg{svg} and \pkg{svg-extract} should be able to handle 
 % user-defined input and output paths. As there is the possibility for users to 
-% provide paths with or without quotes to \LaTeX, this is taken into account.
+% provide paths with or without quotes to \LaTeX{}, this is taken into account.
 %
 % \begin{macro}{\svg@deactivate@dq}
 % \changes{v2.02}{2018/09/07}{new}^^A
@@ -2106,7 +1512,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@deactivate@dq
 % \begin{macro}{\svg@sanitize@dq}
 % \changes{v2.02}{2018/09/07}{new}^^A
-% Save expansion of the second argument in the macro from teh first argument 
+% Save expansion of the second argument in the macro from the first argument 
 % with deactivated double quotes.
 %    \begin{macrocode}
 \newcommand*\svg@sanitize@dq[2]{%
@@ -2117,6 +1523,27 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 %    \end{macrocode}
 % \end{macro}^^A \svg@sanitize@dq
+% \begin{macro}{\svg@quotes@check}
+% \begin{macro}{\svg@quotes@@check}
+% \begin{macro}{\if@svg@quotes@found}
+% During the treatment of paths, it may be necessary to temporarily remove 
+% quotes and, if required, add them again later. For this purpose, the switch 
+% \cs{if@svg@quotes@found} as well as the commands \cs{svg@quotes@check} and
+% \cs{svg@quotes@@check}, which controls the switch, are defined. As before, 
+% the string is passed in a macro to \cs{svg@quotes@check}.
+%    \begin{macrocode}
+\newif\if@svg@quotes@found
+\newcommand*\svg@quotes@check[1]{%
+  \expandafter\svg@quotes@@check#1"\@nil%
+}
+\newcommand*\svg@quotes@@check{}
+\def\svg@quotes@@check#1"#2\@nil{%
+  \IfArgIsEmpty{#2}{\@svg@quotes@foundfalse}{\@svg@quotes@foundtrue}%
+}
+%    \end{macrocode}
+% \end{macro}^^A \if@svg@quotes@found
+% \end{macro}^^A \svg@quotes@@check
+% \end{macro}^^A \svg@quotes@check
 % \begin{macro}{\svg@quotes@remove}
 % \changes{v2.02}{2018/09/07}{usage of \cs{svg@sanitize@dq}}^^A
 % \changes{v2.02}{2018/09/07}{calling \cs{svg@quotes@check}}^^A
@@ -2153,27 +1580,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svg@quotes@@remove
 % \end{macro}^^A \svg@quotes@remove
-% \begin{macro}{\svg@quotes@check}
-% \begin{macro}{\svg@quotes@@check}
-% \begin{macro}{\if@svg@quotes@found}
-% During the treatment of paths, it may be necessary to temporarily remove 
-% quotes and, if required, add them again later. For this purpose, the switch 
-% \cs{if@svg@quotes@found} as well as the commands \cs{svg@quotes@check} and
-% \cs{svg@quotes@@check}, which controls the switch, are defined. As before, 
-% the string is passed in a macro to \cs{svg@quotes@check}.
-%    \begin{macrocode}
-\newif\if@svg@quotes@found
-\newcommand*\svg@quotes@check[1]{%
-  \expandafter\svg@quotes@@check#1"\@nil%
-}
-\newcommand*\svg@quotes@@check{}
-\def\svg@quotes@@check#1"#2\@nil{%
-  \IfArgIsEmpty{#2}{\@svg@quotes@foundfalse}{\@svg@quotes@foundtrue}%
-}
-%    \end{macrocode}
-% \end{macro}^^A \if@svg@quotes@found
-% \end{macro}^^A \svg@quotes@@check
-% \end{macro}^^A \svg@quotes@check
 % \begin{macro}{\svg@remove@leadingchar}
 % \changes{v2.02}{2018/09/07}{new}^^A
 % This command removes the single character in given with the first argument 
@@ -2196,227 +1602,17 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \svg@tempb%
 }
 %    \end{macrocode}
-% \end{macro}^^A \svg@remove@leadingchar% 
-% \begin{macro}{\svg@set@input@path}
-% \changes{v2.01}{2017/11/28}{new}^^A
-% \changes{v2.02}{2018/09/07}{usage of \cs{svg@deactivate@dq}}^^A
-% \begin{macro}{\svg@append@input@path}
-% \changes{v2.01}{2017/11/28}{new}^^A
-% \changes{v2.02}{2018/09/07}{avoid duplicates in \cs{input@path}}^^A
-% In order to import SVG~files from different folders, \cs{svg@set@input@path}
-% evaluates several macros, which are supposed to be used for holding different 
-% search folders. Any given path will be handled by \cs{svg@normalize@path}.
-% The optional argument can be used to append an additional search path.
-%    \begin{macrocode}
-\newcommand*\svg@set@input@path[1][]{%
-  \begingroup%
-    \svg@deactivate@dq%
-%    \end{macrocode}
-% If a path was already found and stored within \cs{svg@file@path}, it is
-% searched first and wrapped in curly braces. This is necessary for using
-% commands like \cs{input}\marg{tex filename} within SVG~files.
-%    \begin{macrocode}
-    \ifx\svg@file@path\@empty\else%
-      \svg@normalize@path{\svg@file@path}%
-      \edef\svg@file@path{{\svg@file@path}}%
-    \fi%
-%    \end{macrocode}
-% Afterwards, several search paths are appended. If \cs{svgpath} was used, it 
-% is searched next. If nothing was found, \cs{graphicspath} is considered if 
-% defined followed by a path given in the third argument. If nothing was found
-% yet, the standard \cs{input@path} is searched last.
-%    \begin{macrocode}
-    \svg@append@input@path{\svg@file@path}{\svg@input@path}%
-    \svg@append@input@path{\svg@file@path}{\Ginput@path}%
-    \IfArgIsEmpty{#1}{}{\svg@append@input@path{\svg@file@path}{{#1}}}%
-    \svg@append@input@path{\svg@file@path}{\input@path}%
-%    \end{macrocode}
-% Finally, \cs{input@path} is set.
-%    \begin{macrocode}
-    \edef\svg@tempa{%
-      \endgroup%
-      \ifx\svg@file@path\@empty\else%
-        \def\noexpand\input@path{\svg@file@path}%
-      \fi%
-    }%
-  \svg@tempa%
-}
-%    \end{macrocode}
-% Only, if a certain search path is defined, it is added. The paths given in 
-% the first argument are compared to each path in the second argument and only 
-% new ones are added.
-%    \begin{macrocode}
-\newcommand*\svg@append@input@path[2]{%
-  \ifx#2\@undefined\else%
-    \edef\svg@tempb{#2}%
-    \expandafter\@tfor\expandafter\svg@tempa\expandafter:\expandafter=%
-        \svg@tempb\do{%
-%    \end{macrocode}
-% Passing each new path to \cs{svg@normalize@path}. If a path already exists, 
-% switch \cs{if@svg@tempswa} is set to \val{false}.
-%    \begin{macrocode}
-      \ifx\svg@tempa\@empty\else%
-        \@svg@tempswatrue%
-        \svg@normalize@path{\svg@tempa}%
-        \expandafter\@tfor\expandafter\svg@tempb\expandafter:\expandafter=%
-            #1\do{%
-          \ifx\svg@tempa\svg@tempb%
-            \@svg@tempswafalse%
-            \@break@tfor%
-          \fi%
-        }%
-        \if@svg@tempswa%
-          \edef#1{#1{\svg@tempa}}%
-        \fi%
-      \fi%
-    }%
-  \fi%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svg@append@input@path
-% \end{macro}^^A \svg@set@input@path
-% \begin{macro}{\svg@normalize@path}
-% \changes{v2.02}{2018/09/07}{usage of \cs{svg@deactivate@dq}}^^A
-% \begin{macro}{\svg@normalize@@path}
-% If any path is given, a trailing slash is needed. These two macros ensure
-% that this condition is fulfilled in any case, even if this is not considered
-% by the user. As before, a macro containing the path string is passed to 
-% \cs{svg@normalize@path}.
-%    \begin{macrocode}
-\newcommand*\svg@normalize@path[1]{%
-  \begingroup%
-    \svg@quotes@remove[{#1}]{\svg@tempa}%
-    \ifx\svg@tempa\@empty\relax%
-      \def\svg@tempa{./}%
-    \fi%
-    \expandafter\svg@normalize@@path\svg@tempa//\@nil%
-    \edef\svg@tempb{%
-      \endgroup%
-      \if@svg@quotes@found%
-        \def\noexpand#1{"\svg@tempa"}%
-      \else%
-        \def\noexpand#1{\svg@tempa}%
-      \fi%
-    }%
-  \svg@tempb%
-}
-\newcommand*\svg@normalize@@path{}
-\def\svg@normalize@@path#1/#2/\@nil{%
-  \IfArgIsEmpty{#2}{%
-    \IfArgIsEmpty{#1}{\def\svg@tempa{}}{\def\svg@tempa{#1/}}%
-  }{%
-    \svg@normalize@@path#2/\@nil%
-    \edef\svg@tempa{#1/\svg@tempa}%
-  }%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svg@normalize@@path
-% \end{macro}^^A \svg@normalize@path
-% \begin{macro}{\svg@ifvalueisrelax}
-% For some keys the usage of \val{\cs{relax}} as a value should lead to a 
-% special reaction, such as restoring to default behavior or reseting the key.
-% Therefore, \cs{svg@ifvalueisrelax} checks, whether \val{\cs{relax}} was used
-% as value or not.
-%    \begin{macrocode}
-\newcommand*\svg@ifvalueisrelax[1]{%
-  \begingroup%
-    \def\svg@tempa{#1}%
-    \def\svg@tempb{\relax}%
-    \ifx\svg@tempa\svg@tempb\relax%
-      \aftergroup\@firstoftwo%
-    \else%
-      \aftergroup\@secondoftwo%
-    \fi%
-  \endgroup%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svg@ifvalueisrelax
+% \end{macro}^^A \svg@remove@leadingchar
 %
-% \iffalse
-%</option>
-%<*body>
-% \fi
 %
-% \begin{macro}{\svg@get@path}
-% \changes{v2.01}{2017/11/28}{using \cs{svg@set@input@path}}^^A
-% \changes{v2.01}{2017/11/28}{using \cs{trim@spaces}}^^A
-% \begin{macro}{\if@svg@file@found}
-% \begin{macro}{\svg@file@path}
-% \begin{macro}{\svg@file@name}
-% \begin{macro}{\svg@file@base}
-% \begin{macro}{\svg@file@suffix}
-% The command \cs{svg@get@path} tries to find a given SVG~file. If the 
-% searched file wasn't found in the current path, all paths given with 
-% \cs{svgpath} are evaluated. If there was no appropriate file again, all paths
-% given by \cs{graphicspath} are examined. In the last step, a given path 
-% within the second mandatory argument is browsed. The results for file path
-% and name are stored in \cs{svg@file@path} and \cs{svg@file@name} as well as
-% the compound of both is saved in \cs{svg@file@base}.
-%    \begin{macrocode}
-\newif\if@svg@file@found
-\newcommand*\svg@file@path{}
-\newcommand*\svg@file@name{}
-\newcommand*\svg@file@base{}
-\newcommand*\svg@file@suffix{}
-\newcommand*\svg@get@path[3][\svg@file@ext]{%
-  \begingroup%
-%    \end{macrocode}
-% A maybe given, unneeded file extension is removed.
-%    \begin{macrocode}
-    \svg@filename@parse[{#1}]{#2}%
-    \IfArgIsEmpty{#1}{%
-      \edef\svg@tempa{\filename@area\filename@base.\filename@ext}%
-    }{%
-      \edef\svg@tempa{\filename@area\filename@base.#1}%
-    }%
-%    \end{macrocode}
-% After calling \cs{svg@set@input@path}, all search paths are stored in
-% \cs{input@path}, a single path given in the third argument will also be 
-% considered.
-%    \begin{macrocode}
-    \svg@set@input@path[{#3}]%
-%    \end{macrocode}
-% The specified file is searched with \cs{IfFileExists}. If the file search was 
-% succesful, the macro \cs{svg@filename@parse} is called with the result.
-%    \begin{macrocode}
-    \@svg@tempswafalse%
-    \expandafter\IfFileExists\expandafter{\svg@tempa}{%
-      \expandafter\svg@quotes@check\expandafter{\svg@tempa}%
-      \if@svg@quotes@found\else%
-        \svg@quotes@remove{\@filef@und}%
-      \fi%
-      \@svg@tempswatrue%
-      \edef\@filef@und{\expandafter\trim@spaces\expandafter{\@filef@und}}%
-      \svg@filename@parse[{#1}]{\@filef@und}%
-    }{}%
-    \edef\svg@tempa{%
-      \endgroup%
-      \if@svg@tempswa%
-        \noexpand\@svg@file@foundtrue%
-        \def\noexpand\svg@file@path{\filename@area}%
-        \def\noexpand\svg@file@name{\filename@base}%
-        \def\noexpand\svg@file@base{\filename@area\filename@base}%
-      \else%
-        \noexpand\@svg@file@foundfalse%
-        \def\noexpand\svg@file@path{}%
-        \def\noexpand\svg@file@name{#2}%
-        \def\noexpand\svg@file@base{#2}%
-      \fi%
-    }%
-  \svg@tempa%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svg@file@suffix
-% \end{macro}^^A \svg@file@base
-% \end{macro}^^A \svg@file@name
-% \end{macro}^^A \svg@file@path
-% \end{macro}^^A \if@svg@file@found
-% \end{macro}^^A \svg@get@path
+%
+% \subsubsection{File handling}
+%
 % \begin{macro}{\svg@filename@parse}
 % \changes{v2.02}{2018/09/07}{usage of \cs{svg@sanitize@dq}}^^A
 % \changes{v2.02}{2018/09/07}{usage of \cs{svg@remove@leadingchar}}^^A
 % \changes{v2.02}{2018/09/07}{usage of \cs{svg@extension@parse}}^^A
-% As the internal \LaTeXe{} command \cs{filename@parse} is not able to split a 
+% As the internal \LaTeX{} command \cs{filename@parse} is not able to split a 
 % given file name containing quotes, \cs{svg@filename@parse} is defined to 
 % resolve this problem. The optional argument can be used to give a specific 
 % file extension, which should be searched within \cs{filename@ext}. If found 
@@ -2583,13 +1779,850 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \fi
 %    \end{macrocode}
 % \end{macro}^^A \svg@iffilenewer
+% \begin{macro}{\svg@shell@mkdir}
+% \begin{macro}{\svg@shell@@mkdir}
+% \begin{macro}{\svg@shell@mv}
+% \begin{macro}{\svg@shell@@mv}
+% \begin{macro}{\svg@shell@rm}
+% \begin{macro}{\svg@shell@@rm}
+% Finally, platform dependend macros for creating directories as well as 
+% moving and deleting files are provided.
+%    \begin{macrocode}
+\newcommand*\svg@shell@mkdir[1]{%
+  \begingroup%
+%    \end{macrocode}
+% A directory should only be created, if it isn't the current working directory.
+%    \begin{macrocode}
+    \svg@quotes@remove[{#1}]{\svg@tempa}%
+    \@svg@tempswatrue%
+    \Ifstr{\svg@tempa}{}{\@svg@tempswafalse}{%
+    \Ifstr{\svg@tempa}{./}{\@svg@tempswafalse}{%
+    }}%
+    \if@svg@tempswa%
+      \ShellEscape{\svg@shell@@mkdir{\svg@tempa}}%
+    \fi%
+  \endgroup%
+}
+\newcommand*\svg@shell@mv[2]{%
+  \ShellEscape{\svg@shell@@mv\space"#1"\space"#2"}%
+}
+\newcommand*\svg@shell@rm[1]{%
+  \ShellEscape{\svg@shell@@rm\space"#1"}%
+}
+%    \end{macrocode}
+% The platform dependent commands for file access. 
+%    \begin{macrocode}
+\svg@ifwindowsdetected{%
+  \newcommand*\svg@shell@@mkdir[1]{if not exist "#1" mkdir "#1"}%
+  \newcommand*\svg@shell@@mv{move}%
+  \newcommand*\svg@shell@@rm{del}%
+}{%
+  \newcommand*\svg@shell@@mkdir[1]{mkdir -p "#1"}%
+  \newcommand*\svg@shell@@mv{mv}%
+  \newcommand*\svg@shell@@rm{rm}%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@shell@@rm
+% \end{macro}^^A \svg@shell@rm
+% \end{macro}^^A \svg@shell@@mv
+% \end{macro}^^A \svg@shell@mv
+% \end{macro}^^A \svg@shell@@mkdir
+% \end{macro}^^A \svg@shell@mkdir
+% \begin{macro}{\svg@normalize@path}
+% \changes{v2.02}{2018/09/07}{usage of \cs{svg@deactivate@dq}}^^A
+% \begin{macro}{\svg@normalize@@path}
+% If any path is given, a trailing slash is needed. These two macros ensure
+% that this condition is fulfilled in any case, even if this is not considered
+% by the user. As before, a macro containing the path string is passed to 
+% \cs{svg@normalize@path}.
+%    \begin{macrocode}
+\newcommand*\svg@normalize@path[1]{%
+  \begingroup%
+    \svg@quotes@remove[{#1}]{\svg@tempa}%
+    \ifx\svg@tempa\@empty\relax%
+      \def\svg@tempa{./}%
+    \fi%
+    \expandafter\svg@normalize@@path\svg@tempa//\@nil%
+    \edef\svg@tempb{%
+      \endgroup%
+      \if@svg@quotes@found%
+        \def\noexpand#1{"\svg@tempa"}%
+      \else%
+        \def\noexpand#1{\svg@tempa}%
+      \fi%
+    }%
+  \svg@tempb%
+}
+\newcommand*\svg@normalize@@path{}
+\def\svg@normalize@@path#1/#2/\@nil{%
+  \IfArgIsEmpty{#2}{%
+    \IfArgIsEmpty{#1}{\def\svg@tempa{}}{\def\svg@tempa{#1/}}%
+  }{%
+    \svg@normalize@@path#2/\@nil%
+    \edef\svg@tempa{#1/\svg@tempa}%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@normalize@@path
+% \end{macro}^^A \svg@normalize@path
 %
-% \subsection{Optional Parameters for user commands}
+% \iffalse
+%</main>
+%<*extract>
+% \fi
 %
+%
+%
+% \subsubsection{List handling}
+%
+% \begin{macro}{\svgx@ifinlist}
+% Check, if the first argument is included in a comma-separated list in the 
+% second argument. Keep in mind that the first argument is not expanded at all, 
+% the second one exactly once. 
+%    \begin{macrocode}
+\newcommand*\svgx@ifinlist[2]{%
+  \begingroup%
+    \def\svg@tempa##1,#1,##2\@nil{%
+      \IfArgIsEmpty{##2}{%
+        \aftergroup\@secondoftwo%
+      }{%
+        \aftergroup\@firstoftwo%
+      }%
+    }%
+    \expandafter\svg@tempa\expandafter,#2,#1,\@nil%
+  \endgroup%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svgx@ifinlist
+%
+% \iffalse
+%</extract>
+%</package&base>
+%<*package&option>
+% \fi
+%
+%
+%
+% \section{Including SVG files with package \pkg{svg}}
+% \subsection{Options}
+%
+% All options, which can be set either as package options or with 
+% \cs{svgsetup}, as well as the optional parameters for both user commands 
+% \cs{includesvg}\oarg{parameters}\marg{svg~filename} and
+% \cs{includeinkscape}\oarg{parameters}\marg{graphic~filename} are defined with
+% the interface provided by package \pkg{scrbase}.
+%    \begin{macrocode}
+\DefineFamily{SVG}
+\DefineFamilyMember{SVG}
+%    \end{macrocode}
+%
+% \iffalse
+%</package&option>
+%<*package&option&main>
+% \fi
+%
+% \begin{macro}{\svg@deprecated@key}
+% With version v2.00 the whole user\hbox{-}interface was renewed. For reasons
+% of compatibility, outdated options and parameters from version~v1.0 are also 
+% provided. If an old key was given, a warning is issued and the valid key is
+% used.
+%    \begin{macrocode}
+\newcommand*\svg@deprecated@key[3][svg]{%
+  \PackageWarning{#1}{%
+    The option key `#2' is deprecated. \MessageBreak%
+    It's recommended to use `#3'\MessageBreak%
+    instead%
+  }%
+  \FamilyOptions{SVG}{#3}%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@deprecated@key
+%
+% Within the exported \LaTeX~files of \app{Inkscape}, some commands are used 
+% out of additional packages. But maybe the user doesn't want to load this 
+% packages anyhow.
+%
+% \begin{option}{usexcolor}
+% \changes{v2.00}{2017/02/17}{new}^^A
+% \begin{option}{noxcolor}
+% \changes{v2.00}{2017/02/17}{new}^^A
+% \begin{macro}{\if@svg@use@xcolor}
+% \begin{option}{usetransparent}
+% \changes{v2.00}{2017/02/17}{new}^^A
+% \begin{option}{notransparent}
+% \changes{v2.00}{2017/02/17}{new}^^A
+% \begin{macro}{\if@svg@use@transparent}
+% Options for preventing packages \pkg{xcolor} and \pkg{transparent} to be 
+% loaded.
+%    \begin{macrocode}
+\newif\if@svg@use@xcolor
+\FamilyBoolKey{SVG}{usexcolor}{@svg@use@xcolor}
+\DeclareOption{noxcolor}{\FamilyOptions{SVG}{usexcolor=false}}
+\newif\if@svg@use@transparent
+\FamilyBoolKey{SVG}{usetransparent}{@svg@use@transparent}
+\DeclareOption{notransparent}{\FamilyOptions{SVG}{usetransparent=false}}
+%    \end{macrocode}
+% They are only available during the loading process of package \pkg{svg}.
+%    \begin{macrocode}
+\AtEndOfPackage{%
+  \RelaxFamilyKey{SVG}{usexcolor}%
+  \RelaxFamilyKey{SVG}{usetransparent}%
+  \if@svg@use@xcolor%
+    \RequirePackage{xcolor}[2016/05/11]%
+  \else%
+    \AfterPackage*{xcolor}{%
+      \PackageWarning{svg}{Package `xcolor' was loaded anyway}%
+    }%
+  \fi%
+  \if@svg@use@transparent%
+    \RequirePackage{transparent}[2019/11/29]%
+  \else%
+    \AfterPackage*{transparent}{%
+      \PackageWarning{svg}{Package `transparent' was loaded anyway}%
+    }%
+  \fi%
+%    \end{macrocode}
+% There is an issue\footnote{\url{https://github.com/ho-tex/oberdiek/issues/62}}
+% with package \pkg{transparent}, which currently implements an \emph{invalid} 
+% check relying on internal commands of package \pkg{pgfsys}, whereas these
+% have changed in the latest version.
+%    \begin{macrocode}
+  \AfterPackage*{transparent}{%
+    \@ifpackagelater{transparent}{2018/11/19}{}{\RequirePackage{pgfsys}}%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}^^A \if@svg@use@transparent
+% \end{option}^^A notransparent
+% \end{option}^^A usetransparent
+% \end{macro}^^A \if@svg@use@xcolor
+% \end{option}^^A noxcolor
+% \end{option}^^A usexcolor
+%
+%
+%
+% \subsubsection{The invocation of \app{Inkscape}}
+%
+% The Application \app{Inkscape} is used to create includable graphic files in 
+% a desired format (PDF/EPS/PS/PNG) out of files in SVG~format, whereas the
+% support of \LaTeX{} can optionally be used.
+%
+% \begin{option}{inkscape}
+% \changes{v2.00}{2017/02/17}{changed/extended}^^A
+% \changes{v2.02}{2018/09/07}{usage of \cs{svg@sanitize@dq}}^^A
+% \changes{v2.01}{2017/11/28}{using \cs{trim@spaces}}^^A
+% \begin{macro}{\svg@ink@mode}
+% The intension of option \opt{inkscape} is to control the running behaviour of 
+% \app{Inkscape}. It can be switched off at all (\opt{inkscape}|=|\val{false}) 
+% or invoked only if necessary (\opt{inkscape}|=|\val{true}) and even be forced
+% with every \LaTeX~run (\opt{inkscape}|=|\val{forced}). Additionally, option
+% \opt{inkscape} can be used as wrapper for options \opt{inkscapeformat},
+% \opt{inkscapelatex}, \opt{inkscapearea} and \opt{inkscapedpi}, which are
+% declared later.
+%    \begin{macrocode}
+\newcommand*\svg@ink@mode{}
+\DefineFamilyKey{SVG}{inkscape}[true]{%
+  \svg@sanitize@dq\svg@tempb{#1}%
+  \FamilySetNumerical{SVG}{inkscape}{svg@tempa}{%
+    {false}{0},{off}{0},{no}{0},%
+    {true}{1},{on}{1},{yes}{1},{auto}{1},{onlynewer}{1},{newer}{1},%
+    {forced}{2},{force}{2},{overwrite}{2},%
+    {pdf}{3},{PDF}{3},{eps}{4},{EPS}{4},{ps}{5},{PS}{5},{png}{6},{PNG}{6},%
+    {drawing}{7},{crop}{7},%
+    {page}{8},{nocrop}{8},%
+    {tex}{9},{latex}{9},{exportlatex}{9},{latexexport}{9},%
+    {notex}{10},{nolatex}{10},{noexportlatex}{10},{nolatexexport}{10},%
+    {latexnoexport}{10},{raw}{10},{plain}{10},{simple}{10}%
+  }{\svg@tempb}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+%    \end{macrocode}
+% Setting the mode for invoking \app{Inkscape}\dots
+%    \begin{macrocode}
+    \ifnum\svg@tempa<\thr@@\relax%
+      \let\svg@ink@mode\svg@tempa%
+    \else%
+%    \end{macrocode}
+% \dots and the part as wrapper for different options.
+%    \begin{macrocode}
+      \ifcase\svg@tempa\relax\or\or\or% pdf
+        \FamilyOptions{SVG}{inkscapeformat=pdf}%
+      \or% eps
+        \FamilyOptions{SVG}{inkscapeformat=eps}%
+      \or% ps
+        \FamilyOptions{SVG}{inkscapeformat=ps}%
+      \or% png
+        \FamilyOptions{SVG}{inkscapeformat=png}%
+      \or% drawing
+        \FamilyOptions{SVG}{inkscapearea=drawing}%
+      \or% page
+        \FamilyOptions{SVG}{inkscapearea=page}%
+      \or% tex
+        \FamilyOptions{SVG}{inkscapelatex=true}%
+      \or% notex
+        \FamilyOptions{SVG}{inkscapelatex=false}%
+      \fi%
+    \fi%
+%    \end{macrocode}
+% It's also possible to set the option \opt{inkscapedpi} by passing a number 
+% followed by \val{dpi} like \opt{inkscape}|=|\val{300dpi}.
+%    \begin{macrocode}
+  \else% dpi
+    \def\svg@tempa##1dpi##2\@nil{%
+      \Ifstr{##2}{dpi}{\FamilyOptions{SVG}{inkscapedpi=##1}}{}%
+    }%
+    \lowercase{\expandafter\svg@tempa\svg@tempb dpi\@nil}%
+%    \end{macrocode}
+% In version~v1.0 the option \opt{inkscape} was used to set both the executable 
+% and options for \app{Inkscape}. This is taken into account here.
+%    \begin{macrocode}
+    \ifx\FamilyKeyState\FamilyKeyStateProcessed\else% legacy option
+%    \end{macrocode}
+% Splitting executable from options with delimitted macros. After calling 
+% \cs{svg@tempa} with the given value, the part for the executable is stored in 
+% \cs{svg@tempa} and the option part---which is recognized by the first |-| 
+% character--- in \cs{svg@tempb}.
+%    \begin{macrocode}
+      \svg@quotes@remove[{#1}]{\svg@tempb}%
+      \def\svg@tempa##1-##2\@nil{%
+        \IfArgIsEmpty{##2}{\let\svg@tempb\@empty}{%
+          \def\svg@tempa####1-\@nil{\def\svg@tempb{-####1}}%
+          \svg@tempa##2\@nil%
+        }%
+        \edef\svg@tempa{\trim@spaces{##1}}%
+      }%
+      \edef\svg@tempb{%
+        \noexpand\svg@tempa\svg@tempb-\noexpand\@nil%
+      }%
+      \svg@tempb%
+      \if@svg@quotes@found%
+        \edef\svg@tempa{"\svg@tempa"}%
+      \fi%
+      \PackageWarning{svg}{%
+        Setting the executable%
+        \ifx\svg@tempb\@empty\else%
+          \space and associated options%
+        \fi%
+        \MessageBreak%
+        for Inkscape should be done with options\MessageBreak%
+        `inkscapeexe=\svg@tempa'%
+        \ifx\svg@tempb\@empty\else%
+          \MessageBreak and `inkscapeopt=\svg@tempb'%
+        \fi.\MessageBreak% 
+        Nevertheless, this was done by now anyway%
+      }%
+      \edef\svg@tempa{%
+        \noexpand\FamilyOptions{SVG}{inkscapeexe=\svg@tempa}%
+        \ifx\svg@tempb\@empty\else%
+          \noexpand\FamilyOptions{SVG}{inkscapeopt=\svg@tempb}%
+        \fi%
+      }%
+      \svg@tempa%
+    \fi%
+  \fi%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@ink@mode
+% \end{option}^^A inkscape
+% \begin{option}{on}
+% \changes{v2.00}{2017/02/24}{new}^^A
+% \begin{option}{off}
+% \changes{v2.00}{2017/02/24}{new}^^A
+% Package options which can be used to switch functionality on or off during 
+% the loading of package \pkg{svg}.
+%    \begin{macrocode}
+\DeclareOption{on}{\FamilyOptions{SVG}{inkscape=true}}
+\DeclareOption{off}{\FamilyOptions{SVG}{inkscape=false}}
+%    \end{macrocode}
+% \end{option}^^A off
+% \end{option}^^A on
+% \begin{option}{inkscapeversion}
+% \changes{v2.02f}{2020/05/06}{new}^^A
+% \begin{macro}{\svg@ink@ver}
+% \changes{v2.02f}{2020/05/06}{new}^^A
+% \begin{option}{inkscapeexe}
+% \changes{v2.00}{2017/02/17}{new}^^A
+% \changes{v2.02f}{2020/05/06}{only usable in preamble}^^A
+% \begin{macro}{\svg@ink@exe}
+% \begin{option}{inkscapeopt}
+% \changes{v2.00}{2017/02/17}{new}^^A
+% \begin{macro}{\svg@ink@opt}
+% With these options, the executed command for invoking \app{Inkscape} as well 
+% as additional options can be defined.
+% \ToDo{rename \cs{svg@ink@ver} > \cs{svg@ink@ver@val} (keep former cs)?}[v2.03]
+%    \begin{macrocode}
+\newcommand*\svg@ink@ver{\m@ne}
+\DefineFamilyKey{SVG}{inkscapeversion}[true]{%
+  \FamilySetNumerical{SVG}{inkscape}{svg@tempa}{%
+    {true}{0},{on}{0},{yes}{0},{auto}{0},{detect}{0},{determine}{0},{fetch}{0},%
+    {enquire}{0},{identify}{0},{request}{0},{retrieve}{0},{obtain}{0}%
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \renewcommand*\svg@ink@ver{\m@ne}%
+  \else%
+    \def\svg@tempa##1.##2\@nil{%
+      \Ifnumber{##1}{%
+        \renewcommand*\svg@ink@ver{##1}%
+        \FamilyKeyStateProcessed%
+      }{}%
+    }%
+    \svg@tempa#1.\@nil%
+  \fi%
+}
+\newcommand*\svg@ink@exe{inkscape}
+\DefineFamilyKey{SVG}{inkscapeexe}{%
+  \svg@sanitize@dq\svg@ink@exe{#1}%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svg@ink@opt{}
+\DefineFamilyKey{SVG}{inkscapeopt}{%
+  \renewcommand*\svg@ink@opt{#1}%
+  \FamilyKeyStateProcessed%
+}
+%    \end{macrocode}
+% The two options \opt{inkscapeversion} and \opt{inkscapeexe} can only be used 
+% within the preamble.
+%    \begin{macrocode}
+\def\svg@tempa#1{%
+  \AtBeginDocument{%
+    \DefineFamilyKey[]{SVG}{#1}[]{%
+      \PackageError{svg}{Option `#1' too late}{%
+        Option `#1' can only be set within\MessageBreak%
+        the preamble but you have tried to set it up later.%
+      }%
+      \FamilyKeyStateProcessed%
+    }%
+  }%
+}
+\svg@tempa{inkscapeexe}
+\svg@tempa{inkscapeversion}
+%    \end{macrocode}
+% \end{macro}^^A \svg@ink@opt
+% \end{option}^^A inkscapeopt
+% \end{macro}^^A \svg@ink@exe
+% \end{option}^^A inkscapeexe
+% \end{macro}^^A \svg@ink@ver
+% \end{option}^^A inkscapeversion
+% \begin{option}{inkscapeformat}
+% \changes{v2.00}{2017/02/17}{new}^^A
+% \begin{macro}{\svg@ink@format}
+% With option \opt{inkscapeformat} the output format of the \app{Inkscape} 
+% export function, which is called via \cs{ShellEscape}, can be configured.
+% It is set to \val{pdf} or, if dvi output could be detected, to \val{eps} 
+% during initialization.
+%    \begin{macrocode}
+\newcommand*\svg@ink@format{pdf}
+\ifxetex\else\ifpdf\else
+  \renewcommand*\svg@ink@format{eps}
+\fi\fi
+\DefineFamilyKey{SVG}{inkscapeformat}{%
+  \FamilySetNumerical{SVG}{inkscapeformat}{svg@tempa}{%
+    {pdf}{0},{PDF}{0},{eps}{1},{EPS}{1},{ps}{2},{PS}{2},{png}{3},{PNG}{3}%
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifcase\svg@tempa\relax% latex
+      \renewcommand*\svg@ink@format{pdf}%
+    \or% eps
+      \renewcommand*\svg@ink@format{eps}%
+    \or% ps
+      \renewcommand*\svg@ink@format{ps}%
+    \or% png
+      \renewcommand*\svg@ink@format{png}%
+    \fi%
+  \fi%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@ink@format
+% \end{option}^^A inkscapeformat
+% \begin{option}{inkscapelatex}
+% \changes{v2.00}{2017/02/17}{new}^^A
+% \begin{option}{latex}
+% \changes{v2.00b}{2017/02/28}{new, alternative key for \opt{inkscapelatex}}^^A
+% \begin{option}{tex}
+% \changes{v2.00b}{2017/03/28}{new, alternative key for \opt{inkscapelatex}}^^A
+% \begin{macro}{\svg@ink@latex}
+% This option controls whether the \app{Inkscape} export will be invoked with 
+% or without the generation of a seperate \LaTeX~file.
+%    \begin{macrocode}
+\newif\if@svg@ink@latex
+\FamilyBoolKey{SVG}{inkscapelatex}{@svg@ink@latex}
+\FamilyBoolKey{SVG}{latex}{@svg@ink@latex}
+\FamilyBoolKey{SVG}{tex}{@svg@ink@latex}
+%    \end{macrocode}
+% \end{macro}^^A \svg@ink@latex
+% \end{option}^^A tex
+% \end{option}^^A latex
+% \end{option}^^A inkscapelatex
+% \begin{option}{inkscapearea}
+% \changes{v2.00}{2017/02/17}{new}^^A
+% \begin{macro}{\svg@ink@area}
+% The exported area for an \app{Inkscape} graphic can be set with this option.
+%    \begin{macrocode}
+\newcommand*\svg@ink@area{}
+\DefineFamilyKey{SVG}{inkscapearea}{%
+  \FamilySetNumerical{SVG}{inkscapearea}{svg@tempa}{%
+    {drawing}{0},{crop}{0},%
+    {page}{1},{nocrop}{1}%
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifcase\svg@tempa\relax% drawing
+      \renewcommand*\svg@ink@area{-D}%
+    \else% page
+      \renewcommand*\svg@ink@area{-C}%
+    \fi%
+  \fi%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@ink@area
+% \end{option}^^A inkscapearea
+% \begin{option}{inkscapedpi}
+% \changes{v2.00}{2017/02/17}{new}^^A
+% \begin{option}{inkscapedensity}
+% \begin{macro}{\svg@ink@dpi}
+% A density can be chosen, which is used during export with \app{Inkscape} for 
+% bitmaps and rasterization of filters.
+%    \begin{macrocode}
+\newcommand*\svg@ink@dpi{}
+\let\svg@ink@dpi\relax
+\DefineFamilyKey{SVG}{inkscapedpi}{%
+  \FamilyKeyStateUnknownValue%
+  \svg@ifvalueisrelax{#1}{%
+    \let\svg@ink@dpi\relax%
+    \FamilyKeyStateProcessed%
+  }{%
+    \def\svg@tempa##1dpi##2\@nil{\def\svg@tempa{##1}}%
+    \lowercase{\svg@tempa#1dpi\@nil}%
+    \Ifnumber{\svg@tempa}{%
+      \edef\svg@ink@dpi{\svg@tempa}%
+      \FamilyKeyStateProcessed%
+    }{}%
+  }%
+}
+\DefineFamilyKey{SVG}{inkscapedensity}{\FamilyOptions{SVG}{inkscapedpi=#1}}
+%    \end{macrocode}
+% \end{macro}^^A \svg@ink@dpi
+% \end{option}^^A inkscapedensity
+% \end{option}^^A inkscapedpi
+% \begin{macro}{\svg@ink@cmd}
+% \changes{v2.02f}{2020/05/06}{distinguish \app{Inkscape}~CLI versions}^^A
+% The actual usage of the \app{Inkscape} command~line~interface.
+%    \begin{macrocode}
+\newcommand*\svg@ink@cmd[2]{%
+  \svg@ink@exe\space"#1.\svg@file@ext"\space\svg@ink@area\space%
+  \ifx\svg@ink@dpi\relax\else--export-dpi=\svg@ink@dpi\space\fi%
+  \if@svg@ink@latex--export-latex\space\fi%
+  \ifx\svg@ink@opt\@empty\else\svg@ink@opt\space\fi%
+  \ifnum\svg@ink@ver=\z@%
+    --without-gui\space%
+    --export-\svg@ink@format="#2.\svg@ink@format"%
+  \else%
+    --export-filename="#2.\svg@ink@format"%
+  \fi%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@ink@cmd
+%
+%
+%
+% \subsubsection{Setting input folder and file}
+%
+% \begin{option}{svgpath}
+% \changes{v2.00}{2017/02/12}{deprecated}^^A
+% In version~v1.0 setting the path to SVG~files was done via option. So 
+% this method is provided as well.
+%    \begin{macrocode}
+\DefineFamilyKey{SVG}{svgpath}{%
+  \PackageWarning{svg}{%
+    The key `svgpath' is deprecated. It's recommended\MessageBreak%
+    to use `\string\svgpath' instead%
+  }%
+  \ifx\svgpath\@undefined%
+    \AtEndOfPackage{\svgpath{{#1}}}%
+  \else%
+    \svgpath{{#1}}%
+  \fi%
+  \FamilyKeyStateProcessed%
+}
+%    \end{macrocode}
+% \end{option}^^A svgpath
+% \begin{option}{svgextension}
+% \changes{v2.01}{2017/11/27}{new due to user request}^^A
+% \changes{v2.02}{2018/09/07}{usage of \cs{svg@quotes@remove}}^^A
+% \changes{v2.02}{2018/09/07}{usage of \cs{svg@remove@leadingchar}}^^A
+% \begin{option}{extension}
+% \begin{option}{ext}
+% \begin{macro}{\svg@file@ext}
+% This option modifies the expected extension for the input file which is 
+% exported with \app{Inkscape}. It is set to \file{svg} by default.
+%    \begin{macrocode}
+\newcommand*\svg@file@ext{svg}
+\DefineFamilyKey{SVG}{svgextension}{%
+%    \end{macrocode}
+% The extension should be in lower case letters.
+%    \begin{macrocode}
+  \lowercase{\svg@quotes@remove[{#1}]{\svg@file@ext}}%
+%    \end{macrocode}
+% Remove leading dots from the extension.
+%    \begin{macrocode}
+  \svg@remove@leadingchar.\svg@file@ext%
+}
+\DefineFamilyKey{SVG}{extension}{\FamilyOptions{SVG}{svgextension=#1}}
+\DefineFamilyKey{SVG}{ext}{\FamilyOptions{SVG}{svgextension=#1}}
+%    \end{macrocode}
+% \end{macro}^^A \svg@file@ext
+% \end{option}^^A ext
+% \end{option}^^A extension
+% \end{option}^^A svgextension
+%
+%
+%
+% \subsubsection{Setting output folder and file}
+%
+% \begin{option}{inkscapepath}
+% \changes{v2.00}{2017/02/17}{new}^^A
+% \changes{v2.02}{2018/09/07}{usage of \cs{svg@sanitize@dq}}^^A
+% \begin{macro}{\svg@out@path}
+% The option \opt{inkscapepath} controls, in which folder the results of the
+% \app{Inkscape} export will be located.
+%    \begin{macrocode}
+\newcommand*\svg@out@path{}
+\DefineFamilyKey{SVG}{inkscapepath}{%
+  \svg@sanitize@dq\svg@tempb{#1}%
+  \FamilySetNumerical{SVG}{inkscapepath}{svg@tempa}{%
+    {svgpath}{0},{svgdir}{0},%
+    {svgsubpath}{1},{svgsubdir}{1},%
+    {basepath}{2},{basedir}{2},{jobpath}{2},{jobdir}{2},%
+    {basesubpath}{3},{basesubdir}{3},{jobsubpath}{3},{jobsubdir}{3}%
+  }{\svg@tempb}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifcase\svg@tempa\relax% svgpath
+      \renewcommand*\svg@out@path{\svg@file@path}%
+    \or% svgsubpath
+      \renewcommand*\svg@out@path{\svg@file@path svg-inkscape/}%
+    \or% basepath
+      \renewcommand*\svg@out@path{./}%
+    \or% basesubpath
+      \renewcommand*\svg@out@path{./svg-inkscape/}%
+    \fi%
+  \else%
+    \edef\svg@out@path{\svg@tempb}%
+    \svg@normalize@path{\svg@out@path}%
+    \FamilyKeyStateProcessed%
+  \fi%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@out@path
+% \end{option}^^A inkscapepath
+% \begin{option}{inkscapename}
+% \changes{v2.00}{2017/02/17}{new}^^A
+% \begin{macro}{\svg@out@name}
+% \begin{macro}{\svg@out@base}
+% With option \opt{inkscapename} the name of the exported file can be changed.
+%    \begin{macrocode}
+\newcommand*\svg@out@name{\svg@file@name\svg@file@suffix}
+\newcommand*\svg@out@base{\svg@out@path\svg@out@name.\svg@ink@format}
+\DefineFamilyKey{SVG}{inkscapename}{%
+  \renewcommand*\svg@out@name{#1\svg@file@suffix}%
+  \FamilyKeyStateProcessed%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@out@base
+% \end{macro}^^A \svg@out@name
+% \end{option}^^A inkscapename
+%
+%
+%
+% \subsubsection{Options for the inclusion of graphics}
+%
+% After the graphic export with \app{Inkscape}, the inclusion of those graphics 
+% can be controlled with the following options.
+%
+% \begin{option}{width}
+% \begin{macro}{\svg@param@width}
+% \begin{option}{height}
+% \changes{v2.00}{2017/02/17}{new}^^A
+% \begin{macro}{\svg@param@width}
+% \begin{option}{distort}
+% \changes{v2.02}{2018/09/07}{new}^^A
+% \begin{option}{keepaspectratio}
+% \changes{v2.02}{2018/09/07}{new}^^A
+% \begin{macro}{\if@svg@param@distort}
+% \begin{option}{scale}
+% \changes{v2.00}{2017/02/17}{new}^^A
+% \begin{macro}{\svg@param@scale}
+% These options determine the size of the included graphics. The usage of
+% \val{\cs{relax}} as value resets the respective option to the default 
+% behavior.
+%    \begin{macrocode}
+\newcommand*\svg@param@width{\z@}
+\DefineFamilyKey{SVG}{width}{%
+  \FamilyKeyStateUnknownValue%
+  \svg@ifvalueisrelax{#1}{%
+    \renewcommand*\svg@param@width{\z@}%
+    \FamilyKeyStateProcessed%
+  }{%
+    \FamilySetLengthMacro{SVG}{width}{\svg@param@width}{#1}%
+    \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+      \ifdim\svg@param@width<\z@\relax%
+        \FamilyKeyStateUnknownValue%
+      \fi%
+    \fi%
+  }%
+}
+\newcommand*\svg@param@height{\z@}
+\DefineFamilyKey{SVG}{height}{%
+  \FamilyKeyStateUnknownValue%
+  \svg@ifvalueisrelax{#1}{%
+    \renewcommand*\svg@param@height{\z@}%
+    \FamilyKeyStateProcessed%
+  }{%
+    \FamilySetLengthMacro{SVG}{height}{\svg@param@height}{#1}%
+    \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+      \ifdim\svg@param@height<\z@\relax%
+        \FamilyKeyStateUnknownValue%
+      \fi%
+    \fi%
+  }%
+}
+\newif\if@svg@param@distort
+\FamilyBoolKey{SVG}{distort}{@svg@param@distort}
+\DefineFamilyKey{SVG}{keepaspectratio}[true]{%
+  \FamilySetBool{SVG}{keepaspectratio}{@svg@tempswa}{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \if@svg@tempswa%
+      \FamilyExecuteOptions[.svg.sty]{SVG}{distort=false}%
+    \else%
+      \FamilyExecuteOptions[.svg.sty]{SVG}{distort=true}%
+    \fi%
+  \fi%
+}
+\newcommand*\svg@param@scale{1}
+\DefineFamilyKey{SVG}{scale}{%
+  \FamilyKeyStateUnknownValue%
+  \svg@ifvalueisrelax{#1}{%
+    \renewcommand*\svg@param@scale{1}%
+    \FamilyKeyStateProcessed%
+  }{%
+    \Ifisdimension{#1\p@}{%
+      \ifdim\dimexpr#1\p@\relax>\z@\relax%
+        \renewcommand*\svg@param@scale{#1}%
+        \FamilyKeyStateProcessed%
+      \fi%
+    }{}%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@param@scale
+% \end{option}^^A scale
+% \end{macro}^^A \if@svg@param@distort
+% \end{option}^^A keepaspectratio
+% \end{option}^^A distort
+% \end{macro}^^A \svg@param@height
+% \end{option}^^A height
+% \end{macro}^^A \svg@param@width
+% \end{option}^^A width
+% \begin{option}{pretex}
+% \begin{macro}{\svg@param@pretex}
+% \begin{option}{apptex}
+% \begin{macro}{\svg@param@apptex}
+% \begin{option}{postex}
+% \changes{v2.00}{2017/03/02}{deprecated}^^A
+% For executing code right before or after the graphic inclusion, two hooks are 
+% defined.
+%    \begin{macrocode}
+\newcommand*\svg@param@pretex{}
+\let\svg@param@pretex\relax
+\DefineFamilyKey{SVG}{pretex}{%
+  \svg@ifvalueisrelax{#1}{%
+    \let\svg@param@pretex\relax%
+  }{%
+    \def\svg@param@pretex{#1}%
+  }%
+  \FamilyKeyStateProcessed%
+}
+\newcommand*\svg@param@apptex{}
+\let\svg@param@apptex\relax
+\DefineFamilyKey{SVG}{apptex}{%
+  \svg@ifvalueisrelax{#1}{%
+    \let\svg@param@apptex\relax%
+  }{%
+    \def\svg@param@apptex{#1}%
+  }%
+  \FamilyKeyStateProcessed%
+}
+\DefineFamilyKey{SVG}{postex}{%
+  \svg@deprecated@key{postex=#1}{apptex=#1}%
+}
+%    \end{macrocode}
+% \end{option}^^A postex
+% \end{macro}^^A \svg@param@apptex
+% \end{option}^^A apptex
+% \end{macro}^^A \svg@param@pretex
+% \end{option}^^A pretex
+% \begin{option}{lastpage}
+% \changes{v2.00}{2017/02/20}{new}^^A
+% \begin{counter}{svg@param@lastpage}
+% For \app{Inkscape}\,0.91 a bug concerning the \LaTeX~export has been reported
+% (\url{https://bugs.launchpad.net/ubuntu/+source/inkscape/+bug/1417470}). 
+% Sometimes the \LaTeX~file created by \app{Inkscape} tries to include more
+% pages than actually are present in the PDF~file. To work around this 
+% problem, a patch is provided. For this purpose, the total page number is read 
+% from the PDF~file. 
+%    \begin{macrocode}
+\newcounter{svg@param@lastpage}
+\DefineFamilyKey{SVG}{lastpage}[true]{%
+  \FamilySetNumerical{SVG}{lastpage}{svg@tempa}{%
+    {false}{0},{off}{0},{no}{0},{ignore}{0},%
+    {true}{1},{on}{1},{yes}{1},{auto}{1}%
+  }{#1}%
+  \ifx\FamilyKeyState\FamilyKeyStateProcessed%
+    \ifcase\svg@tempa\relax% false
+      \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{\m@ne}%
+    \or% true
+      \FamilySetCounter{SVG}{lastpage}{svg@param@lastpage}{\z@}%
+    \fi%
+  \fi%
+}
+%    \end{macrocode}
+% \end{counter}^^A svg@param@lastpage
+% \end{option}^^A lastpage
+% \begin{option}{draft}
+% \changes{v2.00}{2017/02/17}{new}^^A
+% \begin{macro}{\if@svg@draft}
+% The option \opt{draft} has the same effect as the eponymous option of package
+% \pkg{graphicx}.
+%    \begin{macrocode}
+\newif\if@svg@draft
+\FamilyBoolKey{SVG}{draft}{@svg@draft}
+\AfterPackage*{graphicx}{\ifGin@draft\@svg@drafttrue\fi}
+%    \end{macrocode}
+% \end{macro}^^A \if@svg@draft
+% \end{option}^^A draft
+%
+% \iffalse
+%</package&option&main>
+% \fi
+%
+%
+%
+% \subsection{User commands}
+% \subsubsection{Optional parameters for user commands}
+%
+% The family member is defined for both \pkg{svg} and \pkg{svg-extract}.
+%    \begin{macrocode}
+%<*package&body>
+\DefineFamilyMember[.param]{SVG}
+%</package&body>
+%    \end{macrocode}
+%
+% \iffalse
+%<*package&main>
+%<*body>
+% \fi
+%
+% \begin{macro}{\svg@local@param@def}
+% \begin{macro}{\svg@local@param@use}
 % \begin{macro}{\svg@local@param@set}
 % \changes{v2.02}{2018/09/07}{reasonable value for key \opt{distort}}^^A
-% \begin{macro}{\svg@local@param@use}
-% \begin{macro}{\svg@local@param@def}
 % Most of the package options can also be used as optional parameters for 
 % \cs{includesvg} or \cs{includeinkscape}. Some of them are overloaded for the 
 % usage as optional argument and there are some keys, which \emph{only} can be
@@ -2597,6 +2630,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \cs{svg@local@param@use} is extended with \cs{svg@local@param@def} by the
 % definition of local keys during the loading of package \pkg{svg}.
 %    \begin{macrocode}
+\newcommand*\svg@local@param@use{}
+\newcommand*\svg@local@param@def[1]{%
+  \edef\svg@local@param@use{%
+    \unexpanded\expandafter{\svg@local@param@use}\unexpanded{#1}%
+  }%
+}
 \newcommand*\svg@local@param@set[1]{%
   \svg@local@param@use%
   \FamilyOptions{SVG}{#1}%
@@ -2610,44 +2649,51 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Using \opt{distort=true} is only reasonable, if \opt{height} and \opt{width} 
 % are given.
 %    \begin{macrocode}
-  \@svg@tempswafalse%
+  \@svg@tempswatrue%
   \ifdim\svg@param@width>\z@\relax\ifdim\svg@param@height>\z@\relax%
-    \@svg@tempswatrue%
+    \@svg@tempswafalse%
   \fi\fi%
-  \if@svg@tempswa\else%
-    \FamilyOptions{SVG}{distort=false}%
+  \if@svg@tempswa%
+    \FamilyExecuteOptions[.svg.sty]{SVG}{distort=false}%
   \fi%
 }
-\newcommand*\svg@local@param@use{}
-\newcommand*\svg@local@param@def[1]{%
-  \edef\svg@local@param@use{%
-    \unexpanded\expandafter{\svg@local@param@use}\unexpanded{#1}%
-  }%
+%    \end{macrocode}
+% \end{macro}^^A \svg@local@param@set
+% \end{macro}^^A \svg@local@param@use
+% \end{macro}^^A \svg@local@param@def
+% \begin{macro}{\svg@deprecated@param}
+% This macro checks, if \cs{svgwidth} or \cs{svgscale} are defined. In this 
+% case, the given values are passed to the correlating parameters and a warning 
+% is raised.
+%    \begin{macrocode}
+\newcommand*\svg@deprecated@param{%
+  \@svg@tempswafalse%
+  \ifx\svgwidth\@undefined\else%
+    \edef\svg@tempa{\noexpand\FamilyOptions{SVG}{width=\svgwidth}}%
+    \svg@tempa%
+    \@svg@tempswatrue%
+  \fi%
+  \ifx\svgscale\@undefined\else%
+    \edef\svg@tempa{\noexpand\FamilyOptions{SVG}{scale=\svgscale}}%
+    \svg@tempa%
+    \@svg@tempswatrue%
+  \fi%
+  \if@svg@tempswa%
+    \PackageWarning{svg}{%
+      You should specify the image size with parameters\MessageBreak%
+      `width' and `height' or `scale' instead of using\MessageBreak%
+      `\string\svgscale' or `\string\svgwidth'%
+    }%
+    \let\svgwidth\@undefined%
+    \let\svgscale\@undefined%
+  \fi%
 }
 %    \end{macrocode}
-% \end{macro}^^A \svg@local@param@def
-% \end{macro}^^A \svg@local@param@use
-% \end{macro}^^A \svg@local@param@set
-%
-% \iffalse
-%</body>
-%</package&base>
-% \fi
-%
-% The family member is defined for both \pkg{svg} and \pkg{svg-extract}.
-%    \begin{macrocode}
-%<*body>
-\DefineFamilyMember[.param]{SVG}
-%</body>
-%    \end{macrocode}
+% \end{macro}^^A \svg@deprecated@param
 %
 %
-% \iffalse
-%<*package&base>
-%<*body>
-% \fi
 %
-% \subsection{User commands}
+% \subsubsection{Definition of user commands}
 %
 % \begin{macro}{\svgsetup}
 % \changes{v2.00}{2017/02/17}{new}^^A
@@ -2810,6 +2856,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svg@param@angle{0}
 \svg@local@param@def{%
   \DefineFamilyKey[.param]{SVG}{angle}{%
+    \FamilyKeyStateUnknownValue%
     \Ifisdimension{#1\p@}{%
       \renewcommand*\svg@param@angle{#1}%
       \FamilyKeyStateProcessed%
@@ -2958,35 +3005,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \subsection{Auxiliary macros}
 %
-% \begin{macro}{\svg@deprecated@param}
-% This macro checks, if \cs{svgwidth} or \cs{svgscale} are defined. In this 
-% case, the given values are passed to the correlating parameters and a warning 
-% is raised.
-%    \begin{macrocode}
-\newcommand*\svg@deprecated@param{%
-  \@svg@tempswafalse%
-  \ifx\svgwidth\@undefined\else%
-    \edef\svg@tempa{\noexpand\FamilyOptions{SVG}{width=\svgwidth}}%
-    \svg@tempa%
-    \@svg@tempswatrue%
-  \fi%
-  \ifx\svgscale\@undefined\else%
-    \edef\svg@tempa{\noexpand\FamilyOptions{SVG}{scale=\svgscale}}%
-    \svg@tempa%
-    \@svg@tempswatrue%
-  \fi%
-  \if@svg@tempswa%
-    \PackageWarning{svg}{%
-      You should specify the image size with parameters\MessageBreak%
-      `width' and `height' or `scale' instead of using\MessageBreak%
-      `\string\svgscale' or `\string\svgwidth'%
-    }%
-    \let\svgwidth\@undefined%
-    \let\svgscale\@undefined%
-  \fi%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svg@deprecated@param
 % \begin{macro}{\svg@ink@run}
 % \begin{macro}{\if@svg@ink@run}
 % The command, which performs the call of \app{Inkscape} via \cs{ShellEscape}.
@@ -3037,7 +3055,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \fi%
 %    \end{macrocode}
 % If all checks were positive, the export with \app{Inkscape} can be done in 
-% case \file{-{}-shell-escape} is enabled.
+% case flag \file{-{}-shell-escape} is used.
 %    \begin{macrocode}
       \if@svg@ink@run%
         \ifnum\pdf@shellescape=\@ne\relax%
@@ -3057,8 +3075,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
             \fi%
           }%
 %    \end{macrocode}
-% Executing \app{Inkscape} through the command~line~interface. Afterwards, the 
-% export results are moved into the given output path.
+% Executing \app{Inkscape} on shell. Afterwards, the export results are moved 
+% into the given output path.
 %    \begin{macrocode}
           \svg@quotes@remove[\svg@file@base]{\svg@tempa}%
           \svg@quotes@remove[\svg@out@name]{\svg@tempb}%
@@ -3105,9 +3123,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
             \edef\svg@tempb{\svg@tempb.\svg@ink@format}%
             \svg@quotes@remove{\svg@out@base}%
             \svg@shell@mkdir{\svg@out@path}%
-            \svg@shell@move{\svg@tempb}{\svg@out@base}%
+            \svg@shell@mv{\svg@tempb}{\svg@out@base}%
             \if@svg@ink@latex%
-              \svg@shell@move{\svg@tempb_tex}{\svg@out@base_tex}%
+              \svg@shell@mv{\svg@tempb_tex}{\svg@out@base_tex}%
             \fi%
           }{%
             \gdef\svg@ink@ver{\m@ne}%
@@ -3139,11 +3157,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@ink@run
 % \begin{macro}{\svg@input}
 % \begin{macro}{\svg@@input}
+% \begin{macro}{\svg@box}
 % With \cs{svg@@input} the export results of \app{Inkscape} are included. The 
 % macro \cs{svg@input} is defined in order to realize the option \opt{exclude} 
 % for package \pkg{svg-extract}. The macro \cs{svg@set@input@path} is called to 
 % support commands like \cs{input}\marg{tex filename} within SVG~files.
 %    \begin{macrocode}
+\newsavebox\svg@box
 \newcommand*\svg@input{\svg@@input}
 \newcommand*\svg@@input[2][]{%
   \IfArgIsEmpty{#1}{}{\svg@local@param@set{#1}}%
@@ -3254,6 +3274,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \fi%
 }
 %    \end{macrocode}
+% \end{macro}^^A \svg@box
 % \end{macro}^^A \svg@@input
 % \end{macro}^^A \svg@input
 % \begin{macro}{\svg@wrn@scale}
@@ -3489,7 +3510,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \ToDo{Markup for link to issue}[v2.03]
 %    \begin{macrocode}
     \ifx\svg@tempa\@empty%
-      \ifwindows%
+      \svg@ifwindowsdetected{%
         \def\svg@tempb{\jobname.svg.ink.ver.aux}%
         \IfFileExists{\svg@tempb}{}{%
           \ShellEscape{call "\svg@ink@exe" -V > \svg@tempb}%
@@ -3498,7 +3519,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
           \closein\@inputcheck%
           \ShellEscape{del \svg@tempb}%
         }%
-      \fi%
+      }{}%
     \fi%
 %    \end{macrocode}
 % The found version is stored in \cs{svg@tempa} and parsed afterwards.
@@ -3531,6 +3552,161 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 %
 %
+% \subsection{Handling path and file names}
+%
+% \begin{macro}{\svg@set@input@path}
+% \changes{v2.01}{2017/11/28}{new}^^A
+% \changes{v2.02}{2018/09/07}{usage of \cs{svg@deactivate@dq}}^^A
+% \begin{macro}{\svg@append@input@path}
+% \changes{v2.01}{2017/11/28}{new}^^A
+% \changes{v2.02}{2018/09/07}{avoid duplicates in \cs{input@path}}^^A
+% In order to import SVG~files from different folders, \cs{svg@set@input@path}
+% evaluates several macros, which are supposed to be used for holding different 
+% search folders. Any given path will be handled by \cs{svg@normalize@path}.
+% The optional argument can be used to append an additional search path.
+%    \begin{macrocode}
+\newcommand*\svg@set@input@path[1][]{%
+  \begingroup%
+    \svg@deactivate@dq%
+%    \end{macrocode}
+% If a path was already found and stored within \cs{svg@file@path}, it is
+% searched first and wrapped in curly braces. This is necessary for using
+% commands like \cs{input}\marg{tex~filename} within SVG~files.
+%    \begin{macrocode}
+    \ifx\svg@file@path\@empty\else%
+      \svg@normalize@path{\svg@file@path}%
+      \edef\svg@file@path{{\svg@file@path}}%
+    \fi%
+%    \end{macrocode}
+% Afterwards, several search paths are appended. If \cs{svgpath} was used, it 
+% is searched next. If nothing was found, \cs{graphicspath} is considered if 
+% defined followed by a path given in the third argument. If nothing was found
+% yet, the standard \cs{input@path} is searched last.
+%    \begin{macrocode}
+    \svg@append@input@path{\svg@file@path}{\svg@input@path}%
+    \svg@append@input@path{\svg@file@path}{\Ginput@path}%
+    \IfArgIsEmpty{#1}{}{\svg@append@input@path{\svg@file@path}{{#1}}}%
+    \svg@append@input@path{\svg@file@path}{\input@path}%
+%    \end{macrocode}
+% Finally, \cs{input@path} is set.
+%    \begin{macrocode}
+    \edef\svg@tempa{%
+      \endgroup%
+      \ifx\svg@file@path\@empty\else%
+        \def\noexpand\input@path{\svg@file@path}%
+      \fi%
+    }%
+  \svg@tempa%
+}
+%    \end{macrocode}
+% Only, if a certain search path is defined, it is added. The paths given in 
+% the first argument are compared to each path in the second argument and only 
+% new ones are added.
+%    \begin{macrocode}
+\newcommand*\svg@append@input@path[2]{%
+  \ifx#2\@undefined\else%
+    \edef\svg@tempb{#2}%
+    \expandafter\@tfor\expandafter\svg@tempa\expandafter:\expandafter=%
+        \svg@tempb\do{%
+%    \end{macrocode}
+% Passing each new path to \cs{svg@normalize@path}. If a path already exists, 
+% switch \cs{if@svg@tempswa} is set to \val{false}.
+%    \begin{macrocode}
+      \ifx\svg@tempa\@empty\else%
+        \@svg@tempswatrue%
+        \svg@normalize@path{\svg@tempa}%
+        \expandafter\@tfor\expandafter\svg@tempb\expandafter:\expandafter=%
+            #1\do{%
+          \ifx\svg@tempa\svg@tempb%
+            \@svg@tempswafalse%
+            \@break@tfor%
+          \fi%
+        }%
+        \if@svg@tempswa%
+          \edef#1{#1{\svg@tempa}}%
+        \fi%
+      \fi%
+    }%
+  \fi%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@append@input@path
+% \end{macro}^^A \svg@set@input@path
+% \begin{macro}{\svg@get@path}
+% \changes{v2.01}{2017/11/28}{using \cs{svg@set@input@path}}^^A
+% \changes{v2.01}{2017/11/28}{using \cs{trim@spaces}}^^A
+% \begin{macro}{\if@svg@file@found}
+% \begin{macro}{\svg@file@path}
+% \begin{macro}{\svg@file@name}
+% \begin{macro}{\svg@file@base}
+% \begin{macro}{\svg@file@suffix}
+% The command \cs{svg@get@path} tries to find a given SVG~file. If the 
+% searched file wasn't found in the current path, all paths given with 
+% \cs{svgpath} are evaluated. If there was no appropriate file again, all paths
+% given by \cs{graphicspath} are examined. In the last step, a given path 
+% within the second mandatory argument is browsed. The results for file path
+% and name are stored in \cs{svg@file@path} and \cs{svg@file@name} as well as
+% the compound of both is saved in \cs{svg@file@base}.
+%    \begin{macrocode}
+\newif\if@svg@file@found
+\newcommand*\svg@file@path{}
+\newcommand*\svg@file@name{}
+\newcommand*\svg@file@base{}
+\newcommand*\svg@file@suffix{}
+\newcommand*\svg@get@path[3][\svg@file@ext]{%
+  \begingroup%
+    \svg@filename@parse[{#1}]{#2}%
+    \IfArgIsEmpty{#1}{%
+      \edef\svg@tempa{\filename@area\filename@base.\filename@ext}%
+    }{%
+      \edef\svg@tempa{\filename@area\filename@base.#1}%
+    }%
+%    \end{macrocode}
+% After calling \cs{svg@set@input@path}, all search paths are stored in
+% \cs{input@path}, a single path given in the third argument will also be 
+% considered.
+%    \begin{macrocode}
+    \svg@set@input@path[{#3}]%
+%    \end{macrocode}
+% The specified file is searched with \cs{IfFileExists}. If the file search was 
+% succesful, the macro \cs{svg@filename@parse} is called with the result.
+%    \begin{macrocode}
+    \@svg@tempswafalse%
+    \expandafter\IfFileExists\expandafter{\svg@tempa}{%
+      \expandafter\svg@quotes@check\expandafter{\svg@tempa}%
+      \if@svg@quotes@found\else%
+        \svg@quotes@remove{\@filef@und}%
+      \fi%
+      \@svg@tempswatrue%
+      \edef\@filef@und{\expandafter\trim@spaces\expandafter{\@filef@und}}%
+      \svg@filename@parse[{#1}]{\@filef@und}%
+    }{}%
+    \edef\svg@tempa{%
+      \endgroup%
+      \if@svg@tempswa%
+        \noexpand\@svg@file@foundtrue%
+        \def\noexpand\svg@file@path{\filename@area}%
+        \def\noexpand\svg@file@name{\filename@base}%
+        \def\noexpand\svg@file@base{\filename@area\filename@base}%
+      \else%
+        \noexpand\@svg@file@foundfalse%
+        \def\noexpand\svg@file@path{}%
+        \def\noexpand\svg@file@name{#2}%
+        \def\noexpand\svg@file@base{#2}%
+      \fi%
+    }%
+  \svg@tempa%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svg@file@suffix
+% \end{macro}^^A \svg@file@base
+% \end{macro}^^A \svg@file@name
+% \end{macro}^^A \svg@file@path
+% \end{macro}^^A \if@svg@file@found
+% \end{macro}^^A \svg@get@path
+%
+%
+%
 % \subsection{Patches}
 %
 % \begin{macro}{\svg@patches}
@@ -3541,7 +3717,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svg@includegraphics@saved}
 % For including the export results from \app{Inkscape} with \LaTeX~support 
 % enabled, there are some patches necessary for environment \env{picture} and 
-% \cs{includegraphics}. Those patches are done with \cs{svg@patches}.
+% \cs{includegraphics}. These patches are done with \cs{svg@patches}.
 %    \begin{macrocode}
 \newcommand*\svg@picture@saved{}
 \let\svg@picture@saved\picture
@@ -3556,6 +3732,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@includegraphics@saved
 % \end{macro}^^A \svg@picture@saved
 % \end{macro}^^A \svg@patches
+% \begin{macro}{\svg@picture@patched}
 % \begin{macro}{\svg@pictur@patched}
 % In order to provide the possibility specify the desired width of a graphic, 
 % the appropriate \cs{unitlength} is calculated at the beginning of the 
@@ -3600,6 +3777,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 %    \end{macrocode}
 % \end{macro}^^A \svg@pictur@patched
+% \end{macro}^^A \svg@picture@patched
 % \begin{macro}{\svg@includegraphics@patched}
 % \begin{macro}{\svg@includegraphics@file}
 % The patch to \cs{includegraphics} is meant to dissolve the \app{Inkscape} bug 
@@ -3647,7 +3825,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \iffalse
 %</body>
-%</package&base>
+%</package&main>
 %<*package&option>
 % \fi
 %
@@ -3665,7 +3843,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % for package \pkg{svg} in order to raise a warning message. Primarily this is 
 % done for compatibility reasons.
 %    \begin{macrocode}
-%<*base>
+%<*main>
 \DefineFamilyMember[.dummy]{SVG}
 \newcommand*\svg@dummy@key[2][]{%
   \@ifpackageloaded{svg-extract}{}{%
@@ -3695,7 +3873,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \AfterPackage{svg-extract}{\RelaxFamilyKey[.dummy]{SVG}{#2}}%
   }%
 }
-%</base>
+%</main>
 %    \end{macrocode}
 % \end{macro}^^A \svg@dummy@key
 %
@@ -3709,9 +3887,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % With option \opt{extract} it can be controlled, if the extraction of 
 % independent graphic files should be done.
 %    \begin{macrocode}
-%<*base>
+%<*main>
 \svg@dummy@key[true]{extract}
-%</base>
+%</main>
 %<*extract>
 \newif\if@svgx@run
 \DefineFamilyKey{SVG}{extract}[true]{%
@@ -3765,11 +3943,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % is set to \val{pdf} or, if dvi output could be detected, to \val{eps} during
 % initialization.
 %    \begin{macrocode}
-%<*base>
+%<*main>
 \svg@dummy@key{extractformat}
 \svg@dummy@key[true]{pdf}
 \svg@dummy@key[true]{eps}
-%</base>
+%</main>
 %<*extract>
 \newcommand*\svgx@format{pdf}
 \ifxetex\else\ifpdf\else
@@ -3825,12 +4003,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \LaTeX~file. By default, the preamble of the main document is used, which end
 % is detected at \cs{begin}|{document}|.
 %    \begin{macrocode}
-%<*base>
+%<*main>
 \svg@dummy@key{extractpreamble}
 \svg@dummy@key{preamble}
 \svg@dummy@key{extractpreambleend}
 \svg@dummy@key{end}
-%</base>
+%</main>
 %<*extract>
 \newcommand*\svgx@preamble{\jobname.\svgx@latex@ext}%
 \DefineFamilyKey{SVG}{extractpreamble}{%
@@ -3865,9 +4043,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % With this option, the number of \LaTeX~runs for the separate auxiliary file 
 % can be set.
 %    \begin{macrocode}
-%<*base>
+%<*main>
 \svg@dummy@key{extractruns}
-%</base>
+%</main>
 %<*extract>
 \newcounter{svgx@runs}
 \DefineFamilyKey{SVG}{extractruns}{%
@@ -3899,12 +4077,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The command and facultative options for the \LaTeX~call of the separate 
 % auxiliary file. The default is set according to the currently used engine.
 %    \begin{macrocode}
-%<*base>
+%<*main>
 \svg@dummy@key{latexexe}
 \svg@dummy@key{pdflatex}
 \svg@dummy@key{latexext}
 \svg@dummy@key{latexopt}
-%</base>
+%</main>
 %<*extract>
 \ifxetex
   \newcommand*\svgx@latex@exe{xelatex}
@@ -3968,18 +4146,18 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{option}{pdftops}
 % \changes{v2.00}{2017/02/24}{deprecated}^^A
 % Options and macros for calling convert commands, which are supplied by most
-% \LaTeXe~distributions. These are used to generate all files, which are 
+% \LaTeX~distributions. These are used to generate all files, which are 
 % supported by option \opt{extractformat}, as they don't need an additional
 % application.
 %    \begin{macrocode}
-%<*base>
+%<*main>
 \svg@dummy@key{dvipsopt}
 \svg@dummy@key{pstoepsopt}
 \svg@dummy@key{pstopdfopt}
 \svg@dummy@key{pdftoepsopt}
 \svg@dummy@key{pdftopsopt}
 \svg@dummy@key{pdftops}
-%</base>
+%</main>
 %<*extract>
 \newcommand*\svgx@dvips@exe{dvips}
 \newcommand*\svgx@dvips@opt{}
@@ -4012,8 +4190,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \FamilyKeyStateProcessed%
 }
 \DefineFamilyKey{SVG}{pdftops}{%
-  \PackageWarning{#1}{%
-    The option key `pdftops' is deprecated.\MessageBreak%
+  \PackageWarning{svg-extract}{%
+    The option key `pdftops' is deprecated. \MessageBreak%
     You should use either `pdftoepsopt' or\MessageBreak%
     `pdftopsopt' instead. See the manual for\MessageBreak%
     more. Nothing was done%
@@ -4043,8 +4221,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \subsubsection{Invoking external application for graphic conversion}
 %
-% Besides the use of a conversion tool supplied by \LaTeXe, the applications 
-% \app{ImageMagick} and \app{Ghostscript} can be used for converting graphics.
+% Besides the use of a conversion tool supplied by the \LaTeX~distribution, 
+% the applications \app{ImageMagick} and \app{Ghostscript} can be used for 
+% converting graphics.
 %
 % \begin{option}{convert}
 % \changes{v2.00}{2017/02/24}{changed/extended}^^A
@@ -4053,9 +4232,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The option \opt{convert} can be used to define, which of both applications 
 % should be use. \app{ImageMagick} is set by default.
 %    \begin{macrocode}
-%<*base>
+%<*main>
 \svg@dummy@key[true]{convert}
-%</base>
+%</main>
 %<*extract>
 \newif\if@svgx@cnv@run
 \newcommand*\svgx@cnv@cmd{}
@@ -4083,24 +4262,24 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \or% gs64
       \@svgx@cnv@runtrue%
       \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
-      \svgx@onlywindows{%
+      \svg@ifwindowsdetected{%
         \renewcommand*\svgx@gs@exe{gswin64c}%
-      }%
+      }{}%
     \or% gs32
       \@svgx@cnv@runtrue%
       \renewcommand*\svgx@cnv@cmd{\svgx@gs@cmd}%
-      \svgx@onlywindows{%
+      \svg@ifwindowsdetected{%
         \renewcommand*\svgx@gs@exe{gswin32c}%
-      }%
+      }{}%
     \fi%
 %    \end{macrocode}
 % In version~v1.0 the option \opt{convert} was used to set both the executable 
 % and options for the conversion application, meant for the usage of 
 % \app{ImageMagick}. This is taken into account here.
 %    \begin{macrocode}
-  \else%
+  \else% legacy option
 %    \end{macrocode}
-% Same doing like with option \opt{inkscape}.
+% Same doing like with legacy part of option \opt{inkscape}.
 %    \begin{macrocode}
     \def\svg@tempa##1-##2\@nil{%
       \IfArgIsEmpty{##2}{\def\svg@tempb{}}{%
@@ -4149,10 +4328,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Option \opt{convertformat} controls the output format for converted files. It
 % is set to \val{png} by default.
 %    \begin{macrocode}
-%<*base>
+%<*main>
 \svg@dummy@key{convertformat}
 \svg@dummy@key[true]{png}
-%</base>
+%</main>
 %<*extract>
 \newcommand*\svgx@cnv@format{png}
 \DefineFamilyKey{SVG}{convertformat}{%
@@ -4184,6 +4363,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{option}{convertdensity}
 % \begin{macro}{\svgx@cnv@dpi}
+% \begin{macro}{\svgx@cnv@get@dpi}
 % The option \opt{convertdpi} is meant to define the used density during the 
 % conversion process. It can be set either for all designated output formats or 
 % targeted for a specific format. It's also possible to use something like 
@@ -4192,10 +4372,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % the option is used for a specific or for all output formats is recocnized by 
 % \cs{svgx@ifkeyandval}.
 %    \begin{macrocode}
-%<*base>
+%<*main>
 \svg@dummy@key{convertdpi}
 \svg@dummy@key{convertdensity}
-%</base>
+%</main>
 %<*extract>
 \newcommand*\svgx@cnv@dpi{}
 \let\svgx@cnv@dpi\relax
@@ -4216,11 +4396,151 @@ svg-extract -- Extract independent graphic files from SVG pictures
   }%
 }
 \DefineFamilyKey{SVG}{convertdensity}{\FamilyOptions{SVG}{convertdpi=#1}}
+%    \end{macrocode}
+% This macro is used to resolve a given value to set the density for the 
+% conversion. The delimited macros \cs{svg@tempa} and \cs{svg@tempb} are 
+% defined to first crop any given suffix \val{dpi} and second to split two 
+% numbers at |x|, if present. Pay attention how both macros are invoked. In the
+% end, a passed value in any of the forms \val{300}, \val{300dpi}, \val{300x400}
+% or \val{300x400dpi} and even \val{300dpix400dpi} is possible. The result is
+% stored in \cs{svg@tempa}.
+%    \begin{macrocode}
+\newcommand*\svgx@cnv@get@dpi[1]{%
+  \begingroup%
+    \def\svg@tempa##1dpi##2x##3dpi##4\@nil{%
+      \edef\svg@tempa{##1}%
+%    \end{macrocode}
+% Switch \cs{if@svg@tempswa} as \cs{iftrue} means, a valid value was found.
+%    \begin{macrocode}
+      \@svg@tempswafalse%
+%    \end{macrocode}
+% If only the first argument is a number and third is empty, a single number 
+% was given and there's nothing more to do. If the argument is something like 
+% \val{300dpix400dpi}, the third argument is the second number.
+%    \begin{macrocode}
+      \Ifnumber{##1}{%
+        \IfArgIsEmpty{##3}{\@svg@tempswatrue}{%
+          \Ifnumber{##3}{\edef\svg@tempa{##1x##3}}{}%
+        }%
+      }{}%
+      \if@svg@tempswa\else%
+        \expandafter\svg@tempb\svg@tempa xx\@nil%
+      \fi%
+    }%
+%    \end{macrocode}
+% Macro \cs{svg@tempb} splits at |x| and checks, if something valid like 
+% \val{300x400} was given. If true, the value is stored in \cs{svg@tempa}.
+%    \begin{macrocode}
+    \def\svg@tempb##1x##2x##3\@nil{%
+      \Ifstr{##3}{x}{%
+        \@svg@tempswatrue%
+        \IfArgIsEmpty{##1}{\@svg@tempswafalse}{%
+          \Ifnumber{##1}{}{\@svg@tempswafalse}%
+        }%
+        \IfArgIsEmpty{##2}{\@svg@tempswafalse}{%
+          \Ifnumber{##2}{}{\@svg@tempswafalse}%
+        }%
+        \if@svg@tempswa%
+          \edef\svg@tempa{##1x##2}%
+        \fi%
+      }{}%
+    }%
+    \IfArgIsEmpty{#1}{%
+      \let\svg@tempa\@empty%
+    }{%
+      \lowercase{\svg@tempa#1dpi#1xdpi\@nil}%
+      \if@svg@tempswa\else%
+        \let\svg@tempa\relax%
+      \fi%
+    }%
+    \edef\svg@tempb{%
+      \endgroup%
+      \ifx\svg@tempa\relax%
+        \let\noexpand\svg@tempa\noexpand\relax%
+      \else%
+        \def\noexpand\svg@tempa{\svg@tempa}%
+      \fi%
+    }%
+  \svg@tempb%
+}
 %</extract>
 %    \end{macrocode}
+% \end{macro}^^A \svgx@cnv@get@dpi
 % \end{macro}^^A \svgx@cnv@dpi
 % \end{option}^^A convertdensity
 % \end{option}^^A convertdpi
+%
+% \iffalse
+%<*extract>
+% \fi
+%
+% \begin{macro}{\svgx@setformatkey}
+% \begin{macro}{\svgx@useformatkey}
+% With \cs{svgx@setformatkey} the---maybe output format depend---keys for the 
+% conversion tools are set. First argument contains the value given to a key, 
+% second the command sequence name of the macro, to whom the value shall be 
+% allocated.
+%    \begin{macrocode}
+\newcommand*\svgx@setformatkey[2]{%
+%    \end{macrocode}
+% A key of the form \val{\meta{key}=\{\meta{format}=\meta{value}\}} is given. 
+% The desired output format can be accessed with |##1|, the value with |##2|
+% within the arguments of \cs{svgx@ifkeyandval}.
+%    \begin{macrocode}
+  \svgx@ifkeyandval{#1}{%
+    \svg@ifvalueisrelax{##2}{%
+      \expandafter\let\csname #2@##1\endcsname\relax%
+    }{%
+      \@namedef{#2@##1}{##2}%
+    }%
+%    \end{macrocode}
+% A key of the form \val{\meta{key}=\{\meta{format}=\meta{value}\}} is given.
+% The value can be used with |##1|.
+%    \begin{macrocode}
+  }{%
+    \svg@ifvalueisrelax{##1}{%
+      \expandafter\let\csname #2\endcsname\relax%
+    }{%
+      \@namedef{#2}{##1}%
+    }%
+  }%
+}
+%    \end{macrocode}
+% The command \cs{svgx@useformatkey} checks, if a format specific key was 
+% definded with \cs{svgx@setformatkey}, whereas the format is given in the 
+% second argument. If this is not the case, the setting for all output formats 
+% is used. After that, a specific key appended with a |+| can be used to do 
+% some additional stuff.
+%    \begin{macrocode}
+\newcommand*\svgx@useformatkey[3]{%
+  \scr@ifundefinedorrelax{#1@#2}{%
+    \scr@ifundefinedorrelax{#1}{}{%
+      \expandafter\ifx\csname #1\endcsname\@empty\else%
+        #3\@nameuse{#1}\space%
+      \fi%
+    }%
+    \scr@ifundefinedorrelax{#1@#2+}{}{%
+      \expandafter\ifx\csname #1@#2+\endcsname\@empty\else%
+        #3\@nameuse{#1@#2+}\space%
+      \fi%
+    }%
+  }{%
+%    \end{macrocode}
+% If a format specific key was definded, it is used.
+%    \begin{macrocode}
+    \expandafter\ifx\csname #1@#2\endcsname\@empty\else%
+      #3\@nameuse{#1@#2}\space%
+    \fi%
+  }%
+}
+%    \end{macrocode}
+% \end{macro}^^A \svgx@useformatkey
+% \end{macro}^^A \svgx@setformatkey
+%
+% \iffalse
+%</extract>
+% \fi
+%
 % \begin{option}{magickexe}
 % \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{macro}{\svgx@magick@exe}
@@ -4230,19 +4550,24 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{option}{magickoperator}
 % \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{macro}{\svgx@magick@opr}
+% \begin{macro}{\svgx@magick@cmd}
 % Setting the command including maybe the path to \app{ImageMagick}. The keys
 % \opt{magicksetting} and \opt{magickoperator} should be used to add optional
 % arguments before (\emph{Settings}) or after (\emph{Operators}) the input
 % file. They can either be set for all or a specific output format as like
 % option \opt{convertdpi}. For this \cs{svgx@setformatkey} is used.
 %    \begin{macrocode}
-%<*base>
+%<*main>
 \svg@dummy@key{magickexe}
 \svg@dummy@key{magicksetting}
 \svg@dummy@key{magickoperator}
-%</base>
+%</main>
 %<*extract>
-\newcommand*\svgx@magick@exe{}
+\svg@ifwindowsdetected{%
+  \newcommand*\svgx@magick@exe{magick}%
+}{%
+  \newcommand*\svgx@magick@exe{convert}%
+}
 \DefineFamilyKey{SVG}{magickexe}{%
   \renewcommand*\svgx@magick@exe{#1}%
   \FamilyKeyStateProcessed%
@@ -4257,8 +4582,17 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \svgx@setformatkey{#1}{svgx@magick@opr}%
   \FamilyKeyStateProcessed%
 }
+\newcommand*\svgx@magick@cmd[3]{%
+  \svgx@magick@exe\space%
+  \svgx@useformatkey{svgx@cnv@dpi}{#3}{-density }%
+  \svgx@useformatkey{svgx@magick@set}{#3}{}%
+  "#1.#2"\space%
+  \svgx@useformatkey{svgx@magick@opr}{#3}{}%
+  "#1.#3"%
+}
 %</extract>
 %    \end{macrocode}
+% \end{macro}^^A \svgx@magick@cmd
 % \end{macro}^^A \svgx@magick@opr
 % \end{option}^^A magickoperator
 % \end{macro}^^A \svgx@magick@set
@@ -4274,19 +4608,24 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{option}{gsdevice}
 % \changes{v2.00}{2017/02/24}{new}^^A
 % \begin{macro}{\svgx@gs@device}
+% \begin{macro}{\svgx@gs@cmd}
 % Options to set the command including maybe the path to \app{Ghostscript}. As 
 % \app{Ghostscript} needs a specific device defined for different output
 % formats, the option \opt{gsdevice} can be used. It can either be set for all 
 % or a specific output format just like \opt{gsopt} in the same manner like 
 % option \opt{convertdpi}. 
 %    \begin{macrocode}
-%<*base>
+%<*main>
 \svg@dummy@key{gsexe}
 \svg@dummy@key{gsopt}
 \svg@dummy@key{gsdevice}
-%</base>
+%</main>
 %<*extract>
-\newcommand*\svgx@gs@exe{}
+\svg@ifwindowsdetected{%
+  \newcommand*\svgx@gs@exe{gswin64c}%
+}{%
+  \newcommand*\svgx@gs@exe{gs}%
+}
 \DefineFamilyKey{SVG}{gsexe}{%
   \renewcommand*\svgx@gs@exe{#1}%
   \FamilyKeyStateProcessed%
@@ -4301,8 +4640,16 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \svgx@setformatkey{#1}{svgx@gs@device}%
   \FamilyKeyStateProcessed%
 }
+\newcommand*\svgx@gs@cmd[3]{%
+  \svgx@gs@exe\space-dSAFER -dBATCH -dNOPAUSE\space%
+  \svgx@useformatkey{svgx@gs@device}{#3}{-sDEVICE=}%
+  \svgx@useformatkey{svgx@cnv@dpi}{#3}{-r}%
+  \svgx@useformatkey{svgx@gs@opt}{#3}{}%
+  -sOutputFile="#1.#3"\space"#1.#2"%
+}
 %</extract>
 %    \end{macrocode}
+% \end{macro}^^A \svgx@gs@cmd
 % \end{macro}^^A \svgx@gs@device
 % \end{option}^^A gsdevice
 % \end{macro}^^A \svgx@gs@opt
@@ -4319,27 +4666,15 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.02}{2018/09/07}{usage of \cs{svg@sanitize@dq}}^^A
 % \begin{option}{path}
 % \changes{v2.00}{2017/02/24}{deprecated}^^A
-% \begin{option}{extractname}
-% \changes{v2.00}{2017/02/24}{new}^^A
-% \changes{v2.02}{2018/09/07}{usage of \cs{svg@quotes@remove}}^^A
-% \begin{option}{name}
-% \changes{v2.00}{2017/02/24}{deprecated}^^A
-% \changes{v2.00}{2017/02/24}{support of \pkg{subfig} removed}^^A
 % \begin{macro}{\svgx@out@path}
-% \begin{macro}{\svgx@out@name}
-% \begin{macro}{\if@svgx@out@sec}
-% \begin{counter}{svgx@out@count}
 % The option \opt{extractpath} controls, in which folder the results both of 
 % the extraction as well as the conversion of \app{ImageMagick} or 
-% \app{Ghostscript} will be located. With option \opt{extractname} the 
-% name of the extracted and maybe converted file itself can be changed.
+% \app{Ghostscript} will be located.
 %    \begin{macrocode}
-%<*base>
+%<*main>
 \svg@dummy@key{extractpath}
 \svg@dummy@key{path}
-\svg@dummy@key{extractname}
-\svg@dummy@key{name}
-%</base>
+%</main>
 %<*extract>
 \newcommand*\svgx@out@path{}
 \DefineFamilyKey{SVG}{extractpath}{%
@@ -4369,9 +4704,33 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \DefineFamilyKey{SVG}{path}{%
   \svg@deprecated@key[svg-extract]{path=#1}{extractpath=#1}%
 }
-\newcounter{svgx@out@count}
+%</extract>
+%    \end{macrocode}
+% \end{macro}^^A \svgx@out@path
+% \end{option}^^A path
+% \end{option}^^A extractpath
+% \begin{option}{extractname}
+% \changes{v2.00}{2017/02/24}{new}^^A
+% \changes{v2.02}{2018/09/07}{usage of \cs{svg@quotes@remove}}^^A
+% \begin{option}{name}
+% \changes{v2.00}{2017/02/24}{deprecated}^^A
+% \changes{v2.00}{2017/02/24}{support of \pkg{subfig} removed}^^A
+% \begin{macro}{\svgx@out@name}
+% \begin{macro}{\if@svgx@out@sec}
+% \begin{counter}{svgx@out@count}
+% \begin{macro}{\svgx@out@sec}
+% With option \opt{extractname} the name of the extracted and maybe converted 
+% file itself can be changed.
+%    \begin{macrocode}
+%<*main>
+\svg@dummy@key{extractname}
+\svg@dummy@key{name}
+%</main>
+%<*extract>
 \newcommand*\svgx@out@name{}
 \newif\if@svgx@out@sec
+\newcounter{svgx@out@count}
+\newcommand*\svgx@out@sec{unknown}
 \DefineFamilyKey{SVG}{extractname}{%
   \svg@quotes@remove[{#1}]{\svg@tempb}%
   \FamilySetNumerical{SVG}{extractname}{svg@tempa}{%
@@ -4404,14 +4763,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 %</extract>
 %    \end{macrocode}
+% \end{macro}^^A \svgx@out@sec
 % \end{counter}^^A svgx@out@count
 % \end{macro}^^A \if@svgx@out@sec
 % \end{macro}^^A \svgx@out@name
-% \end{macro}^^A \svgx@out@path
 % \end{option}^^A name
 % \end{option}^^A extractname
-% \end{option}^^A path
-% \end{option}^^A extractpath
 %
 %
 %
@@ -4436,13 +4793,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % value \val{inherit} means, that the actual option for including is used for
 % extraction as well. This is the default setting.
 %    \begin{macrocode}
-%<*base>
+%<*main>
 \svg@dummy@key{extractwidth}
 \svg@dummy@key{extractheight}
 \svg@dummy@key{extractdistort}
 \svg@dummy@key{extractkeepaspectratio}
 \svg@dummy@key{extractscale}
-%</base>
+%</main>
 %<*extract>
 \newcommand*\svgx@param@width{\svg@param@width}
 \DefineFamilyKey{SVG}{extractwidth}{%
@@ -4504,7 +4861,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \if@svg@tempswa%
       \FamilyOptions{SVG}{extractdistort=false}%
-    \else
+    \else%
       \FamilyOptions{SVG}{extractdistort=true}%
     \fi%
   \else%
@@ -4552,11 +4909,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The similar hooks for executing code right before or after the graphic 
 % extraction.
 %    \begin{macrocode}
-%<*base>
+%<*main>
 \svg@dummy@key{extractpretex}
 \svg@dummy@key{extractapptex}
 \svg@dummy@key{extractpostex}
-%</base>
+%</main>
 %<*extract>
 \newcommand*\svgx@param@pretex{\svg@param@pretex}
 \DefineFamilyKey{SVG}{extractpretex}{%
@@ -4607,10 +4964,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % deleted. Setting \val{true} will remove all files, \val{false} won't clear 
 % any file. Additionally, a specific file list of suffixes can be given.
 %    \begin{macrocode}
-%<*base>
+%<*main>
 \svg@dummy@key[true]{clean}
 \svg@dummy@key[true]{clear}
-%</base>
+%</main>
 %<*extract>
 \newcommand*\svgx@clean{}
 \DefineFamilyKey{SVG}{clean}[true]{%
@@ -4626,7 +4983,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \FamilyKeyStateProcessed%
   \fi%
 }
-\DefineFamilyKey{SVG}{clear}{\FamilyOptions{SVG}{clean=#1}}
+\DefineFamilyKey{SVG}{clear}[true]{\FamilyOptions{SVG}{clean=#1}}
 %</extract>
 %    \end{macrocode}
 % \end{macro}^^A \svgx@clean
@@ -4636,9 +4993,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % If it is desired not to include but only extract graphics with package 
 % \pkg{svg-extract}, option \opt{exclude} can be used.
 %    \begin{macrocode}
-%<*base>
+%<*main>
 \svg@dummy@key[true]{exclude}
-%</base>
+%</main>
 %<*extract>
 \DefineFamilyKey{SVG}{exclude}[true]{%
   \FamilySetBool{SVG}{exclude}{@svg@tempswa}{#1}%
@@ -4684,7 +5041,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{parameter}{extractpretex}
 % \begin{parameter}{extractapptex}
 % \begin{parameter}{extractruns}
+% \begin{parameter}{latexexe}
 % \begin{parameter}{latexopt}
+% \begin{parameter}{latexext}
+% \begin{parameter}{dvipsopt}
+% \begin{parameter}{pstoepsopt}
+% \begin{parameter}{pstopdfopt}
+% \begin{parameter}{pdftoepsopt}
+% \begin{parameter}{pdftopsopt}
 % \begin{parameter}{convert}
 % \begin{parameter}{convertformat}
 % \begin{parameter}{convertdpi}
@@ -4704,10 +5068,18 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.02}{2018/09/07}{new}^^A
 % \begin{parameter}{extractscale}
 % \begin{parameter}{extractangle}
+% \changes{v2.02}{2018/09/07}{new}^^A
 % \begin{parameter}{extractpretex}
 % \begin{parameter}{extractapptex}
 % \begin{parameter}{extractruns}
+% \begin{parameter}{latexexe}
 % \begin{parameter}{latexopt}
+% \begin{parameter}{latexext}
+% \begin{parameter}{dvipsopt}
+% \begin{parameter}{pstoepsopt}
+% \begin{parameter}{pstopdfopt}
+% \begin{parameter}{pdftoepsopt}
+% \begin{parameter}{pdftopsopt}
 % \begin{parameter}{convert}
 % \begin{parameter}{convertformat}
 % \begin{parameter}{convertdpi}
@@ -4752,7 +5124,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{parameter}^^A convertdpi
 % \end{parameter}^^A convertformat
 % \end{parameter}^^A convert
+% \end{parameter}^^A pdftopsopt
+% \end{parameter}^^A pdftoepsopt
+% \end{parameter}^^A pstopdfopt
+% \end{parameter}^^A pstoepsopt
+% \end{parameter}^^A dvipsopt
+% \end{parameter}^^A latexext
 % \end{parameter}^^A latexopt
+% \end{parameter}^^A latexexe
 % \end{parameter}^^A extractruns
 % \end{parameter}^^A extractapptex
 % \end{parameter}^^A extractpretex
@@ -4774,7 +5153,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{parameter}^^A convertdpi
 % \end{parameter}^^A convertformat
 % \end{parameter}^^A convert
+% \end{parameter}^^A pdftopsopt
+% \end{parameter}^^A pdftoepsopt
+% \end{parameter}^^A pstopdfopt
+% \end{parameter}^^A pstoepsopt
+% \end{parameter}^^A dvipsopt
+% \end{parameter}^^A latexext
 % \end{parameter}^^A latexopt
+% \end{parameter}^^A latexexe
 % \end{parameter}^^A extractruns
 % \end{parameter}^^A extractapptex
 % \end{parameter}^^A extractpretex
@@ -4793,22 +5179,22 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.00}{2017/02/24}{new}^^A
 % Some dummys for package \pkg{svg}.
 %    \begin{macrocode}
-%<*base>
+%<*main>
 \newcommand*\svghidepreamblestart{%
   \PackageWarning{svg}{%
     The macro `\string\svghidepreamblestart' is only meant\MessageBreak%
-    to be used together with package `svg-extract'.\MessageBreak%
+    to be used together with package `svg-extract'. \MessageBreak%
     Nevertheless, nothing will happen%
   }%
 }
 \newcommand*\svghidepreambleend{%
   \PackageWarning{svg}{%
     The macro `\string\svghidepreambleend' is only meant\MessageBreak%
-    to be used together with package `svg-extract'.\MessageBreak%
+    to be used together with package `svg-extract'. \MessageBreak%
     Nevertheless, nothing will happen%
   }%
 }
-%</base>
+%</main>
 %    \end{macrocode}
 % These two macros can be used to hide some parts of the preamble during 
 % reading the preamble of the main document.
@@ -4826,18 +5212,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \subsection{Auxiliary macros}
 %
 % \begin{macro}{\svg@extract}
-% \begin{macro}{\svgx@stream@in}
-% \begin{macro}{\svgx@read@line}
-% \begin{macro}{\svgx@stream@out}
-% \begin{macro}{\if@svgx@preamble@write}
 % The macro \cs{svg@extract} does the actual job of both extracting and 
 % converting independent graphic files. Since it is necessary to run it with 
 % \file{-{}-shell-escape} enabled, the command raises a warning if it is not 
 % activated. Afterwards, the package is finished.
 %    \begin{macrocode}
-%<*base>
+%<*main>
 \newcommand*\svg@extract[1]{}
-%</base>
+%</main>
 %<*extract>
 \ifnum\pdf@shellescape=\@ne\relax\else%
   \renewcommand*\svg@extract[1]{%
@@ -4855,15 +5237,37 @@ svg-extract -- Extract independent graphic files from SVG pictures
   }%
   \expandafter\endinput%
 \fi
+%</extract>
 %    \end{macrocode}
-% If \file{-{}-shell-escape} is enabled, the command is defined with its
-% intended functionality. Some macros and a input stream as well as a output
-% stream are necessary for this.
+% \end{macro}^^A \svg@extract
+%
+% \iffalse
+%</package&body>
+%<*package&body&extract>
+% \fi
+%
+% \begin{macro}{\svgx@stream@in}
+% \begin{macro}{\svgx@read@line}
+% \begin{macro}{\svgx@stream@out}
+% \begin{macro}{\if@svgx@preamble@write}
+% Both an input stream and an output stream are necessary for this as well as a
+% token register, which is used to store all commands which should be executed
+% on shell.
 %    \begin{macrocode}
 \newread\svgx@stream@in
 \newcommand*\svgx@read@line{}
 \newwrite\svgx@stream@out
 \newif\if@svgx@preamble@write
+%    \end{macrocode}
+% \end{macro}^^A \if@svgx@preamble@write
+% \end{macro}^^A \svgx@stream@out
+% \end{macro}^^A \svgx@read@line
+% \end{macro}^^A \svgx@stream@in
+% \begin{macro}{\svg@extract}
+% If flag \file{-{}-shell-escape} is enabled, the command is defined with its
+% intended functionality. It runs all necessary processes to extract and
+% convert grahic files.
+%    \begin{macrocode}
 \renewcommand*\svg@extract[1]{%
 %    \end{macrocode}
 % If option \opt{extract} is enabled\dots
@@ -5304,26 +5708,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
     }%
   \fi%
 }
-%</extract>
 %    \end{macrocode}
-% \end{macro}^^A \if@svgx@preamble@write
-% \end{macro}^^A \svgx@stream@out
-% \end{macro}^^A \svgx@read@line
-% \end{macro}^^A \svgx@stream@in
 % \end{macro}^^A \svg@extract
-%
-% \iffalse
-%</package&body>
-%<*package&extract&body>
-% \fi
-%
 % \begin{macro}{\svgx@get@out@sec}
-% \begin{macro}{\svgx@out@sec}
 % The macro \cs{svgx@get@out@sec} reads all sectioning counters in order to 
 % get the numbering of the current sectioning level. The value is stored in 
 % \cs{svgx@out@sec}.
 %    \begin{macrocode}
-\newcommand*\svgx@out@sec{unknown}
 \newcommand*\svgx@get@out@sec{%
   \begingroup%
     \def\svg@tempa{}%
@@ -5347,11 +5738,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \svg@tempb%
 }
 %    \end{macrocode}
-% \end{macro}^^A \svgx@out@sec
 % \end{macro}^^A \svgx@get@out@sec
 % \begin{macro}{\svgx@documentclass}
 % \begin{macro}{\if@svgx@classfound}
-% This delimited macro is used to find a occurrence of \cs{documentclass} 
+% This delimited macro is used to find the occurrence of \cs{documentclass} 
 % within a read in line. The delinmiter \cs{documentclass} is used twice in
 % order to ignore the possible occurrence of white space or anything else right
 % before \cs{documentclass}.
@@ -5466,53 +5856,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svgx@cnv@get@informat
 % \end{macro}^^A \svgx@cnv@informat
-% \begin{macro}{\svgx@magick@cmd}
-% \begin{macro}{\svgx@gs@cmd}
-% Depending on option \opt{convert}, one of these two macros is actually used
-% by \cs{svgx@cnv@cmd}. For invoking the conversion process, the required 
-% platform-dependent executable is set, if nothing was set by a package option.
-%    \begin{macrocode}
-\ifx\svgx@magick@exe\@empty
-  \ifwindows
-    \renewcommand*\svgx@magick@exe{magick}
-  \else
-    \renewcommand*\svgx@magick@exe{convert}
-  \fi
-\fi
-\newcommand*\svgx@magick@cmd[3]{%
-  \svgx@magick@exe\space%
-  \svgx@useformatkey{svgx@cnv@dpi}{#3}{-density }%
-  \svgx@useformatkey{svgx@magick@set}{#3}{}%
-  "#1.#2"\space%
-  \svgx@useformatkey{svgx@magick@opr}{#3}{}%
-  "#1.#3"%
-}
-%    \end{macrocode}
-%    \begin{macrocode}
-\ifx\svgx@gs@exe\@empty
-  \ifwindows
-    \renewcommand*\svgx@gs@exe{gswin64c}
-  \else
-    \renewcommand*\svgx@gs@exe{gs}
-  \fi
-\fi
-\newcommand*\svgx@gs@cmd[3]{%
-  \svgx@gs@exe\space-dSAFER -dBATCH -dNOPAUSE\space%
-  \svgx@useformatkey{svgx@gs@device}{#3}{-sDEVICE=}%
-  \svgx@useformatkey{svgx@cnv@dpi}{#3}{-r}%
-  \svgx@useformatkey{svgx@gs@opt}{#3}{}%
-  -sOutputFile="#1.#3"\space"#1.#2"%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svgx@gs@cmd
-% \end{macro}^^A \svgx@magick@cmd
 % \begin{macro}{\svgx@move}
 % If the file doesn't exist
 %    \begin{macrocode}
 \newcommand*\svgx@move[3]{%
   \begingroup%
     \IfFileExists{"#1".#2}{%
-      \svg@shell@move{#1.#2}{#3#1.#2}%
+      \svg@shell@mv{#1.#2}{#3#1.#2}%
     }{%
       \edef\svg@tempa{#2}%
       \@svg@tempswafalse%
@@ -5549,177 +5899,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svgx@move
 %
 % \iffalse
-%</package&extract&body>
-%<*package&extract&option>
+%</package&body&extract>
+%<*package&standalone&extract>
 % \fi
 %
-% \begin{macro}{\svgx@ifinlist}
-% Check, if the first argument is included in a comma-separated list in the 
-% second argument. Keep in mind that the first argument is not expanded at all, 
-% the second one exactly once. 
-%    \begin{macrocode}
-\newcommand*\svgx@ifinlist[2]{%
-  \begingroup%
-    \def\svg@tempa##1,#1,##2\@nil{%
-      \IfArgIsEmpty{##2}{%
-        \aftergroup\@secondoftwo%
-      }{%
-        \aftergroup\@firstoftwo%
-      }%
-    }%
-    \expandafter\svg@tempa\expandafter,#2,#1,\@nil%
-  \endgroup%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svgx@ifinlist
-% \begin{macro}{\svgx@onlywindows}
-% Do only some stuff, if Windows was detected.
-%    \begin{macrocode}
-\newcommand*\svgx@onlywindows[1]{}
-\AfterPackage*{ifplatform}{\renewcommand*\svgx@onlywindows[1]{\ifwindows#1\fi}}
-%    \end{macrocode}
-% \end{macro}^^A \svgx@onlywindows
-% \begin{macro}{\svgx@ifkeyandval}
-% It is checked whether a key was given as \val{\meta{key}=\meta{value}} or 
-% like \val{\meta{key}=\{\meta{format}=\meta{value}\}}.
-%    \begin{macrocode}
-\newcommand*\svgx@ifkeyandval[3]{%
-  \def\svg@tempa##1=##2=##3\@nil{\Ifstr{##3}{=}{#2}{#3}}%
-  \svg@tempa#1==\@nil%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svgx@ifkeyandval
-% \begin{macro}{\svgx@cnv@get@dpi}
-% This macro is used to resolve a given value to set the density for the 
-% conversion. The delimited macros \cs{svg@tempa} and \cs{svg@tempb} are 
-% defined to first crop any given suffix \val{dpi} and second to split two 
-% numbers at |x|, if present. Pay attention how both macros are invoked. In the
-% end, a passed value in any of the forms \val{300}, \val{300dpi}, \val{300x400}
-% or \val{300x400dpi} and even \val{300dpix400dpi} is possible. The result is
-% stored in \cs{svg@tempa}.
-%    \begin{macrocode}
-\newcommand*\svgx@cnv@get@dpi[1]{%
-  \begingroup%
-    \def\svg@tempa##1dpi##2x##3dpi##4\@nil{%
-      \edef\svg@tempa{##1}%
-%    \end{macrocode}
-% Switch \cs{if@svg@tempswa} as \cs{iftrue} means, a valid value was found.
-%    \begin{macrocode}
-      \@svg@tempswafalse%
-%    \end{macrocode}
-% If only the first argument is a number and third is empty, a single number 
-% was given and there's nothing more to do. If the argument is something like 
-% \val{300dpix400dpi}, the third argument is the second number.
-%    \begin{macrocode}
-      \Ifnumber{##1}{%
-        \IfArgIsEmpty{##3}{\@svg@tempswatrue}{%
-          \Ifnumber{##3}{\edef\svg@tempa{##1x##3}}{}%
-        }%
-      }{}%
-      \if@svg@tempswa\else%
-        \expandafter\svg@tempb\svg@tempa xx\@nil%
-      \fi%
-    }%
-%    \end{macrocode}
-% Macro \cs{svg@tempb} splits at |x| and checks, if something valid like 
-% \val{300x400} was given. If true, the value is stored in \cs{svg@tempa}.
-%    \begin{macrocode}
-    \def\svg@tempb##1x##2x##3\@nil{%
-      \Ifstr{##3}{x}{%
-        \@svg@tempswatrue%
-        \IfArgIsEmpty{##1}{\@svg@tempswafalse}{%
-          \Ifnumber{##1}{}{\@svg@tempswafalse}%
-        }%
-        \IfArgIsEmpty{##2}{\@svg@tempswafalse}{%
-          \Ifnumber{##2}{}{\@svg@tempswafalse}%
-        }%
-        \if@svg@tempswa%
-          \edef\svg@tempa{##1x##2}%
-        \fi%
-      }{}%
-    }%
-    \IfArgIsEmpty{#1}{%
-      \let\svg@tempa\@empty%
-    }{%
-      \lowercase{\svg@tempa#1dpi#1xdpi\@nil}%
-      \if@svg@tempswa\else%
-        \let\svg@tempa\relax%
-      \fi%
-    }%
-    \edef\svg@tempb{%
-      \endgroup%
-      \ifx\svg@tempa\relax%
-        \let\noexpand\svg@tempa\noexpand\relax%
-      \else%
-        \def\noexpand\svg@tempa{\svg@tempa}%
-      \fi%
-    }%
-  \svg@tempb%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svgx@cnv@get@dpi
-% \begin{macro}{\svgx@setformatkey}
-% \begin{macro}{\svgx@useformatkey}
-% With \cs{svgx@setformatkey} the---maybe output format depend---keys for the 
-% conversion tools are set. First argument contains the value given to a key, 
-% second the command sequence name of the macro, to whom the value shall be 
-% allocated.
-%    \begin{macrocode}
-\newcommand*\svgx@setformatkey[2]{%
-%    \end{macrocode}
-% A key of the form \val{\meta{key}=\{\meta{format}=\meta{value}\}} is given. 
-% The desired output format can be accessed with |##1|, the value with |##2|
-% within the arguments of \cs{svgx@ifkeyandval}.
-%    \begin{macrocode}
-  \svgx@ifkeyandval{#1}{%
-    \svg@ifvalueisrelax{##2}{%
-      \expandafter\let\csname #2@##1\endcsname\relax%
-    }{%
-      \@namedef{#2@##1}{##2}%
-    }%
-%    \end{macrocode}
-% A key of the form \val{\meta{key}=\{\meta{format}=\meta{value}\}} is given.
-% The value can be used with |##1|.
-%    \begin{macrocode}
-  }{%
-    \svg@ifvalueisrelax{##1}{%
-      \expandafter\let\csname #2\endcsname\relax%
-    }{%
-      \@namedef{#2}{##1}%
-    }%
-  }%
-}
-%    \end{macrocode}
-% The command \cs{svgx@useformatkey} checks, if a format specific key was 
-% definded with \cs{svgx@setformatkey}, whereas the format is given in the 
-% second argument. If this is not the case, the setting for all output formats 
-% is used. After that, a specific key appended with a |+| can be used to do 
-% some additional stuff.
-%    \begin{macrocode}
-\newcommand*\svgx@useformatkey[3]{%
-  \scr@ifundefinedorrelax{#1@#2}{%
-    \scr@ifundefinedorrelax{#1}{}{%
-      \expandafter\ifx\csname #1\endcsname\@empty\else%
-        #3\@nameuse{#1}\space%
-      \fi%
-    }%
-    \scr@ifundefinedorrelax{#1@#2+}{}{%
-      \expandafter\ifx\csname #1@#2+\endcsname\@empty\else%
-        #3\@nameuse{#1@#2+}\space%
-      \fi%
-    }%
-  }{%
-%    \end{macrocode}
-% If this a format specific key was definded, it is used.
-%    \begin{macrocode}
-    \expandafter\ifx\csname #1@#2\endcsname\@empty\else%
-      #3\@nameuse{#1@#2}\space%
-    \fi%
-  }%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svgx@useformatkey
-% \end{macro}^^A \svgx@setformatkey
 %
 %
 %
@@ -5837,7 +6020,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svgxoutputbox
 %
 % \iffalse
-%</package&extract&option>
+%</package&standalone&extract>
 %<*package&option>
 % \fi
 %
@@ -5848,13 +6031,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Setting the default options and processing the given ones during when loading 
 % the packages.
 %    \begin{macrocode}
-%<*base>
+%<*main>
 \FamilyExecuteOptions{SVG}{%
-  inkscape=true,inkscapeversion=auto,inkscapepath=basesubdir,
+  inkscape=true,inkscapeversion=auto,inkscapepath=basesubdir,%
   inkscapelatex=true,inkscapearea=drawing,distort=false,%
   usexcolor=true,usetransparent=true%
 }
-%</base>
+%</main>
 %<*extract>
 \FamilyExecuteOptions{SVG}{%
   extract=true,extractpath=basesubdir,%
@@ -5870,77 +6053,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \iffalse
 %</package&option>
-%<*package&base&body>
-% \fi
-%
-%
-%
-% \section{Macros for file access}
-%
-% Finally, platform dependend macros for creating directories as well as moving 
-% and deleting files are provided, if \file{-{}-shell-escape} is enabled. Only 
-% then package \pkg{ifplatform} is only used in order to do not raise a warning.
-%    \begin{macrocode}
-\ifnum\pdf@shellescape=\@ne\relax\else%
-  \expandafter\endinput%
-\fi
-\RequirePackage{ifplatform}[2017/10/13]
-%    \end{macrocode}
-% \begin{macro}{\svg@shell@mkdir}
-% \begin{macro}{\svg@shell@@mkdir}
-% \begin{macro}{\svg@shell@mv}
-% \begin{macro}{\svg@shell@@mv}
-% \begin{macro}{\svg@shell@rm}
-% \begin{macro}{\svg@shell@@rm}
-% The platform dependent commands for file access.
-%    \begin{macrocode}
-\ifwindows
-  \newcommand*\svg@shell@@mkdir[1]{if not exist "#1" mkdir "#1"}
-  \newcommand*\svg@shell@@mv{move}
-  \newcommand*\svg@shell@@rm{del}
-\else
-  \newcommand*\svg@shell@@mkdir[1]{mkdir -p "#1"}
-  \newcommand*\svg@shell@@mv{mv}
-  \newcommand*\svg@shell@@rm{rm}
-\fi
-%    \end{macrocode}
-% A directory should only be created, if it isn't the current working directory.
-%    \begin{macrocode}
-\newcommand*\svg@shell@mkdir[1]{%
-  \begingroup%
-    \svg@quotes@remove[{#1}]{\svg@tempa}%
-    \@svg@tempswatrue%
-    \Ifstr{\svg@tempa}{}{\@svg@tempswafalse}{%
-    \Ifstr{\svg@tempa}{./}{\@svg@tempswafalse}{%
-    }}%
-    \if@svg@tempswa%
-      \ShellEscape{\svg@shell@@mkdir{\svg@tempa}}%
-    \fi%
-  \endgroup%
-}
-%    \end{macrocode}
-% Commands for moving and deleting files.
-%    \begin{macrocode}
-\newcommand*\svg@shell@move[2]{%
-  \ShellEscape{\svg@shell@@mv\space"#1"\space"#2"}%
-}
-\newcommand*\svg@shell@rm[1]{%
-  \ShellEscape{\svg@shell@@rm\space"#1"}%
-}
-%    \end{macrocode}
-% \end{macro}^^A \svg@shell@@rm
-% \end{macro}^^A \svg@shell@rm
-% \end{macro}^^A \svg@shell@@mv
-% \end{macro}^^A \svg@shell@mv
-% \end{macro}^^A \svg@shell@@mkdir
-% \end{macro}^^A \svg@shell@mkdir
-% At the very end, the catcodes are restored.
-%    \begin{macrocode}
-\svg@catcodecodes@restore
-%    \end{macrocode}
-%
-% \iffalse
-%</package&base&body>
 % \fi
 %
 % \Finale
