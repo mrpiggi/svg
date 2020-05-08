@@ -1,34 +1,34 @@
-% latexmk -lualatex -latexoption="-shell-escape" issue19
 \listfiles
-\documentclass{article}
-\usepackage{iftex}
-\iftutex
-  \usepackage{fontspec}
-\else
-  \usepackage[T1]{fontenc}
-  \usepackage[ngerman=ngerman-x-latest]{hyphsubst}
-\fi
+\documentclass[parskip=full,ngerman]{scrreprt}%
+\usepackage[T1]{fontenc}
+\usepackage{babel}
 \usepackage{svg}
-\makeatletter
-\ifdefined\svg@ink@ver\else
-  \def\svg@ink@ver{0}% change version to 0 is necessary
-  \renewcommand*\svg@ink@cmd[2]{%
-    \svg@ink@exe\space"#1.\svg@file@ext"\space%
-    --without-gui\space\svg@ink@area\space%
-    \ifx\svg@ink@dpi\relax\else--export-dpi=\svg@ink@dpi\space\fi%
-    \if@svg@ink@latex--export-latex\space\fi%
-    \ifx\svg@ink@opt\@empty\else\svg@ink@opt\space\fi%
-    \ifnum\svg@ink@ver<\@ne%
-      --export-\svg@ink@format="#2.\svg@ink@format"\space%
-    \else%
-      --export-type=\svg@ink@format\space%
-      --export-file="#2.\svg@ink@format"\space%
-    \fi%
-  }%
-\fi
-\makeatother
+%\usepackage{svg-extract}
+%\svgsetup{clean=true}
+\providecommand{\transparent}[1]{}
 
+\pdfsuppresswarningpagegroup=1
+
+\newcount\svgtestcase
+\svgtestcase=3
+\ifcase\svgtestcase% 0
+  \svgsetup{inkscapeversion=0}
+  \svgsetup{inkscapeexe=inkscape}
+\or% 1
+  \svgsetup{inkscapeversion=1}
+  \svgsetup{inkscapeexe="C:/Program Files/Inkscape1/bin/inkscape"}
+\or% 2
+  \svgsetup{inkscapeversion=detect}
+  \svgsetup{inkscapeexe=inkscape}
+\or% 4
+  \svgsetup{inkscapeversion=detect}
+  \svgsetup{inkscapeexe="C:/Program Files/Inkscape1/bin/inkscape"}
+\fi
+\svgsetup{inkscape=force}
 
 \begin{document}
-\includesvg{svg-example.svg}
+\makeatletter
+\meaning\svg@ink@ver
+
+\includesvg{../../source/examples/svg-example}%
 \end{document}

@@ -42,20 +42,20 @@ Versions
 --------
 
 **v2.03** (2020/xx/xx)
-+ command line format of ***Inkscape&nbsp;1.0*** and later is supported
 + extraction/conversion of independent graphic&nbsp;files can be invoked only
   if necessary (based on file modification date) with `extract/convert=true`;
   options `extract/convert=forced` to invoke process with every LaTeX&nbsp;run
 + files exported with ***Inkscape*** or extracted as well as converted with
   ***ImageMagick*** or ***Ghostscript*** are not moved from root directory but
   created directly in the path given with `inkscapepath` or `extractpath`
-+ conditional invocation of export/extraction/conversion based on file
-  modification date implemented for XeTeX
 + option `extractpath=inkscapepath` and `extractpath=inkscapesubpath` to create
   extracted/converted files in the same directory as the exported files of
   ***Inkscape***
 + option `clean=nolatex` to preserve auxiliary LaTeX&nbsp;files used during the
   extraction process
+  
+**v2.02f** (2020/05/07)
++ support for ***Inkscape&nbsp;1.0*** CLI
 
 **v2.02e** (2020/01/13)
 + fixes for new version of package **scrbase**

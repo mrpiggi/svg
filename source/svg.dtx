@@ -196,7 +196,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \noindent
     The \pkg{svg} package is intended for the automated integration of 
     SVG~graphics into \LaTeX~documents. Therefor the capabilities provided 
-    by \app{Inkscape}---or more precisely its command line tool---are used 
+    by \app{Inkscape}---or more precisely its command~line~interface---are used 
     to export the text within a SVG~graphic to a separate file, which is 
     then rendered by \LaTeX{}. The two commands \cs{includesvg} and 
     \cs{includeinkscape} are provided as central user\hbox{-}interface, 
@@ -210,6 +210,17 @@ svg-extract -- Extract independent graphic files from SVG pictures
     conversion tools shipped with the distribution are used. If the graphics 
     are required in other file formats, either \app{ImageMagick} or 
     \app{Ghostscript} can be invoked.
+    
+    \bigskip\noindent%
+    \fbox{\parbox{\dimexpr\linewidth-(\fboxsep+\fboxrule)*2\relax}{%
+      The command~line~interface~(CLI) of \app{Inkscape}\,1.0 has changed in 
+      comparison to previous versions. In order to provide a comfortable 
+      user\hbox{-}interface for invoking \app{Inkscape}, the used version is 
+      detected and if necessary switch to the outdated syntax of the CLI. If 
+      this approach fails for some reason, you can set the version of 
+      \app{Inkscape} manually with \opt{inkscapeversion}|=|\val{0} or 
+      \opt{inkscapeversion}|=|\val{1}.
+    }}%
   \end{abstract}
   \tableofcontents
   \ToDo{use Travis CI (https://github.com/latex3/latex2e .travis.yml)}[v2.04]
@@ -273,8 +284,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   name parsing, see \url{https://github.com/mrpiggi/svg/issues/16}}^^A
 % \changes{v2.02d}{2019/10/22}{conditional invocation of \app{Inkscape} export
 %   based on file modification date implemented for Xe\TeX{}}^^A
-% \changes{v2.03}{2019/06/28}{command line format of \app{Inkscape~1.0} and
-%   later is supported}^^A
+% \changes{v2.02f}{2020/05/06}{command line format of \app{Inkscape~1.0} and
+%   later is supported; automatic detection implemented}^^A
 % \changes{v2.03}{2019/06/25}{files exported with \app{Inkscape} are not moved
 %   from root directory but created directly in the path given with
 %   \opt{inkscapepath}}^^A
@@ -288,10 +299,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \section{Introduction}
 %
 % The open source program \app{Inkscape} has provided an excellent resource for 
-% the simple and easy creation of images and diagrams using a graphical user
-% interface. The work by Johan\,B.\,C.~Engelen has further enhanced the ability
-% of \app{Inkscape} to split a SVG~file into a text component that can be
-% compiled with \LaTeX{}, and an image component that can be imported as a 
+% the simple and easy creation of images and diagrams using a graphical 
+% user\hbox{-}interface. The work by Johan\,B.\,C.~Engelen has further enhanced 
+% the ability of \app{Inkscape} to split a SVG~file into a text component that
+% can be compiled with \LaTeX{}, and an image component that can be imported as a 
 % PDF~file. For further information see the documentation of 
 % \hrfn{http://www.ctan.org/pkg/svg-inkscape}{\pkg{svg-inkscape} on CTAN}.
 % The procedure described therein is taken up and consistently expanded. Thus, 
@@ -299,10 +310,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % text within the SVG~graphic will be rendered natively by \LaTeX{}.
 %
 % Both packages \pkg{svg} and \pkg{svg-extract} rely heavily upon executing 
-% commands from the shell using the \cs{ShellEscape} command---or respectively 
-% the old known \cs{write18}---for executing a variety of commands directly to 
-% the system. So it is necessary to include the flag \file{-{}-shell-escape} 
-% when compiling documents using \pkg{svg} and/or \pkg{svg-extract}. The 
+% commands on shell using the \cs{ShellEscape} command---or respectively the
+% old known \cs{write18}---for executing the CLIs of the applications mentioned 
+% above. So passing flag \file{-{}-shell-escape} to the \LaTeX~engine is 
+% utterly essential when using package \pkg{svg} and/or \pkg{svg-extract}. The 
 % executed commands and the possibilities to adapt their invocation with the 
 % appropriate options are described later on in this documentation. All this is 
 % done automatically with the \cs{includesvg} command. If you don't want to use
@@ -479,35 +490,43 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \DescribeOption{inkscapeexe}^^A
 % For including a SVG~file, \app{Inkscape} is used to separate the text and
-% image from the SVG~file itself. In order to execute the command line tool 
-% from shell, the path where the executable is located has to be known to the
+% image from the SVG~file itself. In order to use the command~line~interface 
+% on shell, the path where the executable is located has to be known to the
 % operating system. You can check this by typing \file{inkscape -V} into the 
-% shell. If this check fails, you should add the \app{Inkscape} directory to 
-% the environment variable \file{PATH} on your OS.
+% terminal. If this fails and nothing is returned, you should add the binaray 
+% directory of \app{Inkscape} to the environment variable \file{PATH} on your
+% operating system.
 %
 % If this is not possible or you aren't willing to do so, you can use option 
 % \opt{inkscapeexe} \emph{within the document preamble} to set the absolute 
-% path where the executable of \app{Inkscape} is located. The option is set to
+% path where the executable of \app{Inkscape} is located. The option is set to 
 % \opt{inkscapeexe}|=|\val{inkscape} by default.
 % \ToDo{Hint for MacOS}[v2.03]
 %
 % \DescribeOption{inkscapeversion}^^A
-% The command line tool for \app{Inkscape} is going to be changed slightly from 
-% version \val{0.9x} to \val{1.x} and makes some adaptions necessary. It can be
-% set either to \opt{inkscapeversion}|=|\val{0}---which is set by default---or
-% to any newer version with a value greater than \val{0}. Additionally, it is
-% possible to detect the used \app{Inkscape} version automatically. This is
-% activated with \opt{inkscapeversion}|=|\val{detect} and done by calling the
-% given \opt{inkscapeexe} with parameter \prm{-V} through a pipe.
-%
-% \centerline{\emph{This functionallity does currently not work with MiK\TeX!}}
+% \changes{v2.02f}{2020/05/06}{option {inkscapeversion} for explicitly setting
+%   \app{Inkscape}-CLI version; automatic detection implemented}^^A
+% The command~line~interface of \app{Inkscape} changed slightly from version
+% \val{0.9x} to \val{1.x} and makes it necessary to distinguish between the two 
+% versions. By default, \opt{inkscapeversion}|=|\val{auto} is set and the used 
+% version is detected by calling the given \opt{inkscapeexe} described above 
+% with parameter~\prm{-V} on shell and evaluating the result by either piping 
+%\val{stdout} or eventually writing it to a temporary file and read this back 
+% in (pipes with a potentially quoted path can not be used with MiK\TeX).^^A
+% \footnote{^^A
+%   If this fails, the used inkscape version is guessed when \cs{svg@ink@run}
+%   is used the very first time.^^A
+% }
+% It is also possible to switch off the automatic detection routine by setting 
+% the desired version manually with either \opt{inkscapeversion}|=|\val{0} to 
+% legacy mode or \opt{inkscapeversion}|=|\val{1} to the current CLI~version.
 %
 % \DescribeOption{inkscapename}^^A
 % The file names of the \app{Inkscape}~export are derived from the name of the 
 % base SVG~file by default but can be modified with 
-% \opt{inkscapename}|=|\file{\meta{filename}}. It's possible to use counters for
-% specifying the name of the exported file. Repeatedly specifying the same file 
-% name will overwrite previously created files. 
+% \opt{inkscapename}|=|\file{\meta{filename}}. It's possible to use counters 
+% for specifying the name of the exported file. Repeatedly specifying the same
+% file name will overwrite previously created files. 
 %
 % \DescribeOption{inkscapeformat}^^A
 % With this option, the \app{Inkscape}~export~format can be controlled. Valid 
@@ -545,7 +564,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \DescribeOption{inkscapeopt}^^A
 % You can use this option to pass additional switches to the \app{Inkscape} 
-% command line tool. For further information see the documentation of 
+% command~line~interface. For further information see the documentation of 
 % \hrfn{https://inkscape.org/de/doc/inkscape-man.html}{\app{Inkscape}}.
 %
 % \DescribeOption{svgextension}^^A
@@ -596,7 +615,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \DescribeOption{lastpage}^^A
 % A \hrfn{https://bugs.launchpad.net/ubuntu/+source/inkscape/+bug/1417470}{bug} 
-% concerning the \LaTeX~export has been reported for \app{Inkscape}~0.91. It 
+% concerning the \LaTeX~export has been reported for \app{Inkscape}\,0.91. It 
 % may happen that within the exported \LaTeX~file, it's attempted to include
 % more pages of the PDF~graphics than actually exist. The \pkg{svg} package
 % attempts to bypass the resulting error.
@@ -672,7 +691,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \DescribeMacro{\includeinkscape}^^A
 % If you don't want to make use of the automated export with \app{Inkscape} but 
-% the user interface provided by the \pkg{svg} package, you can use 
+% the user\hbox{-}interface provided by the \pkg{svg} package, you can use 
 % \cs{includeinkscape} instead of \cs{includesvg}.  
 % \begin{svgexample}
 %   \includeinkscape§\oarg{parameters}\marg{graphic~filename}§
@@ -703,7 +722,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % In order to extract to PDF, EPS, or PS~files the programs \file{pstoeps}, 
 % \file{pstopdf} and \file{pdftops} are used which are usually provided by most 
-% of the \LaTeX~distributions. In additon, the command line tools of 
+% of the \LaTeX~distributions. In additon, the command~line~interfaces of 
 % \app{ImageMagick} and \app{Ghostscript} can be invoked for converting images 
 % in formats like PNG, JPG, TIF or something else. It's also possible to create 
 % PDF, EPS or PS~files with one of the two programs. Therefor the desired 
@@ -741,6 +760,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \subsection{General settings}
 %
 % \DescribeOptions{on,auto,off}^^A
+% \ToDo{is extract=true a good choice for default?}[v2.03]
 % This options have to be given while loading the \pkg{svg-extract} package and 
 % are intended to toggle the functionality of this package. As both extracting 
 % and converting independent graphic~files needs some time due to several calls 
@@ -757,8 +777,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \DescribeMacros{\svgsetup,\includesvg,\includeinkscape}^^A
 % With package \pkg{svg-extract} the applicable options for 
 % \cs{svgsetup}\marg{options} as well as parameters for the already described
-% macros \cs{includesvg}\oarg{parameters}\marg{svg@filename} and 
-% \cs{includeinkscape}\oarg{parameters}\marg{graphic@filename} are extended. 
+% macros \cs{includesvg}\oarg{parameters}\marg{svg~filename} and 
+% \cs{includeinkscape}\oarg{parameters}\marg{graphic~filename} are extended. 
 % They can be used to control the process of graphic extraction and converting.
 %
 % All option described below can be used togehter with \cs{svgsetup} and are
@@ -969,7 +989,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \DescribeOptions{latexexe,latexopt,latexext}^^A
 % For the extraction of an independent grahic~file, the \LaTeX~program is used
-% which is set by the \opt{latexexe} option. Depending on the \LaTeX~processor 
+% which is set by the \opt{latexexe} option. Depending on the \LaTeX~engine 
 % used for the current \LaTeX~document, it is set to either \app{pdflatex}, 
 % \app{lualatex}, \app{xelatex} or \app{latex} by default. It's also possible
 % to specify additional flags or switches for the \LaTeX~iterations, which are
@@ -978,7 +998,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % option \opt{latexext} can be used like \opt{latexext}|=|\val{ltx}.
 %
 % \DescribeOptions{dvipsopt,pstoepsopt,pstopdfopt,pdftoepsopt,pdftopsopt}^^A
-% Depending on the used \LaTeX~processor, the file~type of the extracted 
+% Depending on the used \LaTeX~engine, the file~type of the extracted 
 % graphic differs. In order to create all formats, requested with option
 % \opt{extractformat}, several converting tools provided by most of the 
 % \LaTeX~distributions are maybe invoked. These are \file{dvips},
@@ -1136,7 +1156,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \DescribeOptions{magickexe,magicksetting,magickoperator}^^A
 % The conversion with \app{ImageMagick} via the \file{magick} or \file{convert} 
-% command-line~tool can be controlled with these options. The option
+% command~line~interface can be controlled with these options. The option
 % \opt{magickexe} determines the used executable and is set to \file{magick} on
 % Windows and otherwise to \file{convert} by default. Additionally, there are
 % the two options \opt{magicksetting} and \opt{magickoperator} which can be
@@ -1146,18 +1166,18 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % one either resetting or extending the general settings. For further 
 % information see the documentation of 
 % \hrfn{http://www.imagemagick.org/script/command-line-processing.php}^^A
-% {\app{ImageMagick} command-line tool}.
+% {\app{ImageMagick} command~line~interface}.
 %
 %
 %
 % \subsubsection{Settings for the invocation of \app{Ghostscript}}
 %
 % \DescribeOptions{gsexe,gsdevice,gsopt}^^A
-% The conversion with \app{Ghostscript} is done with command-line~tool \file{gs}
-% on unix-like operating systems and \file{gswin64c} or \file{gswin32c} on 
-% Windows. The executable can be changed with option \opt{gsexe}. Because 
-% \app{Ghostscript} requires the specification of a device, there are some 
-% predefined for the most common output formats. These are:
+% The conversion with \app{Ghostscript} is done with command~line~interface 
+% \file{gswin64c} or \file{gswin32c} on Windows and \file{gs} on unix-like 
+% operating systems. The executable can be changed with option \opt{gsexe}.
+% Because \app{Ghostscript} requires the specification of a device, there are
+% some predefined for the most common output formats. These are:
 % \begin{svgexample}
 %   \svgsetup{%
 %     gsdevice={png=png16m},gsdevice={jpeg=jpeg},gsdevice={jpg=jpeg},%
@@ -1269,7 +1289,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % When using the packages \pkg{svg} and \pkg{svg-extract}, the most likely 
 % occurring problems will be caused by calling the external programs. For this 
 % reason, a short package information is written into the log~file right before 
-% each call of an external program via shell. If a file should have been 
+% each call of an external program on shell. If a file should have been 
 % created, both packages check after the external call, whether this file
 % exists or not and raise an error or at least a warning, if this file is 
 % missing. If you got such a message, please check the log~file for lines like:
@@ -1277,10 +1297,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % |Package svg Info:| or |Package svg-extract Info:|
 % \end{quote}
 % Right afterwards, there should appear |runsystem(<command>)...excuted.| which 
-% you should try to execute manually from shell in the right directory. In most
-% cases, the problem will be an invalid command call. If something goes wrong
-% during the extraction/converting process of package \pkg{svg-extract}, it
-% would make sense to set option \opt{clean}|=|\val{false} to not delete any 
+% you should try to execute manually from terminal in the right directory. In 
+% most cases, the problem will be an invalid command call. If something goes
+% wrong during the extraction/converting process of package \pkg{svg-extract},
+% it would make sense to set option \opt{clean}|=|\val{false} to not delete any 
 % auxiliary files that might be needed.
 %
 % If you are sure that the problem is not caused by the configuration of your
@@ -1423,18 +1443,18 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % which is loaded during initialization.
 %    \begin{macrocode}
 %<*main>
-\RequirePackage{iftex}[2019/11/07]
-\RequirePackage{scrbase}[2019/12/23]
-\RequirePackage{pdftexcmds}[2016/05/21]
+\RequirePackage{iftex}[2020/03/06]
+\RequirePackage{scrbase}[2020/04/19]
+\RequirePackage{pdftexcmds}[2019/11/24]
 \RequirePackage{trimspaces}[2009/09/17]
-\RequirePackage{graphicx}[1999/02/16]
-\RequirePackage{shellesc}[2016/06/07]
+\RequirePackage{graphicx}[2019/11/30]
+\RequirePackage{shellesc}[2019/11/08]
 %    \end{macrocode}
 % In order to do not raise a warning, package \pkg{ifplatform} is only used if
 % \file{-{}-shell-escape} flag is enabled.
 %    \begin{macrocode}
 \ifnum\pdf@shellescape=\@ne\relax
-  \RequirePackage{ifplatform}[2010/10/22]
+  \RequirePackage{ifplatform}[2017/10/13]
 \fi
 %</main>
 %    \end{macrocode}
@@ -2104,7 +2124,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
       \svg@quotes@normalize{\filename@base}%
       \svg@quotes@normalize{\filename@ext}%
-      \edef\svg@tempa{%
         \endgroup%
         \def\noexpand\filename@base{\filename@base}%
         \ifx\filename@ext\@empty%
@@ -2269,7 +2288,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \fi%
     \edef\svg@tempb{%
       \endgroup%
-      \if@svg@quotes@found%
         \def\noexpand#2{"\svg@tempa"}%
       \else%
         \def\noexpand#2{\svg@tempa}%
@@ -2461,8 +2479,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \fi
 %
 % \begin{macro}{\svg@deprecated@key}
-% With version v2.00 the whole user interface was renewed. For reasons of 
-% compatibility, outdated options and parameters from version~v1.0 are also 
+% With version v2.00 the whole user\hbox{-}interface was renewed. For reasons
+% of compatibility, outdated options and parameters from version~v1.0 are also 
 % provided. If an old key was given, a warning is issued and the valid key is
 % used.
 %    \begin{macrocode}
@@ -2514,7 +2532,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     }%
   \fi%
   \if@svg@use@transparent%
-    \RequirePackage{transparent}[2016/05/16]%
+    \RequirePackage{transparent}[2019/11/29]%
   \else%
     \AfterPackage*{transparent}{%
       \PackageWarning{svg}{Package `transparent' was loaded anyway}%
@@ -2554,11 +2572,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svg@ink@mode}
 % The intension of option \opt{inkscape} is to control the running behaviour of 
 % \app{Inkscape}. It can be switched off at all (\opt{inkscape}|=|\val{false}) 
-% or invoked only if necessary (\opt{inkscape}|=|\val{true}) or the command
-% line call can be forced with every \LaTeX~run (\opt{inkscape}|=|\val{forced}).
-% Additionally, option \opt{inkscape} can be used as wrapper for options
-% \opt{inkscapeformat}, \opt{inkscapelatex}, \opt{inkscapearea} and
-% \opt{inkscapedpi}, which are declared later.
+% or invoked only if necessary (\opt{inkscape}|=|\val{true}) and even be forced
+% with every \LaTeX~run (\opt{inkscape}|=|\val{forced}). Additionally, option
+% \opt{inkscape} can be used as wrapper for options \opt{inkscapeformat},
+% \opt{inkscapelatex}, \opt{inkscapearea} and \opt{inkscapedpi}, which are
+% declared later.
 %    \begin{macrocode}
 \newcommand*\svg@ink@mode{}
 \DefineFamilyKey{SVG}{inkscape}[true]{%
@@ -2571,7 +2589,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     {drawing}{7},{crop}{7},%
     {page}{8},{nocrop}{8},%
     {tex}{9},{latex}{9},{exportlatex}{9},{latexexport}{9},%
-    {nolatex}{10},{notex}{10},{noexportlatex}{10},{nolatexexport}{10},%
+    {notex}{10},{nolatex}{10},{noexportlatex}{10},{nolatexexport}{10},%
     {latexnoexport}{10},{raw}{10},{plain}{10},{simple}{10}%
   }{\svg@tempb}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
@@ -2703,23 +2721,25 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{option}^^A forced
 % \end{option}^^A on
 % \begin{option}{inkscapeversion}
-% \changes{v2.03}{2019/08/02}{new}^^A
+% \changes{v2.02f}{2020/05/06}{new}^^A
 % \begin{macro}{\svg@ink@ver}
-% \changes{v2.03}{2019/06/28}{new}^^A
+% \changes{v2.02f}{2020/05/06}{new}^^A
 % \begin{option}{inkscapeexe}
 % \changes{v2.00}{2017/02/17}{new}^^A
-% \changes{v2.03}{2019/06/28}{only usable in preamble}^^A
+% \changes{v2.02f}{2020/05/06}{only usable in preamble}^^A
 % \begin{macro}{\svg@ink@exe}
 % \begin{option}{inkscapeopt}
 % \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{macro}{\svg@ink@opt}
 % With these options, the terminal command for invoking \app{Inkscape} as well 
 % as additional options can be defined.
+% \ToDo{rename \cs{svg@ink@ver} > \cs{svg@ink@ver@val} (keep former cs)?}[v2.03]
 %    \begin{macrocode}
 \newcommand*\svg@ink@ver{\m@ne}
 \DefineFamilyKey{SVG}{inkscapeversion}[true]{%
   \FamilySetNumerical{SVG}{inkscape}{svg@tempa}{%
-    {true}{0},{on}{0},{yes}{0},{auto}{0},{detect}{0}%
+    {true}{0},{on}{0},{yes}{0},{auto}{0},{detect}{0},{determine}{0},{fetch}{0},%
+    {enquire}{0},{identify}{0},{request}{0},{retrieve}{0},{obtain}{0}%
   }{#1}%
   \ifx\FamilyKeyState\FamilyKeyStateProcessed%
     \renewcommand*\svg@ink@ver{\m@ne}%
@@ -2749,7 +2769,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 \def\svg@tempa#1{%
   \AtBeginDocument{%
-    \DefineFamilyKey[.svg.sty]{SVG}{#1}[]{%
+    \DefineFamilyKey[]{SVG}{#1}[]{%
       \PackageError{svg}{Option `#1' too late}{%
         Option `#1' can only be set within\MessageBreak%
         the preamble but you have tried to set it up later.%
@@ -2870,20 +2890,19 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{option}^^A inkscapedensity
 % \end{option}^^A inkscapedpi
 % \begin{macro}{\svg@ink@cmd}
-% \changes{v2.03}{2019/06/28}{distinguish \app{Inkscape} versions}^^A
-% The actual call of \app{Inkscape} at command line.
+% \changes{v2.02f}{2020/05/06}{distinguish \app{Inkscape}~CLI versions}^^A
+% The actual usage of the \app{Inkscape} command~line~interface.
 %    \begin{macrocode}
 \newcommand*\svg@ink@cmd[3]{%
-  \svg@ink@exe\space"#1"\space%
-  --without-gui\space\svg@ink@area\space%
+  \svg@ink@exe\space"#1.\svg@file@ext"\space\svg@ink@area\space%
   \ifx\svg@ink@dpi\relax\else--export-dpi=\svg@ink@dpi\space\fi%
   \if@svg@ink@latex--export-latex\space\fi%
   \ifx\svg@ink@opt\@empty\else\svg@ink@opt\space\fi%
-  \ifnum\svg@ink@ver<\@ne%
-    --export-#3="#2"\space%
+  \ifnum\svg@ink@ver=\z@% legacy mode
+    --without-gui\space%
+    --export-\3="#2"%
   \else%
-    --export-type=#3\space%
-    --export-file="#2"\space%
+    --export-filename="#2"%
   \fi%
 }
 %    \end{macrocode}
@@ -3141,7 +3160,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{option}{lastpage}
 % \changes{v2.00}{2017/02/20}{new}^^A
 % \begin{counter}{svg@param@lastpage}
-% For \app{Inkscape}~0.91 a bug concerning the \LaTeX~export has been reported
+% For \app{Inkscape}\,0.91 a bug concerning the \LaTeX~export has been reported
 % (\url{https://bugs.launchpad.net/ubuntu/+source/inkscape/+bug/1417470}). 
 % Sometimes the \LaTeX~file created by \app{Inkscape} tries to include more
 % pages than actually are present in the PDF~file. To work around this 
@@ -3308,8 +3327,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svgsetup
 % \begin{macro}{\svgpath}
 % \changes{v2.00}{2017/02/12}{new}^^A
-% \changes{v2.02}{2018/09/07}{parse argument for enclosing braces and provide
-%   if necessary}^^A
+% \changes{v2.02}{2018/09/07}{parse argument for enclosing braces and provide 
+%   those if necessary}^^A
 % \begin{macro}{\svg@input@path}
 % With \cs{svgpath} the user can give several root paths to SVG~files in the
 % same way as \cs{graphicspath} is used. The only difference is that a missing
@@ -3627,6 +3646,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   in \cs{svg@ink@path}}^^A
 % \begin{macro}{\if@svg@ink@run}
 % The command, which performs the call of \app{Inkscape} via \cs{ShellEscape}.
+% \ToDo{use svg@IfFileNewer instead of iffileexist to check result?}[v2.03]
 %    \begin{macrocode}
 \svg@newif\if@svg@ink@run
 \newcommand*\svg@ink@run[3]{%
@@ -3705,9 +3725,49 @@ svg-extract -- Extract independent graphic files from SVG pictures
         \noexpand\svg@quotes@remove[{#2}]{\noexpand\svg@tempb}%
       }%
       \svg@tempa%
-      \ShellEscape{\svg@ink@cmd{\svg@tempa}{\svg@tempb}{#3}}%
+%    \end{macrocode}
+% The last try to detect the version automatically, if this wasn't succesful 
+% until now. We try to create the desired file by invoking the \app{Inkscape}
+% command~line~interface for both versions. If the desired file was created the 
+% used version is stored in \cs{svg@ink@ver}.
+%    \begin{macrocode}
+      \ifnum\svg@ink@ver=\m@ne\relax%
+        \begingroup%
+          \@svg@tempswafalse%
+          \@tfor\svg@ink@ver:={1}{0}\do{%
+            \ShellEscape{\svg@ink@cmd{\svg@tempa}{\svg@tempb}}%
+            \IfFileExists{\svg@out@name.\svg@ink@format}{%
+              \@svg@tempswatrue%
+            }{}%
+            \if@svg@tempswa%
+              \@break@tfor%
+            \fi%
+          }%
+%    \end{macrocode}
+% If even this attempt does not lead to a valid version, an error message is 
+% shown.
+%    \begin{macrocode}
+          \if@svg@tempswa%
+            \xdef\svg@ink@ver{\svg@ink@ver}%
+          \else%
+            \PackageError{svg}{Inkscape version not found}{%
+              It was tried to invoke `\svg@ink@exe\space-V'\MessageBreak%
+              but no version info for Inkscape could gathered. Please\MessageBreak%
+              use `inkscapeversion=<version>' to set it up manually.%
+            }%
+          \fi%
+        \endgroup%
+%    \end{macrocode}
+% If we already do have a valid version, we only have to invoke the CLI itself.
+%    \begin{macrocode}
+      \else%
+        \ShellEscape{\svg@ink@cmd{\svg@tempa}{\svg@tempb}{#3}}%
+      \fi%
     \endgroup%
-    \IfFileExists{#2}{}{\svg@troubleshooting{svg}{Exporting}{#1}{#2}}%
+    \IfFileExists{#2}{}{%
+      \gdef\svg@ink@ver{\m@ne}%
+      \svg@troubleshooting{svg}{Exporting}{#1}{#2}%
+    }%
   \fi\fi%
 }
 %    \end{macrocode}
@@ -3932,7 +3992,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@param@size@wrn
 % \begin{macro}{\svg@get@lastpage}
 % This macro is used to circumvent the multiple pages bug for PDF~files of
-% \app{Inkscape}~0.91, when the the \LaTeX~export was enabled. For this 
+% \app{Inkscape}\,0.91, when the the \LaTeX~export was enabled. For this 
 % purpose, the total page number is read from the PDF~file. 
 %    \begin{macrocode}
 \newcommand*\svg@get@lastpage[1]{%
@@ -4013,17 +4073,18 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svg@troubleshooting
 % \begin{macro}{\svg@ink@ver@settings}
-% \changes{v2.03}{2019/08/20}{new}^^A
+% \changes{v2.02f}{2020/05/06}{new}^^A
 % \begin{macro}{\svg@ink@ver@detect}
-% \changes{v2.03}{2019/06/28}{new}^^A
+% \changes{v2.02f}{2020/05/06}{new}^^A
 % \begin{macro}{\svg@@ink@ver@detect}
-% \changes{v2.03}{2019/08/20}{new}^^A
+% \changes{v2.02f}{2020/05/06}{new}^^A
 % \begin{macro}{\if@svg@ink@ver@detect}
-% \changes{v2.03}{2019/06/28}{new}^^A
-% As the interface of the command line tool of \app{Inkscape} has changed 
-% between versions \val{0.x} and \val{1.x}, we have to check the used version 
-% in order to define the calling macro \cs{svg@ink@cmd}. The found version is 
-% stored in \cs{svg@ink@ver}, whereas the following meanings are applied:
+% \changes{v2.02f}{2020/05/06}{new}^^A
+% As the command~line~interface of \app{Inkscape} has changed between versions
+% \val{0.x} and \val{1.x}, option \opt{inkscapeversion}|=|\val{detect} allows
+% to detect the used version of \app{Inkscape} in order to define the calling
+% macro \cs{svg@ink@cmd}. The obtained version is stored in \cs{svg@ink@ver},
+% whereas the following meanings are applied:
 % \begin{description}
 %   \item[\val{-1}] version check has not be done or \app{Inkscape} could not 
 %     be found/executed
@@ -4040,17 +4101,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \svg@newif\if@svg@ink@ver@detect
 %    \end{macrocode}
 % In order to run the check for \app{Inkscape} version at the beginning of the 
-% document only if needed, the version stored in \cs{svg@ink@ver} is written to 
-% the aux-file. As a change of the given \opt{inkscapeexe} must also enforce 
-% the version check as well as a change of \cs{svg@ink@ver}, these values are 
-% also written.
+% document only if needed, changes of both \opt{inkscapeversion}---at this 
+% point stored in \cs{svg@ink@ver}--- as well as \opt{inkscapeexe} are detected 
+% and are triggering the version check. After evaluating the triggers, the 
+% current values set are stored as two tokens in \cs{svg@ink@ver@settings}. If
+% a check has been triggered, the detected version will be evaluated further 
+% on and is stored in the third token of \cs{svg@ink@ver@settings}.
 %    \begin{macrocode}
 \newcommand*\svg@ink@ver@detect[3]{%
-%    \end{macrocode}
-% The first two arguments to \cs{svg@ink@ver@settings} are temporary stored in 
-% \cs{svg@tempb} as they are maybe manipulated in further process.
-%    \begin{macrocode}
-  \svg@sanitize@dq\svg@tempb{{\svg@ink@ver}{#2}}%
   \@svg@ink@ver@detectfalse%
   \ifnum\pdf@shellescape=\@ne\relax%
     \ifnum\svg@ink@ver=\m@ne\relax%
@@ -4073,50 +4131,40 @@ svg-extract -- Extract independent graphic files from SVG pictures
           \fi%
         \fi%
 %    \end{macrocode}
-% Enforce the check after a change of \opt{inkscapeexe} and store the new one 
-% in \cs{svg@tempb}.
+% Enforce the check after a change of \opt{inkscapeexe}.
 %    \begin{macrocode}
       \else%
-        \edef\svg@tempb{{\svg@ink@ver}{\svg@ink@exe}}%
         \@svg@ink@ver@detecttrue%
       \fi%
     \fi%
   \fi%
 %    \end{macrocode}
-% Run detection if necessary and store the detected version to 
-% \cs{svg@ink@ver@settings}. Otherwise set previous detected version in 
-% automatic mode.
+% After evaluating the last settings and maybe setting the trigger for version 
+% detection, the current settings are stored in the main aux file. The detected 
+% version will be expanded during the write to the aux file.
+%    \begin{macrocode}
+  \edef\svg@ink@ver@settings{%
+    {\svg@ink@ver}{\svg@ink@exe}{\noexpand\svg@ink@ver}%
+  }%
+%    \end{macrocode}
+% Run detection if necessary and store the result in \cs{svg@ink@ver}\dots
 %    \begin{macrocode}
   \if@svg@ink@ver@detect%
     \svg@@ink@ver@detect%
-    \edef\svg@ink@ver@settings{\svg@tempb{\svg@ink@ver}}%
-%    \end{macrocode}
-% If no version was found, an error message is shown.
-%    \begin{macrocode}
-    \svg@ifnumber{\svg@ink@ver}{}{%
-      \PackageError{svg}{Inkscape version not found}{%
-        It was tried to invoke `\svg@ink@exe\space-V'\MessageBreak%
-        but no version info for Inkscape could gathered. Please\MessageBreak%
-        use `inkscapeversion=<version>' to set it up manually.%
-      }%
-    }%
   \else%
+%    \end{macrocode}
+% \dots or otherwise set previous detected version in automatic mode.
+%    \begin{macrocode}
     \ifnum\svg@ink@ver=\m@ne\relax%
       \def\svg@ink@ver{#3}%
     \fi%
-    \edef\svg@ink@ver@settings{\svg@tempb{#3}}%
   \fi%
 }
 %    \end{macrocode}
-% The detection is only done with extended shell access. Therefore, 
-% \cs{if@svg@ink@ver@detect} is used and set by \cs{svg@ink@settings}. The
-% call of \app{Inkscape} stored in \cs{svg@ink@exe} is done with 
-% \cs{@@input\textbar"'\dots'" -V} in order to read the result from
-% \val{stdout}.
-% \ToDo{
-%   \url{https://tex.stackexchange.com/questions/9792}
-%   \val{-enable-pipes} in MikTeX?!
-% }[v2.03]
+% If the switch \cs{if@svg@ink@ver@detect} was set by \cs{svg@ink@ver@detect} 
+% during the evaluation of \cs{svg@ink@settings}, which holds the settings of 
+% the last run. The call of \app{Inkscape} stored in \cs{svg@ink@exe} is done
+% with \cs{@@input\textbar"'\dots'" -V} in order to read from \val{stdout}.
 %    \begin{macrocode}
 \newcommand*\svg@@ink@ver@detect{%
   \begingroup%
@@ -4128,6 +4176,23 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \edef\noexpand\svg@tempa{\noexpand\@@input|"'\svg@ink@exe'\space-V" }%
     }%
     \svg@tempa%
+%    \end{macrocode}
+% The invocation of commands through a pipe is buggy for MiK\TeX so we try to 
+% deal with this workaround: \url{https://github.com/MiKTeX/miktex/issues/532}
+% \ToDo{Markup for link to issue}[v2.03]
+%    \begin{macrocode}
+    \ifx\svg@tempa\@empty%
+      \ifwindows%
+        \def\svg@tempb{\jobname.svg.ink.ver.aux}%
+        \IfFileExists{\svg@tempb}{}{%
+          \ShellEscape{call "\svg@ink@exe" -V > \svg@tempb}%
+          \openin\@inputcheck=\svg@tempb%
+          \read\@inputcheck to\svg@tempa%
+          \closein\@inputcheck%
+          \ShellEscape{del \svg@tempb}%
+        }%
+      \fi%
+    \fi%
 %    \end{macrocode}
 % The found version is stored in \cs{svg@tempa} and parsed afterwards.
 %    \begin{macrocode}
@@ -4615,9 +4680,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \section{Extracting independent graphic files with \pkg{svg-extract}}
 % \subsection{Options}
 %
-% For package \pkg{svg-extract} the user interface is extended. The following 
-% options can either be set with \cs{svgsetup} or be used as local optional 
-% parameters for \cs{includesvg} and \cs{includeinkscape}.
+% For package \pkg{svg-extract} the user\hbox{-}interface is extended. The
+% following options can either be set with \cs{svgsetup} or be used as local
+% optional parameters for \cs{includesvg} and \cs{includeinkscape}.
 %
 % \begin{macro}{\svg@dummy@key}
 % \begin{macro}{\svg@dummy@key@wrn}
