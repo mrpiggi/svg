@@ -227,7 +227,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \ToDo{use Travis CI (https://github.com/latex3/latex2e .travis.yml)}[v2.04]
   \ToDo{add filter to .gitattributes to update revision}[v2.03]
   \ToDo{use \cs{GitHubRepo}}[v2.03]
-  \ToDo{replace \cs{svg@@...} with \cs{svg@...@}}[v2.03]
   \ToDo{replace \cs{scr@ifundefinedorrelax} with etex command}[v2.03]
   \ToDo{%
     replace \cs{Ifisdimension} with \cs{svg@if@number} or \cs{svg@set@number}?
@@ -245,7 +244,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %^^A\footest{1a5}
   \ToDo{use \cs{@tempa} instead of \cs{svg@tempa} in FamilyKeys!}[v2.03]
   \ToDo{use \cs{svg@ifvalueisrelax} for every FamilyKey}[v2.03]
-  \ToDo{master makefile should just change dir}[v2.03]
   \ToDo{%
     general note to path and file names (umlauts or any other non-ascii) at the 
     very beginning, mention \pkg{grffile}?%
@@ -1477,10 +1475,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.03}{2019/08/30}{new}^^A
 % \begin{macro}{\svg@catcodes@set}
 % \changes{v2.03}{2019/08/30}{new}^^A
-% \begin{macro}{\svg@@catcodes@set}
+% \begin{macro}{\svg@catcodes@@set}
 % \changes{v2.03}{2019/08/30}{new}^^A
 % All catcodes of relevant special characters are stored and adapted with
-% \cs{svg@catcodes@set}. Therefore, \cs{svg@@catcodes@set} is called with a 
+% \cs{svg@catcodes@set}. Therefore, \cs{svg@catcodes@@set} is called with a 
 % specific special character. First, it's definition is expanded to
 % \cs{svg@catcodes@restore} and then set to \val{other}. So it is possible
 % to call \cs{svg@catcodes@restore} and \cs{svg@catcodes@set} multiple times
@@ -1490,12 +1488,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svg@catcodes@restore{}
 \newcommand*\svg@catcodes@set{%
   \ifx\svg@catcodes@restore\@empty%
-    \svg@@catcodes@set\"%
-    \svg@@catcodes@set\_%
+    \svg@catcodes@@set\"%
+    \svg@catcodes@@set\_%
     \l@addto@macro\svg@catcodes@restore{\let\svg@catcodes@restore\@empty}%
   \fi%
 }
-\newcommand*\svg@@catcodes@set[1]{%
+\newcommand*\svg@catcodes@@set[1]{%
   \edef\svg@catcodes@restore{%
     \unexpanded\expandafter{\svg@catcodes@restore}%
     \catcode`\noexpand#1\the\catcode`#1\relax%
@@ -1504,7 +1502,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 %</main>
 %    \end{macrocode}
-% \end{macro}^^A \svg@@catcodes@set
+% \end{macro}^^A \svg@catcodes@@set
 % \end{macro}^^A \svg@catcodes@set
 % \end{macro}^^A \svg@catcodes@restore
 %
@@ -1790,33 +1788,33 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svg@sanitize@dq
 % \begin{macro}{\svg@quotes@check}
-% \begin{macro}{\svg@@quotes@check}
+% \begin{macro}{\svg@quotes@@check}
 % \begin{macro}{\if@svg@quotes@found}
 % During the treatment of paths, it may be necessary to temporarily remove 
 % quotes and, if required, add them again later. For this purpose, the switch 
 % \cs{if@svg@quotes@found} as well as the commands \cs{svg@quotes@check} and
-% \cs{svg@@quotes@check}, which controls the switch, are defined. As before, 
+% \cs{svg@quotes@@check}, which controls the switch, are defined. As before, 
 % the string is passed in a macro to \cs{svg@quotes@check}.
 %    \begin{macrocode}
 \svg@newif\if@svg@quotes@found
 \newcommand*\svg@quotes@check[1]{%
-  \expandafter\svg@@quotes@check#1"\@nil%
+  \expandafter\svg@quotes@@check#1"\@nil%
 }
-\newcommand*\svg@@quotes@check{}
-\def\svg@@quotes@check#1"#2\@nil{%
+\newcommand*\svg@quotes@@check{}
+\def\svg@quotes@@check#1"#2\@nil{%
   \IfArgIsEmpty{#2}{\@svg@quotes@foundfalse}{\@svg@quotes@foundtrue}%
 }
 %    \end{macrocode}
 % \end{macro}^^A \if@svg@quotes@found
-% \end{macro}^^A \svg@@quotes@check
+% \end{macro}^^A \svg@quotes@@check
 % \end{macro}^^A \svg@quotes@check
 % \begin{macro}{\svg@quotes@remove}
 % \changes{v2.02}{2018/09/07}{usage of \cs{svg@sanitize@dq}}^^A
 % \changes{v2.02}{2018/09/07}{calling \cs{svg@quotes@check}}^^A
 % \changes{v2.03}{2018/08/28}{star version for trimming spaces}^^A
-% \begin{macro}{\svg@@quotes@remove}
-% \begin{macro}{\svg@@@quotes@remove}
-% \begin{macro}{\svg@@@@quotes@remove}
+% \begin{macro}{\svg@quotes@@remove}
+% \begin{macro}{\svg@quotes@@@remove}
+% \begin{macro}{\svg@quotes@@@@remove}
 % These commands are used to remove all occurring quotes within a string. The
 % mandatory argument passed to \cs{svg@quotes@remove} is not the string itself
 % but a macro in which a string is stored. The optional argument can be used to
@@ -1825,16 +1823,16 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 \newcommand\svg@quotes@remove{%
   \kernel@ifstar%
-    {\svg@@quotes@remove{\trim@spaces}}%
-    {\svg@@quotes@remove{\@firstofone}}%
+    {\svg@quotes@@remove{\trim@spaces}}%
+    {\svg@quotes@@remove{\@firstofone}}%
 }
-\newcommand*\svg@@quotes@remove[1]{%
+\newcommand*\svg@quotes@@remove[1]{%
   \kernel@ifnextchar[%]
-    {\svg@@@quotes@remove{#1}}%
-    {\svg@@@quotes@remove{#1}[\@nil]}%
+    {\svg@quotes@@@remove{#1}}%
+    {\svg@quotes@@@remove{#1}[\@nil]}%
 }
-\newcommand*\svg@@@quotes@remove{}
-\def\svg@@@quotes@remove#1[#2]#3{%
+\newcommand*\svg@quotes@@@remove{}
+\def\svg@quotes@@@remove#1[#2]#3{%
   \begingroup%
 %    \end{macrocode}
 % As the optional argument could be used with an empty string, an undefined
@@ -1847,7 +1845,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     }%
     \expandafter\svg@quotes@check\expandafter{\svg@tempa}%
     \edef\svg@tempa{\expandafter#1\expandafter{\svg@tempa}}%
-    \expandafter\svg@@@@quotes@remove\svg@tempa"\@nil%
+    \expandafter\svg@quotes@@@@remove\svg@tempa"\@nil%
     \edef\svg@tempa{\expandafter#1\expandafter{\svg@tempa}}%
 %    \end{macrocode}
 % If only whitespace is contained, the string is defined as empty.
@@ -1865,26 +1863,26 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \svg@tempb%
 }
 %    \end{macrocode}
-% Recursivly calling \cs{svg@@@@quotes@remove} removes every occuring quote.
+% Recursivly calling \cs{svg@quotes@@@@remove} removes every occuring quote.
 %    \begin{macrocode}
-\newcommand*\svg@@@@quotes@remove{}
-\def\svg@@@@quotes@remove#1"#2\@nil{%
+\newcommand*\svg@quotes@@@@remove{}
+\def\svg@quotes@@@@remove#1"#2\@nil{%
   \IfArgIsEmpty{#2}{%
     \edef\svg@tempa{#1}%
   }{%
-    \svg@@@@quotes@remove#1#2\@nil%
+    \svg@quotes@@@@remove#1#2\@nil%
   }%
 }
 %    \end{macrocode}
-% \end{macro}^^A \svg@@@@quotes@remove
-% \end{macro}^^A \svg@@@quotes@remove
-% \end{macro}^^A \svg@@quotes@remove
+% \end{macro}^^A \svg@quotes@@@@remove
+% \end{macro}^^A \svg@quotes@@@remove
+% \end{macro}^^A \svg@quotes@@remove
 % \end{macro}^^A \svg@quotes@remove
 % \begin{macro}{\svg@quotes@normalize}
 % \changes{v2.03}{2019/08/29}{new}^^A
-% \begin{macro}{\svg@@quotes@normalize}
+% \begin{macro}{\svg@quotes@@normalize}
 % \changes{v2.03}{2019/08/29}{new}^^A
-% \begin{macro}{\svg@@@quotes@normalize}
+% \begin{macro}{\svg@quotes@@@normalize}
 % \changes{v2.03}{2019/08/29}{new}^^A
 % Removes all quotes found and if any was existent, encloses the non-empty 
 % string in the same. The star version trims spaces from string after removing 
@@ -1892,16 +1890,16 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 \newcommand*\svg@quotes@normalize{%
   \kernel@ifstar%
-    {\svg@@quotes@normalize{*}}%
-    {\svg@@quotes@normalize{}}%
+    {\svg@quotes@@normalize{*}}%
+    {\svg@quotes@@normalize{}}%
 }
-\newcommand*\svg@@quotes@normalize[1]{%
+\newcommand*\svg@quotes@@normalize[1]{%
   \kernel@ifnextchar[%]
-    {\svg@@@quotes@normalize{#1}}%
-    {\svg@@@quotes@normalize{#1}[\@nil]}%
+    {\svg@quotes@@@normalize{#1}}%
+    {\svg@quotes@@@normalize{#1}[\@nil]}%
 }
-\newcommand*\svg@@@quotes@normalize{}
-\def\svg@@@quotes@normalize#1[#2]#3{%
+\newcommand*\svg@quotes@@@normalize{}
+\def\svg@quotes@@@normalize#1[#2]#3{%
   \svg@if@nil{#2}{%
     \svg@quotes@remove#1{#3}%
   }{%
@@ -1917,8 +1915,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \fi%
 }
 %    \end{macrocode}
-% \end{macro}^^A \svg@@@quotes@normalize
-% \end{macro}^^A \svg@@quotes@normalize
+% \end{macro}^^A \svg@quotes@@@normalize
+% \end{macro}^^A \svg@quotes@@normalize
 % \end{macro}^^A \svg@quotes@normalize
 % \begin{macro}{\svg@ifstrnocase}
 % \changes{v2.03}{2019/08/29}{new}^^A
@@ -2188,13 +2186,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % \end{macro}^^A \svg@IfFileNewer
 % \begin{macro}{\svg@shell@mkdir}
-% \begin{macro}{\svg@@shell@mkdir}
+% \begin{macro}{\svg@shell@@mkdir}
 % \begin{macro}{\svg@shell@mv}
-% \begin{macro}{\svg@@shell@mv}
+% \begin{macro}{\svg@shell@@mv}
 % \begin{macro}{\svg@shell@rm}
-% \begin{macro}{\svg@@shell@rm}
-% Finally, platform macros for creating directories as well as moving and 
-% deleting files are provided.
+% \begin{macro}{\svg@shell@@rm}
+% Finally, platform dependend macros for creating directories as well as 
+% moving and deleting files are provided.
 %    \begin{macrocode}
 \newcommand*\svg@shell@mkdir[1]{%
   \begingroup%
@@ -2204,7 +2202,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \svg@quotes@remove[{#1}]{\svg@tempa}%
     \svg@normalize@path{\svg@tempa}%
     \ifx\svg@tempa\@currdir\else%
-      \ShellEscape{\svg@@shell@mkdir{\svg@tempa}}%
+      \ShellEscape{\svg@shell@@mkdir{\svg@tempa}}%
     \fi%
   \endgroup%
 }
@@ -2232,7 +2230,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \svg@tempa%
     \IfFileExists{"\svg@tempa"}{%
       \ifx\svg@tempa\svg@tempb\else%
-        \ShellEscape{\svg@@shell@mv\space"\svg@tempa"\space"\svg@tempb"}%
+        \ShellEscape{\svg@shell@@mv\space"\svg@tempa"\space"\svg@tempb"}%
       \fi%
     }{}%
   \endgroup%
@@ -2246,7 +2244,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \ifx\filename@ext\relax\else.\filename@ext\fi%
     ]{\svg@tempa}%
     \IfFileExists{"\svg@tempa"}{%
-      \ShellEscape{\svg@@shell@rm\space"\svg@tempa"}%
+      \ShellEscape{\svg@shell@@rm\space"\svg@tempa"}%
     }{}%
   \endgroup%
 }
@@ -2254,24 +2252,24 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The platform dependent commands for file access. 
 %    \begin{macrocode}
 \svg@ifwindowsdetected{%
-  \newcommand*\svg@@shell@mkdir[1]{if not exist "#1" mkdir "#1"}%
-  \newcommand*\svg@@shell@mv{move}%
-  \newcommand*\svg@@shell@rm{del}%
+  \newcommand*\svg@shell@@mkdir[1]{if not exist "#1" mkdir "#1"}%
+  \newcommand*\svg@shell@@mv{move}%
+  \newcommand*\svg@shell@@rm{del}%
 }{%
-  \newcommand*\svg@@shell@mkdir[1]{mkdir -p "#1"}%
-  \newcommand*\svg@@shell@mv{mv}%
-  \newcommand*\svg@@shell@rm{rm}%
+  \newcommand*\svg@shell@@mkdir[1]{mkdir -p "#1"}%
+  \newcommand*\svg@shell@@mv{mv}%
+  \newcommand*\svg@shell@@rm{rm}%
 }
 %    \end{macrocode}
-% \end{macro}^^A \svg@@shell@rm
+% \end{macro}^^A \svg@shell@@rm
 % \end{macro}^^A \svg@shell@rm
-% \end{macro}^^A \svg@@shell@mv
+% \end{macro}^^A \svg@shell@@mv
 % \end{macro}^^A \svg@shell@mv
-% \end{macro}^^A \svg@@shell@mkdir
+% \end{macro}^^A \svg@shell@@mkdir
 % \end{macro}^^A \svg@shell@mkdir
 % \begin{macro}{\svg@normalize@path}
 % \changes{v2.02}{2018/09/07}{usage of \cs{svg@deactivate@dq}}^^A
-% \begin{macro}{\svg@@normalize@path}
+% \begin{macro}{\svg@normalize@@path}
 % If any path is given, a trailing slash is needed. These two macros ensure
 % that this condition is fulfilled in any case, even if this is not considered
 % by the user. As before, a macro containing the path string has to be used as 
@@ -2282,7 +2280,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \begingroup%
     \svg@quotes@remove*[{#2}]{\svg@tempa}%
     \Ifstr{\svg@tempa}{/}{\let\svg@tempa\@currdir}{}%
-    \expandafter\svg@@normalize@path\svg@tempa//\@nil%
+    \expandafter\svg@normalize@@path\svg@tempa//\@nil%
 %    \end{macrocode}
 % The optional argument is to be considered as normalized and no action is 
 % taken onto this. The current directory is never enquoted.
@@ -2305,21 +2303,21 @@ svg-extract -- Extract independent graphic files from SVG pictures
     }%
   \svg@tempb%
 }
-\newcommand*\svg@@normalize@path{}
+\newcommand*\svg@normalize@@path{}
 %    \end{macrocode}
 % As directories should not start or end with spaces, these are removed.
 %    \begin{macrocode}
-\def\svg@@normalize@path#1/#2/\@nil{%
+\def\svg@normalize@@path#1/#2/\@nil{%
   \IfArgIsEmpty{#2}{%
     \let\svg@tempa\@empty%
     \IfArgIsEmpty{#1}{}{\edef\svg@tempa{\trim@spaces{#1}/}}%
   }{%
-    \svg@@normalize@path#2/\@nil%
+    \svg@normalize@@path#2/\@nil%
     \edef\svg@tempa{\trim@spaces{#1}/\svg@tempa}%
   }%
 }
 %    \end{macrocode}
-% \end{macro}^^A \svg@@normalize@path
+% \end{macro}^^A \svg@normalize@@path
 % \end{macro}^^A \svg@normalize@path
 %
 % \iffalse
@@ -4055,7 +4053,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.02f}{2020/05/06}{new}^^A
 % \begin{macro}{\svg@ink@ver@detect}
 % \changes{v2.02f}{2020/05/06}{new}^^A
-% \begin{macro}{\svg@@ink@ver@detect}
+% \begin{macro}{\svg@ink@ver@@detect}
 % \changes{v2.02f}{2020/05/06}{new}^^A
 % \begin{macro}{\if@svg@ink@ver@detect}
 % \changes{v2.02f}{2020/05/06}{new}^^A
@@ -4129,7 +4127,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Run detection if necessary and store the result in \cs{svg@ink@ver}\dots
 %    \begin{macrocode}
   \if@svg@ink@ver@detect%
-    \svg@@ink@ver@detect%
+    \svg@ink@ver@@detect%
   \else%
 %    \end{macrocode}
 % \dots or otherwise set previous detected version in automatic mode.
@@ -4145,7 +4143,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % the last run. The call of \app{Inkscape} stored in \cs{svg@ink@exe} is done
 % with \cs{@@input\textbar"'\dots'" -V} in order to read from \val{stdout}.
 %    \begin{macrocode}
-\newcommand*\svg@@ink@ver@detect{%
+\newcommand*\svg@ink@ver@@detect{%
   \begingroup%
     \@makeother\|%
     \endlinechar=\m@ne%
@@ -4197,7 +4195,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 %    \end{macrocode}
 % \end{macro}^^A \if@svg@ink@ver@detect
-% \end{macro}^^A \svg@@ink@ver@detect
+% \end{macro}^^A \svg@ink@ver@@detect
 % \end{macro}^^A \svg@ink@ver@detect
 % \end{macro}^^A \svg@ink@ver@settings
 %
@@ -4298,11 +4296,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svg@get@file}
 % \changes{v2.01}{2017/11/28}{using \cs{svg@set@input@path}}^^A
 % \changes{v2.01}{2017/11/28}{using \cs{trim@spaces}}^^A
-% \begin{macro}{\svg@@get@file}
+% \begin{macro}{\svg@get@@file}
 % \changes{v2.03}{2019/08/28}{new}^^A
-% \begin{macro}{\svg@@@get@file}
+% \begin{macro}{\svg@get@@@file}
 % \changes{v2.03}{2019/08/28}{new}^^A
-% \begin{macro}{\svg@@@@get@file}
+% \begin{macro}{\svg@get@@@@file}
 % \changes{v2.03}{2019/08/28}{new}^^A
 % \begin{macro}{\if@svg@file@found}
 % \begin{macro}{\svg@file@path}
@@ -4321,13 +4319,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svg@file@path{}
 \newcommand*\svg@file@name{}
 \newcommand*\svg@file@base{}
-\newcommand*\svg@@get@file{}
+\newcommand*\svg@get@@file{}
 \newcommand*\svg@get@file{%
   \kernel@ifstar%
-    {\let\svg@@get@file\@gobble\svg@@@get@file}%
-    {\let\svg@@get@file\@firstofone\svg@@@get@file}%
+    {\let\svg@get@@file\@gobble\svg@get@@@file}%
+    {\let\svg@get@@file\@firstofone\svg@get@@@file}%
 }
-\newcommand*\svg@@@get@file[3][]{%
+\newcommand*\svg@get@@@file[3][]{%
   \begingroup%
 %    \end{macrocode}
 % After calling \cs{svg@set@input@path}, all search paths are stored in
@@ -4344,14 +4342,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \ifx\filename@ext\relax%
       \edef\filename@ext{#3}%
     \fi%
-    \svg@@@@get@file{\filename@area\filename@base.\filename@ext}%
+    \svg@get@@@@file{\filename@area\filename@base.\filename@ext}%
 %    \end{macrocode}
 % If no file was found, we are trying again and trim surrounding spaces at the 
 % given file name as they are maybe unwanted.
 %    \begin{macrocode}
     \if@svg@file@found\else%
       \svg@quotes@normalize*[\filename@base]{\svg@tempa}%
-      \svg@@@@get@file{\filename@area\svg@tempa.\filename@ext}%
+      \svg@get@@@@file{\filename@area\svg@tempa.\filename@ext}%
 %    \end{macrocode}
 % If nothing was found, a maybe empty file extension is set to \cs{relax}.
 %    \begin{macrocode}
@@ -4386,7 +4384,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % If no file was found, an error message is raised for the non star version.
 %    \begin{macrocode}
-      \svg@@get@file{%
+      \svg@get@@file{%
         \edef\svg@tempb{\svg@file@name.#3}%
         \edef\svg@tempa{%
           There's no file `\svg@tempb'\MessageBreak%
@@ -4435,12 +4433,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % Using \cs{IfFileExists} with eventual quotes in file path and/or name 
 % especially together with evaluating \cs{input@path} is a mess. In order to
-% get everything working well, \cs{svg@@@@get@file} is defined. This command
+% get everything working well, \cs{svg@get@@@@file} is defined. This command
 % evaluates \cs{input@path} before executing \cs{IfFileExists} and formats the 
-% composed path like needed. Be aware, that \cs{svg@@@@get@file} does not 
+% composed path like needed. Be aware, that \cs{svg@get@@@@file} does not 
 % search the TDS of the distribution.
 %    \begin{macrocode}
-\newcommand*\svg@@@@get@file[1]{%
+\newcommand*\svg@get@@@@file[1]{%
   \begingroup%
     \@svg@tempswafalse%
 %    \end{macrocode}
@@ -4507,9 +4505,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@file@name
 % \end{macro}^^A \svg@file@path
 % \end{macro}^^A \if@svg@file@found
-% \end{macro}^^A \svg@@@@get@file
-% \end{macro}^^A \svg@@@get@file
-% \end{macro}^^A \svg@@get@file
+% \end{macro}^^A \svg@get@@@@file
+% \end{macro}^^A \svg@get@@@file
+% \end{macro}^^A \svg@get@@file
 % \end{macro}^^A \svg@get@file
 % \begin{macro}{\svg@normalize@name}
 % \changes{v2.03}{2019/09/02}{new}^^A
