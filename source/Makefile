@@ -4,8 +4,8 @@ PACKAGE = svg
 LATEX = pdflatex
 TEX = tex
 
-include osutils.mak
-include texutils.mak
+include utils_fs.mak
+include utils_tex.mak
 
 # source files and package version
 SRC__FILE := $(PACKAGE).dtx
