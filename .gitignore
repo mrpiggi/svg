@@ -48,7 +48,7 @@ temp/
 *.xdy
 *.xlg
 ## include test files
-!test/*.tex
-!test/*.cls
-!test/*.sty
-!test/*.svg
+!test/*/*.tex
+!test/*/*.cls
+!test/*/*.sty
+!test/*/*.svg

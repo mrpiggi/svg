@@ -1,0 +1,5 @@
+## git config --local include.path ../.gitconfig
+[filter "update-dtx"]
+  clean = export filename=$(basename "%f") && sed -r -z -e"s:\\('  '\\\\[\\)\\([[:digit:]]\\|/\\){10}:\\\\1$(date '+%Y/%m/%d'):" -e"s:\\(%\\\\s*\\\\\\\\iffalse\\)\\([^\\\\n]*\\\\n\\)\\(%\\\\s*$filename[^\\\\n]*\\\\n\\)?:\\\\1\\ meta-comment\\\\n%\\ $filename\\\\n:"
+[filter "update-copyright"]
+  clean = sed -r "s/\\(.*Copyright.*Hanisch.*,\\)\\\\s*\\([[:digit:]]{4}\\)\\(-[[:digit:]]{4}\\)?\\(.*\\)/\\\\1' '\\\\2-$(date '+%Y')\\\\4/g"
