@@ -15,7 +15,7 @@
 %% ----------------------------------------------------------------------------
 %%
 %% Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016
-%% Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-2020
+%% Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-2020-
 %%
 %% ----------------------------------------------------------------------------
 %%
@@ -36,7 +36,7 @@
 %%
 %% ----------------------------------------------------------------------------
 %%
-\NeedsTeXFormat{LaTeX2e}[2020-02-02]
+\NeedsTeXFormat{LaTeX2e}[2019-10-01]
 \begingroup
   \catcode`\@11\relax%
   \def\svg@Provides#1#2[#3]{%
@@ -108,7 +108,6 @@
   \begingroup%
     \let\svg@tempb\@empty%
     \@for\svg@tempa:={,#2}\do{%
-      % TODO use trim@spaces@in?
       \edef\svg@tempa{\expandafter\trim@spaces@noexp\expandafter{\svg@tempa}}%
       \ifx\svg@tempa\@empty\else%
         \edef\svg@tempa{%
@@ -168,7 +167,7 @@
       \l@addto@macro\svg@tempb{##1}%
       \IfArgIsEmpty{##3}{}{%
         \@svg@tempswafalse%
-        \IfArgIsEmpty{##2}{}{\Ifstrstart{##2}{=}{}{\@svg@tempswatrue}}%
+        \IfArgIsEmpty{##2}{}{\ifstrstart{##2}{=}{}{\@svg@tempswatrue}}%
         \if@svg@tempswa%
           \l@addto@macro\svg@tempb{,#2##2}%
         \fi%
@@ -197,7 +196,6 @@
     \ifcase\svg@tempa\relax% false
       \def\svgx@extr@mode{0}%
     \or% true
-      % TODO Warning! check when executed?
       \ifx\svg@IfFileNewer\@undefined%
         \def\svgx@extr@mode{2}%
       \else%
@@ -280,7 +278,6 @@
     \fi%
   \fi%
 }
-% TODO boolean key true default and false empty
 \newcommand*\svgx@extr@preamble{\jobname}%
 \DefineFamilyKey{SVG}{extractpreamble}{%
   \renewcommand*\svgx@extr@preamble{#1}%
@@ -398,7 +395,6 @@
     \ifcase\svg@tempa\relax% false
       \def\svgx@conv@mode{0}%
     \or% true
-      % TODO Warning! check when executed?
       \ifx\svg@IfFileNewer\@undefined%
         \def\svgx@conv@mode{2}%
       \else%
@@ -547,7 +543,7 @@
       \fi%
     }%
     \def\svg@tempb##1x##2x##3\@nil{%
-      \Ifstr{##3}{x}{%
+      \ifstr{##3}{x}{%
         \@svg@tempswatrue%
         \IfArgIsEmpty{##1}{\@svg@tempswafalse}{%
           \svg@ifnumber{##1}{}{\@svg@tempswafalse}%
@@ -616,7 +612,6 @@
     \fi%
   }%
 }
-% TODO \svg@ifvalueisrelax{#1}{%
 \svg@ifwindowsdetected{%
   \newcommand*\svgx@magick@exe{magick}%
 }{%
@@ -704,14 +699,13 @@
 \DefineFamilyKey{SVG}{path}{%
   \svg@deprecated@key[svg-extract]{path=#1}{extractpath=#1}%
 }
-% TODO revise argument: \svg@ink@name > \svg@file@name?
 \newcommand*\svgx@out@name{\the\value{svgx@out@count}-\svg@ink@name}
 \svg@newif\if@svgx@out@sec
 \newcounter{svgx@out@count}
 \newcommand*\svgx@out@sec{unknown}
 \DefineFamilyKey{SVG}{extractname}{%
   \svg@ifvalueisrelax{#1}{%
-    \svgsetup{extractname=filenamenumbered}%
+    \FamilyOptions{SVG}{extractname=filenamenumbered}%
   }{%
     \svg@sanitize@dq\svg@tempb{#1}%
     \FamilySetNumerical{SVG}{extractname}{svg@tempa}{%
@@ -813,7 +807,7 @@
       \renewcommand*\svgx@param@scale{\svg@param@scale}%
       \FamilyKeyStateProcessed%
     }{%
-      \Ifisdimension{#1\p@}{%
+      \ifisdimension{#1\p@}{%
         \ifdim\dimexpr#1\p@\relax>\z@\relax%
           \renewcommand*\svgx@param@scale{#1}%
           \FamilyKeyStateProcessed%
@@ -965,7 +959,7 @@
         \renewcommand*\svgx@param@angle{\svg@param@angle}%
         \FamilyKeyStateProcessed%
       }{%
-        \Ifisdimension{#1\p@}{%
+        \ifisdimension{#1\p@}{%
           \renewcommand*\svgx@param@angle{#1}%
           \FamilyKeyStateProcessed%
         }{}%
@@ -988,214 +982,20 @@
     {\svgx@include}%
     {\svgx@@@include{}{}}%
 }
-\DefineFamilyMember[.graphicx]{SVG}
-\newcommand*\svgx@graphicx@keys{%
-  width,height,scale,keepaspectratio,distort,angle,origin,draft%
-}
-\newcommand*\svgx@params@exec{}
-\newcommand*\svgx@params@relax{}
-\newcommand*\svgx@params@pass{}
-\newcommand*\svgx@params@unknown{}
 \newcommand*\svgx@include{}
 \def\svgx@include[#1]{%
   \kernel@ifnextchar[%]
-  {\svgx@@include{#1}}%
-  {%
-    \begingroup%
-      \svg@local@param@use%
-      \begingroup%
-        \svgx@@normalize@list\svgx@params@unknown{#1}%
-% DOC \ToDo{revise; \opt{@else@} with \cs{FamilyOptions}}[KOMA v3.27]
-        \RelaxFamilyKey[.svg.sty]{SVG}{lastpage}
-        \@for\svg@tempb:={.svg.sty,.svg-extract.sty,.param}\do{%
-          \let\svgx@params@pass\svgx@params@unknown%
-          \let\svgx@params@unknown\@empty%
-          \DefineFamilyKey[\svg@tempb]{SVG}{@else@}{%
-            \expandafter\svgx@@ifinlist\expandafter{\svgx@params@pass}{####1}%
-              {\l@addto@macro\svgx@params@unknown{,####1}}{}%
-            \FamilyKeyStateProcessed%
-          }%
-          \expandafter\FamilyExecuteOptions\expandafter[\svg@tempb]{SVG}{#1}%
-        }%
-% DOC \svgx@params@unknown enthält jetzt alle unbekannten Optionen
-        \svgx@normalize@list{\svgx@params@unknown}%
-        \let\svgx@params@exec\@empty%
-        \let\svgx@params@relax\@empty%
-        \let\svgx@params@pass\@empty%
-        \def\svg@tempb####1{%
-          \DefineFamilyKey[.graphicx]{SVG}{####1}[]{%
-            \svgx@remove@key@list{\svgx@params@relax}{####1}%
-            \svgx@remove@key@list{\svgx@params@pass}{####1}%
-            \svg@ifvalueisrelax{########1}{%
-              \l@addto@macro\svgx@params@relax{,####1=########1}%
-            }{%
-              \IfArgIsEmpty{########1}{%
-                \l@addto@macro\svgx@params@pass{,####1}%
-              }{%
-                \l@addto@macro\svgx@params@pass{,####1=########1}%
-              }%
-            }%
-            \FamilyKeyStateProcessed%
-          }%
-        }%
-        \@for\svg@tempa:=\svgx@graphicx@keys\do{%
-          \expandafter\svg@tempb\expandafter{\svg@tempa}%
-        }%
-        \DefineFamilyKey[.graphicx]{SVG}{distort}[true]{%
-          \FamilySetBool{SVG}{distort}{@svg@tempswa}{####1}%
-          \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-            \if@svg@tempswa%
-              \FamilyExecuteOptions[.graphicx]{SVG}{keepaspectratio=false}%
-            \else
-              \FamilyExecuteOptions[.graphicx]{SVG}{keepaspectratio=true}%
-            \fi%
-          \fi%
-        }%
-% DOC preserve right order
-        \DefineFamilyKey[.graphicx]{SVG}{@else@}{%
-          \expandafter\svgx@@ifinlist\expandafter{\svgx@params@unknown}{####1}%
-            {\l@addto@macro\svgx@params@pass{,####1}}%
-            {\l@addto@macro\svgx@params@exec{,####1}}%
-          \FamilyKeyStateProcessed%
-        }%
-        \FamilyExecuteOptions[.graphicx]{SVG}{#1}%
-        \svgx@normalize@list{\svgx@params@exec}%
-        \svgx@normalize@list{\svgx@params@relax}%
-        \svgx@normalize@list{\svgx@params@pass}%
-        \edef\svg@tempa{%
-          \endgroup%
-          \def\noexpand\svgx@params@exec%
-            {\etex@unexpanded\expandafter{\svgx@params@exec}}%
-          \def\noexpand\svgx@params@relax%
-            {\etex@unexpanded\expandafter{\svgx@params@relax}}%
-          \def\noexpand\svgx@params@pass%
-            {\etex@unexpanded\expandafter{\svgx@params@pass}}%
-        }%
-      \svg@tempa%
-      \expandafter\svg@local@param@set\expandafter{\svgx@params@relax}%
-      \def\svg@tempb{%
-        draft\if@svg@draft\else=false\fi,%
-      }%
-      \ifdim\svg@param@width>\z@\relax%
-        \l@addto@macro\svg@tempb{width=\svg@param@width,}%
-      \fi%
-      \ifdim\svg@param@height>\z@\relax%
-        \l@addto@macro\svg@tempb{height=\svg@param@height,}%
-      \fi%
-      \ifdim\dimexpr\svg@param@scale\p@\relax=\p@\relax\else%
-        \l@addto@macro\svg@tempb{scale=\svg@param@scale,}%
-      \fi%
-      \l@addto@macro\svg@tempb{keepaspectratio\if@svg@param@distort=false\fi,}%
-      \edef\svgx@params@pass{%
-        \svg@tempb\etex@unexpanded\expandafter{\svgx@params@pass}%
-      }%
-      \edef\svg@tempa{%
-        \endgroup%
-        \noexpand\svgx@@@include%
-          {\etex@unexpanded\expandafter{\svgx@params@exec}}%
-          {\etex@unexpanded\expandafter{\svgx@params@pass}}%
-      }%
-    \svg@tempa%
-  }%
+    {\svgx@@include{#1}}%
+    {\svgx@@include{#1}[]}%
 }
 \newcommand*\svgx@@include{}
 \def\svgx@@include#1[#2]{%
   \svgx@@@include{#1}{#2}%
 }
 \newcommand*\svgx@@@include[3]{%
-  \par\bigskip\noindent%
-  includesvg:\detokenize{#1}\newline%
-  includegraphics:\detokenize{#2}\newline%
-  filename:\detokenize{#3}\newline%
-  %
-  \begingroup%
-    \def\svg@tempb##1{%
-      \DefineFamilyKey[.graphicx]{SVG}{##1}[]{%
-        \def\svg@tempa{####1}%
-        \ifx\svg@tempa\@empty\else%
-          \def\svg@tempa{=####1}%
-        \fi%
-        \svg@ifvalueisrelax{####1}{%
-          \def\svg@tempb{%
-            has no effect as predefined parameters are not\MessageBreak%
-            evaluated when command `\expandafter\string\svgx@include@cmd x' is%
-            \MessageBreak%
-            used with two optional arguments%
-          }%
-        }{%
-          \def\svg@tempb{%
-            is ignored and should be used in the second\MessageBreak%
-            optional argument in order to pass it\MessageBreak% 
-            to `\string\includegraphics[...]'%
-          }%
-        }%
-        \PackageWarning{svg-extract}{%
-          The given parameter
-          `##1\svg@tempa'\MessageBreak%
-          \svg@tempb%
-        }%
-        \FamilyKeyStateProcessed%
-      }%
-    }%
-    \@for\svg@tempa:=\svgx@graphicx@keys\do{%
-      \expandafter\svg@tempb\expandafter{\svg@tempa}%
-    }%
-    \DefineFamilyKey[.graphicx]{SVG}{distort}[true]{%
-      \FamilySetBool{SVG}{distort}{@svg@tempswa}{##1}%
-      \ifx\FamilyKeyState\FamilyKeyStateProcessed%
-        \PackageWarning{svg-extract}{%
-          The given parameter `distort=##1' is ignored \MessageBreak%
-          and should be used as 
-          `keepaspectratio\if@svg@tempswa=false\fi' in\MessageBreak%
-          the second optional argument in order to pass it\MessageBreak%
-          to `\string\includegraphics[...]'%
-        }%
-      \fi
-    }%
-    \DefineFamilyKey[.graphicx]{SVG}{pretex}{%
-      \PackageWarning{svg-extract}{%
-        The given parameter `pretex=\detokenize{##1}'\MessageBreak%
-        has no effect on extracted/converted grahics.\MessageBreak%
-        Instead, you should use\MessageBreak
-        `extractpretex=\detokenize{##1}'\MessageBreak%
-      }%
-      \FamilyKeyStateProcessed%
-    }%
-    \DefineFamilyKey[.graphicx]{SVG}{apptex}{%
-      \PackageWarning{svg-extract}{%
-        The given parameter `apptex=\detokenize{##1}'\MessageBreak%
-        has no effect on extracted/converted grahics.\MessageBreak%
-        Instead, you should use\MessageBreak
-        `extractapptex=\detokenize{##1}'\MessageBreak%
-      }%
-      \FamilyKeyStateProcessed%
-    }%
-%    \svg@local@param@set{#1}%
-%  \endgroup%
-% TODO inputformat from \svgx@ext@get@input@format if not set
-% TODO inputformat/inputtype/includeformat/includetype (something like this)
-    % (\svgx@extr@format,\svgx@conv@format) 
-  % TODO set extract=true/force only, if \svgx@out@base does not exist?
-    \svgx@include@cmd[{#1,exclude,extract=force}]{#3}%
-    \ifx\svgx@out@base\@empty\else%
-        % TODO \IfFileExists auf "name".ext überprüfen > svg@IfFileExists?
-        % TODO  ggf. mit ./ verwenden?!
-      \IfFileExists{\svgx@out@base.pdf}{%
-        \begingroup%
-          \DefineFamilyKey[.svg.sty]{SVG}{@else@}{\FamilyKeyStateProcessed}%
-          \FamilyExecuteOptions[.svg.sty]{SVG}{#2}%
-          \svg@param@size@check%
-        \endgroup%
-        \includegraphics[{#2}]{\svgx@out@base.pdf}%
-      }{%
-        % TODO Warning with hint to run with --shell-escape
-        % TODO use result of inkscape export in draft mode?!
-      }%
-    \fi%
-  \endgroup
 }
 \svg@newif\if@svgx@run
-%\newcommand*\svgx@out@base{}
+\newcommand*\svgx@out@base{}
 \renewcommand*\svg@process[3]{%
   \if@svgx@exclude\else%
     \svg@ink@include{#1}{#2}{#3}%
@@ -1205,14 +1005,8 @@
   \fi%
   \stepcounter{svgx@out@count}%
   \svg@normalize@name{svg-extract}{extract}{svgx@out}%
-  % TODO move into \svgx@run, maybe rename to svgx@process
-  \ifx\svgx@out@name\@empty%
-    % TODO set \@svgx@runfalse?
-  \else%
-    % TODO check quotes (svgx@ifexpired)
+  \ifx\svgx@out@name\@empty\else%
     \edef\svg@ink@file{#1#2.#3}%
-%    \svg@quotes@remove[\svgx@out@path\svgx@out@name]{\svgx@out@base}%
-    % TODO URGENT handle format comnination
     \ifcase\svgx@extr@mode\relax% false
       \@svgx@runfalse%
     \or% true
@@ -1232,8 +1026,7 @@
         \fi%
       \fi%
     \fi%
-    % TODO URGENT handle format comnination, move before check for \if@svgx@run
-    \Ifstr{\svgx@extr@format\svgx@conv@format}{}{%
+    \ifstr{\svgx@extr@format\svgx@conv@format}{}{%
       \PackageWarning{svg-extract}{%
         Both keys `extractformat' and `convertformat' are\MessageBreak%
         empty, so nothing to do so far%
@@ -1243,7 +1036,6 @@
     \if@svgx@run%
       \svgx@run{#1}{#2}{#3}%
     \else%
-      % TODO Warnung für fehlende Dateien, wenn nicht --shell-escape
       \ifnum\svgx@conv@mode>\z@\relax%
         \PackageWarning{svg-extract}{%
           The conversion could not be done for image\MessageBreak%
@@ -1252,8 +1044,6 @@
         }%
       \fi%
       \if@svgx@exclude%
-        % TODO what if \svg@iffilenewer undefined?!
-        % TODO wozu ist dieser abermalige Test notwendig?
         \svgx@ifexpired{\svgx@out@path\svgx@out@name}%
           {\svg@ink@file}{\@svg@tempswatrue}{\@svg@tempswafalse}%
         \if@svg@tempswa%
@@ -1265,7 +1055,6 @@
         \fi%
       \fi%
     \fi%
-    % TODO check files in svgx@out@path
     \@for\svg@tempa:=\svgx@clean\do{%
       \svgx@ifinlist{\svgx@extr@format,\svgx@conv@format}{\svg@tempa}{}{%
         \svgx@afterdocument@xaddto{%
@@ -1325,9 +1114,7 @@
     \fi%
   \endgroup%
 }
-% TODO check concerning quotes
 \newcommand*\svgx@ifexpired[3][%
-% TODO URGENT handle format comnination
   \svgx@extr@format\ifnum\svgx@conv@mode>\z@,\svgx@conv@format\fi%
 ]{%
   \begingroup%
@@ -1357,7 +1144,6 @@
   \expandafter\endinput%
 \fi
 \newcommand*\svgx@run[3]{%
-  % TODO kann der Teil direkt in svg@process?!
   \svg@shell@mkdir{\svgx@out@path}%
   \svgx@generate@texaux{#1}{#2}{#3}%
   \svgx@extr@run{#1#2.#3}%
@@ -1390,7 +1176,7 @@
         }%
       }%
       \if@svg@file@found%
-        \Ifstr{\svg@file@base}{\@currdir\jobname}{%
+        \ifstr{\svg@file@base}{\@currdir\jobname}{%
           \edef\svg@file@base{\svg@file@base.tex}%
         }{}%
       \else%
@@ -1551,7 +1337,7 @@
       \svg@tempa{apptex=\unexpanded\expandafter{\svgx@param@apptex}}%
     \fi%
     \let\svg@tempa\@empty%
-    \Ifstr{#3}{pdf}{%
+    \ifstr{#3}{pdf}{%
       \if@svg@ink@latex%
         \ifnum\value{svg@param@lastpage}>\z@\relax%
           \edef\svg@tempa{lastpage=\the\value{svg@param@lastpage}}%
@@ -1600,13 +1386,13 @@
   \def\svg@tempa##1{%
     \def\svg@tempa####1##1####2##1####3\@nil{%
       \IfArgIsEmpty{####3}{}{%
-        \Ifstr{#2}{till}{%
+        \ifstr{#2}{till}{%
           \IfArgIsEmpty{####1}{}{%
             \immediate\write\svgx@stream@out{####1}%
           }%
           \@svgx@write@preamblefalse%
         }{%
-          \Ifstr{#2}{from}{%
+          \ifstr{#2}{from}{%
             \IfArgIsEmpty{####2}{%
               \let\svgx@read@line\@empty%
             }{%
@@ -1709,8 +1495,6 @@
       \fi%
     \fi%
     \@for\svg@tempa:=\svgx@conv@format\do{%
-      % TODO URGENT remove \svgx@conv@input@format from \svgx@conv@format
-      % TODO URGENT move out of macro
       \svgx@ifinlist{\svgx@extr@format}{\svg@tempa}{%
         \svgx@afterdocument@xaddto{%
           \noexpand\PackageInfoNoLine{svg-extract}{%
@@ -1732,7 +1516,6 @@
           \noexpand\PackageInfoNoLine{svg-extract}{%
             Converting (\svg@tempa) `\noexpand\svg@tempb'%
           }%
-          % TODO check which command is executed
           \noexpand\ShellEscape{%
             \svgx@conv@cmd{\svgx@out@name}{\noexpand\svg@tempa}%
               {\svgx@conv@input@format}{\svgx@out@path}{\svg@tempa}%
