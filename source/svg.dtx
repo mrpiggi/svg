@@ -3171,6 +3171,12 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svg@@input[2][]{%
   \IfArgIsEmpty{#1}{}{\svg@local@param@set{#1}}%
   \svg@set@input@path%
+%    \end{macrocode}
+% If the export with \app{Inkscape} was done with \LaTeX~support enabled, the 
+% corresponding file will be used together with \cs{input}. The necessary 
+% patches to environment \env{picture} as well as command \cs{includegraphics} 
+% are made beforehand with \cs{svg@patches}.
+%    \begin{macrocode}
   \@svg@tempswatrue%
   \if@svg@draft%
     \@svg@tempswafalse%
@@ -3179,12 +3185,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \@svg@tempswafalse%
   \fi%
   \edef\svg@tempa{#2}%
-%    \end{macrocode}
-% If the export with \app{Inkscape} was done with \LaTeX~support enabled, the 
-% corresponding file will be used together with \cs{input}. The necessary 
-% patches to environment \env{picture} as well as command \cs{includegraphics} 
-% are made beforehand with \cs{svg@patches}.
-%    \begin{macrocode}
   \if@svg@tempswa%
     \svg@patches{\svg@tempa}%
     \ifnum\value{svg@param@lastpage}=\z@\relax%
