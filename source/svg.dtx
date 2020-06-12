@@ -115,7 +115,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %</dtx>
 %<package&identify&main>  {svg}{include SVG pictures}%
 %<package&identify&extract>  {svg-extract}{extract graphics from SVG pictures}%
-  [2020/05/08 v2.02g]%
+  [2020/06/12 v2.02g]%
 \@tempb
 %</dtx|package&identify>
 % \fi
@@ -267,6 +267,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   based on file modification date implemented for Xe\TeX{}}^^A
 % \changes{v2.02f}{2020/05/06}{command~line~interface of \app{Inkscape~1.0} 
 %   is supported}^^A
+% \changes{v2.02g}{2020/06/12}{fix for mutliple dots in file names (\#27)}^^A
 %
 %
 %
@@ -3157,6 +3158,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@ink@run
 % \begin{macro}{\svg@input}
 % \begin{macro}{\svg@@input}
+% \changes{v2.02g}{2020/06/12}{parsing of file extension discarded; meanwhile 
+%   taken over by the kernel}^^A
 % \begin{macro}{\svg@box}
 % With \cs{svg@@input} the export results of \app{Inkscape} are included. The 
 % macro \cs{svg@input} is defined in order to realize the option \opt{exclude} 
@@ -3168,46 +3171,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \newcommand*\svg@@input[2][]{%
   \IfArgIsEmpty{#1}{}{\svg@local@param@set{#1}}%
   \svg@set@input@path%
+  \@svg@tempswatrue%
   \if@svg@draft%
-    \@svg@ink@latexfalse%
+    \@svg@tempswafalse%
   \fi%
-%    \end{macrocode}
-% In order to support file names with multiple dots, the second argument is 
-% parsed and only the part after the last dot is stroed in \cs{svg@tempb} as 
-% extension. Everything before is stored in \cs{svg@tempa}.
-%    \begin{macrocode}
-  \def\svg@tempb##1.##2\@nil{%
-    \IfArgIsEmpty{##2}{%
-      \def\svg@tempb{##1}%
-    }{%
-      \edef\svg@tempa{\svg@tempa.##1}%
-      \svg@tempb##2\@nil%
-    }%
-  }%
-  \edef\svg@tempa{%
-    \def\noexpand\svg@tempa{}%
-    \noexpand\svg@tempb#2.\noexpand\@nil%
-  }%
-  \svg@tempa%
-%    \end{macrocode}
-% Afterwards \cs{svg@tempa} is defined with the file name within enclosing 
-% braces followed by the extension---only if the file name itself contains any 
-% dots--- and \cs{svg@tempb} holds the original file name plus extension
-% without enclosing braces.
-%    \begin{macrocode}
-  \svg@remove@leadingchar.\svg@tempa%
-  \begingroup%
-    \expandafter\filename@parse\expandafter{\svg@tempa}%
-    \edef\svg@tempa{%
-      \endgroup%
-      \ifx\filename@ext\relax%
-        \edef\noexpand\svg@tempa{\svg@tempa.\svg@tempb}%
-      \else%
-        \edef\noexpand\svg@tempa{{\svg@tempa}.\svg@tempb}%
-      \fi%
-    }%
-  \svg@tempa%
-  \edef\svg@tempb{#2}%
+  \if@svg@ink@latex\else%
+    \@svg@tempswafalse%
+  \fi%
+  \edef\svg@tempa{#2}%
 %    \end{macrocode}
 % If the export with \app{Inkscape} was done with \LaTeX~support enabled, the 
 % corresponding file will be used together with \cs{input}. The necessary 
@@ -3217,13 +3188,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \if@svg@ink@latex%
     \svg@patches{\svg@tempa}%
     \ifnum\value{svg@param@lastpage}=\z@\relax%
-      \expandafter\svg@get@lastpage\expandafter{\svg@tempb}%
+      \expandafter\svg@get@lastpage\expandafter{\svg@tempa}%
     \fi%
     \edef\svg@tempa{%
       \ifx\svg@param@pretex\relax\else%
         \noexpand\svg@param@pretex%
       \fi%
-      \noexpand\input{\svg@tempb_tex}%
+      \noexpand\input{\svg@tempa_tex}%
       \ifx\svg@param@apptex\relax\else%
         \noexpand\svg@param@apptex%
       \fi%
