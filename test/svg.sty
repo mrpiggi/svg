@@ -1052,6 +1052,7 @@
   \futurelet\svg@tempb\svg@tempa#1\@nil%
 }
 \newcommand*\svg@ink@file{}
+% TODO Umlaute in Dateinamen? Geht das mit \edef?
 \newcommand*\includesvg[2][]{%
   \begingroup%
     \svg@local@param@set{#1}%
