@@ -3,9 +3,9 @@
 ----------------------------------------------------------------------------
 
  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016<br>
- Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-
+ Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-2020
 
- **svg 2020/05/07 v2.02f**
+ **svg 2020/06/12 v2.02g**
 
 ----------------------------------------------------------------------------
 
@@ -38,6 +38,10 @@ can be invoked.
 
 Versions
 --------
+
+**v2.02g** (2020/06/12)
++ hot fix for including files with mutliple dots in it's names, 
+  see https://github.com/mrpiggi/svg/issues/27
 
 **v2.02f** (2020/05/07)
 + support for ***Inkscape*** 1.0
