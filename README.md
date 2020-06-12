@@ -53,7 +53,11 @@ Versions
   ***Inkscape***
 + option `clean=nolatex` to preserve auxiliary LaTeX&nbsp;files used during the
   extraction process
-  
+
+**v2.02g** (2020/06/12)
++ hot fix for including files with mutliple dots in it's names, 
+  see https://github.com/mrpiggi/svg/issues/27
+
 **v2.02f** (2020/05/07)
 + support for ***Inkscape&nbsp;1.0*** CLI
 
