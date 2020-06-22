@@ -54,6 +54,10 @@ Versions
 + option `clean=nolatex` to preserve auxiliary LaTeX&nbsp;files used during the
   extraction process
 
+**v2.02h** (2020/06/23)
++ hot fix for package **transparent**, 
+  see https://github.com/mrpiggi/svg/issues/28
+
 **v2.02g** (2020/06/12)
 + hot fix for including files with mutliple dots in it's names, 
   see https://github.com/mrpiggi/svg/issues/27
