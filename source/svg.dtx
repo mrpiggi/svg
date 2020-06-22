@@ -115,7 +115,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %</dtx>
 %<package&identify&main>  {svg}{include SVG pictures}%
 %<package&identify&extract>  {svg-extract}{extract graphics from SVG pictures}%
-  [2020/06/12 v2.02g]%
+  [2020/06/23 v2.02h]%
 \@tempb
 %</dtx|package&identify>
 % \fi
@@ -268,6 +268,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.02f}{2020/05/06}{command~line~interface of \app{Inkscape~1.0} 
 %   is supported}^^A
 % \changes{v2.02g}{2020/06/12}{fix for mutliple dots in file names (\#27)}^^A
+% \changes{v2.02h}{2020/06/23}{fix for package \pkg{transparent} (\#28)}^^A
 %
 %
 %
@@ -1983,13 +1984,15 @@ svg-extract -- Extract independent graphic files from SVG pictures
     }%
   \fi%
 %    \end{macrocode}
-% There is an issue\footnote{\url{https://github.com/ho-tex/oberdiek/issues/62}}
-% with package \pkg{transparent}, which currently implements an \emph{invalid} 
-% check relying on internal commands of package \pkg{pgfsys}, whereas these
-% have changed in the latest version.
+% There is an issue with package \pkg{transparent}, which currently implements 
+% an \emph{invalid} check relying on internal commands of package \pkg{pgfsys},
+% whereas these have changed in the latest version.^^A
+% \footnote{\url{https://github.com/ho-tex/transparent/issues/3}}
 %    \begin{macrocode}
   \AfterPackage*{transparent}{%
-    \@ifpackagelater{transparent}{2018/11/19}{}{\RequirePackage{pgfsys}}%
+    \ifcsname Gin@driver\endcsname%
+      \RequirePackage{pgfsys}%
+    \fi%
   }%
 }
 %    \end{macrocode}
