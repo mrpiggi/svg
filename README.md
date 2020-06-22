@@ -5,7 +5,7 @@
  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016<br>
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-2020
 
- **svg 2020/06/12 v2.02g**
+ **svg 2020/06/23 v2.02h**
 
 ----------------------------------------------------------------------------
 
@@ -39,6 +39,10 @@ can be invoked.
 Versions
 --------
 
+**v2.02h** (2020/06/23)
++ hot fix for package **transparent**, 
+  see https://github.com/mrpiggi/svg/issues/28
+  
 **v2.02g** (2020/06/12)
 + hot fix for including files with mutliple dots in it's names, 
   see https://github.com/mrpiggi/svg/issues/27
