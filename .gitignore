@@ -3,7 +3,6 @@ development/
 release*/
 temp/
 ## auxiliary files
-**/svg-*/
 *.acn
 *.acr
 *.alg
@@ -52,3 +51,5 @@ temp/
 !test/*/*.cls
 !test/*/*.sty
 !test/*/*.svg
+## exclude unnecessary generated files
+**/svg-*/
