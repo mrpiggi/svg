@@ -5,7 +5,7 @@
  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016<br>
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-2020
 
- **svg 2020/06/23 v2.02h**
+ **svg 2020/09/29 v2.02i**
 
 ----------------------------------------------------------------------------
 
