@@ -286,6 +286,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   is supported}^^A
 % \changes{v2.02g}{2020/06/12}{fix for mutliple dots in file names (\#27)}^^A
 % \changes{v2.02h}{2020/06/23}{fix for package \pkg{transparent} (\#28)}^^A
+% \changes{v2.02i}{2020/09/29}{update for package \pkg{scrlfile} v3.32 and
+%   kernel (2020/10/01)}^^A
 % \changes{v2.03}{2019/06/25}{files exported with \app{Inkscape} are not moved
 %   from root directory but created directly in the path given with
 %   \opt{inkscapepath}}^^A
@@ -1452,7 +1454,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
 %<*main>
 \RequirePackage{iftex}[2020/03/06]
-\RequirePackage{scrbase}[2020/04/19]
+\RequirePackage{scrbase}[2020/09/21]
 \RequirePackage{pdftexcmds}[2019/11/24]
 \RequirePackage{trimspaces}[2009/09/17]
 \RequirePackage{graphicx}[2019/11/30]
@@ -1770,7 +1772,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \ToDo{are quotes still necessary at all?}[v2.03]
 %    \begin{macrocode}
 \newcommand*\svg@deactivate@dq{}
-\AfterPackage+{babel}{%
+\AfterAtEndOfPackage*{babel}{%
   \renewcommand*\svg@deactivate@dq{\bbl@deactivate{"}}%
   \providecommand*\bbl@deactivate[1]{}%
 }
