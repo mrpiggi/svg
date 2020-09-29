@@ -39,6 +39,10 @@ can be invoked.
 Versions
 --------
 
+
+**v2.02i** (2020/09/29)
++ update for package **scrlfile** v3.32 and kernel (2020/10/01)
+
 **v2.02h** (2020/06/23)
 + hot fix for package **transparent**, 
   see https://github.com/mrpiggi/svg/issues/28
