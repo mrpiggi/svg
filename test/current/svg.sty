@@ -526,6 +526,7 @@
     }%
   \fi%
   \AfterPackage*{transparent}{%
+    % TODO \IfPackageAtLeastTF
     \@ifpackagelater{transparent}{2018/11/19}{}{\RequirePackage{pgfsys}}%
   }%
 }
