@@ -48,7 +48,7 @@ Versions
   see https://github.com/mrpiggi/svg/issues/28
   
 **v2.02g** (2020/06/12)
-+ hot fix for including files with mutliple dots in it's names, 
++ hot fix for including files with multiple dots in its names, 
   see https://github.com/mrpiggi/svg/issues/27
 
 **v2.02f** (2020/05/07)
@@ -76,7 +76,7 @@ Versions
 + distortion of included and extracted graphics supported with options `distort`
   (or `keepaspectratio`) and `extractdistort` as well as rotation for
   extractions (`extractangle`)
-+ fixed errors with active double qoutes from **babel** in path arguments
++ fixed errors with active double quotes from **babel** in path arguments
 + multiple dots within file names possible
 + package **trimspaces** required
 

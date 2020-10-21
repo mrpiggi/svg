@@ -267,7 +267,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   based on file modification date implemented for Xe\TeX{}}^^A
 % \changes{v2.02f}{2020/05/06}{command~line~interface of \app{Inkscape~1.0} 
 %   is supported}^^A
-% \changes{v2.02g}{2020/06/12}{fix for mutliple dots in file names (\#27)}^^A
+% \changes{v2.02g}{2020/06/12}{fix for multiple dots in file names (\#27)}^^A
 % \changes{v2.02h}{2020/06/23}{fix for package \pkg{transparent} (\#28)}^^A
 % \changes{v2.02i}{2020/09/29}{update for package \pkg{scrlfile} v3.32 and
 %   kernel (2020/10/01)}^^A
@@ -305,7 +305,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % known to the operating system. This can be checked on shell by typing 
 % \file{inkscape -V}. Moreover, there are some required packages which are 
 % loaded by packages \pkg{svg} and \pkg{svg-extract} to provide the 
-% functionallity. These are:
+% functionality. These are:
 % \begin{description}[parsep=\glueexpr\smallskipamount/2\relax]
 % \item[\pkg{iftex}]
 %   for flow control depending on the used \LaTeX~engine
@@ -362,7 +362,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % end of package \pkg{svg}. The listed options are intended to prevent these 
 % packages from loading. They are the only options which have to be given while
 % loading the \pkg{svg} package. All supported boolean values
-% (\val{true/on/yes/false/off/no}) can be assinged to \opt{usexcolor} and 
+% (\val{true/on/yes/false/off/no}) can be assigned to \opt{usexcolor} and 
 % \opt{usetransparent}, while \opt{noxcolor} and \opt{notransparent} don't
 % accept any value.
 % \begin{svgexample}
@@ -517,7 +517,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \DescribeOption{inkscapelatex}^^A
 % If option \opt{inkscapelatex}|=|\val{true} is set, the output is split into 
-% a seperate PDF/EPS/PS~file (see option \opt{inkscapeformat}) and a 
+% a separate PDF/EPS/PS~file (see option \opt{inkscapeformat}) and a 
 % corresponding \LaTeX~file. This is the default setting. Setting 
 % \opt{inkscapelatex}|=|\val{false} will result in a single PDF/EPS/PS~file,
 % where any contained text won't be rendered by \LaTeX{}. 
@@ -588,7 +588,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{svgexample}
 %
 % \DescribeOption{draft}^^A
-% This option can be used with booelan values and is equal to the identically 
+% This option can be used with boolean values and is equal to the identically 
 % named option of the \pkg{graphicx} package. If the \opt{draft} option is
 % given to \pkg{graphicx}, it's activated for \pkg{svg} as well.
 %
@@ -732,7 +732,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % numbering of the current \env{subfig} environment by default. As package 
 % \pkg{subfig} sometime causes problems and because of the large amount of
 % different \LaTeX~packages which all provide the possibility to include
-% subfigures with very different implemetations, this feature can't be provided
+% subfigures with very different implementations, this feature can't be provided
 % reliably by \pkg{svg-extract}. See option \opt{extractname} for further 
 % information.
 %
@@ -757,7 +757,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \cs{includeinkscape}\oarg{parameters}\marg{graphic~filename} are extended. 
 % They can be used to control the process of graphic extraction and converting.
 %
-% All option described below can be used togehter with \cs{svgsetup} and are
+% All option described below can be used together with \cs{svgsetup} and are
 % then valid in the current scope. There also exist identically named 
 % parameters for the optional arguments of 
 % \begin{svgexample}
@@ -809,7 +809,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 %
 %
-% \subsection{Extract independent grahic files\label{sec:extract}}
+% \subsection{Extract independent graphic files\label{sec:extract}}
 %
 % \DescribeOption{extract}^^A
 % This option can be used with boolean values. Using \opt{extract}|=|\val{true}
@@ -928,13 +928,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{svgexample}
 %
 % \DescribeOption{extractruns}^^A
-% When extracting independent grahic~files by compiling the generated auxiliary 
+% When extracting independent graphic~files by compiling the generated auxiliary 
 % \LaTeX~file, it's maybe necessary to do multiple \LaTeX~iterations on this. 
 % The number of iterations is controlled with option \opt{extractruns}. It is 
 % set to \opt{extractruns}|=|\val{2} by default.
 %
 % \DescribeOptions{latexexe,latexopt,latexext}^^A
-% For the extraction of an independent grahic~file, the \LaTeX~program is used
+% For the extraction of an independent graphic~file, the \LaTeX~program is used
 % which is set by the \opt{latexexe} option. Depending on the \LaTeX~engine 
 % used for the current \LaTeX~document, it is set to either \app{pdflatex}, 
 % \app{lualatex}, \app{xelatex} or \app{latex} by default. It's also possible
@@ -972,7 +972,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \DescribeMacros{\includesvg,\includeinkscape}^^A
 % As previously mentioned, for extracting independent graphic files it is
 % sufficient to load package \pkg{svg-extract} and afterwards everything 
-% necassary is done by just using \cs{includesvg} or \cs{includeinkscape}.
+% necessary is done by just using \cs{includesvg} or \cs{includeinkscape}.
 %
 % \begin{DescribeParameterParent}{Macro}{\includesvg}^^A
 % \DescribeParameter{extractangle}^^A
@@ -993,7 +993,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 %
 %
-% \subsection{Convert extracted grahic files\label{sec:convert}}
+% \subsection{Convert extracted graphic files\label{sec:convert}}
 %
 % Based on the extraction of independent graphic~files, the \pkg{svg-extract} 
 % packages also provides the possibility to convert these extracted graphics in 
@@ -1451,7 +1451,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@ifwindowsdetected
 % \begin{macro}{\svg@ifvalueisrelax}
 % For some keys the usage of \val{\cs{relax}} as a value should lead to a 
-% special reaction, such as restoring to default behavior or reseting the key.
+% special reaction, such as restoring to default behavior or resetting the key.
 % Therefore, \cs{svg@ifvalueisrelax} checks, whether \val{\cs{relax}} was used
 % as value or not.
 %    \begin{macrocode}
@@ -1505,7 +1505,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.02}{2018/09/07}{new}^^A
 % \changes{v2.02a}{2018/10/17}{bug fix for \pkg{polyglossia}}^^A
 % In order to avoid errors concerning file names with package \pkg{babel} and 
-% it's active double quotes, this command is defined. 
+% its active double quotes, this command is defined. 
 %    \begin{macrocode}
 \newcommand*\svg@deactivate@dq{}
 \AfterAtEndOfPackage*{babel}{%
@@ -1680,7 +1680,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svg@extension@@parse}
 % \changes{v2.02}{2018/09/07}{new}^^A
 % These macros are used to permit multiple dots in file names. The content of 
-% \cs{filename@ext} is split at each occurence of \val{.} and the trailing part 
+% \cs{filename@ext} is split at each occurrence of \val{.} and the trailing part 
 % is compared against the content of the argument of \cs{svg@extension@parse}, 
 % which is probably \cs{svg@file@ext}. If they are equal, the previous part is 
 % appended to \cs{filename@base} and \cs{filename@ext} is set to the content of 
@@ -1730,7 +1730,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \IfArgIsEmpty{#2}{}{%
     \Ifstr{\detokenize{#2}}{\detokenize{#3.}}{%
 %    \end{macrocode}
-% If the trailing extension is found, \cs{svg@tempb} is definied.
+% If the trailing extension is found, \cs{svg@tempb} is defined.
 %    \begin{macrocode}
       \edef\svg@tempb{#3}%
     }{%
@@ -1746,7 +1746,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   \url{https://github.com/mrpiggi/svg/issues/12}}^^A
 % The macro \cs{svg@iffilenewer} is used to decide, whether the export with 
 % \app{Inkscape} is necessary due to an updated SVG~file. This can only be
-% done, if \cs{pdf@filemoddate} or \cs{filemoddate} is definied.
+% done, if \cs{pdf@filemoddate} or \cs{filemoddate} is defined.
 % \ToDo{\cs{svg@iffilenewer} instead \cs{IfFileExists} to check results}[v2.03]
 %    \begin{macrocode}
 \newcommand*\svg@iffilenewer[2]{\@gobbletwo}
@@ -1789,7 +1789,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svg@shell@@mv}
 % \begin{macro}{\svg@shell@rm}
 % \begin{macro}{\svg@shell@@rm}
-% Finally, platform dependend macros for creating directories as well as 
+% Finally, platform dependent macros for creating directories as well as 
 % moving and deleting files are provided.
 %    \begin{macrocode}
 \newcommand*\svg@shell@mkdir[1]{%
@@ -2083,7 +2083,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \begin{macrocode}
     \ifx\FamilyKeyState\FamilyKeyStateProcessed\else% legacy option
 %    \end{macrocode}
-% Splitting executable from options with delimitted macros. After calling 
+% Splitting executable from options with delimited macros. After calling 
 % \cs{svg@tempa} with the given value, the part for the executable is stored in 
 % \cs{svg@tempa} and the option part---which is recognized by the first |-| 
 % character--- in \cs{svg@tempb}.
@@ -2247,7 +2247,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.00b}{2017/03/28}{new, alternative key for \opt{inkscapelatex}}^^A
 % \begin{macro}{\svg@ink@latex}
 % This option controls whether the \app{Inkscape} export will be invoked with 
-% or without the generation of a seperate \LaTeX~file.
+% or without the generation of a separate \LaTeX~file.
 %    \begin{macrocode}
 \newif\if@svg@ink@latex
 \FamilyBoolKey{SVG}{inkscapelatex}{@svg@ink@latex}
@@ -2856,7 +2856,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.02}{2018/09/07}{validation of argument}^^A
 % \begin{parameter}{origin}
 % \changes{v2.00}{2017/02/17}{new}^^A
-% The parameters \prm{angle} and \prm{origin} are definied as pendants to the 
+% The parameters \prm{angle} and \prm{origin} are defined as pendants to the 
 % keys provided by \cs{includegraphics}.
 %    \begin{macrocode}
 \newcommand*\svg@param@angle{0}
@@ -3066,7 +3066,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \if@svg@ink@run%
         \ifnum\pdf@shellescape=\@ne\relax%
 %    \end{macrocode}
-% For exporting PNG~files, the used density ist set to \val{300dpi}, if no
+% For exporting PNG~files, the used density is set to \val{300dpi}, if no
 % value was given.
 %    \begin{macrocode}
           \ifx\svg@ink@dpi\relax%
@@ -4345,7 +4345,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % targeted for a specific format. It's also possible to use something like 
 % \val{500x300}. Given values are resolved by \cs{svgx@cnv@get@dpi}. It's used 
 % like \opt{convertdpi}|=|\val{300} or \opt{convertdpi}|=|\val{\{png=600\}} If 
-% the option is used for a specific or for all output formats is recocnized by 
+% the option is used for a specific or for all output formats is recognized by 
 % \cs{svgx@ifkeyandval}.
 %    \begin{macrocode}
 %<*main>
@@ -4483,7 +4483,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 %    \end{macrocode}
 % The command \cs{svgx@useformatkey} checks, if a format specific key was 
-% definded with \cs{svgx@setformatkey}, whereas the format is given in the 
+% defined with \cs{svgx@setformatkey}, whereas the format is given in the 
 % second argument. If this is not the case, the setting for all output formats 
 % is used. After that, a specific key appended with a |+| can be used to do 
 % some additional stuff.
@@ -4765,7 +4765,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svgx@param@scale}
 % For graphic extraction, the given settings regarding the size for inclusion 
 % can be overwritten with these options. Using \val{\cs{relax}} as value leads 
-% to reseting an option as unset, regardless of what was previously given. The
+% to resetting an option as unset, regardless of what was previously given. The
 % value \val{inherit} means, that the actual option for including is used for
 % extraction as well. This is the default setting.
 %    \begin{macrocode}
@@ -5242,7 +5242,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svg@extract}
 % If flag \file{-{}-shell-escape} is enabled, the command is defined with its
 % intended functionality. It runs all necessary processes to extract and
-% convert grahic files.
+% convert graphic files.
 %    \begin{macrocode}
 \renewcommand*\svg@extract[1]{%
 %    \end{macrocode}
@@ -5297,7 +5297,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
           `\svgx@out@name.\svgx@latex@ext'%
         }%
 %    \end{macrocode}
-% The catcodes for |#| need to be changed to prevent doublification when
+% The catcodes for |#| need to be changed to prevent doubling when
 % reading the line.
 %    \begin{macrocode}
         \catcode`\#=12\relax%
@@ -5718,7 +5718,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svgx@documentclass}
 % \begin{macro}{\if@svgx@classfound}
 % This delimited macro is used to find the occurrence of \cs{documentclass} 
-% within a read in line. The delinmiter \cs{documentclass} is used twice in
+% within a read in line. The delimiter \cs{documentclass} is used twice in
 % order to ignore the possible occurrence of white space or anything else right
 % before \cs{documentclass}.
 %    \begin{macrocode}
@@ -5894,7 +5894,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.02}{2018/09/07}{new}^^A
 % \begin{macro}{\if@svgx@standalone}
 % \changes{v2.02}{2018/09/07}{new}^^A
-% Within the preamble of the auxiliary \LaTeX~file, the desired grahic is used 
+% Within the preamble of the auxiliary \LaTeX~file, the desired graphic is used 
 % to setup a box, which is used both to define the papersize as well as for the 
 % output itself. The macro \cs{svgx@setbox} is executed twice, the first time 
 % in the preamble and the second time at the very end of \cs{AtBeginDocument} 
