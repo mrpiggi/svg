@@ -6,6 +6,8 @@
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-2020
 
  **svg 2020/09/29 v2.02i**
+ 
+ The current release is shiped via CTAN: https://www.ctan.org/pkg/svg
 
 ----------------------------------------------------------------------------
 
@@ -46,13 +48,13 @@ Versions
 **v2.02h** (2020/06/23)
 + hot fix for package **transparent**, 
   see https://github.com/mrpiggi/svg/issues/28
-  
+
 **v2.02g** (2020/06/12)
 + hot fix for including files with multiple dots in its names, 
   see https://github.com/mrpiggi/svg/issues/27
 
 **v2.02f** (2020/05/07)
-+ support for ***Inkscape*** 1.0
++ support for ***Inkscape&nbsp;1.0*** CLI
 
 **v2.02e** (2020/01/13)
 + fixes for new version of package **scrbase**

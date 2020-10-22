@@ -1,9 +1,8 @@
-win_utils = 
-ifeq ($(OS),Windows_NT)
-	ifneq ($(shell uname -o),Cygwin)
-		win_utils = yes
-	endif
+ifndef OSCONFIG
+OSCONFIG=utils_os.mak
 endif
+include $(OSCONFIG)
+
 ifdef win_utils
 define get_rawversion
   $(shell findstr /r /c:"^  \[[1-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]" $(1))
@@ -30,4 +29,3 @@ endef
 define rm_tds
   $(call rm_dirs,$(addprefix $(1),$(subst $(TDS_SUFFIX),,$(TDS_DIRS))))
 endef
-
