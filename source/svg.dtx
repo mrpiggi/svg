@@ -112,7 +112,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %</dtx>
 %<package&identify&main>  {svg}{include SVG pictures}%
 %<package&identify&extract>  {svg-extract}{extract graphics from SVG pictures}%
-  [2020/10/21 v2.03]%
+  [2020/10/23 v2.03]%
 \@tempb
 %</dtx|package&identify>
 % \fi
@@ -221,7 +221,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \end{abstract}
   \tableofcontents
   \ToDo{use Travis CI (https://github.com/latex3/latex2e .travis.yml)}[v2.04]
-  \ToDo{optional run without \file{-{}-shell-escape} (restricted write)}[v2.03]
+  \ToDo{%
+    optionally support restricted write, so \file{-{}-shell-escape} is not 
+    necessary; redirect and check \file{stderr}%
+  }[v2.03]
   \ToDo{check/collect versions of Inkscape/ImageMagick/Ghostscript once}[v2.03]
   \ToDo{use \cs{GitHubRepo}}[v2.03]
   \ToDo{standardize documentation of default values}[v2.03]
@@ -252,6 +255,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %^^A certainly cause an error. 
   \ToDo{Hint for cropped text}[v2.03]
   \ToDo{Use \cs{GitHub...} from \cls{tudscrdoc} for related links}[v2.03]
+  % TODO update to tudscrdoc v2.07
+  \providerobustcmd*\default[1]{\val{\textit{#1}}}
+  \edef\filename{\jobname.dtx}\expandafter\GetFileInfo\expandafter{\filename}%
   \DocInput{\filename}
 \end{document}
 %</dtx>
