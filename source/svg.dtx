@@ -193,6 +193,20 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \RecordChanges
 \GetFileInfo{svg.dtx}
 
+\makeatletter
+\newcommand*\notebox[2][\svglstbelowskip]{%
+  \ifhmode%
+    \vskip\svglstbelowskip%
+  \else%
+    \addpenalty{\@beginparpenalty}%
+    \addvspace{\svglstbelowskip}%
+  \fi%
+  \noindent%
+  \fbox{\parbox{\dimexpr\linewidth-(\fboxsep+\fboxrule)*2\relax}{#2}}%
+  \par\vskip#1\noindent\ignorespaces%
+}
+\makeatother
+
 \begin{document}
   \title{The packages \pkg{svg} and \pkg{svg-extract}}
   \author{%
@@ -207,8 +221,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \begin{abstract}
     \noindent
     The \pkg{svg} package is intended for the automated integration of 
-    SVG~graphics into \LaTeX~documents. Therefor the capabilities provided 
-    by \app{Inkscape}---or more precisely its command~line~interface---are used 
+    SVG~graphics into \LaTeX~documents. The capabilities provided by 
+    \app{Inkscape}---or more precisely its command~line~interface---are used 
     to export the text within a SVG~graphic to a separate file, which is 
     then rendered by \LaTeX{}. The two commands \cs{includesvg} and 
     \cs{includeinkscape} are provided as central user\hbox{-}interface, 
@@ -223,16 +237,15 @@ svg-extract -- Extract independent graphic files from SVG pictures
     are required in other file formats, either \app{ImageMagick} or 
     \app{Ghostscript} can be invoked.
     
-    \bigskip\noindent%
-    \fbox{\parbox{\dimexpr\linewidth-(\fboxsep+\fboxrule)*2\relax}{%
+    \notebox[0pt]{%
       The command~line~interface~(CLI) of \app{Inkscape}\,1.0 has changed in 
       comparison to previous versions. In order to provide a comfortable 
       user\hbox{-}interface for invoking \app{Inkscape}, the used version is 
       detected and if necessary switch to the outdated syntax of the CLI. If 
       this approach fails for some reason, you can set the version of 
       \app{Inkscape} manually with \opt{inkscapeversion}|=|\val{0} or 
-      \opt{inkscapeversion}|=|\val{1}.
-    }}%
+      \opt{inkscapeversion}|=|\val{1}.%
+    }%
   \end{abstract}
   \tableofcontents
   \DocInput{\filename}
@@ -368,7 +381,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{svgexample}
 %   \usepackage§\oarg{options}§{svg}
 % \end{svgexample}
-%
+% \notebox[0pt]{^^A
+%   Due to the way the \LaTeX~kernel parses package options, problems may occur 
+%   if any option other than those just mentioned above~-- meaning the options 
+%   explained hereafter~-- are passed through the optional argument of
+%   \cs{usepackage}\oarg{options}|\{svg\}|. It is strongly recommended to use
+%   \cs{svgsetup}\marg{options} for these after loading the package instead.^^A
+% }
 %
 %
 % \subsection{General settings}
@@ -378,8 +397,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % the package either in the preamble or within the document. They don't have to 
 % be given as optional argument to \cs{usepackage}\oarg{options}|{svg}| but can 
 % be set by using macro \cs{svgsetup}\marg{options} where \meta{options} is a 
-% comma separated list of options. Settings with \cs{svgsetup} are done in the
-% current scope which means globally or within the current group.
+% comma separated list of options. These settings are done in the current scope
+% which means either globally or within the current group.
 % \begin{svgexample}
 %   \svgsetup§\marg{options}§
 % \end{svgexample}
@@ -471,15 +490,21 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % For including a SVG~file, \app{Inkscape} is used to separate the text and
 % image from the SVG~file itself. In order to use the command~line~interface 
 % on shell, the path where the executable is located has to be known to the
-% operating system and its name is assumed to be \val{inkscape} by default.
+% operating system and is assumed to be \val{inkscape} by default.
 %
 % You can check if the default setting is valid for your system by typing
 % \file{inkscape -V} into the terminal. If this fails and nothing is returned, 
 % you should add the binary directory of \app{Inkscape} to the environment
-% variable \file{PATH} on your operating system. If this is not possible or you
-% aren't willing to do so, you can alternatively use option \opt{inkscapeexe} 
-% \emph{within the document preamble} to set the absolute path where the
-% executable of \app{Inkscape} is located. 
+% variable \file{PATH} on your operating system. For the case, that this is not 
+% possible or you aren't willing to do so, you can alternatively pass option
+% \opt{inkscapeexe} to \cs{svgsetup} \emph{within the document preamble} to set 
+% the absolute path where the executable of \app{Inkscape} is located. 
+%
+% \notebox[0pt]{^^A
+%   Especially if the executable path to be defined \emph{contains spaces}, it 
+%   \emph{must not} be passed as a package option but to 
+%   \cs{svgsetup}|\{inkscapeexe=\dots\}| instead!^^A
+% }
 %
 % \DescribeOption{inkscapeversion}^^A
 % \changes{v2.02f}{2020/05/06}{option {inkscapeversion} for explicitly setting 
@@ -501,11 +526,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % legacy mode or \opt{inkscapeversion}|=|\val{1} to the current CLI~version.
 %
 % \DescribeOption{inkscapename}^^A
-% The file names of the \app{Inkscape}~export are derived from the name of the 
-% base SVG~file by default. Nevertheless, the name of the exported file can be 
-% customized with \opt{inkscapename}|=|\file{\meta{filename}}. It is possible 
-% to use counters for specifying the name of the exported file. Repeatedly
-% specifying the same file name will overwrite previously created files. 
+% \app{Inkscape}~export file~names are derived from the SVG~file~name by
+% default. However, the name of the exported file can be customized with
+% \opt{inkscapename}|=|\file{\meta{filename}}. It is possible to use counters
+% for specifying the name of the exported file. Repeatedly specifying the same
+% file~name will overwrite previously created files. 
 %
 % \DescribeOption{inkscapeformat}^^A
 % With this option, the \app{Inkscape}~export~format can be controlled. Valid 
@@ -757,8 +782,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \cs{includeinkscape}\oarg{parameters}\marg{graphic~filename} are extended. 
 % They can be used to control the process of graphic extraction and converting.
 %
-% All option described below can be used together with \cs{svgsetup} and are
-% then valid in the current scope. There also exist identically named 
+% All options described below can be passed to \cs{svgsetup}\marg{options} and 
+% are then valid in the current scope. There also exist identically named 
 % parameters for the optional arguments of 
 % \begin{svgexample}
 %   \includesvg§\oarg{parameters}\marg{svg~filename}§
@@ -849,11 +874,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   Same as above, but a prefix with the current enumerated count of SVG~files
 %   is used instead of the suffix.
 % \item[numbered/section/numberedsection/sectionnumbered]
-%   The file name is composed by the current enumerated count of SVG~files and 
+%   The file~name is composed by the current enumerated count of SVG~files and 
 %   the present outline numbering.
 % \item[\file{\meta{filename}}]
-%   You can use any file name. It's possible to use counters for specifying the 
-%   name of the extracted file. Repeatedly specifying the same file name will
+%   You can use any file~name. It's possible to use counters for specifying the 
+%   name of the extracted file. Repeatedly specifying the same file~name will
 %   overwrite previously created files. 
 % \end{DescribeValues}
 %
@@ -1504,7 +1529,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svg@deactivate@dq}
 % \changes{v2.02}{2018/09/07}{new}^^A
 % \changes{v2.02a}{2018/10/17}{bug fix for \pkg{polyglossia}}^^A
-% In order to avoid errors concerning file names with package \pkg{babel} and 
+% In order to avoid errors concerning file~names with package \pkg{babel} and 
 % its active double quotes, this command is defined. 
 %    \begin{macrocode}
 \newcommand*\svg@deactivate@dq{}
@@ -1617,7 +1642,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.02}{2018/09/07}{usage of \cs{svg@remove@leadingchar}}^^A
 % \changes{v2.02}{2018/09/07}{usage of \cs{svg@extension@parse}}^^A
 % As the internal \LaTeX{} command \cs{filename@parse} is not able to split a 
-% given file name containing quotes, \cs{svg@filename@parse} is defined to 
+% given file~name containing quotes, \cs{svg@filename@parse} is defined to 
 % resolve this problem. The optional argument can be used to give a specific 
 % file extension, which should be searched within \cs{filename@ext}. If found 
 % at the very end, the previous part is appended to \cs{filename@base}.
@@ -1679,7 +1704,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.02}{2018/09/07}{new}^^A
 % \begin{macro}{\svg@extension@@parse}
 % \changes{v2.02}{2018/09/07}{new}^^A
-% These macros are used to permit multiple dots in file names. The content of 
+% These macros are used to permit multiple dots in file~names. The content of 
 % \cs{filename@ext} is split at each occurrence of \val{.} and the trailing part 
 % is compared against the content of the argument of \cs{svg@extension@parse}, 
 % which is probably \cs{svg@file@ext}. If they are equal, the previous part is 
@@ -1910,10 +1935,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \section{Including SVG files with package \pkg{svg}}
 % \subsection{Options}
 %
-% All options, which can be set either as package options or with 
-% \cs{svgsetup}, as well as the optional parameters for both user commands 
-% \cs{includesvg}\oarg{parameters}\marg{svg~filename} and
-% \cs{includeinkscape}\oarg{parameters}\marg{graphic~filename} are defined with
+% All options, which are recommended to be set with \cs{svgsetup}\marg{options} 
+% but are also available as package options, as well as the optional parameters
+% for  both user commands \cs{includesvg}\oarg{parameters}\marg{svg~file} 
+% and \cs{includeinkscape}\oarg{parameters}\marg{file} are defined with
 % the interface provided by package \pkg{scrbase}.
 %    \begin{macrocode}
 \DefineFamily{SVG}
@@ -2705,9 +2730,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \changes{v2.00}{2017/02/17}{new}^^A
 % \begin{macro}{\setsvg}
 % \changes{v2.00}{2017/02/17}{deprecated}^^A
-% The macro \cs{svgsetup} can be used to change options after loading the 
-% package \pkg{svg} both in preamble and the document body. For compatibility 
-% reasons, \cs{setsvg} is also defined.
+% The macro \cs{svgsetup}\marg{options} can be used to change options after 
+% loading packages \pkg{svg} or \pkg{svg-extract} both in preamble and the
+% document body. For compatibility reasons, \cs{setsvg} is also defined.
 %    \begin{macrocode}
 \newcommand*\svgsetup{\FamilyOptions{SVG}}
 \newcommand*\setsvg{\FamilyOptions{SVG}}
@@ -3810,9 +3835,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \section{Extracting independent graphic files with \pkg{svg-extract}}
 % \subsection{Options}
 %
-% For package \pkg{svg-extract} the user\hbox{-}interface is extended. The
-% following options can either be set with \cs{svgsetup} or be used as local
-% optional parameters for \cs{includesvg} and \cs{includeinkscape}.
+% For package \pkg{svg-extract} the user\hbox{-}interface of package \pkg{svg}
+% is extended. The following options can either be set with \cs{svgsetup} or be
+% used as optional parameters for \cs{includesvg} and \cs{includeinkscape}.
 %
 % \begin{macro}{\svg@dummy@key}
 % If package \pkg{svg-extract} wasn't loaded, the following options are defined 
@@ -5580,7 +5605,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
       \repeat%
 %    \end{macrocode}
 % All files requested with option \opt{extractformat} are created with internal 
-% conversion tools supplied by most \LaTeXe~distributions if necessary.
+% conversion tools supplied by most \LaTeX~distributions if necessary.
 %    \begin{macrocode}
       \def\svg@tempa##1##2##3{%
         \edef\svg@tempb{%

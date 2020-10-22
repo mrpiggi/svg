@@ -1,7 +1,7 @@
 # package name
 PACKAGE = svg
 # formatting tools
-LATEX = pdflatex
+LATEX = pdflatex --synctex=1
 TEX = tex
 
 include utils_fs.mak
@@ -52,7 +52,8 @@ TMP_FILES := $(filter-out $(SRC_FILES) $(EXM_FILES) $(AUX_FILES) $(OUT_FILES) $(
 .PHONY: $(PACKAGE) pdf all doc mostlyclean clean dist distclean release releaseclean install uninstall
 
 # creates package files only
-$(PACKAGE): $(OUT_FILES)
+package: $(OUT_FILES)
+$(PACKAGE): package
 
 %.sty: $(SRC__FILE)
 	$(TEX) $<
