@@ -1,4 +1,28 @@
 \listfiles
+\documentclass{minimal}
+\usepackage[T1]{fontenc}
+\begin{document}
+\begingroup
+  \makeatletter
+  \@makeother\|%
+  \@makeother\&%
+  \catcode\endlinechar=10%
+  \everyeof{\noexpand}%
+  \edef\parseversion{%
+    \xdef\noexpand\pipestdout{\noexpand\@@input|"inkscape\space-V\space2>&1" }%
+    \xdef\noexpand\pipenormal{\noexpand\@@input|"inkscape\space-V" }%
+  }%
+\texttt{\meaning\parseversion}
+\parseversion
+\endgroup
+
+\texttt{pipestdout}: \pipestdout
+
+\texttt{pipenormal}: \pipenormal
+\end{document}
+
+
+\listfiles
 \documentclass[parskip=full,ngerman]{scrreprt}% Test
 \usepackage[T1]{fontenc}
 \usepackage{babel}
