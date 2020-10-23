@@ -5,7 +5,7 @@
  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016<br>
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-2020
 
- **svg 2020/09/29 v2.02i**
+ **svg 2020/10/23 v2.02j**
  
  The current release is shiped via CTAN: https://www.ctan.org/pkg/svg
 
@@ -41,6 +41,8 @@ can be invoked.
 Versions
 --------
 
+**v2.02j** (2020/10/23)
++ bug fix for automatic version detection of ***Inkscape*** with ***MiKTeX***
 
 **v2.02i** (2020/09/29)
 + update for package **scrlfile** v3.32 and kernel (2020/10/01)
