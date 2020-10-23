@@ -2342,10 +2342,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \ifx\svg@ink@dpi\relax\else--export-dpi=\svg@ink@dpi\space\fi%
   \if@svg@ink@latex--export-latex\space\fi%
   \ifx\svg@ink@opt\@empty\else\svg@ink@opt\space\fi%
-  \ifnum\svg@ink@ver=\z@%
+  \ifcase\svg@ink@ver\relax% 0.x detected
     --without-gui\space%
     --export-\svg@ink@format="#2.\svg@ink@format"%
-  \else%
+  \else% 1.x or nothing detected
     --export-filename="#2.\svg@ink@format"%
   \fi%
 }
@@ -3112,44 +3112,16 @@ svg-extract -- Extract independent graphic files from SVG pictures
           \svg@quotes@remove[\svg@file@base]{\svg@tempa}%
           \svg@quotes@remove[\svg@out@name]{\svg@tempb}%
 %    \end{macrocode}
-% The last try to detect the version automatically, if this wasn't succesful 
-% until now. We try to create the desired file by invoking the \app{Inkscape}
-% command~line~interface for both versions. If the desired file was created the 
-% used version is stored in \cs{svg@ink@ver}.
+% The last try to detect the version automatically, if this wasn't successful 
+% until now. 
 %    \begin{macrocode}
           \ifnum\svg@ink@ver=\m@ne\relax%
-            \begingroup%
-              \@svg@tempswafalse%
-              \@tfor\svg@ink@ver:={1}{0}\do{%
-                \ShellEscape{\svg@ink@cmd{\svg@tempa}{\svg@tempb}}%
-                \IfFileExists{\svg@out@name.\svg@ink@format}{%
-                  \@svg@tempswatrue%
-                }{}%
-                \if@svg@tempswa%
-                  \@break@tfor%
-                \fi%
-              }%
-%    \end{macrocode}
-% If even this attempt does not lead to a valid version, an error message is 
-% shown.
-%    \begin{macrocode}
-              \if@svg@tempswa%
-                \xdef\svg@ink@ver{\svg@ink@ver}%
-              \else%
-                \PackageError{svg}{Inkscape version not detected}{%
-                  It was tried to invoke `\svg@ink@exe'\MessageBreak%
-                  for file "\svg@tempa.\svg@file@ext"\MessageBreak%
-                  but no result was produced. Check the log file\MessageBreak%
-                  and set `inkscapeversion=<version>' manually.%
-                }%
-              \fi%
-            \endgroup%
-%    \end{macrocode}
-% If we already do have a valid version, we on have to invoke the CLI itself.
-%    \begin{macrocode}
-          \else%
-            \ShellEscape{\svg@ink@cmd{\svg@tempa}{\svg@tempb}}%
+            \svg@ink@ver@explore{\svg@tempa}{\svg@tempb}{\svg@out@name}%
           \fi%
+%    \end{macrocode}
+% Now it's time to actually create the desired graphic.
+%    \begin{macrocode}
+          \ShellEscape{\svg@ink@cmd{\svg@tempa}{\svg@tempb}}%
           \IfFileExists{\svg@out@name.\svg@ink@format}{%
             \edef\svg@tempb{\svg@tempb.\svg@ink@format}%
             \svg@quotes@remove{\svg@out@base}%
@@ -3550,6 +3522,42 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{macro}^^A \svg@@ink@ver@detect
 % \end{macro}^^A \svg@ink@ver@detect
 % \end{macro}^^A \svg@ink@ver@settings
+% \begin{macro}{\svg@ink@ver@explore}
+% \changes{v2.02j}{2020/10/23}{new}^^A
+% If detecting the used version automatically with \file{inkscape -V} was not 
+% successful, it is tried to explore this by calling \app{Inkscape} through its 
+% command~line~interface with all known variations. If the desired file was
+% created the used version is stored in \cs{svg@ink@ver}.
+%    \begin{macrocode}
+\newcommand*\svg@ink@ver@explore[3]{%
+  \begingroup%
+    \@svg@tempswafalse%
+    \@tfor\svg@ink@ver:={1}{0}\do{%
+      \ShellEscape{\svg@ink@cmd{#1}{#2}}%
+      \IfFileExists{#3.\svg@ink@format}{\@svg@tempswatrue}{}%
+%    \end{macrocode}
+% An output file was found, break loop.
+%    \begin{macrocode}
+      \if@svg@tempswa%
+        \@break@tfor%
+      \fi%
+    }%
+%    \end{macrocode}
+% If even this attempt fails, an error message is shown.
+%    \begin{macrocode}
+    \if@svg@tempswa%
+      \xdef\svg@ink@ver{\svg@ink@ver}%
+    \else%
+      \PackageError{svg}{Inkscape version not detected}{%
+        It was tried to invoke `\svg@ink@exe'\MessageBreak%
+        for file "#1.\svg@file@ext"\MessageBreak%
+        but no result was produced. Check the log file\MessageBreak%
+        and set `inkscapeversion=<version>' manually.%
+      }%
+    \fi%
+  \endgroup%
+}
+%    \end{macrocode}
 %
 %
 %
@@ -3670,7 +3678,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \svg@set@input@path[{#3}]%
 %    \end{macrocode}
 % The specified file is searched with \cs{IfFileExists}. If the file search was 
-% succesful, the macro \cs{svg@filename@parse} is called with the result.
+% successful, the macro \cs{svg@filename@parse} is called with the result.
 %    \begin{macrocode}
     \@svg@tempswafalse%
     \expandafter\IfFileExists\expandafter{\svg@tempa}{%
