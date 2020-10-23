@@ -1,9 +1,8 @@
-win_utils = 
-ifeq ($(OS),Windows_NT)
-	ifneq ($(shell uname -o),Cygwin)
-		win_utils = yes
-	endif
+ifndef OSCONFIG
+OSCONFIG=utils_os.mak
 endif
+include $(OSCONFIG)
+
 ifdef win_utils
 RM = del /Q /F
 RD = rmdir /Q /S
@@ -57,4 +56,3 @@ endef
 #  $(MV) $(1) $(2)
 #endef
 endif
-
