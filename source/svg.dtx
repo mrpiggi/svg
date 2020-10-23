@@ -364,7 +364,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \LaTeX~document. The command \cs{includesvg} is defined which does all 
 % necessary steps for this task. It first launches the export of a SVG~file 
 % to a supported file~format with Inkscape, if necessary, and includes the 
-% exported graphic~file afterwards. The usage and the syntax is quite similiar 
+% exported graphic~file afterwards. The usage and the syntax is quite similar 
 % to the command \cs{includegraphics} from the \pkg{graphicx} package. In fact, 
 % the inclusion of the exported graphic~file is done with \cs{includegraphics}.
 %
@@ -726,7 +726,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % In order to extract to PDF, EPS, or PS~files the programs \file{pstoeps}, 
 % \file{pstopdf} and \file{pdftops} are used which are usually provided by most 
-% of the \LaTeX~distributions. In additon, the command~line~interfaces of 
+% of the \LaTeX~distributions. In addition, the command~line~interfaces of 
 % \app{ImageMagick} and \app{Ghostscript} can be invoked for converting images 
 % in formats like PNG, JPG, TIF or something else. It's also possible to create 
 % PDF, EPS or PS~files with one of the two programs. Therefor the desired 
@@ -1653,7 +1653,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \svg@sanitize@dq\svg@tempa{#2}%
     \expandafter\filename@parse\expandafter{\svg@tempa}%
 % If there are quotes in the file path, the closing one will be found as first 
-% character in \cs{filename@base} as \cs{filename@area} is splitted at the last
+% character in \cs{filename@base} as \cs{filename@area} is split at the last
 % slash. This leading quote is removed from \cs{filename@base} with 
 % \cs{svg@remove@leadingchar}.
 %    \begin{macrocode}
@@ -3504,7 +3504,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \ToDo{replace workaround with simple warning}[MiKTeX]
 % With \app{Inkscape}\,1.0 the additional version information for \app{Pango} 
 % is passed via |stderr| but |stdout| is gobbled, so this can be used to 
-% indetify the version.
+% identify the version.
 %    \begin{macrocode}
 %^^A        \PackageWarning{svg}{%
 %^^A          `\svg@ink@exe\space-V' failed with:\MessageBreak%
@@ -5131,7 +5131,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{parameter}{gsdevice}
 % \begin{parameter}{clean}
 % \begin{parameter}{exclude}
-% The parameters \prm{angle} and \prm{origin} are definied as pendants to the 
+% The parameters \prm{angle} and \prm{origin} are defined as pendants to the 
 % keys provided by \cs{includegraphics}.
 %    \begin{macrocode}
 %<*extract>
@@ -5967,7 +5967,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % if package \pkg{etoolbox} was loaded.
 %
 % The switch \cs{if@svgx@standalone} is defined for enabling classes to 
-% implement a different behavoiur for \pkg{svg-extract} in standalone mode.
+% implement a different behaviour for \pkg{svg-extract} in standalone mode.
 % for example, \TUDScript-classes are using this switch.
 %    \begin{macrocode}
 \newif\if@svgx@standalone
