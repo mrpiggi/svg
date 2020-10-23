@@ -54,6 +54,9 @@ Versions
 + option `clean=nolatex` to preserve auxiliary LaTeX&nbsp;files used during the
   extraction process
 
+**v2.02j** (2020/10/23)
++ bug fix for automatic version detection of ***Inkscape*** with ***MiKTeX***
+
 **v2.02i** (2020/09/29)
 + update for package **scrlfile** v3.32 and kernel (2020/10/01)
 
