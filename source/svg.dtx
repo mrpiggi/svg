@@ -3477,7 +3477,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % found error message to the user.
 %    \begin{macrocode}
     \edef\svg@tempa{%
-      \edef\noexpand\svg@tempa{\noexpand\@@input|"'\svg@ink@exe' -V 2>&1" }%
+      \edef\noexpand\svg@tempa{\noexpand\@@input|"'\svg@ink@exe'\space-V" }%
     }%
     \svg@tempa%
     \trim@spaces@in\svg@tempa%
