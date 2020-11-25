@@ -5,7 +5,7 @@
  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016<br>
  Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-2020
 
- **svg 2020/10/23 v2.02j**
+ **svg 2020/11/26 v2.02k**
  
  The current release is shiped via CTAN: https://www.ctan.org/pkg/svg
 
@@ -40,6 +40,9 @@ can be invoked.
 
 Versions
 --------
+
+**v2.02k** (2020/11/26)
++ ***MiKTeX*** was updated, bug fix removed
 
 **v2.02j** (2020/10/23)
 + bug fix for automatic version detection of ***Inkscape*** with ***MiKTeX***
