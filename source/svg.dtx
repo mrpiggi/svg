@@ -111,7 +111,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %</dtx>
 %<package&identify&main>  {svg}{include SVG pictures}%
 %<package&identify&extract>  {svg-extract}{extract graphics from SVG pictures}%
-  [2020/10/23 v2.02j]%
+  [2020/11/26 v2.02k]%
 \@tempb
 %</dtx|package&identify>
 % \fi
@@ -282,6 +282,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   kernel (2020/10/01)}^^A
 % \changes{v2.02j}{2020/10/23}{bug fix for automatic version detection of
 %   \app{Inkscape} with MiK\TeX}^^A
+% \changes{v2.02k}{2020/11/26}{MiK\TeX was fixed, bug fix removed}^^A
 %
 %
 %
@@ -3462,8 +3463,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %    \end{macrocode}
 % If the switch \cs{if@svg@ink@ver@detect} was set by \cs{svg@ink@ver@detect} 
 % during the evaluation of \cs{svg@ink@settings}, which holds the settings of 
-% the last run. The call of \app{Inkscape} stored in \cs{svg@ink@exe} is done
-% with \cs{@@input\textbar"'\dots'" -V} in order to read from \val{stdout}.
+% the last run, this macro is invoked. The call of \app{Inkscape} stored in 
+% \cs{svg@ink@exe} is done with \cs{@@input\textbar"'\dots' -V" } in order to 
+% read from \val{stdout}.
 %    \begin{macrocode}
 \newcommand*\svg@@ink@ver@detect{%
   \begingroup%
@@ -3472,66 +3474,33 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \everyeof{\noexpand}%
     \svg@quotes@remove{\svg@ink@exe}%
 %    \end{macrocode}
-% Here |stderr| is redirected to |stdout| in order to fetch all information 
-% from \app{Inkscape} (some are passed via |stderr| [sic]) as well as pass any 
-% found error message to the user.
+% Keep in mind, that \app{Inkscape} uses |stderr| [sic] to report the used 
+% version of Pango, but as MiK\TeX{} has been fixed by now, \pkg{svg} does not 
+% have to consider anymore.
 %    \begin{macrocode}
     \edef\svg@tempa{%
-      \edef\noexpand\svg@tempa{\noexpand\@@input|"'\svg@ink@exe' -V 2>&1" }%
+      \edef\noexpand\svg@tempa{\noexpand\@@input|"'\svg@ink@exe' -V " }%
     }%
     \svg@tempa%
     \trim@spaces@in\svg@tempa%
 %    \end{macrocode}
-% \ToDo{remove workaround when fixed}[MiKTeX]
-% The invocation of commands through a pipe is buggy for MiK\TeX{} especially 
-% for Xe\LaTeX{} (\url{https://github.com/MiKTeX/miktex/issues/648}). Either
-% |stdout| or |stderr| if former not present gets swallowed and |stderr| or 
-% \cs{par} is returned\dots
+% The found version is stored in \cs{svg@tempa} and parsed afterwards. 
 %    \begin{macrocode}
-    \def\svg@tempb{\par}%
-    \ifx\svg@tempa\svg@tempb
-      \let\svg@tempa\relax%
-    \fi%
-%    \end{macrocode}
-% The found version is stored in \cs{svg@tempa} and parsed afterwards. Any 
-% other output than the expected format is considered as error message, which 
-% is picked up with |##1|. 
-%    \begin{macrocode}
-    \def\svg@tempb ##1Inkscape ##2.##3\@nil{%
+    \long\def\svg@tempb ##1Inkscape ##2.##3\@nil{%
       \gdef\svg@ink@ver{##2}%
-      \IfArgIsEmpty{##1}{}{%
 %    \end{macrocode}
-% \ToDo{replace workaround with simple warning}[MiKTeX]
-% With \app{Inkscape}\,1.0 the additional version information for \app{Pango} 
-% is passed via |stderr| but |stdout| is gobbled, so this can be used to 
-% identify the version.
+% If no version was detected, a warning is written.
 %    \begin{macrocode}
-%^^A        \PackageWarning{svg}{%
-%^^A          `\svg@ink@exe\space-V' failed with:\MessageBreak%
-%^^A          \detokenize{##1}%
-%^^A        }%
-        \def\svg@tempc ####1Pango version:####2\@nil{%
-          \@svg@tempswafalse%
-          \IfArgIsEmpty{####2}{}{\IfArgIsEmpty{####1}{\@svg@tempswatrue}{}}%
+      \ifnum\svg@ink@ver=\m@ne\relax%
+        \PackageWarning{svg}{%
+          No version of Inkscape was detected by invoking\MessageBreak%
+          `\svg@ink@exe\space-V'\MessageBreak%
+          so the Inkscape export will fail quite sure as the\MessageBreak% 
+          command is probably unknown to your OS. You could set\MessageBreak%
+          `inkscapeversion=<version>' manually but this is very\MessageBreak%
+          unlikely to work%
         }%
-        \svg@tempc ##1 Pango version:\@nil%
-        \if@svg@tempswa%
-          \gdef\svg@ink@ver{1}%
-        \else%
-%    \end{macrocode}
-% No messages can be passed for MiKTeX/XeLaTeX.
-%    \begin{macrocode}
-          \ifx\svg@tempa\relax%
-            \def\svg@tempa{MiKTeX/XeLaTeX did not return an error message}%
-          \else%
-            \def\svg@tempa{##1}%
-          \fi%
-          \PackageWarning{svg}{%
-            `\svg@ink@exe\space-V' failed with:\MessageBreak%
-            \detokenize\expandafter{\svg@tempa}%
-          }%
-        \fi%
-      }%
+      \fi%
     }%
     \expandafter\svg@tempb\svg@tempa Inkscape \m@ne.\@nil%
   \endgroup%
@@ -5562,7 +5531,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
         }%
       \fi%
 %    \end{macrocode}
-% As we are now at the end of the preamble and just before the beginning of the 
+% As this is now the end of the preamble and just before the beginning of the 
 % document, the paper dimension are set again to make sure, that these settings 
 % are active at the end of the preamble. Additionally, it is executed again at 
 % the very end of \cs{AtBeginDocument} to ensure, that no other package used 
