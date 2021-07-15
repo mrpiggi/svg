@@ -12,7 +12,8 @@
 ----------------------------------------------------------------------------
 
  This material is subject to the LaTeX Project Public License version 1.3c
- or later. See http://www.latex-project.org/lppl.txt for details.
+ or later.<br>
+ See http://www.latex-project.org/lppl.txt for details.
 
 ----------------------------------------------------------------------------
 
