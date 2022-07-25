@@ -7,18 +7,18 @@
 %% ----------------------------------------------------------------------------
 %%
 %% Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016
-%% Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-2020
+%% Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-2022
 %%
 %% ----------------------------------------------------------------------------
 %%
-%% This work may be distributed and/or modified under the conditions
-%% of the LaTeX Project Public License, version 1.3c of the license.
-%% The latest version of this license is in
-%%     http://www.latex-project.org/lppl.txt
+%% This work may be distributed and/or modified under the conditions of the
+%% LaTeX Project Public License, either version 1.3c of this license or
+%% any later version. The latest version of this license is in
+%%   http://www.latex-project.org/lppl.txt
 %% and version 1.3c or later is part of all distributions of
-%% LaTeX 2005/12/01 or later and of this work.
+%% LaTeX version 2008-05-04 or later.
 %%
-%% This work has the LPPL maintenance status "author-maintained".
+%% This work has the LPPL maintenance status "maintained".
 %%
 %% The current maintainer and author of this work is Falk Hanisch.
 %%
@@ -75,7 +75,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %
 % \iffalse
 %<*dtx|package&identify>
-\NeedsTeXFormat{LaTeX2e}[2020-02-02]
+\NeedsTeXFormat{LaTeX2e}[2020-10-01]
 %<*dtx>
 \ifx\ProvidesFile\undefined\def\ProvidesFile#1[#2]{}\fi
 %</dtx>
@@ -112,14 +112,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %</dtx>
 %<package&identify&main>  {svg}{include SVG pictures}%
 %<package&identify&extract>  {svg-extract}{extract graphics from SVG pictures}%
-  [2020/11/26 v2.03]%
+  [2022/07/25 v2.03]%
 \@tempb
 %</dtx|package&identify>
 % \fi
 %
 % \iffalse
 %<*dtx>
-\documentclass[english,xindy]{tudscrdoc}[2017/03/27]
+\documentclass[english,xindy]{tudscrdoc}[2022/07/25]
 \usepackage{iftex}[2020/03/06]
 \iftutex
   \usepackage{fontspec}
@@ -127,12 +127,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \usepackage[T1]{fontenc}
 \fi
 \usepackage{babel}
+\KOMAoptions{parskip=half-}
+\usepackage[babel]{microtype}
+
 
 \usepackage{svg}
 \usepackage{svg-extract}
 \svgpath{{./examples/}}
 \svgsetup{extractpreamble=svg-preamble.tex,clean=true}
-
 \usepackage{xpatch}
 \xpretocmd{\svg@process}{\MakePercentComment}{}{%
   \GenericError{}{Patching \string\svg@process{} not successful}{%
@@ -143,42 +145,11 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \pdfsuppresswarningpagegroup=1
 \fi
 
-\usepackage{listings}
-\lstset{%
-  inputencoding=utf8,extendedchars=true,%
-  literate=%
-    {ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1
-    {Ä}{{\"A}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1
-    {ß}{{\ss}}1 {~}{{\textasciitilde}}1
-    {»}{{\guillemetright}}1 {«}{{\guillemetleft}}1
-}
+% normalized vskip for listings etc.
 \newcommand*\svglstbelowskip{\medskipamount}
 \AtBeginDocument{%
   \renewcommand*\svglstbelowskip{\glueexpr\medskipamount-\parskip\relax}%
 }
-\lstdefinestyle{svg}{%
-  basicstyle=\small\ttfamily,%
-  columns=flexible,%
-  frame=single,%
-  backgroundcolor=\color{yellow!10},%
-  xleftmargin=\fboxsep,%
-  xrightmargin=\fboxsep,%
-  gobble=2,%
-  escapechar=§,%
-  belowskip=\svglstbelowskip,%
-}
-\lstnewenvironment{svgexample}[1][]{%
-  \lstset{style=svg,#1}%
-}{}
-\usepackage{enumitem}
-\newlist{DescribeValues}{description}{1}
-\setlist[DescribeValues]{font=\normalfont\val,style=nextline,noitemsep}
-
-\usepackage{subcaption}
-\usepackage{relsize}
-
-\usepackage{bookmark}
-\usepackage[babel]{microtype}
 
 \makeatletter
 \newcommand*\notebox[2][\svglstbelowskip]{%
@@ -194,14 +165,54 @@ svg-extract -- Extract independent graphic files from SVG pictures
 }
 \makeatother
 
+\usepackage{listings}
+\lstset{%
+  inputencoding=utf8,extendedchars=true,%
+  literate=%
+    {ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1
+    {Ä}{{\"A}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1
+    {ß}{{\ss}}1 {~}{{\textasciitilde}}1
+    {»}{{\guillemetright}}1 {«}{{\guillemetleft}}1
+}
+\lstdefinestyle{svg}{%
+  basicstyle=\small\ttfamily,%
+  columns=flexible,%
+  frame=single,%
+  xleftmargin=\fboxsep,%
+  xrightmargin=\fboxsep,%
+  gobble=2,%
+  escapechar=§,%
+  belowskip=\svglstbelowskip,%
+  backgroundcolor=\color{yellow!10},%
+}
+\lstnewenvironment{svgexample}[1][]{%
+  \lstset{style=svg,#1}%
+}{}
+
+\usepackage{enumitem}
+\newlist{DescribeValues}{description}{1}
+\setlist[DescribeValues]{font=\normalfont\val,style=nextline,noitemsep}
+\usepackage{subcaption}
+\usepackage{relsize}
+
+
+%\EnableCrossrefs
+\CodelineIndex
+\RecordChanges
+% TODO update to tudscrdoc v2.07 when available
+\GetFileInfo{svg.dtx}
+
 \begin{document}
   \title{The packages \pkg{svg} and \pkg{svg-extract}}
   \author{%
     Philip Ilten (2012--2016)\\%
-    Falk Hanisch (2017--)\\%
-    \url{https://github.com/mrpiggi/svg}\\%
-    \mailto{hanisch.latex@outlook.com}%
+    Falk Hanisch (2017--)%
   }
+  \MaintainedBy{%
+    \url{https://github.com/mrpiggi/svg}\\%
+    \hfil\clap{\mailto{hanisch.latex@outlook.com}}\hfil%
+  }
+  \date{\fileversion\nobreakspace(\filedate)}
   \maketitle%
   \begin{abstract}
     \noindent
@@ -233,6 +244,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
     }%
   \end{abstract}
   \tableofcontents
+  \ToDo{split in svg.pdf und svg-code.pdf; changelog for both?}[v2.03]
+  \ToDo{get rid of leading \% in first part}[v2.03]
+  \ToDo{remove \cs{svg@Provides})}[v2.04]
   \ToDo{use Travis CI (https://github.com/latex3/latex2e .travis.yml)}[v2.04]
   \ToDo{%
     optionally support restricted write, so \file{-{}-shell-escape} is not 
@@ -257,7 +271,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %^^A}
 %^^A\footest{1a5}
   \ToDo{use \cs{@tempa} instead of \cs{svg@tempa} in FamilyKeys!}[v2.03]
-  \ToDo{use \cs{svg@ifvalueisrelax} for every FamilyKey}[v2.03]
+  \ToDo{%
+    use \cs{svg@ifvalueisrelax} for every FamilyKey; drop it, use ...=! instead
+    \url{https://github.com/latex3/latex2e/issues/393}
+  }[v2.03]
   \ToDo{%
     general note to path and file names (umlauts or any other non-ascii) at the 
     very beginning, mention \pkg{grffile}?%
@@ -267,14 +284,14 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %^^A file~names. Especially when DVI~output is active using quotes will 
 %^^A certainly cause an error. 
   \ToDo{Hint for cropped text}[v2.03]
+  \ToDo{switch to \cls{l3doc}? or provide package \pkg{tudscrdoc}?}[v2.03]
   \ToDo{Use \cs{GitHub...} from \cls{tudscrdoc} for related links}[v2.03]
-  % TODO update to tudscrdoc v2.07
-  \providerobustcmd*\default[1]{\val{\textit{#1}}}
-  \edef\filename{\jobname.dtx}\expandafter\GetFileInfo\expandafter{\filename}%
   \DocInput{\filename}
 \end{document}
 %</dtx>
 % \fi
+%
+% \providerobustcmd*\default[1]{\val{\textit{#1}}}
 %
 % \changes{v1.0}{2004/11/05}{initial version by Philip Ilten}^^A
 % \changes{v2.00}{2016/09/23}{new maintainer: Falk Hanisch}^^A
@@ -679,10 +696,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   \includesvg§\oarg{parameters}\marg{svg~filename}§
 % \end{svgexample}
 %
-% \begin{DescribeParameterParent}{Macro}{\includesvg}^^A
-% \DescribeParameters{inkscape,inkscapeformat,inkscapelatex,inkscapearea,^^A
-%   inkscapedpi,inkscapeopt,svgextension,width,height,distort,scale,^^A
-%   pretex,apptex,draft}^^A
+% \DescribeMacroParameters{\includesvg}{^^A
+%   inkscape,inkscapeformat,inkscapelatex,inkscapearea,inkscapedpi,^^A
+%   inkscapeopt,svgextension,width,height,distort,scale,pretex,apptex,draft}^^A
 % It is used right in the same way but where \meta{svg~filename} is the 
 % file~name of the SVG~file, where any given file~extension will be replaced
 % with \file{.svg} ruthlessly. In order to change the source file format for 
@@ -710,13 +726,13 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % optional parameters specified have an effect only once when \cs{includesvg}
 % is executed and remain unchanged afterwards.
 %
-% \DescribeParameter{lastpage}^^A
+% \DescribeMacroParameters{\includesvg}{lastpage}^^A
 % In addition to the use of boolean values, the parameter \prm{lastpage} can 
 % also be assigned a specific (integer) page number, which defines the last
 % used page of a PDF~graphic. This, just like the identically named option, has 
 % an effect only when \prm{inkscapeformat}|=|\val{pdf} is set.
 %
-% \DescribeParameters{angle,origin}^^A
+% \DescribeMacroParameters{\includesvg}{angle,origin}^^A
 % Both parameters correlate to the identically named parameters of the  
 % \cs{includegraphics} command provided by the \pkg{graphicx} package. However,
 % unlike to \cs{includegraphics}, they \prm{angle} and \prm{origin} are
@@ -724,7 +740,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \prm{scale} by \cs{includesvg}, regardless of the used order of the given
 % parameters. This is mainly due to the inclusion of the \LaTeX~files
 % corresponding to the graphic~files generated by \app{Inkscape}.
-% \end{DescribeParameterParent}
 %
 %
 %
@@ -738,8 +753,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   \includeinkscape§\oarg{parameters}\marg{graphic~filename}§
 % \end{svgexample}
 %
-% \begin{DescribeParameterParent}{Macro}{\includeinkscape}^^A
-% \DescribeParameters{inkscapeformat,inkscapelatex,width,height,distort,^^A
+% \DescribeMacroParameters{\includeinkscape}{^^A
+%   inkscapeformat,inkscapelatex,width,height,distort,^^A
 %   scale,pretex,apptex,draft,lastpage,angle,origin}^^A
 % You can use it similar to \cs{includesvg} but \meta{graphic~filename} has to 
 % be the filename of the already exported graphic~file. If a valid 
@@ -749,7 +764,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % Furthermore, all optional parameters for \cs{includeinkscape} do have the
 % same effect as described before for command \cs{includesvg} once when
 % \cs{includeinkscape} is executed and remain unchanged afterwards.
-% \end{DescribeParameterParent}
 %
 %
 %
@@ -829,47 +843,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 %   \includeinkscape§\oarg{parameters}\marg{graphic~filename}§
 % \end{svgexample}
 % These have an effect only once, when the specific command is executed.
-%^^A \begingroup^^A
-%^^A \newcommand*\parameterlist{}^^A
-%^^A \listadd\parameterlist{extract}^^A
-%^^A \listadd\parameterlist{extractpreamble}^^A
-%^^A \listadd\parameterlist{extractformat}^^A
-%^^A \listadd\parameterlist{extractwidth}^^A
-%^^A \listadd\parameterlist{extractheight}^^A
-%^^A \listadd\parameterlist{extractdistort}^^A
-%^^A \listadd\parameterlist{extractscale}^^A
-%^^A \listadd\parameterlist{extractangle}^^A
-%^^A \listadd\parameterlist{extractpretex}^^A
-%^^A \listadd\parameterlist{extractapptex}^^A
-%^^A \listadd\parameterlist{extractruns}^^A
-%^^A \listadd\parameterlist{latexexe}^^A
-%^^A \listadd\parameterlist{latexopt}^^A
-%^^A \listadd\parameterlist{latexext}^^A
-%^^A \listadd\parameterlist{dvipsopt}^^A
-%^^A \listadd\parameterlist{pstoepsopt}^^A
-%^^A \listadd\parameterlist{pstopdfopt}^^A
-%^^A \listadd\parameterlist{pdftoepsopt}^^A
-%^^A \listadd\parameterlist{pdftopsopt}^^A
-%^^A \listadd\parameterlist{convert}^^A
-%^^A \listadd\parameterlist{convertformat}^^A
-%^^A \listadd\parameterlist{convertdpi}^^A
-%^^A \listadd\parameterlist{magicksetting}^^A
-%^^A \listadd\parameterlist{magickoperator}^^A
-%^^A \listadd\parameterlist{gsopt}^^A
-%^^A \listadd\parameterlist{gsdevice}^^A
-%^^A \listadd\parameterlist{clean}^^A
-%^^A \listadd\parameterlist{exclude}^^A
-%^^A \def\buffer{}\def\do#1{\buffer\prm{#1}\def\buffer{, }}^^A
-%^^A These parameters are: \dolistloop{\parameterlist}.
-%^^A \renewcommand*\marginpar[2][]{}^^A
-%^^A \def\do#1{\DescribeParameter{#1}}^^A
-%^^A \begin{DescribeParameterParent}{Macro}{\includesvg}^^A
-%^^A \dolistloop{\parameterlist}^^A
-%^^A \end{DescribeParameterParent}^^A
-%^^A \begin{DescribeParameterParent}{Macro}{\includeinkscape}^^A
-%^^A \dolistloop{\parameterlist}^^A
-%^^A \end{DescribeParameterParent}^^A
-%^^A \endgroup^^A
 %
 %
 %
@@ -1025,10 +998,10 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \end{svgexample}
 %
 % \DescribeOption{extractruns}^^A
-% When extracting independent graphic~files by compiling the generated auxiliary 
-% \LaTeX~file, it's maybe necessary to do multiple \LaTeX~iterations on this. 
-% The number of iterations is controlled with option \opt{extractruns}. It is 
-% set to \opt{extractruns}|=|\val{2} by default.
+% When extracting independent graphic~files by compiling the generated 
+% auxiliary \LaTeX~file, it's maybe necessary to do multiple \LaTeX~iterations
+% on this. The number of iterations is controlled by option \opt{extractruns}. 
+% It is set to \opt{extractruns}|=|\val{2} by default.
 %
 % \DescribeOptions{latexexe,latexopt,latexext}^^A
 % For the extraction of an independent graphic~file, the \LaTeX~program is used
@@ -1076,11 +1049,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % sufficient to load package \pkg{svg-extract} and afterwards everything 
 % necessary is done by just using \cs{includesvg} or \cs{includeinkscape}.
 %
-% \begin{DescribeParameterParent}{Macro}{\includesvg}^^A
-% \DescribeParameter{extractangle}^^A
-% \begin{DescribeParameterParent}{Macro}{\includeinkscape}^^A
-% \renewcommand*\marginpar[2][]{}^^A
-% \DescribeParameter{extractangle}^^A
+% \DescribeMacroParameters{\includesvg,\includeinkscape}{extractangle}^^A
 % \changes{v2.02}{2018/09/07}{parameter \prm{extractangle} for \cs{includesvg}
 %   and \cs{includeinkscape} implemented in order to rotate graphics during 
 %   extractions}^^A
@@ -1090,8 +1059,6 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{svgexample}
 %   \includesvg[angle=§\meta{angle}§,extractangle=inherit]§\marg{svg~filename}§
 % \end{svgexample}
-% \end{DescribeParameterParent}
-% \end{DescribeParameterParent}
 %
 %
 %
@@ -1457,11 +1424,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % converts this to a PNG~image~(\file{root.png}) by using \app{ImageMagick}.
 % Enjoy plots from \app{ROOT} with natively rendered \LaTeX{}!
 %
-% \StopEventually{^^A
-%   \cleardoublepage\PrintIndex^^A
-%   \cleardoublepage\PrintChanges^^A
-%   \cleardoublepage\PrintToDos^^A
-% }
+% \MaybeStop{\PrintBackMatter*}
 %
 % \iffalse
 %<*package&base>
@@ -2061,8 +2024,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
     \fi%
     \svg@quotes@normalize{\filename@base}%
 %    \end{macrocode}
-% With \cs{svg@tempa} the group is closed and the results are saved in the
-% macros \cs{filename@\dots}.
+% With \cs{svg@tempa} the group is closed and the results are saved in
+% \cs{filename@area}, \cs{filename@base} and \cs{filename@ext}.
 %    \begin{macrocode}
     \edef\svg@tempa{%
       \endgroup%
@@ -2081,7 +2044,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % \begin{macro}{\svg@extension@parse}
 % \changes{v2.02}{2018/09/07}{new}^^A
 % This macro is used to permit multiple dots in file names. The content of 
-% \cs{filename@ext} is split at each occurrence of \val{.} and the trailing part 
+% \cs{filename@ext} is split at each occurrence of |.| and the trailing part 
 % is compared against the content of the argument of \cs{svg@extension@parse}, 
 % which is probably \cs{svg@file@ext}. If they are equal, the previous part is 
 % appended to \cs{filename@base} and \cs{filename@ext} is set to the content of 
@@ -2588,6 +2551,24 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % an \emph{invalid} check relying on internal commands of package \pkg{pgfsys},
 % whereas these have changed in the latest version.^^A
 % \footnote{\url{https://github.com/ho-tex/transparent/issues/3}}
+% \ToDo{l3opacity comes with support for opacity, maybe try this}
+%^^A  \cs_set_protected:Npn \test:n #1
+%^^A    {
+%^^A      \hbox_set:Nn \l_tmpa_box
+%^^A        {
+%^^A          \group_begin:
+%^^A            #1
+%^^A            Hello
+%^^A          \group_end:
+%^^A        }
+%^^A        \box_use:N \l_tmpa_box
+%^^A    }
+%^^A    \clist_map_inline:nn { 0.1 , 0.5 , 0.2 , 0.9 }
+%^^A      {
+%^^A%        \test:n { \opacity_select:n {#1} }
+%^^A%        \test:n { \opacity_fill:n {#1} }
+%^^A%        \test:n { \opacity_stroke:n {#1} }
+%^^A      }
 %    \begin{macrocode}
   \AfterPackage*{transparent}{%
     \ifcsname Gin@driver\endcsname%
@@ -2947,7 +2928,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \ifx\svg@ink@dpi\relax\else--export-dpi=\svg@ink@dpi\space\fi%
   \if@svg@ink@latex--export-latex\space\fi%
   \ifx\svg@ink@opt\@empty\else\svg@ink@opt\space\fi%
-  \ifcase\svg@ink@ver\relax% 0.x detected
+  \ifcase\svg@ink@ver% 0.x detected
     --without-gui\space%
     --export-#3="#2"\space%
   \else% 1.x or nothing detected
@@ -3367,7 +3348,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % The macro \cs{svgsetup} can be used to change options after loading the 
 % package \pkg{svg} both in preamble and the document body. For compatibility 
 % reasons, \cs{setsvg} is also defined.
-% \ToDo{replace \cs{FamilyOptions\{SVG\}} with \cs{svgsetup}}[v2.03]
+% \ToDo{replace \cs{FamilyOptions}|{SVG}| with \cs{svgsetup}}[v2.03]
 %    \begin{macrocode}
 \newcommand*\svgsetup{\FamilyOptions{SVG}}
 \newcommand*\setsvg{\FamilyOptions{SVG}}
@@ -4044,7 +4025,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % This macro is used to generate a specific warning with some hints for 
 % troubleshooting, if probably something during the invocation of an external
 % programm went wrong and so the process of exporting/extracting/conversion 
-% was not finished sucessfully.
+% was not finished successfully.
 %    \begin{macrocode}
 \newcommand*\svg@troubleshooting[4]{%
   \PackageWarning{#1}{%
@@ -4151,8 +4132,8 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % If the switch \cs{if@svg@ink@ver@detect} was set by \cs{svg@ink@ver@detect} 
 % during the evaluation of \cs{svg@ink@settings}, which holds the settings of 
 % the last run, this macro is invoked. The call of \app{Inkscape} stored in 
-% \cs{svg@ink@exe} is done with \cs{@@input\textbar"'\dots' -V" } in order to 
-% read from \val{stdout}.
+% \cs{svg@ink@exe} is done with \verb+\@@input|"'...' -V"+ in order to read
+% from \val{stdout}.
 %    \begin{macrocode}
 \newcommand*\svg@ink@ver@@detect{%
   \begingroup%
@@ -4186,6 +4167,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
           `inkscapeversion=<version>' manually but this is very\MessageBreak%
           unlikely to work%
           }%
+%    \end{macrocode}
+% \ToDo{log found version}[v2.03]
+%    \begin{macrocode}
         \fi%
       }%
     \expandafter\svg@tempb\svg@tempa Inkscape \m@ne.\@nil%

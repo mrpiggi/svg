@@ -3,7 +3,7 @@
 ----------------------------------------------------------------------------
 
  Copyright (C) Philip Ilten <philten@cern.ch>, 2012-2016<br>
- Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-2020
+ Copyright (C) Falk Hanisch <hanisch.latex@outlook.com>, 2017-2022
 
  **svg 2020/xx/xx v2.03**
  
@@ -12,7 +12,8 @@
 ----------------------------------------------------------------------------
 
  This material is subject to the LaTeX Project Public License version 1.3c
- or later. See http://www.latex-project.org/lppl.txt for details.
+ or later.<br>
+ See http://www.latex-project.org/lppl.txt for details.
 
 ----------------------------------------------------------------------------
 

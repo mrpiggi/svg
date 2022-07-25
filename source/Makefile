@@ -33,10 +33,10 @@ CTAN_DIR    := $(RLS_DIR)CTAN/
 # TDS folders
 TDS_SUFFIX := latex/$(PACKAGE)/
 TDS_DOC_DIR := doc/$(TDS_SUFFIX)
+TDS_TEX_DIR := tex/$(TDS_SUFFIX)
 TDS_SRC_DIR := source/$(TDS_SUFFIX)
 TDS_EXM_DIR := source/$(TDS_SUFFIX)examples/
-TDS_TEX_DIR := tex/$(TDS_SUFFIX)
-TDS_DIRS    := $(TDS_DOC_DIR) $(TDS_SRC_DIR) $(TDS_EXM_DIR) $(TDS_TEX_DIR)
+TDS_DIRS    := $(TDS_DOC_DIR) $(TDS_TEX_DIR) $(TDS_SRC_DIR) $(TDS_EXM_DIR)
 # installation folder
 TEXMF_HOME  := $(shell kpsewhich --var-value=TEXMFHOME)/
 

@@ -19,6 +19,7 @@ temp/
 *.glo
 *.gls
 *.glsdefs
+*.hd
 *.idx
 *.ilg
 *.ind
@@ -38,8 +39,7 @@ temp/
 *.sls
 *.snm
 *.sty
-*.synctex(busy)
-*.synctex.gz*
+*.synctex*
 *.tdo
 *.toc
 *.tut
