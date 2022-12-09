@@ -136,7 +136,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 \svgpath{{./examples/}}
 \svgsetup{extractpreamble=svg-preamble.tex,clean=true}
 \usepackage{xpatch}
-\xpretocmd{\svg@process}{\MakePercentComment}{}{%
+\xpretocmd\svg@process{\MakePercentComment}{}{%
   \GenericError{}{Patching \string\svg@process{} not successful}{%
     see `\jobname.dtx' on input line \the\numexpr\inputlineno-4\relax%
   }{}%
@@ -251,6 +251,9 @@ svg-extract -- Extract independent graphic files from SVG pictures
   \ToDo{%
     optionally support restricted write, so \file{-{}-shell-escape} is not 
     necessary; redirect and check \file{stderr}%
+  }[v2.03]
+  \ToDo{%
+    optionally support \app{make} by generating an appropriate script%
   }[v2.03]
   \ToDo{check/collect versions of Inkscape/ImageMagick/Ghostscript once}[v2.03]
   \ToDo{use \cs{GitHubRepo}}[v2.03]
@@ -4736,6 +4739,7 @@ svg-extract -- Extract independent graphic files from SVG pictures
 % If package \pkg{svg-extract} wasn't loaded, the following options are defined 
 % for package \pkg{svg} in order to raise a warning message. Primarily this is 
 % done for compatibility reasons.
+% \ToDo{refactor: \url{https://tex.stackexchange.com/q/667868}}[v2.03]
 %    \begin{macrocode}
 %<*main>
 \DefineFamilyMember[.dummy]{SVG}
